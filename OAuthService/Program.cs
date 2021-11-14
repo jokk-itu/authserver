@@ -1,0 +1,77 @@
+using System.Text;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using OAuthService;
+
+var builder = WebApplication.CreateBuilder(args);
+
+//CONFIGURE SERVICE CONTAINER
+var services = builder.Services;
+services.AddControllers();
+
+services.AddApiVersioning(config => { config.ReportApiVersions = true; });
+services.AddVersionedApiExplorer(config =>
+{
+    config.GroupNameFormat = "'v'VVV";
+    config.SubstituteApiVersionInUrl = true;
+});
+
+services.Configure<AuthenticationConfiguration>(builder.Configuration.GetSection("Identity"));
+
+services.AddAuthentication("OAuth")
+    .AddJwtBearer("OAuth", config =>
+    {
+        config.IncludeErrorDetails = false; //PRODUCTION READY
+        config.RequireHttpsMetadata = false; //DEVELOP READY
+        config.TokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidateAudience = true,
+            ValidateIssuer = true,
+            IgnoreTrailingSlashWhenValidatingAudience = true,
+            IssuerSigningKey =
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Identity:Secret"])),
+            ValidIssuer = builder.Configuration["Identity:Issuer"],
+            ValidAudience = builder.Configuration["Identity:Audience"]
+        };
+        config.Validate();
+    });
+
+services.AddDbContext<IdentityContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer"),
+        optionsBuilder => { optionsBuilder.EnableRetryOnFailure(10, TimeSpan.FromSeconds(2), null); });
+});
+
+services.AddScoped<IdentityContext>();
+
+services.AddIdentityCore<IdentityUser>()
+    .AddRoles<IdentityRole>()
+    .AddDefaultTokenProviders()
+    .AddEntityFrameworkStores<IdentityContext>();
+
+services.AddAuthorization(config => { });
+
+services.AddEndpointsApiExplorer();
+services.AddSwaggerGen();
+
+var app = builder.Build();
+
+
+//CONFIGURE PIPELINE
+if (app.Environment.IsDevelopment())
+    app.UseDeveloperExceptionPage();
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+
+//MAIN METHOD
+app.Run();
