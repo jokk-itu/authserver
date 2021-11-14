@@ -1,4 +1,6 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
+using OAuthService.Entities;
 
 namespace OAuthService.Repositories;
 
@@ -11,11 +13,16 @@ public class ClientManager
         _context = context;
     }
 
-    public async Task<bool> IsValidClient(string clientId, string? clientSecret = null)
+    public async Task<IdentityClient?> FindClientByIdAsync(
+        [Required(AllowEmptyStrings = false)] string clientId)
     {
-        if (string.IsNullOrEmpty(clientId))
-            throw new ArgumentException("ClientId is empty or null", nameof(clientId));
+        return await _context.Clients.FindAsync(clientId);
+    }
 
+    public async Task<bool> IsValidClientAsync(
+        [Required(AllowEmptyStrings = false)] string clientId, 
+        string? clientSecret = null)
+    {
         if (clientSecret is not null && clientSecret.Equals(string.Empty))
             throw new ArgumentException("ClientSecret must not be empty", nameof(clientSecret));
 
@@ -27,11 +34,10 @@ public class ClientManager
         return client is not null;
     }
 
-    public async Task<bool> IsValidScopes(string clientId, ICollection<string> scopes)
+    public async Task<bool> IsValidScopesAsync(
+        [Required(AllowEmptyStrings = false)] string clientId, 
+        ICollection<string> scopes)
     {
-        if (string.IsNullOrEmpty(clientId))
-            throw new ArgumentException("ClientId is null or empty", nameof(clientId));
-
         if (scopes is null)
             throw new ArgumentNullException(nameof(scopes));
 
@@ -50,11 +56,10 @@ public class ClientManager
         return isValid;
     }
     
-    public async Task<bool> IsValidGrants(string clientId, ICollection<string> grants)
+    public async Task<bool> IsValidGrantsAsync(
+        [Required(AllowEmptyStrings = false)] string clientId, 
+        ICollection<string> grants)
     {
-        if (string.IsNullOrEmpty(clientId))
-            throw new ArgumentException("ClientId is null or empty", nameof(clientId));
-
         if (grants is null)
             throw new ArgumentNullException(nameof(grants));
 
@@ -73,10 +78,10 @@ public class ClientManager
         return isValid;
     }
     
-    public async Task<bool> IsValidRedirectUris(string clientId, ICollection<string> redirectUris)
+    public async Task<bool> IsValidRedirectUrisAsync(
+        [Required(AllowEmptyStrings = false)] string clientId, 
+        ICollection<string> redirectUris)
     {
-        if (string.IsNullOrEmpty(clientId))
-            throw new ArgumentException("ClientId is null or empty", nameof(clientId));
 
         if (redirectUris is null)
             throw new ArgumentNullException(nameof(redirectUris));
@@ -94,5 +99,19 @@ public class ClientManager
         }
 
         return isValid;
+    }
+
+    public async Task SetTokenAsync(
+        [Required(AllowEmptyStrings = false)] string clientId, 
+        [Required(AllowEmptyStrings = false)] string tokenName, 
+        [Required(AllowEmptyStrings = false)] string tokenValue)
+    {
+        await _context.ClientTokens.AddAsync(new IdentityClientToken<string>
+        {
+            ClientId = clientId,
+            Name = tokenName,
+            Value = tokenValue
+        });
+        await _context.SaveChangesAsync();
     }
 }

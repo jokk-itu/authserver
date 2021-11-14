@@ -39,6 +39,8 @@ namespace OAuthService.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     SecretHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ClientType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ClientProfile = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
@@ -56,6 +58,19 @@ namespace OAuthService.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetClientScopes", x => new { x.Name, x.ClientId });
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetClientTokens",
+                columns: table => new
+                {
+                    ClientId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetClientTokens", x => new { x.ClientId, x.Value });
                 });
 
             migrationBuilder.CreateTable(
@@ -230,33 +245,33 @@ namespace OAuthService.Migrations
 
             migrationBuilder.InsertData(
                 table: "AspNetClients",
-                columns: new[] { "Id", "ConcurrencyStamp", "SecretHash" },
-                values: new object[] { "test", "94c62a86-d5c9-49e8-976e-15d84fe01be3", "2BB80D537B1DA3E38BD30361AA855686BDE0EACD7162FEF6A25FE97BF527A25B" });
+                columns: new[] { "Id", "ClientProfile", "ClientType", "ConcurrencyStamp", "SecretHash" },
+                values: new object[] { "test", "web application", "confidential", "f5280624-0d24-4655-8f68-4d1482ebae28", "2BB80D537B1DA3E38BD30361AA855686BDE0EACD7162FEF6A25FE97BF527A25B" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "d12c7c63-c32a-4e0d-9558-b3f633bde968", "0e74d7f4-0818-4c71-8cce-cac6aae102b3", "Admin", null });
+                values: new object[] { "b617c4b9-e266-4a4e-b547-9931688c4921", "c8dfd54d-1bea-491c-83a5-7d068e8c87d8", "Admin", null });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "edfb26f2-96e5-442c-958e-199bf040af6a", 0, "dade26e5-a71e-425d-928c-724236a53583", "joachim@kelsen.nu", true, false, null, "JOACHIM@KELSEN.NU", "JOKK", null, null, false, "71fb3016-c68f-4a52-a1fd-af7f56bf3caf", false, "jokk" });
+                values: new object[] { "f95b3d8b-1211-4da8-a924-00eb05265ffd", 0, "c25230cf-a088-4c7e-a0e2-252cdd89ff9d", "joachim@kelsen.nu", true, false, null, "JOACHIM@KELSEN.NU", "JOKK", null, null, false, "aff9ebe7-654a-4a5d-9be4-713d1af1dbee", false, "jokk" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserClaims",
                 columns: new[] { "Id", "ClaimType", "ClaimValue", "UserId" },
                 values: new object[,]
                 {
-                    { 1, "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name", "Joachim", "edfb26f2-96e5-442c-958e-199bf040af6a" },
-                    { 2, "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/country", "Denmark", "edfb26f2-96e5-442c-958e-199bf040af6a" },
-                    { 3, "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname", "Kelsen", "edfb26f2-96e5-442c-958e-199bf040af6a" }
+                    { 1, "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name", "Joachim", "f95b3d8b-1211-4da8-a924-00eb05265ffd" },
+                    { 2, "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/country", "Denmark", "f95b3d8b-1211-4da8-a924-00eb05265ffd" },
+                    { 3, "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname", "Kelsen", "f95b3d8b-1211-4da8-a924-00eb05265ffd" }
                 });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
                 columns: new[] { "RoleId", "UserId" },
-                values: new object[] { "d12c7c63-c32a-4e0d-9558-b3f633bde968", "edfb26f2-96e5-442c-958e-199bf040af6a" });
+                values: new object[] { "b617c4b9-e266-4a4e-b547-9931688c4921", "f95b3d8b-1211-4da8-a924-00eb05265ffd" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -311,6 +326,9 @@ namespace OAuthService.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetClientScopes");
+
+            migrationBuilder.DropTable(
+                name: "AspNetClientTokens");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");

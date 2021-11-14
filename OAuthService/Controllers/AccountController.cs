@@ -1,8 +1,6 @@
-using System.Text;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using OAuthService.Requests;
 
 namespace OAuthService.Controllers;
 
@@ -20,33 +18,18 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost]
-    [Route("login")]
-    public async Task<IActionResult> Login()
-    {
-        var jokk = await _manager.Users.Where(u => u.UserName.Equals("jokk")).SingleAsync();
-        //await _manager.AddPasswordAsync(jokk, "Kelsen_1");
-        var token = await _manager.GenerateUserTokenAsync(jokk, "AccessTokenProvider", "access_token");
-        await _manager.SetAuthenticationTokenAsync(jokk, "AuthService", "access_token", token);
-        var got = await _manager.GetAuthenticationTokenAsync(jokk, "AuthService", "access_token");
-        await _manager.RemoveAuthenticationTokenAsync(jokk, "AuthService", "access_token");
-        
-        await Task.Delay(500);
-        return Ok();
-    }
-
-    [HttpPost]
     [Route("register")]
-    public async Task<IActionResult> Register()
+    public async Task<IActionResult> Register(
+        [FromBody] RegisterUserRequest request)
     {
-        await Task.Delay(500);
-        return Ok();
-    }
-
-    [HttpGet]
-    [Route("logout")]
-    public async Task<IActionResult> Logout()
-    {
-        await Task.Delay(500);
+        await _manager.CreateAsync(new IdentityUser
+        {
+            UserName = request.Username,
+            NormalizedUserName = request.Username.ToUpper(),
+            Email = request.Email,
+            NormalizedEmail = request.Email.ToUpper(),
+            PhoneNumber = request.PhoneNumber
+        }, request.Password);
         return Ok();
     }
 }

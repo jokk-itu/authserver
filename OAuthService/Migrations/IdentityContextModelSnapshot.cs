@@ -51,8 +51,8 @@ namespace OAuthService.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "d12c7c63-c32a-4e0d-9558-b3f633bde968",
-                            ConcurrencyStamp = "0e74d7f4-0818-4c71-8cce-cac6aae102b3",
+                            Id = "b617c4b9-e266-4a4e-b547-9931688c4921",
+                            ConcurrencyStamp = "c8dfd54d-1bea-491c-83a5-7d068e8c87d8",
                             Name = "Admin"
                         });
                 });
@@ -149,16 +149,16 @@ namespace OAuthService.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "edfb26f2-96e5-442c-958e-199bf040af6a",
+                            Id = "f95b3d8b-1211-4da8-a924-00eb05265ffd",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "dade26e5-a71e-425d-928c-724236a53583",
+                            ConcurrencyStamp = "c25230cf-a088-4c7e-a0e2-252cdd89ff9d",
                             Email = "joachim@kelsen.nu",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "JOACHIM@KELSEN.NU",
                             NormalizedUserName = "JOKK",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "71fb3016-c68f-4a52-a1fd-af7f56bf3caf",
+                            SecurityStamp = "aff9ebe7-654a-4a5d-9be4-713d1af1dbee",
                             TwoFactorEnabled = false,
                             UserName = "jokk"
                         });
@@ -194,21 +194,21 @@ namespace OAuthService.Migrations
                             Id = 1,
                             ClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
                             ClaimValue = "Joachim",
-                            UserId = "edfb26f2-96e5-442c-958e-199bf040af6a"
+                            UserId = "f95b3d8b-1211-4da8-a924-00eb05265ffd"
                         },
                         new
                         {
                             Id = 3,
                             ClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname",
                             ClaimValue = "Kelsen",
-                            UserId = "edfb26f2-96e5-442c-958e-199bf040af6a"
+                            UserId = "f95b3d8b-1211-4da8-a924-00eb05265ffd"
                         },
                         new
                         {
                             Id = 2,
                             ClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/country",
                             ClaimValue = "Denmark",
-                            UserId = "edfb26f2-96e5-442c-958e-199bf040af6a"
+                            UserId = "f95b3d8b-1211-4da8-a924-00eb05265ffd"
                         });
                 });
 
@@ -251,8 +251,8 @@ namespace OAuthService.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "edfb26f2-96e5-442c-958e-199bf040af6a",
-                            RoleId = "d12c7c63-c32a-4e0d-9558-b3f633bde968"
+                            UserId = "f95b3d8b-1211-4da8-a924-00eb05265ffd",
+                            RoleId = "b617c4b9-e266-4a4e-b547-9931688c4921"
                         });
                 });
 
@@ -280,6 +280,14 @@ namespace OAuthService.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("ClientProfile")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClientType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .IsRequired()
@@ -297,7 +305,9 @@ namespace OAuthService.Migrations
                         new
                         {
                             Id = "test",
-                            ConcurrencyStamp = "94c62a86-d5c9-49e8-976e-15d84fe01be3",
+                            ClientProfile = "web application",
+                            ClientType = "confidential",
+                            ConcurrencyStamp = "f5280624-0d24-4655-8f68-4d1482ebae28",
                             SecretHash = "2BB80D537B1DA3E38BD30361AA855686BDE0EACD7162FEF6A25FE97BF527A25B"
                         });
                 });
@@ -380,6 +390,23 @@ namespace OAuthService.Migrations
                             Name = "openid",
                             ClientId = "test"
                         });
+                });
+
+            modelBuilder.Entity("OAuthService.Entities.IdentityClientToken<string>", b =>
+                {
+                    b.Property<string>("ClientId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ClientId", "Value");
+
+                    b.ToTable("AspNetClientTokens", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -75,7 +75,9 @@ public class IdentityContext : IdentityDbContext
         var client = new IdentityClient
         {
             Id = "test",
-            SecretHash = "secret".Sha256()
+            SecretHash = "secret".Sha256(),
+            ClientType = "confidential", //Or public
+            ClientProfile = "web application" //or user-agent based application or native application
         };
         builder.Entity<IdentityClient>().HasData(client);
 
@@ -133,7 +135,8 @@ public class IdentityContext : IdentityDbContext
             EmailConfirmed = true,
             NormalizedEmail = "JOACHIM@KELSEN.NU",
             UserName = "jokk",
-            NormalizedUserName = "JOKK"
+            NormalizedUserName = "JOKK",
+            PasswordHash = "AQAAAAEAACcQAAAAEFMW5niPedf+IVi6y19LebxNfOCG94dWmGjeXPhibGmz9SO8BuMTH+le43cb2iDzFA=="
         };
         builder.Entity<IdentityUser>()
             .HasData(jokk);

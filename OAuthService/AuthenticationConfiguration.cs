@@ -7,8 +7,6 @@ public record AuthenticationConfiguration
     public string Issuer { get; init; }
 
     public string TokenSecret { get; init; }
-    
-    public string CodeSecret { get; init; }
 
     //Seconds
     public int AccessTokenExpiration { get; init; }
@@ -17,8 +15,8 @@ public record AuthenticationConfiguration
     public int RefreshTokenExpiration { get; init; }
 
     //Seconds
-    public int IdTokenExpiration { get; set; }
+    public int IdTokenExpiration { get; init; }
 
     //Seconds
-    public int AuthorizationCodeTokenExpiration { get; set; }
+    public int AuthorizationCodeTokenExpiration { get; init; }
 }

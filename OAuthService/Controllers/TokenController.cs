@@ -1,8 +1,8 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using OAuthService.Repositories;
 using OAuthService.Requests;
@@ -16,18 +16,24 @@ namespace OAuthService.Controllers;
 [Route("oauth2/v{version:apiVersion}/[controller]")]
 public class TokenController : ControllerBase
 {
-    private readonly AuthenticationConfiguration _configuration;
+    private readonly IOptions<AuthenticationConfiguration> _configuration;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly ClientManager _clientManager;
+    private readonly TokenValidationParameters _tokenValidationParameters;
+    private readonly IDataProtector _protector;
 
     public TokenController(
-        AuthenticationConfiguration configuration,
+        IOptions<AuthenticationConfiguration> configuration,
         UserManager<IdentityUser> userManager,
-        ClientManager clientManager)
+        ClientManager clientManager,
+        IDataProtectionProvider protectorProvider,
+        TokenValidationParameters tokenValidationParameters)
     {
         _configuration = configuration;
         _userManager = userManager;
         _clientManager = clientManager;
+        _tokenValidationParameters = tokenValidationParameters;
+        _protector = protectorProvider.CreateProtector("authorization_code");
     }
 
     [HttpPost]
@@ -52,14 +58,14 @@ public class TokenController : ControllerBase
         if (string.IsNullOrEmpty(state))
             return BadRequest("state must be set");
 
-        if (!await _clientManager.IsValidClient(client_id))
+        if (!await _clientManager.IsValidClientAsync(client_id))
             return BadRequest("client_id does not exist");
 
         var scopes = scope.Split(' ');
-        if (!await _clientManager.IsValidScopes(client_id, scopes))
+        if (!await _clientManager.IsValidScopesAsync(client_id, scopes))
             return BadRequest("scopes are not valid for this client_id");
 
-        if (!await _clientManager.IsValidRedirectUris(client_id, new[] { redirect_uri }))
+        if (!await _clientManager.IsValidRedirectUrisAsync(client_id, new[] { redirect_uri }))
             return BadRequest("redirect_uri is not valid for this client_id");
 
         var responseTypes = response_type.Split(' ');
@@ -67,77 +73,69 @@ public class TokenController : ControllerBase
             return BadRequest("response_type must contain code");
 
         var user = await _userManager.FindByNameAsync(request.Username);
-        if (user is null)
+        if (user?.PasswordHash is null)
             return BadRequest("user information was wrong");
         var isCorrectPassword = _userManager.PasswordHasher
             .VerifyHashedPassword(user, user.PasswordHash, request.Password);
-        if (isCorrectPassword == PasswordVerificationResult.Failed)
-            return BadRequest("user information was wrong");
-        if (isCorrectPassword == PasswordVerificationResult.SuccessRehashNeeded)
+        switch (isCorrectPassword)
         {
-            user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, request.Password);
-            await _userManager.UpdateAsync(user);
+            case PasswordVerificationResult.Failed:
+                return BadRequest("user information was wrong");
+            case PasswordVerificationResult.SuccessRehashNeeded:
+                user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, request.Password);
+                var result = await _userManager.UpdateAsync(user); //TODO VALIDATE RESULT
+                break;
         }
 
-        var codeFactory = new AuthorizationCodeTokenFactory(_configuration);
-        var code = codeFactory.CreateToken(scopes, redirect_uri, client_id);
+        var codeFactory = new AuthorizationCodeTokenFactory(_configuration.Value, _protector);
+        var code = await codeFactory.GenerateTokenAsync(redirect_uri, scopes, client_id);
+        await _clientManager.SetTokenAsync(client_id, "authorization_code", code);
         return Redirect($"{redirect_uri}?code={code}&state={state}");
     }
-
-    //Get access token from refresh token
-    [HttpGet]
+    
+    [HttpPost]
     [Route("token")]
     public async Task<IActionResult> Token(
-        [FromQuery] string grant_type, //flow of access_token request
-        [FromQuery] string code, //confirmation of authentication request
-        [FromQuery] string redirect_uri,
-        [FromQuery] string client_id,
-        [FromQuery] string? refresh_token,
-        [FromQuery] string? scope)
+        [FromBody] AuthorizationCodeTokenRequest request,
+        [FromHeader(Name = "Authorization")] string authorization)
     {
-        //Authenticate the client by the Authorization header (Basic)
-        //Validate the code, since we issued it!!!
-        //Validate the refresh token
-        //Validate client_id
-        //Validate that scope does not contain new scopes (if refreshing)
-        //Validate the redirect_uri
+        var authorizationHeader = HttpContext.Request.Headers.Authorization
+            .ToString()
+            .Split(' ');
+        
+        if (authorizationHeader.Length != 2 || !authorizationHeader[0].Equals("Basic"))
+            return BadRequest("authorization header must be Basic and contain client_id");
+        
+        var basicAuthorization = Encoding.UTF8.GetString(Convert.FromBase64String(authorizationHeader[1])).Split(':');
+        var clientId = basicAuthorization[0];
+        var clientSecret = basicAuthorization[1];
+        var client = await _clientManager.FindClientByIdAsync(clientId);
+        if (client is null)
+            return BadRequest("client_id does not exist");
 
-        var claims = new[]
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, "some_id"),
-            new Claim(JwtRegisteredClaimNames.Aud, _configuration.Audience),
-            new Claim(JwtRegisteredClaimNames.Iss, _configuration.Issuer)
-        };
+        if (!await _clientManager.IsValidGrantsAsync(clientId, new[] { request.grant_type }))
+            return BadRequest("grant_type is not valid for client");
 
-        //Access token
-        var accessSecret = _configuration.TokenSecret;
-        var accessKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(accessSecret));
-        var accessSigningCredentials = new SigningCredentials(accessKey, SecurityAlgorithms.HmacSha256);
-        var accessSecurityToken = new JwtSecurityToken(
-            claims: claims,
-            notBefore: DateTime.Now,
-            expires: DateTime.Now.AddSeconds(_configuration.AccessTokenExpiration),
-            signingCredentials: accessSigningCredentials);
-        var accessToken = new JwtSecurityTokenHandler().WriteToken(accessSecurityToken);
+        if (!await _clientManager.IsValidRedirectUrisAsync(clientId, new[] { request.redirect_uri }))
+            return BadRequest("redirect_uri is not valid for client");
 
-        //Refresh token
-        var refreshSecret = _configuration.TokenSecret;
-        var refreshKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(refreshSecret));
-        var refreshSigningCredentials = new SigningCredentials(refreshKey, SecurityAlgorithms.HmacSha256);
-        var refreshSecurityToken = new JwtSecurityToken(
-            claims: claims,
-            notBefore: DateTime.Now,
-            expires: DateTime.Now.AddDays(_configuration.RefreshTokenExpiration),
-            signingCredentials: refreshSigningCredentials);
-        var refreshToken = new JwtSecurityTokenHandler().WriteToken(refreshSecurityToken);
+        var codeFactory = new AuthorizationCodeTokenFactory(_configuration.Value, _protector);
+        if (!await codeFactory.ValidateAsync(request.grant_type, request.code, request.redirect_uri, clientId))
+            return BadRequest("authorization code is not valid");
+
+        var decodedCode = await codeFactory.DecodeTokenAsync(request.code);
+        var accessToken = await new AccessTokenFactory(_configuration.Value, _tokenValidationParameters)
+            .GenerateTokenAsync(clientId, request.redirect_uri, decodedCode.Scopes);
+        var refreshToken = await new RefreshTokenFactory(_configuration.Value, _tokenValidationParameters)
+            .GenerateTokenAsync(clientId, request.redirect_uri, decodedCode.Scopes);
 
         await HttpContext.Response.WriteAsJsonAsync(new
         {
             access_token = accessToken,
+            refresh_token = refreshToken,
             token_type = "Bearer",
-            expires_in = _configuration.AccessTokenExpiration,
-            refresh_token = refreshToken
+            expires_in = _configuration.Value.AccessTokenExpiration
         });
-        return Redirect(redirect_uri);
+        return Redirect(request.redirect_uri);
     }
 }
