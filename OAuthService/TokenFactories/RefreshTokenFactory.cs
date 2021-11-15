@@ -29,6 +29,7 @@ public class RefreshTokenFactory
             new Claim(JwtRegisteredClaimNames.Iat, iat.ToString()),
             new Claim(JwtRegisteredClaimNames.Exp, exp.ToString()),
             new Claim(JwtRegisteredClaimNames.Nbf, iat.ToString()),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim("scope", scopes.Aggregate((elem, acc) => $"{acc} {elem}")),
             new Claim("client_id", clientId)
         };

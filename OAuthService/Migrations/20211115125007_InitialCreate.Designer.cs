@@ -12,7 +12,7 @@ using OAuthService;
 namespace OAuthService.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20211114144825_InitialCreate")]
+    [Migration("20211115125007_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -53,8 +53,8 @@ namespace OAuthService.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "b617c4b9-e266-4a4e-b547-9931688c4921",
-                            ConcurrencyStamp = "c8dfd54d-1bea-491c-83a5-7d068e8c87d8",
+                            Id = "262f60c9-c67d-45b7-8b99-600776025d73",
+                            ConcurrencyStamp = "264d883e-017f-4c53-9ba0-7598b64a92b1",
                             Name = "Admin"
                         });
                 });
@@ -151,16 +151,16 @@ namespace OAuthService.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "f95b3d8b-1211-4da8-a924-00eb05265ffd",
+                            Id = "c90aab72-2f87-40a2-92ea-e505207069f0",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "c25230cf-a088-4c7e-a0e2-252cdd89ff9d",
+                            ConcurrencyStamp = "358467d0-4e20-4867-804a-80cccb9ba0ff",
                             Email = "joachim@kelsen.nu",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "JOACHIM@KELSEN.NU",
                             NormalizedUserName = "JOKK",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "aff9ebe7-654a-4a5d-9be4-713d1af1dbee",
+                            SecurityStamp = "09e7a660-f9cd-4ff4-a6f6-12f01e6e4a51",
                             TwoFactorEnabled = false,
                             UserName = "jokk"
                         });
@@ -196,21 +196,21 @@ namespace OAuthService.Migrations
                             Id = 1,
                             ClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
                             ClaimValue = "Joachim",
-                            UserId = "f95b3d8b-1211-4da8-a924-00eb05265ffd"
+                            UserId = "c90aab72-2f87-40a2-92ea-e505207069f0"
                         },
                         new
                         {
                             Id = 3,
                             ClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname",
                             ClaimValue = "Kelsen",
-                            UserId = "f95b3d8b-1211-4da8-a924-00eb05265ffd"
+                            UserId = "c90aab72-2f87-40a2-92ea-e505207069f0"
                         },
                         new
                         {
                             Id = 2,
                             ClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/country",
                             ClaimValue = "Denmark",
-                            UserId = "f95b3d8b-1211-4da8-a924-00eb05265ffd"
+                            UserId = "c90aab72-2f87-40a2-92ea-e505207069f0"
                         });
                 });
 
@@ -253,8 +253,8 @@ namespace OAuthService.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "f95b3d8b-1211-4da8-a924-00eb05265ffd",
-                            RoleId = "b617c4b9-e266-4a4e-b547-9931688c4921"
+                            UserId = "c90aab72-2f87-40a2-92ea-e505207069f0",
+                            RoleId = "262f60c9-c67d-45b7-8b99-600776025d73"
                         });
                 });
 
@@ -309,7 +309,7 @@ namespace OAuthService.Migrations
                             Id = "test",
                             ClientProfile = "web application",
                             ClientType = "confidential",
-                            ConcurrencyStamp = "f5280624-0d24-4655-8f68-4d1482ebae28",
+                            ConcurrencyStamp = "1f1193ec-a87c-47ac-acdb-d6e1626c4463",
                             SecretHash = "2BB80D537B1DA3E38BD30361AA855686BDE0EACD7162FEF6A25FE97BF527A25B"
                         });
                 });

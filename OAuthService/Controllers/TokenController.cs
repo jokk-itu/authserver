@@ -16,7 +16,7 @@ namespace OAuthService.Controllers;
 [Route("oauth2/v{version:apiVersion}/[controller]")]
 public class TokenController : ControllerBase
 {
-    private readonly IOptions<AuthenticationConfiguration> _configuration;
+    private readonly AuthenticationConfiguration _configuration;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly ClientManager _clientManager;
     private readonly TokenValidationParameters _tokenValidationParameters;
@@ -29,7 +29,7 @@ public class TokenController : ControllerBase
         IDataProtectionProvider protectorProvider,
         TokenValidationParameters tokenValidationParameters)
     {
-        _configuration = configuration;
+        _configuration = configuration.Value;
         _userManager = userManager;
         _clientManager = clientManager;
         _tokenValidationParameters = tokenValidationParameters;
@@ -40,35 +40,35 @@ public class TokenController : ControllerBase
     [Route("authorize")]
     public async Task<IActionResult> Authorize(
         [FromBody] AuthorizeRequest request,
-        [FromQuery] string response_type,
-        [FromQuery] string client_id,
-        [FromQuery] string redirect_uri,
-        [FromQuery] string scope,
-        [FromQuery] string state)
+        [FromQuery(Name = "response_type")] string responseType,
+        [FromQuery(Name = "client_id")] string clientId,
+        [FromQuery(Name = "redirect_uri")] string redirectUri,
+        [FromQuery(Name = "scope")] string scope,
+        [FromQuery(Name = "state")] string state)
     {
         if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
             return BadRequest($"{nameof(request.Username)} or {nameof(request.Password)} is either null or empty");
 
-        if (string.IsNullOrEmpty(redirect_uri))
+        if (string.IsNullOrEmpty(redirectUri))
             return BadRequest("redirect_uri is null or empty");
 
-        if (!Uri.IsWellFormedUriString(redirect_uri, UriKind.Absolute))
+        if (!Uri.IsWellFormedUriString(redirectUri, UriKind.Absolute))
             return BadRequest("redirect_uri is an invalid absolute uri");
 
         if (string.IsNullOrEmpty(state))
             return BadRequest("state must be set");
 
-        if (!await _clientManager.IsValidClientAsync(client_id))
+        if (!await _clientManager.IsValidClientAsync(clientId))
             return BadRequest("client_id does not exist");
 
         var scopes = scope.Split(' ');
-        if (!await _clientManager.IsValidScopesAsync(client_id, scopes))
+        if (!await _clientManager.IsValidScopesAsync(clientId, scopes))
             return BadRequest("scopes are not valid for this client_id");
 
-        if (!await _clientManager.IsValidRedirectUrisAsync(client_id, new[] { redirect_uri }))
+        if (!await _clientManager.IsValidRedirectUrisAsync(clientId, new[] { redirectUri }))
             return BadRequest("redirect_uri is not valid for this client_id");
 
-        var responseTypes = response_type.Split(' ');
+        var responseTypes = responseType.Split(' ');
         if (!responseTypes.Any(rt => rt.Equals("code")))
             return BadRequest("response_type must contain code");
 
@@ -87,10 +87,10 @@ public class TokenController : ControllerBase
                 break;
         }
 
-        var codeFactory = new AuthorizationCodeTokenFactory(_configuration.Value, _protector);
-        var code = await codeFactory.GenerateTokenAsync(redirect_uri, scopes, client_id);
-        await _clientManager.SetTokenAsync(client_id, "authorization_code", code);
-        return Redirect($"{redirect_uri}?code={code}&state={state}");
+        var codeFactory = new AuthorizationCodeTokenFactory(_configuration, _protector);
+        var code = await codeFactory.GenerateTokenAsync(redirectUri, scopes, clientId);
+        await _clientManager.SetTokenAsync(clientId, "authorization_code", code);
+        return Redirect($"{redirectUri}?code={code}&state={state}");
     }
     
     [HttpPost]
@@ -119,14 +119,14 @@ public class TokenController : ControllerBase
         if (!await _clientManager.IsValidRedirectUrisAsync(clientId, new[] { request.redirect_uri }))
             return BadRequest("redirect_uri is not valid for client");
 
-        var codeFactory = new AuthorizationCodeTokenFactory(_configuration.Value, _protector);
+        var codeFactory = new AuthorizationCodeTokenFactory(_configuration, _protector);
         if (!await codeFactory.ValidateAsync(request.grant_type, request.code, request.redirect_uri, clientId))
             return BadRequest("authorization code is not valid");
 
         var decodedCode = await codeFactory.DecodeTokenAsync(request.code);
-        var accessToken = await new AccessTokenFactory(_configuration.Value, _tokenValidationParameters)
+        var accessToken = await new AccessTokenFactory(_configuration, _tokenValidationParameters)
             .GenerateTokenAsync(clientId, request.redirect_uri, decodedCode.Scopes);
-        var refreshToken = await new RefreshTokenFactory(_configuration.Value, _tokenValidationParameters)
+        var refreshToken = await new RefreshTokenFactory(_configuration, _tokenValidationParameters)
             .GenerateTokenAsync(clientId, request.redirect_uri, decodedCode.Scopes);
 
         await HttpContext.Response.WriteAsJsonAsync(new
@@ -134,7 +134,7 @@ public class TokenController : ControllerBase
             access_token = accessToken,
             refresh_token = refreshToken,
             token_type = "Bearer",
-            expires_in = _configuration.Value.AccessTokenExpiration
+            expires_in = _configuration.AccessTokenExpiration
         });
         return Redirect(request.redirect_uri);
     }

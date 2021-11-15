@@ -32,4 +32,15 @@ public class AccountController : ControllerBase
         }, request.Password);
         return Ok();
     }
+
+    [HttpPost]
+    [Route("resetpassword")]
+    public async Task<IActionResult> ResetPassword(
+        [FromBody] ResetPasswordRequest request)
+    {
+        var user = await _manager.FindByNameAsync(request.Username);
+        var token = await _manager.GeneratePasswordResetTokenAsync(user);
+        await _manager.ResetPasswordAsync(user, token, request.Password);
+        return Ok();
+    }
 }

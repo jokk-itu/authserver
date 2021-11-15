@@ -135,8 +135,7 @@ public class IdentityContext : IdentityDbContext
             EmailConfirmed = true,
             NormalizedEmail = "JOACHIM@KELSEN.NU",
             UserName = "jokk",
-            NormalizedUserName = "JOKK",
-            PasswordHash = "AQAAAAEAACcQAAAAEFMW5niPedf+IVi6y19LebxNfOCG94dWmGjeXPhibGmz9SO8BuMTH+le43cb2iDzFA=="
+            NormalizedUserName = "JOKK"
         };
         builder.Entity<IdentityUser>()
             .HasData(jokk);

@@ -24,7 +24,7 @@ public class AuthorizationCodeTokenFactory : ITokenFactory
     {
         var ms = new MemoryStream();
         await using var writer = new BinaryWriter(ms, Encoding.UTF8, false);
-        writer.Write(DateTimeOffset.UtcNow.ToString());
+        writer.Write(DateTimeOffset.UtcNow.UtcTicks);
         writer.Write(redirectUri);
         writer.Write(JsonSerializer.Serialize(scopes));
         writer.Write(clientId);
@@ -72,7 +72,7 @@ public class AuthorizationCodeTokenFactory : ITokenFactory
             var ms = new MemoryStream(unProtectedBytes);
             using var reader = new BinaryReader(ms, Encoding.UTF8, false);
             var creationTime = new DateTimeOffset(reader.ReadInt64(), TimeSpan.Zero);
-            if (creationTime + TimeSpan.FromSeconds(_configuration.AuthorizationCodeTokenExpiration) <
+            if (creationTime + TimeSpan.FromSeconds(_configuration.AuthorizationCodeExpiration) <
                 DateTimeOffset.UtcNow)
                 return false;
 

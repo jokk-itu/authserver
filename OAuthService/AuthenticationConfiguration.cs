@@ -18,5 +18,5 @@ public record AuthenticationConfiguration
     public int IdTokenExpiration { get; init; }
 
     //Seconds
-    public int AuthorizationCodeTokenExpiration { get; init; }
+    public int AuthorizationCodeExpiration { get; init; }
 }
