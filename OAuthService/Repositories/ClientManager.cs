@@ -23,7 +23,7 @@ public class ClientManager
         [Required(AllowEmptyStrings = false)] string clientId, 
         string? clientSecret = null)
     {
-        if (clientSecret is not null && clientSecret.Equals(string.Empty))
+        if (clientSecret is not null && string.IsNullOrEmpty(clientSecret))
             throw new ArgumentException("ClientSecret must not be empty", nameof(clientSecret));
 
         var client = await _context.Clients.FindAsync(clientId);

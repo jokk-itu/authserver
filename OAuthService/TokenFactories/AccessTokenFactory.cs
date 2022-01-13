@@ -47,17 +47,17 @@ public class AccessTokenFactory
         return await Task.FromResult(token);
     }
 
+    public Task<JwtSecurityToken> DecodeTokenAsync(string token)
+    {
+        new JwtSecurityTokenHandler()
+            .ValidateToken(token, _tokenValidationParameters, out var validatedToken);
+        return Task.FromResult((JwtSecurityToken)validatedToken);
+    }
+
     public async Task<bool> ValidateTokenAsync(string token)
     {
-        try
-        {
-            new JwtSecurityTokenHandler()
-                .ValidateToken(token, _tokenValidationParameters, out _);
-            return await Task.FromResult(true);
-        }
-        catch (Exception e) when (e is ArgumentException or SecurityTokenException)
-        {
-            throw;
-        }
+        new JwtSecurityTokenHandler()
+            .ValidateToken(token, _tokenValidationParameters, out _);
+        return await Task.FromResult(true);
     }
 }

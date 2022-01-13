@@ -33,7 +33,7 @@ public class AuthorizationCodeTokenFactory : ITokenFactory
         return Convert.ToBase64String(protectedBytes);
     }
 
-    public async Task<AuthorizationCode> DecodeTokenAsync(string token)
+    public Task<AuthorizationCode> DecodeTokenAsync(string token)
     {
         try
         {
@@ -46,12 +46,12 @@ public class AuthorizationCodeTokenFactory : ITokenFactory
             var scopes = JsonSerializer.Deserialize<ICollection<string>>(reader.ReadString());
             var clientId = reader.ReadString();
             var purpose = reader.ReadString();
-            return new AuthorizationCode
+            return Task.FromResult(new AuthorizationCode
             {
                 RedirectUri = redirectUri,
                 Scopes = scopes,
                 ClientId = clientId
-            };
+            });
         }
         catch (Exception ex) when (ex is EndOfStreamException or IOException or ObjectDisposedException or FormatException)
         {
@@ -59,7 +59,7 @@ public class AuthorizationCodeTokenFactory : ITokenFactory
         }
     }
     
-    public async Task<bool> ValidateAsync(
+    public Task<bool> ValidateAsync(
         [Required(AllowEmptyStrings = false)] string purpose,
         [Required(AllowEmptyStrings = false)] string token,
         [Required(AllowEmptyStrings = false)] string redirectUri,
@@ -74,23 +74,23 @@ public class AuthorizationCodeTokenFactory : ITokenFactory
             var creationTime = new DateTimeOffset(reader.ReadInt64(), TimeSpan.Zero);
             if (creationTime + TimeSpan.FromSeconds(_configuration.AuthorizationCodeExpiration) <
                 DateTimeOffset.UtcNow)
-                return false;
+                return Task.FromResult(false);
 
             var creationRedirectUri = reader.ReadString();
             if (!creationRedirectUri.Equals(redirectUri))
-                return false;
+                return Task.FromResult(false);
 
             var creationScopes = reader.ReadString();
 
             var creationClientId = reader.ReadString();
             if (!creationClientId.Equals(clientId))
-                return false;
+                return Task.FromResult(false);
 
             var creationPurpose = reader.ReadString();
             if (!creationPurpose.Equals(purpose))
-                return false;
+                return Task.FromResult(false);
 
-            return true;
+            return Task.FromResult(true);
         }
         catch (Exception ex) when (ex is EndOfStreamException or IOException or ObjectDisposedException or FormatException)
         {

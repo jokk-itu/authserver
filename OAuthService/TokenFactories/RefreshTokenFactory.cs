@@ -17,7 +17,7 @@ public class RefreshTokenFactory
         _tokenValidationParameters = tokenValidationParameters;
     }
     
-    public async Task<string> GenerateTokenAsync(string clientId, string redirectUri, ICollection<string> scopes)
+    public async Task<string> GenerateTokenAsync(string clientId, string redirectUri, IEnumerable<string> scopes)
     {
         var iat = DateTimeOffset.UtcNow;
         var exp = iat + TimeSpan.FromSeconds(_configuration.RefreshTokenExpiration);
@@ -41,9 +41,23 @@ public class RefreshTokenFactory
         var securityToken = new JwtSecurityToken(
             claims: claims,
             signingCredentials: signingCredentials);
-        
+
         var token = new JwtSecurityTokenHandler().WriteToken(securityToken);
         return await Task.FromResult(token);
+    }
+    
+    public Task<JwtSecurityToken> DecodeTokenAsync(string token)
+    {
+        try
+        {
+            new JwtSecurityTokenHandler()
+                .ValidateToken(token, _tokenValidationParameters, out var validatedToken);
+            return Task.FromResult((JwtSecurityToken)validatedToken);
+        }
+        catch (Exception e) when (e is ArgumentException or SecurityTokenException)
+        {
+            throw;
+        }
     }
 
     public async Task<bool> ValidateTokenAsync(string token)
