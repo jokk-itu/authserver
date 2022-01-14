@@ -1,9 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using OAuthService.Tokens;
 
 namespace OAuthService.TokenFactories;
@@ -24,7 +22,8 @@ public class AuthorizationCodeTokenFactory : ITokenFactory
         [Required] ICollection<string> scopes,
         [Required(AllowEmptyStrings = false)] string clientId,
         [Required(AllowEmptyStrings = false)] string codeChallenge,
-        [Required(AllowEmptyStrings = false)] string codeChallengeMethod)
+        [Required(AllowEmptyStrings = false)] string codeChallengeMethod,
+        [Required(AllowEmptyStrings = false)] string userId)
     {
         var ms = new MemoryStream();
         await using var writer = new BinaryWriter(ms, Encoding.UTF8, false);
@@ -34,6 +33,7 @@ public class AuthorizationCodeTokenFactory : ITokenFactory
         writer.Write(clientId);
         writer.Write(codeChallenge);
         writer.Write(codeChallengeMethod);
+        writer.Write(userId);
         writer.Write("authorization_code");
         var protectedBytes = _protector.Protect(ms.ToArray());
         return Convert.ToBase64String(protectedBytes);
@@ -51,16 +51,17 @@ public class AuthorizationCodeTokenFactory : ITokenFactory
         var clientId = reader.ReadString();
         var codeChallenge = reader.ReadString();
         var codeChallengeMethod = reader.ReadString();
+        var userId = reader.ReadString();
         var purpose = reader.ReadString();
         return Task.FromResult(new AuthorizationCode
         {
             RedirectUri = redirectUri,
             Scopes = scopes,
             ClientId = clientId,
-            CodeChallenge = codeChallenge
+            CodeChallenge = codeChallenge,
+            UserId = userId
         });
     }
-
 
     public Task<bool> ValidateAsync(
         [Required(AllowEmptyStrings = false)] string purpose,
@@ -104,6 +105,9 @@ public class AuthorizationCodeTokenFactory : ITokenFactory
                     return Task.FromResult(false);
                 break;
         }
+
+        var userId = reader.ReadString();
+        //TODO validate UserId
 
         var creationPurpose = reader.ReadString();
         if (!creationPurpose.Equals(purpose))

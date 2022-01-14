@@ -7,6 +7,9 @@ public record AuthenticationConfiguration
     public string Issuer { get; init; }
 
     public string TokenSecret { get; init; }
+    
+    
+    public string AuthorizationCodeSecret { get; init; }
 
     //Seconds
     public int AccessTokenExpiration { get; init; }

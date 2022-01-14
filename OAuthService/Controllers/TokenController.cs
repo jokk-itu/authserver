@@ -18,20 +18,22 @@ public class TokenController : ControllerBase
 {
     private readonly AuthenticationConfiguration _configuration;
     private readonly ClientManager _clientManager;
+    private readonly UserManager<IdentityUser> _userManager;
     private readonly TokenValidationParameters _tokenValidationParameters;
     private readonly IDataProtector _protector;
 
     public TokenController(
         IOptions<AuthenticationConfiguration> configuration,
-        UserManager<IdentityUser> userManager,
         ClientManager clientManager,
+        UserManager<IdentityUser> userManager,
         IDataProtectionProvider protectorProvider,
         TokenValidationParameters tokenValidationParameters)
     {
         _configuration = configuration.Value;
         _clientManager = clientManager;
+        _userManager = userManager;
         _tokenValidationParameters = tokenValidationParameters;
-        _protector = protectorProvider.CreateProtector("authorization_code");
+        _protector = protectorProvider.CreateProtector(_configuration.AuthorizationCodeSecret);
     }
 
     [HttpPost]
@@ -68,11 +70,18 @@ public class TokenController : ControllerBase
                     return BadRequest("refresh_token must not be null or empty");
                 
                 refreshToken = request.RefreshToken;
-                var scope = await new RefreshTokenFactory(_configuration, _tokenValidationParameters)
+                var decodedRefreshToken = await new RefreshTokenFactory(_configuration, _tokenValidationParameters)
                     .DecodeTokenAsync(refreshToken);
-                var scopes = scope.Claims.Single(c => c.Type.Equals("scope")).Value.Split(' ');
+                var scopes = decodedRefreshToken.Claims.Single(c => c.Type.Equals("scope")).Value.Split(' ');
                 accessToken = await new AccessTokenFactory(_configuration, _tokenValidationParameters)
                     .GenerateTokenAsync(clientId, request.RedirectUri, scopes);
+                await HttpContext.Response.WriteAsJsonAsync(new
+                {
+                    access_token = accessToken,
+                    refresh_token = refreshToken,
+                    token_type = "Bearer",
+                    expires_in = _configuration.AccessTokenExpiration
+                });
                 break;
             case "authorization_code":
                 if (string.IsNullOrEmpty(request.Code))
@@ -82,23 +91,25 @@ public class TokenController : ControllerBase
                 if (!await codeFactory.ValidateAsync(request.GrantType, request.Code, request.RedirectUri, clientId, request.CodeVerifier))
                     return BadRequest("authorization code is not valid");
 
-                var decodedCode = await codeFactory.DecodeTokenAsync(request.Code);
+                var decodedAuthorizationCode = await codeFactory.DecodeTokenAsync(request.Code);
                 accessToken = await new AccessTokenFactory(_configuration, _tokenValidationParameters)
-                    .GenerateTokenAsync(clientId, request.RedirectUri, decodedCode.Scopes);
+                    .GenerateTokenAsync(clientId, request.RedirectUri, decodedAuthorizationCode.Scopes);
                 refreshToken = await new RefreshTokenFactory(_configuration, _tokenValidationParameters)
-                    .GenerateTokenAsync(clientId, request.RedirectUri, decodedCode.Scopes);
+                    .GenerateTokenAsync(clientId, request.RedirectUri, decodedAuthorizationCode.Scopes);
+                var idToken = await new IdTokenFactory(_configuration, _tokenValidationParameters, _userManager)
+                    .GenerateTokenAsync(clientId, request.RedirectUri, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.Nonce, decodedAuthorizationCode.UserId);
+                await HttpContext.Response.WriteAsJsonAsync(new
+                {
+                    access_token = accessToken,
+                    refresh_token = refreshToken,
+                    id_token = idToken,
+                    token_type = "Bearer",
+                    expires_in = _configuration.AccessTokenExpiration
+                });
                 break;
             default:
                 return BadRequest("grant_type is not recognized");
         }
-
-        await HttpContext.Response.WriteAsJsonAsync(new
-        {
-            access_token = accessToken,
-            refresh_token = refreshToken,
-            token_type = "Bearer",
-            expires_in = _configuration.AccessTokenExpiration
-        });
         return Redirect(request.RedirectUri);
     }
 }

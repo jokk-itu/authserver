@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace OAuthService.TokenFactories;
 
-public class AccessTokenFactory
+public class AccessTokenFactory : ITokenFactory
 {
     private readonly AuthenticationConfiguration _configuration;
     private readonly TokenValidationParameters _tokenValidationParameters;

@@ -9,4 +9,8 @@ public record AuthorizationCode
     public ICollection<string> Scopes { get; init; }
 
     public string CodeChallenge { get; init; }
+
+    public string Nonce { get; init; }
+    
+    public string UserId { get; init; }
 }

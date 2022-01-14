@@ -31,28 +31,28 @@ public class AuthorizeController : ControllerBase
         _clientManager = clientManager;
         _userManager = userManager;
         _configuration = configuration.Value;
-        _protector = protectorProvider.CreateProtector("authorization_code");
+        _protector = protectorProvider.CreateProtector(_configuration.AuthorizationCodeSecret);
     }
-    
+
     [HttpPost]
     [Route("authorize")]
     public async Task<IActionResult> Authorize(
         AuthorizeRequest request)
     {
-        if (!Uri.IsWellFormedUriString(request.redirectUri, UriKind.Absolute))
+        if (!Uri.IsWellFormedUriString(request.RedirectUri, UriKind.Absolute))
             return BadRequest("redirect_uri is an invalid absolute uri");
 
-        if (!await _clientManager.IsValidClientAsync(request.clientId))
+        if (!await _clientManager.IsValidClientAsync(request.ClientId))
             return BadRequest("client_id does not exist");
 
-        var scopes = request.scope.Split(' ');
-        if (!await _clientManager.IsValidScopesAsync(request.clientId, scopes))
+        var scopes = request.Scope.Split(' ');
+        if (!await _clientManager.IsValidScopesAsync(request.ClientId, scopes))
             return BadRequest("scopes are not valid for this client_id");
 
-        if (!await _clientManager.IsValidRedirectUrisAsync(request.clientId, new[] { request.redirectUri }))
+        if (!await _clientManager.IsValidRedirectUrisAsync(request.ClientId, new[] { request.RedirectUri }))
             return BadRequest("redirect_uri is not valid for this client_id");
 
-        var responseTypes = request.responseType.Split(' ');
+        var responseTypes = request.ResponseType.Split(' ');
         if (!responseTypes.Any(rt => rt.Equals("code")))
             return BadRequest("response_type must contain code");
 
@@ -79,8 +79,15 @@ public class AuthorizeController : ControllerBase
         }
 
         var codeFactory = new AuthorizationCodeTokenFactory(_configuration, _protector);
-        var code = await codeFactory.GenerateTokenAsync(request.redirectUri, scopes, request.clientId, request.codeChallenge, request.codeChallengeMethod);
-        await _clientManager.SetTokenAsync(request.clientId, "authorization_code", code);
-        return Redirect($"{request.redirectUri}?code={code}&state={request.state}");
+        var code = await codeFactory.GenerateTokenAsync(
+            request.RedirectUri,
+            scopes,
+            request.ClientId,
+            request.CodeChallenge,
+            request.CodeChallengeMethod,
+            user.Id);
+
+        await _clientManager.SetTokenAsync(request.ClientId, _configuration.AuthorizationCodeSecret, code);
+        return Redirect($"{request.RedirectUri}?code={code}&state={request.State}");
     }
 }

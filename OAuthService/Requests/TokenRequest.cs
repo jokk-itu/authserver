@@ -21,6 +21,7 @@ public record TokenRequest
     public string? RefreshToken { get; init; }
 
     [JsonPropertyName("scope")]
+    //TODO why is this here
     public string? Scope { get; init; }
     
     [JsonPropertyName("code_verifier")]
