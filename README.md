@@ -1,3 +1,7 @@
 # OAuth
 
-Implementation of OAuth 2.0 with grant authorization code and refresh token.
+Implementation of OAuth 2.0.
+
+Grant types:
+Authorization code with PKCE
+Refresh token
