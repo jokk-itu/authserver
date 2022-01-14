@@ -12,7 +12,6 @@ public class IdentityContext : IdentityDbContext
     public DbSet<IdentityClientScope<string>> ClientScopes { get; set; }
     public DbSet<IdentityClientGrant<string>> ClientGrants { get; set; }
     public DbSet<IdentityClientRedirectUri<string>> ClientRedirectUris { get; set; }
-
     public DbSet<IdentityClientToken<string>> ClientTokens { get; set; }
 
     public IdentityContext(DbContextOptions<IdentityContext> options) : base(options)

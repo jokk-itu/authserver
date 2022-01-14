@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -40,7 +41,9 @@ public class AuthorizeController : ControllerBase
         [Required(AllowEmptyStrings = false)] [FromQuery(Name = "client_id")] string clientId,
         [Required(AllowEmptyStrings = false)] [FromQuery(Name = "redirect_uri")] string redirectUri,
         [Required(AllowEmptyStrings = false)] [FromQuery(Name = "scope")] string scope,
-        [Required(AllowEmptyStrings = false)] [FromQuery(Name = "state")] string state)
+        [Required(AllowEmptyStrings = false)] [FromQuery(Name = "state")] string state,
+        [RegularExpression("^[a-zA-Z0-9-_~.]{43,128}$")][Required(AllowEmptyStrings = false)] [FromQuery(Name = "code_challenge")] string codeChallenge,
+        [RegularExpression("plain|S256")][FromQuery(Name = "code_challenge_method")] string codeChallengeMethod = "plain")
     {
         if (!Uri.IsWellFormedUriString(redirectUri, UriKind.Absolute))
             return BadRequest("redirect_uri is an invalid absolute uri");
@@ -75,7 +78,7 @@ public class AuthorizeController : ControllerBase
         }
 
         var codeFactory = new AuthorizationCodeTokenFactory(_configuration, _protector);
-        var code = await codeFactory.GenerateTokenAsync(redirectUri, scopes, clientId);
+        var code = await codeFactory.GenerateTokenAsync(redirectUri, scopes, clientId, codeChallenge, codeChallengeMethod);
         await _clientManager.SetTokenAsync(clientId, "authorization_code", code);
         return Redirect($"{redirectUri}?code={code}&state={state}");
     }

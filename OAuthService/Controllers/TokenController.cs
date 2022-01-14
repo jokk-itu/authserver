@@ -77,7 +77,9 @@ public class TokenController : ControllerBase
             case "authorization_code":
                 if (string.IsNullOrEmpty(request.code))
                     return BadRequest("code must not be null or empty");
-                if (!await codeFactory.ValidateAsync(request.grant_type, request.code, request.redirect_uri, clientId))
+                if (string.IsNullOrEmpty(request.code_verifier))
+                    return BadRequest("code_verifier must not be null or empty");
+                if (!await codeFactory.ValidateAsync(request.grant_type, request.code, request.redirect_uri, clientId, request.code_verifier))
                     return BadRequest("authorization code is not valid");
 
                 var decodedCode = await codeFactory.DecodeTokenAsync(request.code);

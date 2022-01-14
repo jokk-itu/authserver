@@ -16,4 +16,6 @@ public record AuthorizationCodeTokenRequest
     public string? refresh_token { get; init; }
 
     public string? scope { get; init; }
+    
+    public string? code_verifier { get; init; }
 }

@@ -7,4 +7,6 @@ public record AuthorizationCode
     public string RedirectUri { get; init; }
     
     public ICollection<string> Scopes { get; init; }
+
+    public string CodeChallenge { get; init; }
 }
