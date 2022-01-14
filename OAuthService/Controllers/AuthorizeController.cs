@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
@@ -36,50 +37,50 @@ public class AuthorizeController : ControllerBase
     [HttpPost]
     [Route("authorize")]
     public async Task<IActionResult> Authorize(
-        [FromBody] AuthorizeRequest request,
-        [Required(AllowEmptyStrings = false)] [FromQuery(Name = "response_type")] string responseType,
-        [Required(AllowEmptyStrings = false)] [FromQuery(Name = "client_id")] string clientId,
-        [Required(AllowEmptyStrings = false)] [FromQuery(Name = "redirect_uri")] string redirectUri,
-        [Required(AllowEmptyStrings = false)] [FromQuery(Name = "scope")] string scope,
-        [Required(AllowEmptyStrings = false)] [FromQuery(Name = "state")] string state,
-        [RegularExpression("^[a-zA-Z0-9-_~.]{43,128}$")][Required(AllowEmptyStrings = false)] [FromQuery(Name = "code_challenge")] string codeChallenge,
-        [RegularExpression("plain|S256")][FromQuery(Name = "code_challenge_method")] string codeChallengeMethod = "plain")
+        AuthorizeRequest request)
     {
-        if (!Uri.IsWellFormedUriString(redirectUri, UriKind.Absolute))
+        if (!Uri.IsWellFormedUriString(request.redirectUri, UriKind.Absolute))
             return BadRequest("redirect_uri is an invalid absolute uri");
 
-        if (!await _clientManager.IsValidClientAsync(clientId))
+        if (!await _clientManager.IsValidClientAsync(request.clientId))
             return BadRequest("client_id does not exist");
 
-        var scopes = scope.Split(' ');
-        if (!await _clientManager.IsValidScopesAsync(clientId, scopes))
+        var scopes = request.scope.Split(' ');
+        if (!await _clientManager.IsValidScopesAsync(request.clientId, scopes))
             return BadRequest("scopes are not valid for this client_id");
 
-        if (!await _clientManager.IsValidRedirectUrisAsync(clientId, new[] { redirectUri }))
+        if (!await _clientManager.IsValidRedirectUrisAsync(request.clientId, new[] { request.redirectUri }))
             return BadRequest("redirect_uri is not valid for this client_id");
 
-        var responseTypes = responseType.Split(' ');
+        var responseTypes = request.responseType.Split(' ');
         if (!responseTypes.Any(rt => rt.Equals("code")))
             return BadRequest("response_type must contain code");
 
-        var user = await _userManager.FindByNameAsync(request.Username);
+        var user = await _userManager.FindByNameAsync(request.UserInformation.Username);
         if (user?.PasswordHash is null)
             return BadRequest("user information was wrong");
         var isCorrectPassword = _userManager.PasswordHasher
-            .VerifyHashedPassword(user, user.PasswordHash, request.Password);
+            .VerifyHashedPassword(user, user.PasswordHash, request.UserInformation.Password);
         switch (isCorrectPassword)
         {
             case PasswordVerificationResult.Failed:
                 return BadRequest("user information was wrong");
             case PasswordVerificationResult.SuccessRehashNeeded:
-                user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, request.Password);
-                var result = await _userManager.UpdateAsync(user); //TODO VALIDATE RESULT
+                user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, request.UserInformation.Password);
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                    throw new Exception("Password cannot be re-hashed");
                 break;
+            case PasswordVerificationResult.Success:
+                break;
+            default:
+                throw new
+                    SwitchExpressionException($"{isCorrectPassword.GetType().Name} is not covered");
         }
 
         var codeFactory = new AuthorizationCodeTokenFactory(_configuration, _protector);
-        var code = await codeFactory.GenerateTokenAsync(redirectUri, scopes, clientId, codeChallenge, codeChallengeMethod);
-        await _clientManager.SetTokenAsync(clientId, "authorization_code", code);
-        return Redirect($"{redirectUri}?code={code}&state={state}");
+        var code = await codeFactory.GenerateTokenAsync(request.redirectUri, scopes, request.clientId, request.codeChallenge, request.codeChallengeMethod);
+        await _clientManager.SetTokenAsync(request.clientId, "authorization_code", code);
+        return Redirect($"{request.redirectUri}?code={code}&state={request.state}");
     }
 }

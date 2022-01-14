@@ -37,7 +37,7 @@ public class TokenController : ControllerBase
     [HttpPost]
     [Route("token")]
     public async Task<IActionResult> Token(
-        [FromBody] AuthorizationCodeTokenRequest request,
+        [FromBody] TokenRequest request,
         [FromHeader(Name = "Authorization")] string authorization)
     {
         var authorizationHeader = authorization.Split(' ');
@@ -52,41 +52,41 @@ public class TokenController : ControllerBase
         if (client is null)
             return BadRequest("client_id does not exist");
 
-        if (!await _clientManager.IsValidGrantsAsync(clientId, new[] { request.grant_type }))
+        if (!await _clientManager.IsValidGrantsAsync(clientId, new[] { request.GrantType }))
             return BadRequest("grant_type is not valid for client");
 
-        if (!await _clientManager.IsValidRedirectUrisAsync(clientId, new[] { request.redirect_uri }))
+        if (!await _clientManager.IsValidRedirectUrisAsync(clientId, new[] { request.RedirectUri }))
             return BadRequest("redirect_uri is not valid for client");
 
         var codeFactory = new AuthorizationCodeTokenFactory(_configuration, _protector);
         string accessToken;
         string refreshToken;
-        switch (request.grant_type)
+        switch (request.GrantType)
         {
             case "refresh_token":
-                if (string.IsNullOrEmpty(request.refresh_token))
+                if (string.IsNullOrEmpty(request.RefreshToken))
                     return BadRequest("refresh_token must not be null or empty");
                 
-                refreshToken = request.refresh_token;
+                refreshToken = request.RefreshToken;
                 var scope = await new RefreshTokenFactory(_configuration, _tokenValidationParameters)
                     .DecodeTokenAsync(refreshToken);
                 var scopes = scope.Claims.Single(c => c.Type.Equals("scope")).Value.Split(' ');
                 accessToken = await new AccessTokenFactory(_configuration, _tokenValidationParameters)
-                    .GenerateTokenAsync(clientId, request.redirect_uri, scopes);
+                    .GenerateTokenAsync(clientId, request.RedirectUri, scopes);
                 break;
             case "authorization_code":
-                if (string.IsNullOrEmpty(request.code))
+                if (string.IsNullOrEmpty(request.Code))
                     return BadRequest("code must not be null or empty");
-                if (string.IsNullOrEmpty(request.code_verifier))
+                if (string.IsNullOrEmpty(request.CodeVerifier))
                     return BadRequest("code_verifier must not be null or empty");
-                if (!await codeFactory.ValidateAsync(request.grant_type, request.code, request.redirect_uri, clientId, request.code_verifier))
+                if (!await codeFactory.ValidateAsync(request.GrantType, request.Code, request.RedirectUri, clientId, request.CodeVerifier))
                     return BadRequest("authorization code is not valid");
 
-                var decodedCode = await codeFactory.DecodeTokenAsync(request.code);
+                var decodedCode = await codeFactory.DecodeTokenAsync(request.Code);
                 accessToken = await new AccessTokenFactory(_configuration, _tokenValidationParameters)
-                    .GenerateTokenAsync(clientId, request.redirect_uri, decodedCode.Scopes);
+                    .GenerateTokenAsync(clientId, request.RedirectUri, decodedCode.Scopes);
                 refreshToken = await new RefreshTokenFactory(_configuration, _tokenValidationParameters)
-                    .GenerateTokenAsync(clientId, request.redirect_uri, decodedCode.Scopes);
+                    .GenerateTokenAsync(clientId, request.RedirectUri, decodedCode.Scopes);
                 break;
             default:
                 return BadRequest("grant_type is not recognized");
@@ -99,6 +99,6 @@ public class TokenController : ControllerBase
             token_type = "Bearer",
             expires_in = _configuration.AccessTokenExpiration
         });
-        return Redirect(request.redirect_uri);
+        return Redirect(request.RedirectUri);
     }
 }
