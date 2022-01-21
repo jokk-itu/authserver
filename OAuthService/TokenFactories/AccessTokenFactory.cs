@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using OAuthService.Repositories;
 
 namespace OAuthService.TokenFactories;
 
@@ -9,23 +10,28 @@ public class AccessTokenFactory : ITokenFactory
 {
     private readonly AuthenticationConfiguration _configuration;
     private readonly TokenValidationParameters _tokenValidationParameters;
+    private readonly ResourceManager _resourceManager;
 
     public AccessTokenFactory(
         AuthenticationConfiguration configuration, 
-        TokenValidationParameters tokenValidationParameters)
+        TokenValidationParameters tokenValidationParameters,
+        ResourceManager resourceManager)
     {
         _configuration = configuration;
         _tokenValidationParameters = tokenValidationParameters;
+        _resourceManager = resourceManager;
     }
 
-    public async Task<string> GenerateTokenAsync(string clientId, string redirectUri, ICollection<string> scopes)
+    public async Task<string> GenerateTokenAsync(string clientId, string redirectUri, ICollection<string> scopes, string userId)
     {
         var iat = DateTimeOffset.UtcNow;
         var exp = iat + TimeSpan.FromSeconds(_configuration.AccessTokenExpiration);
+        var resources = await _resourceManager.FindResourcesByScopes(scopes);
+        var aud = resources.Aggregate(string.Empty, (acc,r) => $"{acc} {r}");
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, Guid.NewGuid().ToString()),
-            new Claim(JwtRegisteredClaimNames.Aud, new Uri(redirectUri).Host),
+            new Claim(JwtRegisteredClaimNames.Sub, userId),
+            new Claim(JwtRegisteredClaimNames.Aud, aud),
             new Claim(JwtRegisteredClaimNames.Iss, _configuration.Issuer),
             new Claim(JwtRegisteredClaimNames.Iat, iat.ToString()),
             new Claim(JwtRegisteredClaimNames.Exp, exp.ToString()),

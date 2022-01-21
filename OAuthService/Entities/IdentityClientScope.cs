@@ -2,7 +2,7 @@ namespace OAuthService.Entities;
 
 public class IdentityClientScope<TKey>
 {
-    public string Name { get; set; }
+    public string ScopeId { get; init; }
 
-    public TKey ClientId { get; set; }
+    public TKey ClientId { get; init; }
 }

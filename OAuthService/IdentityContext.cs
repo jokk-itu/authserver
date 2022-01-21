@@ -14,6 +14,12 @@ public class IdentityContext : IdentityDbContext
     public DbSet<IdentityClientRedirectUri<string>> ClientRedirectUris { get; set; }
     public DbSet<IdentityClientToken<string>> ClientTokens { get; set; }
 
+    public DbSet<IdentityScope> Scopes { get; set; }
+
+    public DbSet<IdentityResource> Resources { get; set; }
+
+    public DbSet<IdentityResourceScope> ResourceScopes { get; set; }
+
     public IdentityContext(DbContextOptions<IdentityContext> options) : base(options)
     {
     }
@@ -33,7 +39,7 @@ public class IdentityContext : IdentityDbContext
         //ClientScopes
         builder.Entity<IdentityClientScope<string>>(b =>
         {
-            b.HasKey(cs => new { cs.Name, cs.ClientId });
+            b.HasKey(cs => new { Name = cs.ScopeId, cs.ClientId });
             b.ToTable("AspNetClientScopes");
         });
 
@@ -51,19 +57,84 @@ public class IdentityContext : IdentityDbContext
             b.ToTable("AspNetClientRedirectUris");
             //TODO place constraint on URI, and demand HTTPS
         });
-        
+
         //ClientTokens
         builder.Entity<IdentityClientToken<string>>(b =>
         {
             b.HasKey(ct => new { ct.ClientId, ct.Value });
             b.ToTable("AspNetClientTokens");
         });
+        
+        //Scopes
+        builder.Entity<IdentityScope>(b =>
+        {
+            b.HasKey(s => s.Id);
+            b.ToTable("AspNetScopes");
+        });
+        
+        //Resources
+        builder.Entity<IdentityResource>(b =>
+        {
+            b.HasKey(r => r.Id);
+            b.ToTable("AspNetResources");
+        });
+        
+        //ResourceScopes
+        builder.Entity<IdentityResourceScope>(b =>
+        {
+            b.HasKey(rs => new {rs.ResourceId, rs.ScopeId});
+            b.ToTable("AspNetResourceScopes");
+        });
 
-        SetClient(builder);
-        SetUser(builder);
+        SetScopes(builder);
+        SetResources(builder);
+        SetClients(builder);
+        SetUsers(builder);
     }
 
-    private void SetClient(ModelBuilder builder)
+    private void SetResources(ModelBuilder builder)
+    {
+        var resource = new IdentityResource
+        {
+            Id = "api1"
+        };
+        builder.Entity<IdentityResource>().HasData(resource);
+        builder.Entity<IdentityResourceScope>().HasData(
+            new IdentityResourceScope
+            {
+                ResourceId = "api1",
+                ScopeId = "openid"
+            },
+            new IdentityResourceScope
+            {
+                ResourceId = "api1",
+                ScopeId = "profile"
+            },
+            new IdentityResourceScope
+            {
+                ResourceId = "api1",
+                ScopeId = "api1:read"
+            });
+    }
+
+    private void SetScopes(ModelBuilder builder)
+    {
+        var openId = new IdentityScope
+        {
+            Id = "openid"
+        };
+        var profile = new IdentityScope
+        {
+            Id = "profile"
+        };
+        var api1 = new IdentityScope
+        {
+            Id = "api1:read"
+        };
+        builder.Entity<IdentityScope>().HasData(openId, profile, api1);
+    }
+
+    private void SetClients(ModelBuilder builder)
     {
         //Clients
         var client = new IdentityClient
@@ -96,6 +167,11 @@ public class IdentityContext : IdentityDbContext
             {
                 ClientId = client.Id,
                 Name = "client_credentials"
+            },
+            new IdentityClientGrant<string>
+            {
+                ClientId = client.Id,
+                Name = "openid"
             });
 
         //ClientScopes
@@ -103,12 +179,12 @@ public class IdentityContext : IdentityDbContext
             new IdentityClientScope<string>
             {
                 ClientId = client.Id,
-                Name = "profile"
+                ScopeId = "profile"
             },
             new IdentityClientScope<string>
             {
                 ClientId = client.Id,
-                Name = "openid"
+                ScopeId = "openid"
             });
 
         //ClientRedirectUris
@@ -120,7 +196,7 @@ public class IdentityContext : IdentityDbContext
             });
     }
 
-    private void SetUser(ModelBuilder builder)
+    private void SetUsers(ModelBuilder builder)
     {
         //Users
         var jokk = new IdentityUser

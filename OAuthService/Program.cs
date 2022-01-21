@@ -27,6 +27,7 @@ services.AddOptions<ConfigureSwaggerOptions>();
 services.Configure<AuthenticationConfiguration>(builder.Configuration.GetSection("Identity"));
 
 services.AddScoped<ClientManager>();
+services.AddScoped<ResourceManager>();
 
 var tokenValidationParameters = new TokenValidationParameters
 {
@@ -62,8 +63,7 @@ services.AddIdentityCore<IdentityUser>()
     .AddDefaultTokenProviders()
     .AddEntityFrameworkStores<IdentityContext>();
 
-services.AddAuthorization(config => { });
-
+services.AddAuthorization();
 var app = builder.Build();
 
 
@@ -75,10 +75,10 @@ app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
     var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-    foreach (var version in provider.ApiVersionDescriptions)
+    foreach (var groupName in provider.ApiVersionDescriptions.Select(v => v.GroupName))
         options.SwaggerEndpoint(
-            $"/swagger/{version.GroupName}/swagger.json",
-            version.GroupName.ToUpper());
+            $"/swagger/{groupName}/swagger.json",
+            groupName.ToUpper());
 });
 
 app.UseRouting();

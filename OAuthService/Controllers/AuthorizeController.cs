@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using OAuthService.Constants;
 using OAuthService.Repositories;
 using OAuthService.Requests;
 using OAuthService.TokenFactories;
@@ -45,7 +46,7 @@ public class AuthorizeController : ControllerBase
         if (!await _clientManager.IsValidClientAsync(request.ClientId))
             return BadRequest("client_id does not exist");
 
-        var scopes = request.Scope.Split(' ');
+        var scopes = request.Scope.Split(" ");
         if (!await _clientManager.IsValidScopesAsync(request.ClientId, scopes))
             return BadRequest("scopes are not valid for this client_id");
 
@@ -53,7 +54,7 @@ public class AuthorizeController : ControllerBase
             return BadRequest("redirect_uri is not valid for this client_id");
 
         var responseTypes = request.ResponseType.Split(' ');
-        if (!responseTypes.Any(rt => rt.Equals("code")))
+        if (!responseTypes.Any(rt => rt.Equals(ResponseType.CODE)))
             return BadRequest("response_type must contain code");
 
         var user = await _userManager.FindByNameAsync(request.UserInformation.Username);
@@ -69,7 +70,7 @@ public class AuthorizeController : ControllerBase
                 user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, request.UserInformation.Password);
                 var result = await _userManager.UpdateAsync(user);
                 if (!result.Succeeded)
-                    throw new Exception("Password cannot be re-hashed");
+                    throw new PasswordRehashFailedException("Password cannot be re-hashed");
                 break;
             case PasswordVerificationResult.Success:
                 break;

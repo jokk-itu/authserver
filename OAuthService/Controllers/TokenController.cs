@@ -19,6 +19,7 @@ public class TokenController : ControllerBase
     private readonly AuthenticationConfiguration _configuration;
     private readonly ClientManager _clientManager;
     private readonly UserManager<IdentityUser> _userManager;
+    private readonly ResourceManager _resourceManager;
     private readonly TokenValidationParameters _tokenValidationParameters;
     private readonly IDataProtector _protector;
 
@@ -26,12 +27,14 @@ public class TokenController : ControllerBase
         IOptions<AuthenticationConfiguration> configuration,
         ClientManager clientManager,
         UserManager<IdentityUser> userManager,
+        ResourceManager resourceManager,
         IDataProtectionProvider protectorProvider,
         TokenValidationParameters tokenValidationParameters)
     {
         _configuration = configuration.Value;
         _clientManager = clientManager;
         _userManager = userManager;
+        _resourceManager = resourceManager;
         _tokenValidationParameters = tokenValidationParameters;
         _protector = protectorProvider.CreateProtector(_configuration.AuthorizationCodeSecret);
     }
@@ -73,8 +76,8 @@ public class TokenController : ControllerBase
                 var decodedRefreshToken = await new RefreshTokenFactory(_configuration, _tokenValidationParameters)
                     .DecodeTokenAsync(refreshToken);
                 var scopes = decodedRefreshToken.Claims.Single(c => c.Type.Equals("scope")).Value.Split(' ');
-                accessToken = await new AccessTokenFactory(_configuration, _tokenValidationParameters)
-                    .GenerateTokenAsync(clientId, request.RedirectUri, scopes);
+                accessToken = await new AccessTokenFactory(_configuration, _tokenValidationParameters, _resourceManager)
+                    .GenerateTokenAsync(clientId, request.RedirectUri, scopes, decodedRefreshToken.Subject);
                 await HttpContext.Response.WriteAsJsonAsync(new
                 {
                     access_token = accessToken,
@@ -92,10 +95,10 @@ public class TokenController : ControllerBase
                     return BadRequest("authorization code is not valid");
 
                 var decodedAuthorizationCode = await codeFactory.DecodeTokenAsync(request.Code);
-                accessToken = await new AccessTokenFactory(_configuration, _tokenValidationParameters)
-                    .GenerateTokenAsync(clientId, request.RedirectUri, decodedAuthorizationCode.Scopes);
+                accessToken = await new AccessTokenFactory(_configuration, _tokenValidationParameters, _resourceManager)
+                    .GenerateTokenAsync(clientId, request.RedirectUri, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.UserId);
                 refreshToken = await new RefreshTokenFactory(_configuration, _tokenValidationParameters)
-                    .GenerateTokenAsync(clientId, request.RedirectUri, decodedAuthorizationCode.Scopes);
+                    .GenerateTokenAsync(clientId, request.RedirectUri, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.UserId);
                 var idToken = await new IdTokenFactory(_configuration, _tokenValidationParameters, _userManager)
                     .GenerateTokenAsync(clientId, request.RedirectUri, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.Nonce, decodedAuthorizationCode.UserId);
                 await HttpContext.Response.WriteAsJsonAsync(new

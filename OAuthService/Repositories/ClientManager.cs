@@ -49,7 +49,7 @@ public class ClientManager
         using var enumerator = scopes.GetEnumerator();
         while (isValid && enumerator.MoveNext())
         {
-            if (!clientScopes.Exists(cs => cs.Name.Equals(enumerator.Current)))
+            if (!clientScopes.Exists(cs => cs.ScopeId.Equals(enumerator.Current)))
                 isValid = false;
         }
 
@@ -82,7 +82,6 @@ public class ClientManager
         [Required(AllowEmptyStrings = false)] string clientId, 
         ICollection<string> redirectUris)
     {
-
         if (redirectUris is null)
             throw new ArgumentNullException(nameof(redirectUris));
 

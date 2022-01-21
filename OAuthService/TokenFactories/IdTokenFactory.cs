@@ -29,18 +29,16 @@ public class IdTokenFactory : ITokenFactory
         var exp = iat + TimeSpan.FromSeconds(_configuration.IdTokenExpiration);
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, Guid.NewGuid().ToString()),
-            new(JwtRegisteredClaimNames.Aud, new Uri(redirectUri).Host),
+            new(JwtRegisteredClaimNames.Sub, userId),
+            new(JwtRegisteredClaimNames.Aud, clientId),
             new(JwtRegisteredClaimNames.Iss, _configuration.Issuer),
             new(JwtRegisteredClaimNames.Iat, iat.ToString()),
             new(JwtRegisteredClaimNames.Exp, exp.ToString()),
             new(JwtRegisteredClaimNames.Nbf, iat.ToString()),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(JwtRegisteredClaimNames.AuthTime, DateTimeOffset.Now.ToUnixTimeSeconds().ToString()),
-            new("oid", userId),
             new(JwtRegisteredClaimNames.Nonce, nonce),
-            new("scope", scopes.Aggregate((elem, acc) => $"{acc} {elem}")),
-            new("client_id", clientId)
+            new("scope", scopes.Aggregate((elem, acc) => $"{acc} {elem}"))
         };
         var user = await _userManager.FindByIdAsync(userId);
         var userClaims = await _userManager.GetClaimsAsync(user);

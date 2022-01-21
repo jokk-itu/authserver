@@ -18,13 +18,13 @@ public class RefreshTokenFactory : ITokenFactory
         _tokenValidationParameters = tokenValidationParameters;
     }
 
-    public async Task<string> GenerateTokenAsync(string clientId, string redirectUri, IEnumerable<string> scopes)
+    public async Task<string> GenerateTokenAsync(string clientId, string redirectUri, IEnumerable<string> scopes, string userId)
     {
         var iat = DateTimeOffset.UtcNow;
         var exp = iat + TimeSpan.FromSeconds(_configuration.RefreshTokenExpiration);
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, Guid.NewGuid().ToString()),
+            new Claim(JwtRegisteredClaimNames.Sub, userId),
             new Claim(JwtRegisteredClaimNames.Aud, new Uri(redirectUri).Host),
             new Claim(JwtRegisteredClaimNames.Iss, _configuration.Issuer),
             new Claim(JwtRegisteredClaimNames.Iat, iat.ToString()),
