@@ -7,32 +7,32 @@ namespace OAuthService;
 
 public class ConfigureSwaggerOptions : IConfigureNamedOptions<SwaggerGenOptions>
 {
-    private readonly IApiVersionDescriptionProvider _provider;
+  private readonly IApiVersionDescriptionProvider _provider;
 
-    public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider)
+  public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider)
+  {
+    _provider = provider;
+  }
+
+  public void Configure(SwaggerGenOptions options)
+  {
+    foreach (var description in _provider.ApiVersionDescriptions)
     {
-        _provider = provider;
-    }
+      var info = new OpenApiInfo
+      {
+        Title = "Authorization Server",
+        Version = description.ApiVersion.ToString(),
+        Description = "API to distribute tokens under the OAUTH protocol"
+      };
+      if (description.IsDeprecated)
+        info.Description += " This API version has been deprecated.";
 
-    public void Configure(SwaggerGenOptions options)
-    {
-        foreach (var description in _provider.ApiVersionDescriptions)
-        {
-            var info = new OpenApiInfo
-            {
-                Title = "Authorization Server",
-                Version = description.ApiVersion.ToString(),
-                Description = "API to distribute tokens under the OAUTH protocol"
-            };
-            if (description.IsDeprecated)
-                info.Description += " This API version has been deprecated.";
-
-            options.SwaggerDoc(description.GroupName, info);
-        }
+      options.SwaggerDoc(description.GroupName, info);
     }
+  }
 
-    public void Configure(string name, SwaggerGenOptions options)
-    {
-        Configure(options);
-    }
+  public void Configure(string name, SwaggerGenOptions options)
+  {
+    Configure(options);
+  }
 }
