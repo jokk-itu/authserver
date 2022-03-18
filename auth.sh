@@ -1,7 +1,7 @@
 #! /bin/sh
 
 curl -X 'POST' \
-  'http://localhost:18001/oauth2/v1/token' \
+  'http://localhost:18001/connect/v1/token' \
   -H 'accept: */*' \
   -H 'Content-Type: application/json' \
   -H 'Authorization: Basic dGVzdDoyQkI4MEQ1MzdCMURBM0UzOEJEMzAzNjFBQTg1NTY4NkJERTBFQUNENzE2MkZFRjZBMjVGRTk3QkY1MjdBMjVC'  \
