@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace AuthorizationServer;
+namespace AuthorizationServer.Extensions;
 
 public static class CryptographyExtensions
 {

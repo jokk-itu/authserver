@@ -1,3 +1,4 @@
+using AuthorizationServer.Constants;
 using AuthorizationServer.Requests;
 using FluentValidation;
 
@@ -7,6 +8,7 @@ public class UserLoginRequestValidator : AbstractValidator<UserLoginRequest>
 {
     public UserLoginRequestValidator()
     {
-        
+        RuleFor(x => x.Username).NotEmpty().WithErrorCode(UserLoginErrorCode.InvalidRequest).WithMessage(UserLoginErrorDescription.Username);
+        RuleFor(x => x.Password).NotEmpty().WithErrorCode(UserLoginErrorCode.InvalidRequest).WithMessage(UserLoginErrorDescription.Password);
     }    
 }

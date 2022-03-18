@@ -40,22 +40,6 @@ public class TokenController : ControllerBase
   }
 
   [HttpPost]
-  [Route("access")]
-  public async Task<IActionResult> GetAccessTokenAsync()
-  {
-    
-    return Ok();
-  }
-  
-  [HttpPost]
-  [Route("refresh")]
-  public async Task<IActionResult> GetRefreshTokenAsync()
-  {
-    
-    return Ok();
-  }
-
-  [HttpPost]
   [Route("token")]
   public async Task<IActionResult> Token(
       [FromBody] TokenRequest request,

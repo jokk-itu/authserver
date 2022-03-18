@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using AuthorizationServer.Exceptions;
 using AuthorizationServer.Repositories;
 using AuthorizationServer.Requests;
 using AuthorizationServer.TokenFactories;

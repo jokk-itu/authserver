@@ -27,7 +27,7 @@ public class AuthorizeRequestValidator : AbstractValidator<AuthorizeCodeRequest>
         RuleFor(x => x.State).NotEmpty().WithErrorCode(AuthorizeCodeErrorCode.InvalidRequest).WithMessage(AuthorizeCodeErrorDescription.State);
         RuleFor(x => x.CodeChallenge).Matches("^[a-zA-Z0-9-_~.]{43,128}$")
             .WithErrorCode(AuthorizeCodeErrorCode.InvalidRequest).WithMessage(AuthorizeCodeErrorDescription.CodeChallenge);
-        RuleFor(x => x.CodeChallengeMethod).Matches("^S256|plain$").WithErrorCode("").WithMessage(AuthorizeCodeErrorDescription.CodeChallengeMethod);
+        RuleFor(x => x.CodeChallengeMethod).Matches("^S256|plain$").WithErrorCode(AuthorizeCodeErrorCode.InvalidRequest).WithMessage(AuthorizeCodeErrorDescription.CodeChallengeMethod);
         RuleFor(x => x.Nonce).NotEmpty().WithErrorCode(AuthorizeCodeErrorCode.InvalidRequest).WithMessage(AuthorizeCodeErrorDescription.Nonce);
         RuleFor(x => x.Display).Matches("page|popup|touch|wap").WithErrorCode(AuthorizeCodeErrorCode.InvalidRequest)
             .WithMessage(AuthorizeCodeErrorDescription.Display);

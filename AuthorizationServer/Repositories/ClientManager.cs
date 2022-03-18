@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using AuthorizationServer.Entities;
+using AuthorizationServer.Extensions;
 
 namespace AuthorizationServer.Repositories;
 

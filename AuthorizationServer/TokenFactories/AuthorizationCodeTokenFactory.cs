@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.DataProtection;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Json;
+using AuthorizationServer.Extensions;
 using AuthorizationServer.Tokens;
 
 namespace AuthorizationServer.TokenFactories;

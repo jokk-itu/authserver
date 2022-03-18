@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using AuthorizationServer.Entities;
+using AuthorizationServer.Extensions;
 
 namespace AuthorizationServer;
 
@@ -171,12 +172,7 @@ public class IdentityContext : IdentityDbContext
         new IdentityClientGrant<string>
         {
           ClientId = client.Id,
-          Name = "password"
-        },
-        new IdentityClientGrant<string>
-        {
-          ClientId = client.Id,
-          Name = "client_credentials"
+          Name = "device"
         },
         new IdentityClientGrant<string>
         {
@@ -237,14 +233,14 @@ public class IdentityContext : IdentityDbContext
             },
             new IdentityUserClaim<string>
             {
-              Id = 3,
+              Id = 2,
               ClaimType = ClaimTypes.Surname,
               ClaimValue = "Kelsen",
               UserId = jokk.Id
             },
             new IdentityUserClaim<string>
             {
-              Id = 2,
+              Id = 3,
               ClaimType = ClaimTypes.Country,
               ClaimValue = "Denmark",
               UserId = jokk.Id

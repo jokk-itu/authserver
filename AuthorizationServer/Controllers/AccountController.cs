@@ -7,7 +7,7 @@ namespace AuthorizationServer.Controllers;
 [ApiController]
 [ApiVersion("1")]
 [ControllerName("account")]
-[Route("oauth2/v{version:apiVersion}/[controller]")]
+[Route("connect/v{version:apiVersion}/[controller]")]
 public class AccountController : ControllerBase
 {
   private readonly UserManager<IdentityUser> _manager;
@@ -30,6 +30,7 @@ public class AccountController : ControllerBase
       NormalizedEmail = request.Email.ToUpper(),
       PhoneNumber = request.PhoneNumber
     }, request.Password);
+    
     if(identityResult.Succeeded)
       return Ok();
 
@@ -37,7 +38,7 @@ public class AccountController : ControllerBase
   }
 
   [HttpPost]
-  [Route("resetpassword")]
+  [Route("reset/password")]
   public async Task<IActionResult> ResetPassword(
       [FromBody] ResetPasswordRequest request)
   {
