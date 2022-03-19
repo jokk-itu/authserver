@@ -12,7 +12,6 @@ namespace AuthorizationServer.Controllers;
 
 [ApiController]
 [ApiVersion("1")]
-[ControllerName("token")]
 [Route("connect/v{version:apiVersion}/[controller]")]
 public class TokenController : ControllerBase
 {
@@ -40,7 +39,6 @@ public class TokenController : ControllerBase
   }
 
   [HttpPost]
-  [Route("token")]
   public async Task<IActionResult> Token(
       [FromBody] TokenRequest request,
       [FromHeader(Name = "Authorization")] string authorization)

@@ -15,13 +15,13 @@ public class ClientManager
   }
 
   public async Task<IdentityClient?> FindClientByIdAsync(
-      [Required(AllowEmptyStrings = false)] string clientId)
+      [Required] string clientId)
   {
     return await _context.Clients.FindAsync(clientId);
   }
 
   public async Task<bool> IsValidClientAsync(
-      [Required(AllowEmptyStrings = false)] string clientId,
+      [Required] string clientId,
       string? clientSecret = null)
   {
     if (clientSecret is not null && string.IsNullOrEmpty(clientSecret))
@@ -36,7 +36,7 @@ public class ClientManager
   }
 
   public async Task<bool> IsValidScopesAsync(
-      [Required(AllowEmptyStrings = false)] string clientId,
+      [Required] string clientId,
       ICollection<string> scopes)
   {
     if (scopes is null)
@@ -58,7 +58,7 @@ public class ClientManager
   }
 
   public async Task<bool> IsValidGrantsAsync(
-      [Required(AllowEmptyStrings = false)] string clientId,
+      [Required] string clientId,
       ICollection<string> grants)
   {
     if (grants is null)
@@ -80,7 +80,7 @@ public class ClientManager
   }
 
   public async Task<bool> IsValidRedirectUrisAsync(
-      [Required(AllowEmptyStrings = false)] string clientId,
+      [Required] string clientId,
       ICollection<string> redirectUris)
   {
     if (redirectUris is null)
@@ -102,9 +102,9 @@ public class ClientManager
   }
 
   public async Task SetTokenAsync(
-      [Required(AllowEmptyStrings = false)] string clientId,
-      [Required(AllowEmptyStrings = false)] string tokenName,
-      [Required(AllowEmptyStrings = false)] string tokenValue)
+      [Required] string clientId,
+      [Required] string tokenName,
+      [Required] string tokenValue)
   {
     await _context.ClientTokens.AddAsync(new IdentityClientToken<string>
     {

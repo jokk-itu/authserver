@@ -6,7 +6,6 @@ namespace AuthorizationServer.Controllers;
 
 [ApiController]
 [ApiVersion("1")]
-[ControllerName("account")]
 [Route("connect/v{version:apiVersion}/[controller]")]
 public class AccountController : ControllerBase
 {

@@ -6,7 +6,7 @@ using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegiste
 
 namespace AuthorizationServer.TokenFactories;
 
-public class RefreshTokenFactory : ITokenFactory
+public class RefreshTokenFactory
 {
   private readonly AuthenticationConfiguration _configuration;
   private readonly TokenValidationParameters _tokenValidationParameters;

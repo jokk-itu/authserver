@@ -57,7 +57,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<ClientManager>();
         services.AddScoped<ResourceManager>();
-        services.AddScoped<KeyPairManager>();
+        services.AddScoped<AsymmetricKeyPairManager>();
         services.AddDbContext<IdentityContext>(options =>
         {
             options.UseSqlServer(configuration.GetConnectionString("SqlServer"),

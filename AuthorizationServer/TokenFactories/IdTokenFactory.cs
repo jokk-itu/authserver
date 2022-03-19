@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace AuthorizationServer.TokenFactories;
 
-public class IdTokenFactory : ITokenFactory
+public class IdTokenFactory
 {
   private readonly AuthenticationConfiguration _configuration;
   private readonly TokenValidationParameters _tokenValidationParameters;

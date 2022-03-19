@@ -6,7 +6,7 @@ using AuthorizationServer.Repositories;
 
 namespace AuthorizationServer.TokenFactories;
 
-public class AccessTokenFactory : ITokenFactory
+public class AccessTokenFactory
 {
     private readonly AuthenticationConfiguration _configuration;
     private readonly TokenValidationParameters _tokenValidationParameters;

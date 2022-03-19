@@ -10,7 +10,6 @@ var services = builder.Services;
 var authConfiguration = builder.Configuration.GetSection("Identity").Get<AuthenticationConfiguration>();
 services.AddSingleton(authConfiguration);
 services.AddDataProtection();
-
 services.AddAuth(authConfiguration);
 services.AddSwagger();
 services.AddApi();

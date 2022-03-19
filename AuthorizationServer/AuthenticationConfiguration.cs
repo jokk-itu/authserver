@@ -5,6 +5,8 @@ public record AuthenticationConfiguration
   public string Audience { get; init; }
 
   public string Issuer { get; init; }
+  
+  public string PrivateKeySecret { get; init; }
 
   public string TokenSecret { get; init; }
 

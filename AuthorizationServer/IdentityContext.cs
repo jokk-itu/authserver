@@ -21,7 +21,7 @@ public class IdentityContext : IdentityDbContext
 
   public DbSet<IdentityResourceScope> ResourceScopes { get; set; }
 
-  public DbSet<RSAKeyPair> KeyPairs { get; set; }
+  public DbSet<AsymmetricKeyPair> KeyPairs { get; set; }
 
   public IdentityContext(DbContextOptions<IdentityContext> options) : base(options)
   {
@@ -90,11 +90,11 @@ public class IdentityContext : IdentityDbContext
       b.ToTable("AspNetResourceScopes");
     });
 
-    //PublicKey
-    builder.Entity<RSAKeyPair>(b => 
+    //AsymmetricKeyPairs
+    builder.Entity<AsymmetricKeyPair>(b => 
     {
-      b.HasKey(pb => new { pb.PublicKey, pb.PrivateKey });
-      b.ToTable("KeyPairs");
+      b.HasKey(pb => pb.PublicKey);
+      b.ToTable("AsymmetricKeyPairs");
     });
 
     SetScopes(builder);

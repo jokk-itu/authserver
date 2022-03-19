@@ -7,7 +7,7 @@ using AuthorizationServer.Tokens;
 
 namespace AuthorizationServer.TokenFactories;
 
-public class AuthorizationCodeTokenFactory : ITokenFactory
+public class AuthorizationCodeTokenFactory
 {
   private readonly AuthenticationConfiguration _configuration;
   private readonly IDataProtector _protector;
@@ -19,12 +19,12 @@ public class AuthorizationCodeTokenFactory : ITokenFactory
   }
 
   public async Task<string> GenerateTokenAsync(
-      [Required(AllowEmptyStrings = false)] string redirectUri,
+      [Required] string redirectUri,
       [Required] ICollection<string> scopes,
-      [Required(AllowEmptyStrings = false)] string clientId,
-      [Required(AllowEmptyStrings = false)] string codeChallenge,
-      [Required(AllowEmptyStrings = false)] string codeChallengeMethod,
-      [Required(AllowEmptyStrings = false)] string userId)
+      [Required] string clientId,
+      [Required] string codeChallenge,
+      [Required] string codeChallengeMethod,
+      [Required] string userId)
   {
     var ms = new MemoryStream();
     await using var writer = new BinaryWriter(ms, Encoding.UTF8, false);
@@ -65,11 +65,11 @@ public class AuthorizationCodeTokenFactory : ITokenFactory
   }
 
   public Task<bool> ValidateAsync(
-      [Required(AllowEmptyStrings = false)] string purpose,
-      [Required(AllowEmptyStrings = false)] string token,
-      [Required(AllowEmptyStrings = false)] string redirectUri,
-      [Required(AllowEmptyStrings = false)] string clientId,
-      [Required(AllowEmptyStrings = false)] string codeVerifier)
+      [Required] string purpose,
+      [Required] string token,
+      [Required] string redirectUri,
+      [Required] string clientId,
+      [Required] string codeVerifier)
   {
     var decoded = Convert.FromBase64String(token);
     var unProtectedBytes = _protector.Unprotect(decoded);
