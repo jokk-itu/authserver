@@ -1,6 +1,15 @@
-version: "3.9"
+version: '3.4'
+
+networks:
+  net:
 
 services:
+  api:
+    image: ${DOCKER_REGISTRY-}api
+    build:
+      context: .
+      dockerfile: Authorization/Api/Dockerfile
+
   mssql:
     image: mcr.microsoft.com/mssql/server:2019-latest
     hostname: mssql
@@ -10,3 +19,5 @@ services:
       -  SA_PASSWORD=Password12!
     ports:
       - "1433:1433"
+    networks:
+      - net
