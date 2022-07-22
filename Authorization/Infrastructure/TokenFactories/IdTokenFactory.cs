@@ -1,7 +1,9 @@
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
@@ -9,47 +11,58 @@ namespace AuthorizationServer.TokenFactories;
 
 public class IdTokenFactory
 {
-  private readonly AuthenticationConfiguration _configuration;
+  private readonly IdentityConfiguration _identityConfiguration;
   private readonly TokenValidationParameters _tokenValidationParameters;
   private readonly UserManager<IdentityUser> _userManager;
+  private readonly JwkManager _jwkManager;
 
-  public IdTokenFactory(AuthenticationConfiguration configuration,
-      TokenValidationParameters tokenValidationParameters,
-      UserManager<IdentityUser> userManager)
+  public IdTokenFactory(
+    IdentityConfiguration identityConfiguration,
+    TokenValidationParameters tokenValidationParameters,
+    UserManager<IdentityUser> userManager,
+    JwkManager jwkManager)
   {
-    _configuration = configuration;
+    _identityConfiguration = identityConfiguration;
     _tokenValidationParameters = tokenValidationParameters;
     _userManager = userManager;
+    _jwkManager = jwkManager;
   }
 
   public async Task<string> GenerateTokenAsync(string clientId, IEnumerable<string> scopes,
       string nonce, string userId)
   {
     var iat = DateTimeOffset.UtcNow;
-    var exp = iat + TimeSpan.FromSeconds(_configuration.IdTokenExpiration);
+    var exp = iat + TimeSpan.FromSeconds(_identityConfiguration.IdTokenExpiration);
     var claims = new List<Claim>
-        {
-            new(JwtRegisteredClaimNames.Sub, userId),
-            new(JwtRegisteredClaimNames.Aud, clientId),
-            new(JwtRegisteredClaimNames.Iss, _configuration.Issuer),
-            new(JwtRegisteredClaimNames.Iat, iat.ToString()),
-            new(JwtRegisteredClaimNames.Exp, exp.ToString()),
-            new(JwtRegisteredClaimNames.Nbf, iat.ToString()),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(JwtRegisteredClaimNames.AuthTime, DateTimeOffset.Now.ToUnixTimeSeconds().ToString()),
-            new(JwtRegisteredClaimNames.Nonce, nonce),
-            new("scope", scopes.Aggregate((elem, acc) => $"{acc} {elem}"))
-        };
+    {
+      new(JwtRegisteredClaimNames.Sub, userId),
+      new(JwtRegisteredClaimNames.Aud, clientId),
+      new(JwtRegisteredClaimNames.Iss, _identityConfiguration.InternalIssuer),
+      new(JwtRegisteredClaimNames.Iat, iat.ToString()),
+      new(JwtRegisteredClaimNames.Exp, exp.ToString()),
+      new(JwtRegisteredClaimNames.Nbf, iat.ToString()),
+      new(JwtRegisteredClaimNames.AuthTime, DateTimeOffset.Now.ToUnixTimeSeconds().ToString()),
+      new(JwtRegisteredClaimNames.Nonce, nonce),
+      new("scope", scopes.Aggregate((elem, acc) => $"{acc} {elem}"))
+    };
     var user = await _userManager.FindByIdAsync(userId);
     var userClaims = await _userManager.GetClaimsAsync(user);
     var userRoles = await _userManager.GetRolesAsync(user);
     claims.AddRange(userClaims.Select(claim => new Claim(claim.Type, claim.Value)));
     claims.Add(new Claim("roles", JsonSerializer.Serialize(userRoles)));
 
-    var secret = _configuration.TokenSecret;
-    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
-    var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
+    using var rsa = new RSACryptoServiceProvider(4096);
+    var jwk = await _jwkManager.GetJwkAsync();
+    var password = Encoding.Default.GetBytes(_identityConfiguration.PrivateKeySecret);
+    rsa.ImportEncryptedPkcs8PrivateKey(password, jwk.PrivateKey, out var bytesRead);
+    var key = new RsaSecurityKey(rsa)
+    {
+      KeyId = jwk.KeyId.ToString()
+    };
+    var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256)
+    {
+      CryptoProviderFactory = new CryptoProviderFactory { CacheSignatureProviders = false }
+    };
     var securityToken = new JwtSecurityToken(
         claims: claims,
         signingCredentials: signingCredentials);

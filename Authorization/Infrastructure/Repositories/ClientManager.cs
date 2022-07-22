@@ -14,25 +14,18 @@ public class ClientManager
     _context = context;
   }
 
-  public async Task<IdentityClient?> FindClientByIdAsync(
-      [Required] string clientId)
+  public async Task<IdentityClient?> IsValidClientAsync(
+      string clientId) 
   {
     return await _context.Clients.FindAsync(clientId);
   }
 
   public async Task<bool> IsValidClientAsync(
       [Required] string clientId,
-      string? clientSecret = null)
+      [Required] string clientSecret)
   {
-    if (clientSecret is not null && string.IsNullOrEmpty(clientSecret))
-      throw new ArgumentException("ClientSecret must not be empty", nameof(clientSecret));
-
     var client = await _context.Clients.FindAsync(clientId);
-
-    if (clientSecret is not null)
-      return client is not null && clientSecret.Sha256().Equals(client.SecretHash);
-
-    return client is not null;
+    return client is not null && clientSecret.Sha256().Equals(client.SecretHash);
   }
 
   public async Task<bool> IsValidScopesAsync(
@@ -99,19 +92,5 @@ public class ClientManager
     }
 
     return isValid;
-  }
-
-  public async Task SetTokenAsync(
-      [Required] string clientId,
-      [Required] string tokenName,
-      [Required] string tokenValue)
-  {
-    await _context.ClientTokens.AddAsync(new IdentityClientToken<string>
-    {
-      ClientId = clientId,
-      Name = tokenName,
-      Value = tokenValue
-    });
-    await _context.SaveChangesAsync();
   }
 }

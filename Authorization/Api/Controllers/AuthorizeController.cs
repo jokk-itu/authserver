@@ -1,12 +1,12 @@
-using AuthorizationServer.Exceptions;
 using AuthorizationServer.Repositories;
 using AuthorizationServer.TokenFactories;
 using Contracts.AuthorizeCode;
-using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using System.Runtime.CompilerServices;
+using System.Security.Claims;
+using System.Text;
 
 namespace AuthorizationServer.Controllers;
 
@@ -16,69 +16,75 @@ namespace AuthorizationServer.Controllers;
 public class AuthorizeController : ControllerBase
 {
   private readonly ClientManager _clientManager;
+  private readonly AuthorizationCodeTokenFactory _authorizationCodeTokenFactory;
+  private readonly SignInManager<IdentityUser> _signInManager;
   private readonly UserManager<IdentityUser> _userManager;
-  private readonly IDataProtector _protector;
-  private readonly AuthenticationConfiguration _configuration;
 
   public AuthorizeController(
-      IOptions<AuthenticationConfiguration> configuration,
       UserManager<IdentityUser> userManager,
       ClientManager clientManager,
-      IDataProtectionProvider protectorProvider)
+      AuthorizationCodeTokenFactory authorizationCodeTokenFactory,
+      SignInManager<IdentityUser> signInManager)
   {
     _clientManager = clientManager;
+    _authorizationCodeTokenFactory = authorizationCodeTokenFactory;
+    _signInManager = signInManager;
     _userManager = userManager;
-    _configuration = configuration.Value;
-    _protector = protectorProvider.CreateProtector(_configuration.AuthorizationCodeSecret);
   }
 
   [HttpPost]
-  [Route("authorize")]
-  public async Task<IActionResult> Authorize(
-      PostAuthorizeCodeRequest codeRequest)
+  public async Task<IActionResult> PostAuthorizeAsync(
+      PostAuthorizeCodeRequest request)
   {
-    if (!await _clientManager.IsValidClientAsync(codeRequest.ClientId))
+    if (await _clientManager.IsValidClientAsync(request.ClientId) is null)
       return BadRequest("client_id does not exist");
 
-    var scopes = codeRequest.Scope.Split(" ");
-    if (!await _clientManager.IsValidScopesAsync(codeRequest.ClientId, scopes))
+    var scopes = request.Scope.Split(" ");
+    if (!await _clientManager.IsValidScopesAsync(request.ClientId, scopes))
       return BadRequest("scopes are not valid for this client_id");
 
-    if (!await _clientManager.IsValidRedirectUrisAsync(codeRequest.ClientId, new[] { codeRequest.RedirectUri }))
+    if (!await _clientManager.IsValidRedirectUrisAsync(request.ClientId, new[] { request.RedirectUri }))
       return BadRequest("redirect_uri is not valid for this client_id");
 
-    var user = await _userManager.FindByNameAsync(codeRequest.UserInformation.Username);
-    if (user?.PasswordHash is null)
-      return BadRequest("user information was wrong");
-    var isCorrectPassword = _userManager.PasswordHasher
-        .VerifyHashedPassword(user, user.PasswordHash, codeRequest.UserInformation.Password);
-    switch (isCorrectPassword)
+    var signInResult = await _signInManager.PasswordSignInAsync(request.Username, request.Password, true, false);
+
+    if(!signInResult.Succeeded) 
     {
-      case PasswordVerificationResult.Failed:
-        return BadRequest("user information was wrong");
-      case PasswordVerificationResult.SuccessRehashNeeded:
-        user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, codeRequest.UserInformation.Password);
-        var result = await _userManager.UpdateAsync(user);
-        if (!result.Succeeded)
-          throw new PasswordRehashFailedException("Password cannot be re-hashed");
-        break;
-      case PasswordVerificationResult.Success:
-        break;
-      default:
-        throw new
-            SwitchExpressionException($"{isCorrectPassword.GetType().Name} is not covered");
+      var errors = new StringBuilder();
+      if (signInResult.IsLockedOut)
+        errors.AppendLine("user is locked out");
+
+      if (signInResult.IsNotAllowed)
+        errors.AppendLine("User is not allowed to sign in");
+
+      if (signInResult.RequiresTwoFactor)
+        errors.AppendLine("User requires two factor authentication");
+
+      return BadRequest(errors);
     }
 
-    var codeFactory = new AuthorizationCodeTokenFactory(_configuration, _protector);
-    var code = await codeFactory.GenerateTokenAsync(
-        codeRequest.RedirectUri,
+    var user = await _userManager.FindByNameAsync(request.Username);
+    var code = await _authorizationCodeTokenFactory.GenerateTokenAsync(
+        request.RedirectUri,
         scopes,
-        codeRequest.ClientId,
-        codeRequest.CodeChallenge,
-        codeRequest.CodeChallengeMethod,
+        request.ClientId,
+        request.CodeChallenge,
+        request.CodeChallengeMethod,
         user.Id);
 
-    await _clientManager.SetTokenAsync(codeRequest.ClientId, _configuration.AuthorizationCodeSecret, code);
-    return Redirect($"{codeRequest.RedirectUri}?code={code}&state={codeRequest.State}");
+    var claims = new Claim[]
+    {
+      new (ClaimTypes.Name, user.UserName),
+      new (ClaimTypes.Email, user.Email)
+    };
+
+    var claimsIdentity = new ClaimsIdentity(claims, OpenIdConnectDefaults.AuthenticationScheme);
+
+    await HttpContext.SignInAsync(
+        OpenIdConnectDefaults.AuthenticationScheme,
+        new ClaimsPrincipal(claimsIdentity),
+        new AuthenticationProperties());
+
+    return Redirect($"{request.RedirectUri}?code={code}&state={request.State}");
   }
 }

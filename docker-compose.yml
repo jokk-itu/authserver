@@ -4,11 +4,11 @@ networks:
   net:
 
 services:
-  api:
-    image: ${DOCKER_REGISTRY-}api
+  auth-app:
+    image: ${DOCKER_REGISTRY-}auth-app
     build:
       context: .
-      dockerfile: Authorization/Api/Dockerfile
+      dockerfile: Authorization/WebApp/Dockerfile
 
   mssql:
     image: mcr.microsoft.com/mssql/server:2019-latest
@@ -21,3 +21,15 @@ services:
       - "1433:1433"
     networks:
       - net
+
+  webapi:
+    image: ${DOCKER_REGISTRY}webapi
+    build:
+      context: .
+      dockerfile: TestSystem/WebApi/Dockerfile
+
+  webapp:
+    image: ${DOCKER_REGISTRY}webapp
+    build:
+      context: .
+      dockerfile: TestSystem/WebApp/Dockerfile

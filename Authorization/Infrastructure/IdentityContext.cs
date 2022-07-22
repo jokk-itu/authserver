@@ -1,9 +1,10 @@
 using AuthorizationServer.Entities;
 using AuthorizationServer.Extensions;
+using Domain;
+using Domain.Constants;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace AuthorizationServer;
 
@@ -14,16 +15,13 @@ public class IdentityContext : IdentityDbContext
   public DbSet<IdentityClientGrant<string>> ClientGrants { get; set; }
   public DbSet<IdentityClientRedirectUri<string>> ClientRedirectUris { get; set; }
   public DbSet<IdentityClientToken<string>> ClientTokens { get; set; }
-
   public DbSet<IdentityScope> Scopes { get; set; }
-
   public DbSet<IdentityResource> Resources { get; set; }
-
   public DbSet<IdentityResourceScope> ResourceScopes { get; set; }
+  public DbSet<IdentityJwk> Jwks { get; set; }
 
   public IdentityContext(DbContextOptions<IdentityContext> options) : base(options)
-  {
-  }
+  {}
 
   protected override void OnModelCreating(ModelBuilder builder)
   {
@@ -88,10 +86,17 @@ public class IdentityContext : IdentityDbContext
       b.ToTable("AspNetResourceScopes");
     });
 
+    //Jwk
+    builder.Entity<IdentityJwk>(b => 
+    {
+      b.HasKey(jwk => jwk.KeyId);
+      b.ToTable("AspNetJwks");
+    });
+
     SetScopes(builder);
     SetResources(builder);
     SetClients(builder);
-    SetUsers(builder);
+    SetRoles(builder);
   }
 
   private void SetResources(ModelBuilder builder)
@@ -105,17 +110,7 @@ public class IdentityContext : IdentityDbContext
         new IdentityResourceScope
         {
           ResourceId = "api1",
-          ScopeId = "openid"
-        },
-        new IdentityResourceScope
-        {
-          ResourceId = "api1",
-          ScopeId = "profile"
-        },
-        new IdentityResourceScope
-        {
-          ResourceId = "api1",
-          ScopeId = "api1:read"
+          ScopeId = "api1"
         });
   }
 
@@ -131,7 +126,7 @@ public class IdentityContext : IdentityDbContext
     };
     var api1 = new IdentityScope
     {
-      Id = "api1:read"
+      Id = "api1"
     };
     builder.Entity<IdentityScope>().HasData(openId, profile, api1);
   }
@@ -143,8 +138,8 @@ public class IdentityContext : IdentityDbContext
     {
       Id = "test",
       SecretHash = "secret".Sha256(),
-      ClientType = "confidential", //Or public
-      ClientProfile = "web application" //or user-agent based application or native application
+      ClientType = ClientType.Confidential,
+      ClientProfile = ClientProfile.WebApplication
     };
     builder.Entity<IdentityClient>().HasData(client);
 
@@ -182,6 +177,11 @@ public class IdentityContext : IdentityDbContext
         {
           ClientId = client.Id,
           ScopeId = "openid"
+        },
+        new IdentityClientScope<string> 
+        {
+          ClientId = client.Id,
+          ScopeId = "api1"
         });
 
     //ClientRedirectUris
@@ -193,56 +193,11 @@ public class IdentityContext : IdentityDbContext
         });
   }
 
-  private void SetUsers(ModelBuilder builder)
+  private void SetRoles(ModelBuilder builder)
   {
-    //Users
-    var jokk = new IdentityUser
-    {
-      Email = "joachim@kelsen.nu",
-      EmailConfirmed = true,
-      NormalizedEmail = "JOACHIM@KELSEN.NU",
-      UserName = "jokk",
-      NormalizedUserName = "JOKK"
-    };
-    builder.Entity<IdentityUser>()
-        .HasData(jokk);
-
     //Roles
     var admin = new IdentityRole("Admin");
     builder.Entity<IdentityRole>()
         .HasData(admin);
-
-    //UserClaims
-    builder.Entity<IdentityUserClaim<string>>()
-        .HasData(
-            new IdentityUserClaim<string>
-            {
-              Id = 1,
-              ClaimType = ClaimTypes.Name,
-              ClaimValue = "Joachim",
-              UserId = jokk.Id
-            },
-            new IdentityUserClaim<string>
-            {
-              Id = 2,
-              ClaimType = ClaimTypes.Surname,
-              ClaimValue = "Kelsen",
-              UserId = jokk.Id
-            },
-            new IdentityUserClaim<string>
-            {
-              Id = 3,
-              ClaimType = ClaimTypes.Country,
-              ClaimValue = "Denmark",
-              UserId = jokk.Id
-            });
-
-    //UserRoles
-    builder.Entity<IdentityUserRole<string>>().HasData(
-        new IdentityUserRole<string>
-        {
-          RoleId = admin.Id,
-          UserId = jokk.Id
-        });
   }
 }

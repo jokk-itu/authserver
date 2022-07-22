@@ -1,8 +1,10 @@
 using AuthorizationServer;
 using AuthorizationServer.Extensions;
+using AuthorizationServer.TokenFactories;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,9 +20,13 @@ builder.WebHost.ConfigureServices(services =>
   services.AddEndpointsApiExplorer();
   services.AddSwaggerGen();
   services.AddOptions<ConfigureSwaggerOptions>();
-  var authConfiguration = builder.Configuration.GetSection("Identity").Get<AuthenticationConfiguration>();
+  var authConfiguration = builder.Configuration.GetSection("Identity").Get<IdentityConfiguration>();
   services.AddSingleton(authConfiguration);
   services.AddDataProtection();
+  services.AddTransient<AuthorizationCodeTokenFactory>();
+  services.AddTransient<AccessTokenFactory>();
+  services.AddTransient<IdTokenFactory>();
+  services.AddTransient<RefreshTokenFactory>();
 
   var tokenValidationParameters = new TokenValidationParameters
   {
@@ -33,12 +39,13 @@ builder.WebHost.ConfigureServices(services =>
   };
   services.AddSingleton(tokenValidationParameters);
 
-  services.AddAuthentication("OpenId")
-      .AddJwtBearer("OpenId", config =>
+  services.AddAuthentication(OAuthDefaults.DisplayName)
+      .AddJwtBearer(OAuthDefaults.DisplayName, config =>
       {
         config.IncludeErrorDetails = true; //DEVELOP READY
         config.RequireHttpsMetadata = false; //DEVELOP READY
         config.TokenValidationParameters = tokenValidationParameters;
+        config.SaveToken = true;
         config.Validate();
       });
 
@@ -52,7 +59,6 @@ var scope = app.Services.CreateScope();
 var context = scope.ServiceProvider.GetRequiredService<IdentityContext>();
 await context.Database.EnsureDeletedAsync();
 await context.Database.EnsureCreatedAsync();
-//await context.Database.MigrateAsync();
 
 if (app.Environment.IsDevelopment())
 {
@@ -67,6 +73,7 @@ if (app.Environment.IsDevelopment())
   });
 }
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

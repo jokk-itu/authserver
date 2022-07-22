@@ -1,14 +1,15 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Contracts.ResetPassword;
 
 public record PostResetPasswordRequest
 {
-  [Required(AllowEmptyStrings = false)]
+  [JsonPropertyName("username")]
   public string Username { get; init; }
 
-  [Required(AllowEmptyStrings = false)]
+  [JsonPropertyName("password")]
   [PasswordPropertyText]
   public string Password { get; init; }
 }

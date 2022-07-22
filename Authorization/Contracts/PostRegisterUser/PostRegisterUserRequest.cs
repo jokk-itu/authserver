@@ -1,22 +1,23 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Contracts.RegisterUser;
 
 public record PostRegisterUserRequest
 {
-  [Required(AllowEmptyStrings = false)]
+  [JsonPropertyName("username")]
   public string Username { get; init; }
 
-  [Required(AllowEmptyStrings = false)]
+  [JsonPropertyName("password")]
   [PasswordPropertyText]
   public string Password { get; init; }
 
-  [Required(AllowEmptyStrings = false)]
+  [JsonPropertyName("email")]
   [EmailAddress]
   public string Email { get; init; }
 
-  [Required(AllowEmptyStrings = false)]
+  [JsonPropertyName("phonenumber")]
   [Phone]
   public string PhoneNumber { get; init; }
 }

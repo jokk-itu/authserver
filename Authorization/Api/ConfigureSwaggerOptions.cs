@@ -7,6 +7,7 @@ namespace AuthorizationServer;
 
 public class ConfigureSwaggerOptions : IConfigureNamedOptions<SwaggerGenOptions>
 {
+  private const string DeprecationNotice = " This API version has been deprecated.";
   private readonly IApiVersionDescriptionProvider _provider;
 
   public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider)
@@ -22,10 +23,10 @@ public class ConfigureSwaggerOptions : IConfigureNamedOptions<SwaggerGenOptions>
       {
         Title = "Authorization Server",
         Version = description.ApiVersion.ToString(),
-        Description = "API to distribute tokens under the OAUTH protocol"
+        Description = "API to distribute tokens under the OAuth protocol."
       };
       if (description.IsDeprecated)
-        info.Description += " This API version has been deprecated.";
+        info.Description += DeprecationNotice;
 
       options.SwaggerDoc(description.GroupName, info);
     }

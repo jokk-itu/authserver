@@ -12,12 +12,18 @@ public class ResourceManager
     _context = context;
   }
 
-  public async Task<ICollection<IdentityResource>> FindResourcesByScopes(ICollection<string> scopes) =>
-      await _context.ResourceScopes
-          .Where(rs =>
-              scopes.Any(s => s.Equals(rs.ScopeId)))
-          .DistinctBy(rs => rs.ResourceId)
-          .Select(rs =>
-              new IdentityResource { Id = rs.ResourceId })
-          .ToListAsync();
+  public async Task<ICollection<IdentityResource>> FindResourcesByScopes(ICollection<string> scopes) 
+  {
+    var resources = new List<IdentityResource>();
+    foreach (var scope in scopes) 
+    {
+      var resourceScope = _context.ResourceScopes.Where(x => x.ScopeId.Equals(scope)).SingleOrDefault();
+      if (resourceScope is not null) 
+      {
+        var resource = await _context.Resources.FindAsync(resourceScope.ResourceId);
+        resources.Add(resource);
+      }
+    }
+    return resources;
+  }
 }
