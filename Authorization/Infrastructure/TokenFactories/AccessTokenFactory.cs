@@ -3,8 +3,6 @@ using Infrastructure.Repositories;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace AuthorizationServer.TokenFactories;
 
@@ -30,19 +28,13 @@ public class AccessTokenFactory
   public async Task<string> GenerateTokenAsync(string clientId, ICollection<string> scopes,
       string userId)
   {
-    var iat = DateTimeOffset.UtcNow;
-    var exp = iat + TimeSpan.FromSeconds(_identityConfiguration.AccessTokenExpiration);
+    var exp = DateTime.Now + TimeSpan.FromSeconds(_identityConfiguration.AccessTokenExpiration);
     var resources = await _resourceManager.FindResourcesByScopes(scopes);
     var aud = resources.Aggregate(string.Empty, (acc, r) => $"{acc} {r.Id}");
     aud = aud.Trim();
     var claims = new[]
     {
       new Claim(JwtRegisteredClaimNames.Sub, userId),
-      new Claim(JwtRegisteredClaimNames.Aud, aud),
-      new Claim(JwtRegisteredClaimNames.Iss, _identityConfiguration.InternalIssuer),
-      new Claim(JwtRegisteredClaimNames.Iat, iat.ToString()),
-      new Claim(JwtRegisteredClaimNames.Exp, exp.ToString()),
-      new Claim(JwtRegisteredClaimNames.Nbf, iat.ToString()),
       new Claim("scope", scopes.Aggregate((elem, acc) => $"{acc} {elem}")),
       new Claim("client_id", clientId)
     };
@@ -53,6 +45,10 @@ public class AccessTokenFactory
     };
     var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256);
     var securityToken = new JwtSecurityToken(
+        issuer: _identityConfiguration.InternalIssuer,
+        audience: aud,
+        notBefore: DateTime.Now,
+        expires: exp,
         claims: claims,
         signingCredentials: signingCredentials);
 

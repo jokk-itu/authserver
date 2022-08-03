@@ -20,7 +20,7 @@ public class HomeController : Controller
   }
 
   [Authorize]
-  public async Task<IActionResult> Secret() 
+  public async Task<IActionResult> Secret()
   {
     var secret = await _webApiService.GetSecretAsync();
     return View(new SecretModel { Secret = secret });

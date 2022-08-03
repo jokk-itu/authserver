@@ -31,6 +31,22 @@ builder.WebHost.ConfigureServices(services =>
     jwtBearerOptions.Authority = identity["Authority"];
     jwtBearerOptions.Audience = identity["Audience"];
     jwtBearerOptions.RequireHttpsMetadata = false;
+    /*jwtBearerOptions.TokenValidationParameters.LifetimeValidator = (notBefore, expiration, securityToken, validationParameters) =>
+    {
+      if (!notBefore.HasValue)
+        return false;
+
+      if (!expiration.HasValue)
+        return false;
+
+      if (notBefore.Value >= expiration.Value)
+        return false;
+
+      if (DateTimeOffset.UtcNow > expiration.Value)
+        return false;
+
+      return true;
+    };*/
     jwtBearerOptions.Challenge = OAuthDefaults.DisplayName;
     jwtBearerOptions.MetadataAddress = $"{jwtBearerOptions.Authority}/.well-known/openid-configuration";
     jwtBearerOptions.Events = new JwtBearerEvents 
