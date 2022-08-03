@@ -2,10 +2,8 @@
 using AuthorizationServer.Repositories;
 using AuthorizationServer.TokenFactories;
 using Contracts.PostToken;
-using Microsoft.AspNetCore.Identity;
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using System.Text;
-using System.Web;
 using WebApp.Extensions;
 
 namespace WebApp.Controllers;
@@ -19,6 +17,7 @@ public class TokenController : ControllerBase
   private readonly RefreshTokenFactory _refreshTokenFactory;
   private readonly IdTokenFactory _idTokenFactory;
   private readonly AuthorizationCodeTokenFactory _authorizationCodeTokenFactory;
+  private readonly JwkManager _jwkManager;
   private readonly IdentityConfiguration _authenticationConfiguration;
 
   public TokenController(
@@ -27,6 +26,7 @@ public class TokenController : ControllerBase
      RefreshTokenFactory refreshTokenFactory,
      IdTokenFactory idTokenFactory,
      AuthorizationCodeTokenFactory authorizationCodeTokenFactory,
+     JwkManager jwkManager,
      IdentityConfiguration authenticationConfiguration)
   {
     _clientManager = clientManager;
@@ -34,6 +34,7 @@ public class TokenController : ControllerBase
     _refreshTokenFactory = refreshTokenFactory;
     _idTokenFactory = idTokenFactory;
     _authorizationCodeTokenFactory = authorizationCodeTokenFactory;
+    _jwkManager = jwkManager;
     _authenticationConfiguration = authenticationConfiguration;
   }
 
@@ -122,14 +123,21 @@ public class TokenController : ControllerBase
       //If any deviates then return BadRequest
     }
 
-    var refreshToken = await _refreshTokenFactory.GenerateTokenAsync(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.UserId);
     var accessToken = await _accessTokenFactory.GenerateTokenAsync(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.UserId);
-    //var idToken = await _idTokenFactory.GenerateTokenAsync(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.Nonce, decodedAuthorizationCode.UserId);
+    var refreshToken = await _refreshTokenFactory.GenerateTokenAsync(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.UserId);
     return Ok(new PostTokenResponse
     {
       AccessToken = accessToken,
       RefreshToken = refreshToken,
       ExpiresIn = _authenticationConfiguration.AccessTokenExpiration
     });
+  }
+
+  [HttpGet]
+  [Route("{token}")]
+  public async Task<IActionResult> VerifyAsync(string token)
+  {
+    await _jwkManager.VerifyAsync(token);
+    return Ok();
   }
 }

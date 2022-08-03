@@ -21,18 +21,18 @@ public static class ServiceCollectionExtensions
     services.AddScoped<ClientManager>();
     services.AddScoped<ResourceManager>();
     services.AddScoped<ScopeManager>();
-    services.AddScoped<JwkManager>();
+
+    services.AddSingleton<JwkManager>();
 
     services.AddDbContext<IdentityContext>(options =>
     {
       options.UseSqlServer(configuration.GetConnectionString("SqlServer"),
-              optionsBuilder => 
-              { 
+              optionsBuilder =>
+              {
                 optionsBuilder.EnableRetryOnFailure(10, TimeSpan.FromSeconds(2), null);
                 optionsBuilder.MigrationsAssembly("Infrastructure");
               });
     });
-
     services.AddScoped<IdentityContext>();
 
     services.AddIdentityCore<IdentityUser>()

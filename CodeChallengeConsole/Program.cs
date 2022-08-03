@@ -13,8 +13,8 @@ var test1 = () =>
 
   var rsaParameters = new RSAParameters
   {
-    Modulus = Encoding.UTF8.GetBytes(Base64UrlEncoder.Decode(n)),
-    Exponent = Encoding.UTF8.GetBytes(Base64UrlEncoder.Decode(e))
+    Modulus = Base64UrlEncoder.DecodeBytes(n),
+    Exponent = Base64UrlEncoder.DecodeBytes(e)
   };
   var tokenValidationParameters = new TokenValidationParameters
   {
@@ -23,7 +23,7 @@ var test1 = () =>
     ValidateLifetime = false
   };
   var claimsPrincipal = new JwtSecurityTokenHandler().ValidateToken(accessToken, tokenValidationParameters, out var validatedToken);
-  Console.WriteLine($"Claim one: {claimsPrincipal.Claims.First()}");
+  Console.WriteLine("Test1");
 };
 
 var test2 = () => 
@@ -68,8 +68,76 @@ var test2 = () =>
     }
   };
   var claimsPrincipal = jwtHandler.ValidateToken(token, validationParameters, out var validatedToken);
-  Console.WriteLine($"Claim one: {claimsPrincipal.Claims.First()}");
+  Console.WriteLine("Test2 successful");
+};
+
+var test3 = () => 
+{
+  //Create token and public key
+  var rsa = new RSACryptoServiceProvider(4096);
+  var key = new RsaSecurityKey(rsa)
+  {
+    KeyId = "1"
+  };
+  var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256)
+  {
+    CryptoProviderFactory = new CryptoProviderFactory { CacheSignatureProviders = false }
+  };
+  var securityToken = new JwtSecurityToken(
+    issuer: "http://auth-app:80",
+    audience: "api1",
+    notBefore: DateTime.UtcNow.AddDays(-1),
+    expires: DateTime.UtcNow.AddDays(1),
+    signingCredentials: signingCredentials);
+
+  var token = new JwtSecurityTokenHandler().WriteToken(securityToken);
+
+  //Validate token using public key
+  var newRsa = new RSACryptoServiceProvider(4096);
+  var password = Encoding.Default.GetBytes("secret1234");
+  var privateKey = rsa.ExportEncryptedPkcs8PrivateKey(password, new PbeParameters(PbeEncryptionAlgorithm.Aes128Cbc, HashAlgorithmName.SHA256, 10));
+  newRsa.ImportEncryptedPkcs8PrivateKey(password, privateKey, out var _);
+  var rsaParameters = new RSAParameters
+  {
+    Exponent = newRsa.ExportParameters(false).Exponent,
+    Modulus = newRsa.ExportParameters(false).Modulus
+  };
+  var jwtHandler = new JwtSecurityTokenHandler();
+  var validationParameters = new TokenValidationParameters
+  {
+    ValidIssuer = "http://auth-app:80",
+    ValidAudience = "api1",
+    IssuerSigningKey = new RsaSecurityKey(rsaParameters)
+    {
+      KeyId = "1"
+    }
+  };
+  var claimsPrincipal = jwtHandler.ValidateToken(token, validationParameters, out var validatedToken);
+  Console.WriteLine("Test3 successful");
+};
+
+var test4 = () => 
+{
+  var accessToken = "eyJhbGciOiJSUzI1NiIsImtpZCI6IjEiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJlZDk5ZmVhMS1mNWJmLTQ0NDUtYWFjMS04YWI1MjI2NDJlMzUiLCJhdWQiOiIgYXBpMSIsImlzcyI6Imh0dHA6Ly9hdXRoLWFwcDo4MCIsImlhdCI6IjA3LzI0LzIwMjIgMjE6MjA6MzUgKzAwOjAwIiwiZXhwIjoiMDcvMjQvMjAyMiAyMjoyMDozNSArMDA6MDAiLCJuYmYiOiIwNy8yNC8yMDIyIDIxOjIwOjM1ICswMDowMCIsInNjb3BlIjoiYXBpMSBvcGVuaWQgcHJvZmlsZSIsImNsaWVudF9pZCI6InRlc3QifQ.jJPLUpHV4sjyZL7w5ipuvna8ZRkarD2gN9dO5F3vOhim1xa4AoXZH7R17TpG97zbAzU7QXgXhqN0KTuaOq-TYHiAxOLBXRUbrwLJbtra0CPEJuUeY91aWAu7h4CovMqOCaApgWSU7lvhEFr5W6KmXFSK6_gAKBVDvxD4j-3GRT9N533H61I_2F7la8Sj9kAOxy1lwRqP6bOIfNs7sctQAt0U25MmXhC77HbTh7lm4BT9Hjy0meQ5Hfj-_6T2r-d_lKo2_jYq2D08MWLIElTYEY8FJUPLKv3aK2Kq-MqCpQCGKGhXS223WFusFJMIeMqBZvOEc2fGH_n3HAFLydMhWvTA-f3hYN60X7dZpK_FjrCJGRM0p_hkoM3te9BwPZnFchekIlOGBcVWvASDmSb9nLHfTjTdKzbd9taANj8Mnq64QZpKRE_VIchBcLwfxffKJu8rtt03EQGf3-zGWcj1qBkLUD-5mNY4_Y-XajSBZdl8qYXZ2rx2xjpG7XIbEc1yYugt_de2dBl8Gadn7Ii1oEbpW-ZcQdM9wt4TxTwVZXcKjMJGkfspuy1V_eXfEPMxdYoNQ61fZ5R00q5DAWiyDAA_VRaFO_UF-1GZRMPr-Cce9W5MNrvBE-8Y6XS9KfPBqQ9gUJaoup8XdIpk5SD5PxrzdqnkjV1PAx2kDvq00Ok";
+  var e = "AQAB";
+  var n = "77-9Pu-_ve-_vVYtenlsHSzvv73vv70A77-93Y4d77-9Uu-_ve-_ve-_ve-_ve-_vVc7He-_vWJwOWcbEO-_ve-_vSnvv73vv71vKO-_vQrMmgZnZ--_vVnvv70377-9Pu-_ve-_vSI-77-977-977-977-9Je-_ve-_vSYk77-90L13Bh7vv73vv70UZO-_vVxQ77-9He-_ve-_ve-_ve-_ve-_ve-_vWbvv71x77-9ya7vv703Eu-_ve-_vcyIAFwXDUEIZkptYxV7NCTvv70I77-9fwU977-977-977-9PO-_ve-_ve-_vXVr77-977-9JO-_vXZ_cGxlbe-_ve-_ve-_ve-_vVHKlm7vv71RQe-_ve-_vUzvv73vv73vv73vv73vv71F77-9Iu-_vQMzSjvvv705PUU4bO-_vTDvv73vv73vv70H77-977-9VF_vv73vv73vv73vv73vv73vv73vv717U--_ve-_vVfvv73JvArvv73vv70977-9c--_vUhBcn1CL--_vXBpeT7vv71gDO-_ve-_vR1URAopPO-_ve-_ve-_ve-_vXoK77-977-9FSApau-_vWTpnqVtGu-_vSMm77-9bSDvv73vv73vv73vv73vv71E77-977-9P--_ve-_ve-_vQzvv73vv71HTw8-77-977-9Shrvv71U77-9Ae-_vWfvv71MMO-_ve-_ve-_ve-_vS4sVu-_vUDVrO-_vVsrLngO77-9Ne-_ve-_vU8IBO-_vVHvv71c77-9de-_ve-_vQMuAu-_vVYO77-9A1BVdULvv70GImNhNu-_vQl0Ve-_ve-_vSc-Eg7vv73vv73vv73Zgu-_vUch77-9JnYR77-977-9Chvvv73vv73vv70WV--_vWTvv71F77-977-977-9e1Pvv73ql5VK77-977-977-9GTJC77-977-9HBLvv70U1Jrvv71F77-977-977-9T--_ve-_vdmu77-977-9Pzrvv73vv70J77-9Ae-_vV5077-977-977-9Bu-_ve-_vTJgbO-_ve-_vSzvv73vv73vv70Wzpk577-977-977-9cGNKQzR6VAQn77-9Ye-_vVPvv709yZg8Pgps77-9Re-_vSLvv71477-977-9Be-_vSJ2Ru-_vUcp77-9GO-_ve-_vTPvv71i77-977-977-9X0Xvv73vv70JYWVI77-9V--_vQ";
+  var rsaParameters = new RSAParameters
+  {
+    Modulus = Base64UrlEncoder.DecodeBytes(n),
+    Exponent = Base64UrlEncoder.DecodeBytes(e)
+  };
+  var tokenValidationParameters = new TokenValidationParameters
+  {
+    IssuerSigningKey = new RsaSecurityKey(rsaParameters) { KeyId = "1" },
+    ValidAudience = "api1",
+    ValidateLifetime = false
+  };
+  var claimsPrincipal = new JwtSecurityTokenHandler().ValidateToken(accessToken, tokenValidationParameters, out var validatedToken);
+  Console.WriteLine("Test4");
 };
 
 IdentityModelEventSource.ShowPII = true;
-test1();
+//test1();
+test2();
+test3();
+test4();

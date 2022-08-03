@@ -4,8 +4,6 @@ using Contracts.GetJwksDocument;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace WebApp.Controllers;
 
@@ -46,22 +44,16 @@ public class DiscoveryController : ControllerBase
   [Route("jwks")]
   public async Task<IActionResult> GetJwksDocumentAsync()
   {
-    var jwk = await _jwkManager.GetJwkAsync();
-    var publicKey = await _jwkManager.GetPublicKeyAsync(jwk);
-    var modulus = Encoding.Default.GetString(publicKey.Modulus!);
-    var exponent = Encoding.Default.GetString(publicKey.Exponent!);
-    var jwksDocumentResponse = new GetJwksDocumentResponse
+    var response = new GetJwksDocumentResponse();
+    foreach (var jwk in _jwkManager.Jwks)
     {
-      Keys = new JwkDto[]
+      response.Keys.Add(new JwkDto 
       {
-        new JwkDto
-        {
-          KeyId = jwk.KeyId,
-          Modulus = Base64UrlEncoder.Encode(modulus),
-          Exponent = Base64UrlEncoder.Encode(exponent)
-        }
-      }
-    };
-    return Ok(jwksDocumentResponse);
+        KeyId = jwk.KeyId,
+        Modulus = Base64UrlEncoder.Encode(jwk.Modulus),
+        Exponent = Base64UrlEncoder.Encode(jwk.Exponent)
+      });
+    }
+    return Ok(response);
   }
 }

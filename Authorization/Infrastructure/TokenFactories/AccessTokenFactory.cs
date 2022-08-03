@@ -34,6 +34,7 @@ public class AccessTokenFactory
     var exp = iat + TimeSpan.FromSeconds(_identityConfiguration.AccessTokenExpiration);
     var resources = await _resourceManager.FindResourcesByScopes(scopes);
     var aud = resources.Aggregate(string.Empty, (acc, r) => $"{acc} {r.Id}");
+    aud = aud.Trim();
     var claims = new[]
     {
       new Claim(JwtRegisteredClaimNames.Sub, userId),
@@ -46,18 +47,11 @@ public class AccessTokenFactory
       new Claim("client_id", clientId)
     };
 
-    using var rsa = new RSACryptoServiceProvider(4096);
-    var jwk = await _jwkManager.GetJwkAsync();
-    var password = Encoding.Default.GetBytes(_identityConfiguration.PrivateKeySecret);
-    rsa.ImportEncryptedPkcs8PrivateKey(password, jwk.PrivateKey, out var bytesRead);
-    var key = new RsaSecurityKey(rsa)
+    var key = new RsaSecurityKey(_jwkManager.RsaCryptoServiceProvider)
     {
-      KeyId = jwk.KeyId.ToString()
+      KeyId = _jwkManager.KeyId
     };
-    var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256)
-    {
-      CryptoProviderFactory = new CryptoProviderFactory { CacheSignatureProviders = false }
-    };
+    var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256);
     var securityToken = new JwtSecurityToken(
         claims: claims,
         signingCredentials: signingCredentials);

@@ -9,5 +9,5 @@ namespace Contracts.GetJwksDocument;
 public class GetJwksDocumentResponse
 {
   [JsonPropertyName("keys")]
-  public IEnumerable<JwkDto> Keys { get; set; }
+  public ICollection<JwkDto> Keys { get; set; } = new List<JwkDto>();
 }

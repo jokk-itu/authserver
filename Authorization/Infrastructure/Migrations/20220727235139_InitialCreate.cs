@@ -79,7 +79,10 @@ namespace Infrastructure.Migrations
                 {
                     KeyId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    PrivateKey = table.Column<byte[]>(type: "varbinary(max)", nullable: false)
+                    CreatedTimestamp = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    PrivateKey = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    Modulus = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    Exponent = table.Column<byte[]>(type: "varbinary(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -296,7 +299,7 @@ namespace Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetClients",
                 columns: new[] { "Id", "ClientProfile", "ClientType", "ConcurrencyStamp", "SecretHash" },
-                values: new object[] { "test", "web application", "confidential", "ae55ba6d-c5d1-4881-b054-fced218b7cae", "2BB80D537B1DA3E38BD30361AA855686BDE0EACD7162FEF6A25FE97BF527A25B" });
+                values: new object[] { "test", "web application", "confidential", "1f4193bc-e96a-4419-92d2-6f4cc2022e93", "2BB80D537B1DA3E38BD30361AA855686BDE0EACD7162FEF6A25FE97BF527A25B" });
 
             migrationBuilder.InsertData(
                 table: "AspNetResourceScopes",
@@ -306,21 +309,21 @@ namespace Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetResources",
                 columns: new[] { "Id", "ConcurrencyStamp" },
-                values: new object[] { "api1", "4d86653e-2f9e-4ca1-9836-8a1cfd8c91b2" });
+                values: new object[] { "api1", "8c930dd6-4c84-4daf-a805-3dd972816a06" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "2b5c781c-de41-4bc5-a89e-65431c50f137", "644f2458-9b1f-4752-ba07-d633e0de1123", "Admin", null });
+                values: new object[] { "f2fa5d7f-c0d8-4d89-8ae7-281a25574efe", "5e1a1d02-4a4f-4258-ab21-ad1e1ff5b7fd", "Admin", null });
 
             migrationBuilder.InsertData(
                 table: "AspNetScopes",
                 columns: new[] { "Id", "ConcurrencyStamp" },
                 values: new object[,]
                 {
-                    { "api1", "5886a458-ac42-49c1-bf37-8efd2aec4e5d" },
-                    { "openid", "fc9f9264-0a3e-4836-aa8a-edc40df5d8bb" },
-                    { "profile", "c7b1482a-b9a7-4618-a957-bd5260b4a21a" }
+                    { "api1", "960d37e5-e878-4859-a9a7-1b5eb75b5584" },
+                    { "openid", "2dd96038-a280-4fa1-a8f7-d197937dc598" },
+                    { "profile", "f93514cb-fda5-4936-b134-3d30ca089c9c" }
                 });
 
             migrationBuilder.CreateIndex(

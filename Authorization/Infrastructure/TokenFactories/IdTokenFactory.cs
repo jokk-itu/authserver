@@ -51,18 +51,11 @@ public class IdTokenFactory
     claims.AddRange(userClaims.Select(claim => new Claim(claim.Type, claim.Value)));
     claims.Add(new Claim("roles", JsonSerializer.Serialize(userRoles)));
 
-    using var rsa = new RSACryptoServiceProvider(4096);
-    var jwk = await _jwkManager.GetJwkAsync();
-    var password = Encoding.Default.GetBytes(_identityConfiguration.PrivateKeySecret);
-    rsa.ImportEncryptedPkcs8PrivateKey(password, jwk.PrivateKey, out var bytesRead);
-    var key = new RsaSecurityKey(rsa)
+    var key = new RsaSecurityKey(_jwkManager.RsaCryptoServiceProvider)
     {
-      KeyId = jwk.KeyId.ToString()
+      KeyId = _jwkManager.KeyId
     };
-    var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256)
-    {
-      CryptoProviderFactory = new CryptoProviderFactory { CacheSignatureProviders = false }
-    };
+    var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256);
     var securityToken = new JwtSecurityToken(
         claims: claims,
         signingCredentials: signingCredentials);

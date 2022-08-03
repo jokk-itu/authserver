@@ -3,11 +3,8 @@ using AuthorizationServer.Extensions;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Cryptography;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,21 +53,23 @@ builder.WebHost.ConfigureServices(services =>
   });
   services.AddCors(corsOptions => 
   {
-    var policy = new CorsPolicy();
-    policy.Origins.Add("localhost:5002");
-    policy.SupportsCredentials = true;
-    corsOptions.AddDefaultPolicy(policy);
+    corsOptions.AddDefaultPolicy(corsPolicyBuilder => 
+    {
+      corsPolicyBuilder
+      .AllowAnyOrigin()
+      .AllowAnyHeader();
+    });
   });
 });
 
 var app = builder.Build();
 
 using var scope = app.Services.CreateScope();
-var context = scope.ServiceProvider.GetRequiredService<IdentityContext>();
+var identityContext = scope.ServiceProvider.GetRequiredService<IdentityContext>();
+var identityConfiguration = scope.ServiceProvider.GetRequiredService<IdentityConfiguration>();
 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-var jwkManager = scope.ServiceProvider.GetRequiredService<JwkManager>();
-await context.Database.EnsureDeletedAsync();
-await context.Database.EnsureCreatedAsync();
+await identityContext.Database.EnsureDeletedAsync();
+await identityContext.Database.EnsureCreatedAsync();
 
 await userManager.CreateAsync(new IdentityUser
 {
@@ -81,7 +80,9 @@ await userManager.CreateAsync(new IdentityUser
   PhoneNumber = "88888888"
 }, "Password12!");
 
-await jwkManager.GenerateJwkAsync();
+await JwkManager.GenerateJwkAsync(identityContext, identityConfiguration, DateTimeOffset.UtcNow.AddDays(-7));
+await JwkManager.GenerateJwkAsync(identityContext, identityConfiguration, DateTimeOffset.UtcNow);
+await JwkManager.GenerateJwkAsync(identityContext, identityConfiguration, DateTimeOffset.UtcNow.AddDays(7));
 
 
 if (!app.Environment.IsDevelopment())
