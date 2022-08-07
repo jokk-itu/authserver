@@ -1,8 +1,14 @@
 ﻿@model AuthorizeModel
 
 <form asp-action="connect/v1/authorize" method="post">
-    <input type="text" name="Username"/>
-    <input type="password" name="Password"/>
+    <div class="form-group">
+        <label for="username">Username</label>
+        <input class="form-control form-control-lg" id="username" type="text" name="username"/>
+    </div>
+    <div class="form-group">
+        <label for="password" >Password</label>
+        <input class="form-control form-control-lg" id ="password" type="password" name="password"/>
+    </div>
     <input hidden name="redirect_uri" value=@Model.RedirectUri />
     <input hidden name="state" value=@Model.State />
     <input hidden name="client_id" value=@Model.ClientId />
@@ -10,5 +16,5 @@
     <input hidden name="scope" value=@Model.Scope />
     <input hidden name="code_challenge" value=@Model.CodeChallenge />
     <input hidden name="code_challenge_method" value=@Model.CodeChallengeMethod />
-    <input type="submit" value="Login" />
+    <input type="submit" value="Login" class="btn btn-primary" />
 </form>
