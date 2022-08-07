@@ -1,8 +1,8 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.IdentityModel.Logging;
-using Microsoft.IdentityModel.Tokens;
 
 var test1 = () =>
 {
@@ -26,7 +26,7 @@ var test1 = () =>
   Console.WriteLine("Test1");
 };
 
-var test2 = () => 
+var test2 = () =>
 {
   //Create token and public key
   var rsa = new RSACryptoServiceProvider(4096);
@@ -34,15 +34,15 @@ var test2 = () =>
   {
     KeyId = "1"
   };
-  var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256) 
+  var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256)
   {
     CryptoProviderFactory = new CryptoProviderFactory { CacheSignatureProviders = false }
   };
   var securityToken = new JwtSecurityToken(
-    issuer: "http://auth-app:80", 
-    audience: "api1", 
-    notBefore: DateTime.UtcNow.AddDays(-1), 
-    expires: DateTime.UtcNow.AddDays(1), 
+    issuer: "http://auth-app:80",
+    audience: "api1",
+    notBefore: DateTime.UtcNow.AddDays(-1),
+    expires: DateTime.UtcNow.AddDays(1),
     signingCredentials: signingCredentials);
 
   var token = new JwtSecurityTokenHandler().WriteToken(securityToken);
@@ -54,15 +54,15 @@ var test2 = () =>
     Modulus = rsa.ExportParameters(false).Modulus
   };
   var jwtHandler = new JwtSecurityTokenHandler();
-  var validationParameters = new TokenValidationParameters 
+  var validationParameters = new TokenValidationParameters
   {
     ValidIssuer = "http://auth-app:80",
     ValidAudience = "api1",
-    IssuerSigningKey = new RsaSecurityKey(rsaParameters) 
+    IssuerSigningKey = new RsaSecurityKey(rsaParameters)
     {
       KeyId = "1"
     },
-    IssuerSigningKeyValidatorUsingConfiguration = (securityKey, securityToken, validationParameters, configuration) => 
+    IssuerSigningKeyValidatorUsingConfiguration = (securityKey, securityToken, validationParameters, configuration) =>
     {
       return true;
     }
@@ -71,7 +71,7 @@ var test2 = () =>
   Console.WriteLine("Test2 successful");
 };
 
-var test3 = () => 
+var test3 = () =>
 {
   //Create token and public key
   var rsa = new RSACryptoServiceProvider(4096);
@@ -116,7 +116,7 @@ var test3 = () =>
   Console.WriteLine("Test3 successful");
 };
 
-var test4 = () => 
+var test4 = () =>
 {
   var accessToken = "eyJhbGciOiJSUzI1NiIsImtpZCI6IjEiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJlZDk5ZmVhMS1mNWJmLTQ0NDUtYWFjMS04YWI1MjI2NDJlMzUiLCJhdWQiOiIgYXBpMSIsImlzcyI6Imh0dHA6Ly9hdXRoLWFwcDo4MCIsImlhdCI6IjA3LzI0LzIwMjIgMjE6MjA6MzUgKzAwOjAwIiwiZXhwIjoiMDcvMjQvMjAyMiAyMjoyMDozNSArMDA6MDAiLCJuYmYiOiIwNy8yNC8yMDIyIDIxOjIwOjM1ICswMDowMCIsInNjb3BlIjoiYXBpMSBvcGVuaWQgcHJvZmlsZSIsImNsaWVudF9pZCI6InRlc3QifQ.jJPLUpHV4sjyZL7w5ipuvna8ZRkarD2gN9dO5F3vOhim1xa4AoXZH7R17TpG97zbAzU7QXgXhqN0KTuaOq-TYHiAxOLBXRUbrwLJbtra0CPEJuUeY91aWAu7h4CovMqOCaApgWSU7lvhEFr5W6KmXFSK6_gAKBVDvxD4j-3GRT9N533H61I_2F7la8Sj9kAOxy1lwRqP6bOIfNs7sctQAt0U25MmXhC77HbTh7lm4BT9Hjy0meQ5Hfj-_6T2r-d_lKo2_jYq2D08MWLIElTYEY8FJUPLKv3aK2Kq-MqCpQCGKGhXS223WFusFJMIeMqBZvOEc2fGH_n3HAFLydMhWvTA-f3hYN60X7dZpK_FjrCJGRM0p_hkoM3te9BwPZnFchekIlOGBcVWvASDmSb9nLHfTjTdKzbd9taANj8Mnq64QZpKRE_VIchBcLwfxffKJu8rtt03EQGf3-zGWcj1qBkLUD-5mNY4_Y-XajSBZdl8qYXZ2rx2xjpG7XIbEc1yYugt_de2dBl8Gadn7Ii1oEbpW-ZcQdM9wt4TxTwVZXcKjMJGkfspuy1V_eXfEPMxdYoNQ61fZ5R00q5DAWiyDAA_VRaFO_UF-1GZRMPr-Cce9W5MNrvBE-8Y6XS9KfPBqQ9gUJaoup8XdIpk5SD5PxrzdqnkjV1PAx2kDvq00Ok";
   var e = "AQAB";

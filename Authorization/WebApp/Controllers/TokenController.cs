@@ -49,7 +49,7 @@ public class TokenController : ControllerBase
     if (formCollection.TryGetValue("grant_type", out var grantType))
       request.GrantType = grantType;
 
-    if(formCollection.TryGetValue("client_id", out var clientId))
+    if (formCollection.TryGetValue("client_id", out var clientId))
       request.ClientId = clientId.DecodeFromFormUrl();
 
     if (formCollection.TryGetValue("client_secret", out var clientSecret))
@@ -98,7 +98,7 @@ public class TokenController : ControllerBase
 
     var accessToken = await _accessTokenFactory.GenerateTokenAsync(request.ClientId, scopes, decodedRefreshToken.Subject);
 
-    return Ok(new PostTokenResponse 
+    return Ok(new PostTokenResponse
     {
       AccessToken = accessToken,
       RefreshToken = request.RefreshToken,

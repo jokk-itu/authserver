@@ -3,11 +3,9 @@ using AuthorizationServer.TokenFactories;
 using Contracts.AuthorizeCode;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using System.Text;
 using WebApp.Models;
 
 namespace WebApp.Controllers;
@@ -39,8 +37,8 @@ public class AuthorizeController : Controller
     [FromQuery(Name = "code_challenge")] string codeChallenge,
     [FromQuery(Name = "code_challenge_method")] string codeChallengeMethod)
   {
-    
-    return View(new AuthorizeModel 
+
+    return View(new AuthorizeModel
     {
       ResponseType = responseType,
       ClientId = clientId,
@@ -78,7 +76,7 @@ public class AuthorizeController : Controller
     var isPasswordValid = await _userManager.CheckPasswordAsync(user, request.Password);
     if (!isPasswordValid)
       return BadRequest("username or password is wrong");
-    
+
     var code = await _authorizationCodeTokenFactory.GenerateTokenAsync(
         redirectUri,
         scopes,
@@ -91,7 +89,9 @@ public class AuthorizeController : Controller
     {
       new (ClaimTypes.GivenName, user.UserName),
       new (ClaimTypes.Name, user.UserName),
-      new (ClaimTypes.Email, user.Email)
+      new (ClaimTypes.Email, user.Email),
+      new (ClaimTypes.MobilePhone, user.PhoneNumber),
+      new (ClaimTypes.DateOfBirth, DateTime.Now.Ticks.ToString())
     };
 
     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -102,7 +102,8 @@ public class AuthorizeController : Controller
         new AuthenticationProperties
         {
           IsPersistent = true,
-          IssuedUtc = DateTimeOffset.UtcNow
+          IssuedUtc = DateTime.Now,
+          AllowRefresh = true
         });
 
     return Redirect($"{redirectUri}?code={code}&state={state}");

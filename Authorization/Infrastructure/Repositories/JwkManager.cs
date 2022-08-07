@@ -10,8 +10,8 @@ using System.Text;
 namespace Infrastructure.Repositories;
 public class JwkManager
 {
-  private static int ExpirationDays = 7;
-  private static int KeySize = 4096;
+  private static readonly int ExpirationDays = 7;
+  private static readonly int KeySize = 4096;
 
   private readonly IdentityContext _identityContext;
   private readonly IdentityConfiguration _identityConfiguration;
@@ -22,11 +22,11 @@ public class JwkManager
   private DateTimeOffset _expirationDate;
 
   private RSACryptoServiceProvider _rsaCryptoServiceProvider;
-  public RSACryptoServiceProvider RsaCryptoServiceProvider 
+  public RSACryptoServiceProvider RsaCryptoServiceProvider
   {
     get
     {
-      lock(_rsaCryptoServiceProvider) 
+      lock (_rsaCryptoServiceProvider)
       {
         if (_expirationDate.CompareTo(DateTimeOffset.UtcNow) < 0)
           RotateAsync().GetAwaiter().GetResult();
@@ -36,25 +36,26 @@ public class JwkManager
     }
   }
 
-  public IEnumerable<IdentityJwk> Jwks 
-  { 
-    get 
+  public IEnumerable<IdentityJwk> Jwks
+  {
+    get
     {
-      lock (_rsaCryptoServiceProvider) 
+      lock (_rsaCryptoServiceProvider)
       {
         yield return _previous;
         yield return _current;
         yield return _future;
-      } 
+      }
     }
   }
 
-  public string KeyId { 
-    get 
+  public string KeyId
+  {
+    get
     {
       lock (_rsaCryptoServiceProvider)
         return _current.KeyId.ToString();
-    } 
+    }
   }
 
   public JwkManager(IServiceProvider serviceProvider)
@@ -111,7 +112,7 @@ public class JwkManager
     return true;
   }
 
-  public static async Task GenerateJwkAsync(IdentityContext identityContext, IdentityConfiguration identityConfiguration, DateTimeOffset createdTimeStamp) 
+  public static async Task GenerateJwkAsync(IdentityContext identityContext, IdentityConfiguration identityConfiguration, DateTimeOffset createdTimeStamp)
   {
     using var rsa = new RSACryptoServiceProvider(KeySize);
     var password = Encoding.Default.GetBytes(identityConfiguration.PrivateKeySecret);
@@ -135,7 +136,7 @@ public class JwkManager
   }
 
   public async Task GenerateJwkAsync()
-  { 
+  {
     await GenerateJwkAsync(DateTimeOffset.UtcNow);
   }
 }

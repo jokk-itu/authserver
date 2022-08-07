@@ -15,7 +15,7 @@ public class ClientManager
   }
 
   public async Task<IdentityClient?> IsValidClientAsync(
-      string clientId) 
+      string clientId)
   {
     return await _context.Clients.FindAsync(clientId);
   }

@@ -17,7 +17,7 @@ public class AccountController : Controller
 
   [HttpGet]
   [Route("register")]
-  public IActionResult Register() 
+  public IActionResult Register()
   {
     return View();
   }

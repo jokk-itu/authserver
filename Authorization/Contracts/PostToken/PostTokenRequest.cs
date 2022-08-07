@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-
-namespace Contracts.PostToken;
+﻿namespace Contracts.PostToken;
 public class PostTokenRequest
 {
   public string GrantType { get; set; }

@@ -1,24 +1,21 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
 using WebApp;
 using WebApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.ConfigureServices(services => 
+builder.WebHost.ConfigureServices(services =>
 {
   services.AddControllersWithViews();
-  services.AddAuthentication(configureOptions => 
+  services.AddAuthentication(configureOptions =>
   {
     configureOptions.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     configureOptions.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     configureOptions.DefaultChallengeScheme = OAuthDefaults.DisplayName;
   })
   .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
-  .AddOAuth(OAuthDefaults.DisplayName, configureOptions => 
+  .AddOAuth(OAuthDefaults.DisplayName, configureOptions =>
   {
     var identity = builder.Configuration.GetSection("Identity");
     configureOptions.ClientId = identity["ClientId"];
@@ -32,7 +29,7 @@ builder.WebHost.ConfigureServices(services =>
     configureOptions.Scope.Add("profile");
     configureOptions.Scope.Add("openid");
     configureOptions.Scope.Add("api1");
-    configureOptions.CorrelationCookie = new CookieBuilder 
+    configureOptions.CorrelationCookie = new CookieBuilder
     {
       Name = "Auth-Correlation",
       SameSite = SameSiteMode.None,
@@ -49,7 +46,7 @@ builder.WebHost.ConfigureServices(services =>
     cookiePolicyOptions.MinimumSameSitePolicy = SameSiteMode.None;
     cookiePolicyOptions.Secure = CookieSecurePolicy.Always;
   });
-  services.AddHttpClient<WebApiService>(httpClient => 
+  services.AddHttpClient<WebApiService>(httpClient =>
   {
     httpClient.BaseAddress = new Uri("http://webapi:80");
   }).AddHttpMessageHandler<PopulateAccessTokenDelegatingHandler>();

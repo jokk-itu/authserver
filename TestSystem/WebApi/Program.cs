@@ -1,26 +1,25 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.IdentityModel.Logging;
-using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggerConfiguration) => 
+builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggerConfiguration) =>
 {
   loggerConfiguration
   .Enrich.FromLogContext()
   .WriteTo.Console();
 });
 
-builder.WebHost.ConfigureServices(services => 
+builder.WebHost.ConfigureServices(services =>
 {
   IdentityModelEventSource.ShowPII = true; //DEVELOPER ready
   services.AddControllers();
   services.AddEndpointsApiExplorer();
   services.AddSwaggerGen();
   services
-  .AddAuthentication(authenticationOptions => 
+  .AddAuthentication(authenticationOptions =>
   {
     authenticationOptions.DefaultScheme = OAuthDefaults.DisplayName;
     authenticationOptions.DefaultAuthenticateScheme = OAuthDefaults.DisplayName;
@@ -31,37 +30,21 @@ builder.WebHost.ConfigureServices(services =>
     jwtBearerOptions.Authority = identity["Authority"];
     jwtBearerOptions.Audience = identity["Audience"];
     jwtBearerOptions.RequireHttpsMetadata = false;
-    /*jwtBearerOptions.TokenValidationParameters.LifetimeValidator = (notBefore, expiration, securityToken, validationParameters) =>
-    {
-      if (!notBefore.HasValue)
-        return false;
-
-      if (!expiration.HasValue)
-        return false;
-
-      if (notBefore.Value >= expiration.Value)
-        return false;
-
-      if (DateTimeOffset.UtcNow > expiration.Value)
-        return false;
-
-      return true;
-    };*/
     jwtBearerOptions.Challenge = OAuthDefaults.DisplayName;
     jwtBearerOptions.MetadataAddress = $"{jwtBearerOptions.Authority}/.well-known/openid-configuration";
-    jwtBearerOptions.Events = new JwtBearerEvents 
+    jwtBearerOptions.Events = new JwtBearerEvents
     {
-      OnAuthenticationFailed = context => 
+      OnAuthenticationFailed = context =>
       {
         Log.Error(context.Exception, "Error occured during authentication");
         return Task.CompletedTask;
       },
-      OnTokenValidated = context => 
+      OnTokenValidated = context =>
       {
         Log.Information("User is validated");
-        return Task.CompletedTask; 
+        return Task.CompletedTask;
       },
-      OnForbidden = context => 
+      OnForbidden = context =>
       {
         Log.Error("User does not have authorization");
         return Task.CompletedTask;

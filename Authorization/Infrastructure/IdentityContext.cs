@@ -21,7 +21,7 @@ public class IdentityContext : IdentityDbContext
   public DbSet<IdentityJwk> Jwks { get; set; }
 
   public IdentityContext(DbContextOptions<IdentityContext> options) : base(options)
-  {}
+  { }
 
   protected override void OnModelCreating(ModelBuilder builder)
   {
@@ -87,7 +87,7 @@ public class IdentityContext : IdentityDbContext
     });
 
     //Jwk
-    builder.Entity<IdentityJwk>(b => 
+    builder.Entity<IdentityJwk>(b =>
     {
       b.HasKey(jwk => jwk.KeyId);
       b.ToTable("AspNetJwks");
@@ -178,7 +178,7 @@ public class IdentityContext : IdentityDbContext
           ClientId = client.Id,
           ScopeId = "openid"
         },
-        new IdentityClientScope<string> 
+        new IdentityClientScope<string>
         {
           ClientId = client.Id,
           ScopeId = "api1"

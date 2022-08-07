@@ -8,7 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.ConfigureServices(services => 
+builder.WebHost.ConfigureServices(services =>
 {
   services.AddControllersWithViews();
   services.AddControllers();
@@ -28,7 +28,7 @@ builder.WebHost.ConfigureServices(services =>
   services.AddSingleton(tokenValidationParameters);
 
   services
-    .AddAuthentication(configureOptions => 
+    .AddAuthentication(configureOptions =>
     {
       configureOptions.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
       configureOptions.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -51,9 +51,9 @@ builder.WebHost.ConfigureServices(services =>
     cookiePolicyOptions.MinimumSameSitePolicy = SameSiteMode.None;
     cookiePolicyOptions.Secure = CookieSecurePolicy.Always;
   });
-  services.AddCors(corsOptions => 
+  services.AddCors(corsOptions =>
   {
-    corsOptions.AddDefaultPolicy(corsPolicyBuilder => 
+    corsOptions.AddDefaultPolicy(corsPolicyBuilder =>
     {
       corsPolicyBuilder
       .AllowAnyOrigin()

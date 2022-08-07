@@ -1,6 +1,6 @@
 ﻿namespace WebApp.Models;
 public class AuthorizeModel
-{    
+{
   public string ResponseType { get; set; }
   public string ClientId { get; set; }
   public string RedirectUri { get; set; }

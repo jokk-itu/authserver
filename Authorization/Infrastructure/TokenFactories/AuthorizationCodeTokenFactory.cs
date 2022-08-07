@@ -1,4 +1,3 @@
-using AuthorizationServer.Extensions;
 using AuthorizationServer.Tokens;
 using Microsoft.AspNetCore.DataProtection;
 using System.ComponentModel.DataAnnotations;
@@ -14,7 +13,7 @@ public class AuthorizationCodeTokenFactory
   private readonly IDataProtector _protector;
 
   public AuthorizationCodeTokenFactory(
-    IdentityConfiguration identityConfiguration, 
+    IdentityConfiguration identityConfiguration,
     IDataProtectionProvider protectorProvider)
   {
     _identityConfiguration = identityConfiguration;

@@ -16,7 +16,7 @@ public class DiscoveryController : ControllerBase
   private readonly JwkManager _jwkManager;
 
   public DiscoveryController(
-    IdentityConfiguration identityConfiguration, 
+    IdentityConfiguration identityConfiguration,
     ScopeManager scopeManager,
     JwkManager jwkManager)
   {
@@ -47,7 +47,7 @@ public class DiscoveryController : ControllerBase
     var response = new GetJwksDocumentResponse();
     foreach (var jwk in _jwkManager.Jwks)
     {
-      response.Keys.Add(new JwkDto 
+      response.Keys.Add(new JwkDto
       {
         KeyId = jwk.KeyId,
         Modulus = Base64UrlEncoder.Encode(jwk.Modulus),

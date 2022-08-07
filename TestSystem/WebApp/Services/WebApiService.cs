@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.OAuth;
-
-namespace WebApp.Services;
+﻿namespace WebApp.Services;
 
 public class WebApiService
 {
@@ -12,12 +9,12 @@ public class WebApiService
     _httpClient = httpClient;
   }
 
-  public async Task<string> GetSecretAsync() 
+  public async Task<string> GetSecretAsync()
   {
     return await _httpClient.GetStringAsync("api/secret");
   }
 
-  public async Task<string> GetAnonymousAsync() 
+  public async Task<string> GetAnonymousAsync()
   {
     return await _httpClient.GetStringAsync("api/anonymous");
   }
