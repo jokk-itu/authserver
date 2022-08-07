@@ -2,11 +2,11 @@
 
 <form asp-action="connect/v1/authorize" method="post">
     <div class="form-group">
-        <label for="username">Username</label>
+        <label class="form-label" for="username">Username</label>
         <input class="form-control form-control-lg" id="username" type="text" name="username"/>
     </div>
     <div class="form-group">
-        <label for="password" >Password</label>
+        <label class="form-label" for="password">Password</label>
         <input class="form-control form-control-lg" id ="password" type="password" name="password"/>
     </div>
     <input hidden name="redirect_uri" value=@Model.RedirectUri />
