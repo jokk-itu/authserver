@@ -1,72 +1,39 @@
 using AuthorizationServer.Repositories;
 using Infrastructure.Repositories;
+using Infrastructure.TokenFactories;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace AuthorizationServer.TokenFactories;
 
-public class AccessTokenFactory
+public class AccessTokenFactory : TokenFactory
 {
-  private readonly IdentityConfiguration _identityConfiguration;
-  private readonly TokenValidationParameters _tokenValidationParameters;
   private readonly ResourceManager _resourceManager;
-  private readonly JwkManager _jwkManager;
 
   public AccessTokenFactory(
       IdentityConfiguration identityConfiguration,
       TokenValidationParameters tokenValidationParameters,
       ResourceManager resourceManager,
-      JwkManager jwkManager)
+      JwkManager jwkManager,
+      ILogger<AccessTokenFactory> logger)
+    : base(logger, identityConfiguration, tokenValidationParameters, jwkManager)
   {
-    _identityConfiguration = identityConfiguration;
-    _tokenValidationParameters = tokenValidationParameters;
     _resourceManager = resourceManager;
-    _jwkManager = jwkManager;
   }
 
-  public async Task<string> GenerateTokenAsync(string clientId, ICollection<string> scopes,
-      string userId)
+  public async Task<string> GenerateTokenAsync(string clientId, ICollection<string> scopes, string userId)
   {
-    var exp = DateTime.Now + TimeSpan.FromSeconds(_identityConfiguration.AccessTokenExpiration);
+    var expires = DateTime.Now + TimeSpan.FromSeconds(_identityConfiguration.AccessTokenExpiration);
     var resources = await _resourceManager.FindResourcesByScopes(scopes);
-    var aud = resources.Aggregate(string.Empty, (acc, r) => $"{acc} {r.Id}");
-    aud = aud.Trim();
+    var audience = string.Join(' ', resources.Select(x => x.Id));
     var claims = new[]
     {
       new Claim(JwtRegisteredClaimNames.Sub, userId),
-      new Claim("scope", scopes.Aggregate((elem, acc) => $"{acc} {elem}")),
+      new Claim("scope", string.Join(' ', scopes)),
       new Claim("client_id", clientId)
     };
-
-    var key = new RsaSecurityKey(_jwkManager.RsaCryptoServiceProvider)
-    {
-      KeyId = _jwkManager.KeyId
-    };
-    var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256);
-    var securityToken = new JwtSecurityToken(
-        issuer: _identityConfiguration.InternalIssuer,
-        audience: aud,
-        notBefore: DateTime.Now,
-        expires: exp,
-        claims: claims,
-        signingCredentials: signingCredentials);
-
-    var token = new JwtSecurityTokenHandler().WriteToken(securityToken);
-    return await Task.FromResult(token);
-  }
-
-  public Task<JwtSecurityToken> DecodeTokenAsync(string token)
-  {
-    new JwtSecurityTokenHandler()
-        .ValidateToken(token, _tokenValidationParameters, out var validatedToken);
-    return Task.FromResult((JwtSecurityToken)validatedToken);
-  }
-
-  public async Task<bool> ValidateTokenAsync(string token)
-  {
-    new JwtSecurityTokenHandler()
-        .ValidateToken(token, _tokenValidationParameters, out _);
-    return await Task.FromResult(true);
+    return GetSignedToken(claims, audience, expires);
   }
 }
