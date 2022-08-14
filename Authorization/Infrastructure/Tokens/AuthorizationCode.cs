@@ -2,6 +2,7 @@ namespace AuthorizationServer.Tokens;
 
 public record AuthorizationCode
 {
+  public long CreatedAt { get; init; }
   public string ClientId { get; init; }
 
   public string RedirectUri { get; init; }
@@ -11,4 +12,6 @@ public record AuthorizationCode
   public string CodeChallenge { get; init; }
 
   public string UserId { get; init; }
+
+  public string Nonce { get; init; }
 }
