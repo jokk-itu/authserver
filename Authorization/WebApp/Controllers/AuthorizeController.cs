@@ -1,6 +1,7 @@
 ﻿using AuthorizationServer.Repositories;
 using AuthorizationServer.TokenFactories;
 using Contracts.AuthorizeCode;
+using Domain;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
@@ -13,12 +14,12 @@ namespace WebApp.Controllers;
 [Route("connect/v1/[controller]")]
 public class AuthorizeController : Controller
 {
-  private readonly UserManager<IdentityUser> _userManager;
+  private readonly UserManager<IdentityUserExtended> _userManager;
   private readonly ClientManager _clientManager;
   private readonly AuthorizationCodeTokenFactory _authorizationCodeTokenFactory;
 
   public AuthorizeController(
-    UserManager<IdentityUser> userManager,
+    UserManager<IdentityUserExtended> userManager,
     ClientManager clientManager,
     AuthorizationCodeTokenFactory authorizationCodeTokenFactory)
   {

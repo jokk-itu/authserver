@@ -1,4 +1,5 @@
 using AuthorizationServer.Tokens;
+using Domain;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -10,13 +11,13 @@ namespace AuthorizationServer.TokenFactories;
 public class AuthorizationCodeTokenFactory
 {
   private readonly IdentityConfiguration _identityConfiguration;
-  private readonly UserManager<IdentityUser> _userManager;
+  private readonly UserManager<IdentityUserExtended> _userManager;
   private readonly IDataProtector _protector;
 
   public AuthorizationCodeTokenFactory(
     IdentityConfiguration identityConfiguration,
     IDataProtectionProvider protectorProvider,
-    UserManager<IdentityUser> userManager)
+    UserManager<IdentityUserExtended> userManager)
   {
     _identityConfiguration = identityConfiguration;
     _userManager = userManager;

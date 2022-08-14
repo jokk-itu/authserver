@@ -1,3 +1,4 @@
+using Domain;
 using Infrastructure.Repositories;
 using Infrastructure.TokenFactories;
 using Microsoft.AspNetCore.Identity;
@@ -11,12 +12,12 @@ namespace AuthorizationServer.TokenFactories;
 
 public class IdTokenFactory : TokenFactory
 {
-  private readonly UserManager<IdentityUser> _userManager;
+  private readonly UserManager<IdentityUserExtended> _userManager;
 
   public IdTokenFactory(
     IdentityConfiguration identityConfiguration,
     TokenValidationParameters tokenValidationParameters,
-    UserManager<IdentityUser> userManager,
+    UserManager<IdentityUserExtended> userManager,
     JwkManager jwkManager,
     ILogger<IdTokenFactory> logger)
     : base(logger, identityConfiguration, tokenValidationParameters, jwkManager)

@@ -1,5 +1,6 @@
 using AuthorizationServer.Repositories;
 using AuthorizationServer.TokenFactories;
+using Domain;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -35,11 +36,11 @@ public static class ServiceCollectionExtensions
     });
     services.AddScoped<IdentityContext>();
 
-    services.AddIdentityCore<IdentityUser>()
+    services.AddIdentityCore<IdentityUserExtended>()
         .AddRoles<IdentityRole>()
         .AddDefaultTokenProviders()
         .AddEntityFrameworkStores<IdentityContext>()
-        .AddSignInManager<SignInManager<IdentityUser>>();
+        .AddSignInManager<SignInManager<IdentityUserExtended>>();
 
     return services;
   }

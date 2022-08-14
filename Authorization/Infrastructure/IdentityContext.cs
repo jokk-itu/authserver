@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AuthorizationServer;
 
-public class IdentityContext : IdentityDbContext
+public class IdentityContext : IdentityDbContext<IdentityUserExtended, IdentityRole, string>
 {
   public DbSet<IdentityClient> Clients { get; set; }
   public DbSet<IdentityClientScope<string>> ClientScopes { get; set; }
@@ -159,11 +159,6 @@ public class IdentityContext : IdentityDbContext
         {
           ClientId = client.Id,
           Name = "device"
-        },
-        new IdentityClientGrant<string>
-        {
-          ClientId = client.Id,
-          Name = "openid"
         });
 
     //ClientScopes

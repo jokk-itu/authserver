@@ -1,8 +1,8 @@
 using AuthorizationServer;
 using AuthorizationServer.Extensions;
+using Domain;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Logging;
@@ -79,16 +79,25 @@ var app = builder.Build();
 using var scope = app.Services.CreateScope();
 var identityContext = scope.ServiceProvider.GetRequiredService<IdentityContext>();
 var identityConfiguration = scope.ServiceProvider.GetRequiredService<IdentityConfiguration>();
-var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUserExtended>>();
 await identityContext.Database.EnsureDeletedAsync();
 await identityContext.Database.EnsureCreatedAsync();
 
-await userManager.CreateAsync(new IdentityUser
+await userManager.CreateAsync(new IdentityUserExtended
 {
+  Address = "John Doe Street, 51",
+  Name = "John WaitForIt Doe",
+  Birthdate = DateTime.Now,
+  Gender = "Man",
+  Locale = "DA-DK",
+  FamilyName = "Doe",
+  MiddleName = "WaitForIt",
+  GivenName = "John",
+  NickName = "John",
   UserName = "jokk",
+  NormalizedEmail = "HEJMEDDIG@GMAIL.COM",
   NormalizedUserName = "JOKK",
   Email = "hejmeddig@gmail.com",
-  NormalizedEmail = "HEJMEDDIG@GMAIL.COM",
   PhoneNumber = "88888888"
 }, "Password12!");
 
