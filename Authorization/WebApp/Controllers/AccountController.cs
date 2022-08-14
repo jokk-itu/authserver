@@ -1,7 +1,12 @@
-﻿using Contracts.RegisterUser;
+﻿using AuthorizationServer.TokenFactories;
+using Contracts.RegisterUser;
 using Contracts.ResetPassword;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace WebApp.Controllers;
 
@@ -9,10 +14,12 @@ namespace WebApp.Controllers;
 public class AccountController : Controller
 {
   private readonly UserManager<IdentityUser> _userManager;
+  private readonly AccessTokenFactory _accessTokenFactory;
 
-  public AccountController(UserManager<IdentityUser> userManager)
+  public AccountController(UserManager<IdentityUser> userManager, AccessTokenFactory accessTokenFactory)
   {
     _userManager = userManager;
+    _accessTokenFactory = accessTokenFactory;
   }
 
   [HttpGet]
@@ -64,5 +71,21 @@ public class AccountController : Controller
       return Ok();
 
     return BadRequest();
+  }
+
+  [HttpGet]
+  [Route("userinfo")]
+  [Authorize]
+  public async Task<IActionResult> UserInfo() 
+  {
+    var accessToken = await HttpContext.GetTokenAsync(OpenIdConnectDefaults.AuthenticationScheme, "access_token");
+    if (string.IsNullOrWhiteSpace(accessToken))
+      return Forbid();
+
+    var decodedAccessToken = _accessTokenFactory.DecodeToken(accessToken);
+    var subjectIdentifier = decodedAccessToken.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Sub);
+    var user = await _userManager.FindByIdAsync(subjectIdentifier.Value);
+    
+    return Ok();
   }
 }

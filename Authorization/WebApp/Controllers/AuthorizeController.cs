@@ -28,26 +28,9 @@ public class AuthorizeController : Controller
   }
 
   [HttpGet]
-  public IActionResult Index(
-    [FromQuery(Name = "response_type")] string responseType,
-    [FromQuery(Name = "client_id")] string clientId,
-    [FromQuery(Name = "redirect_uri")] string redirectUri,
-    [FromQuery(Name = "scope")] string scope,
-    [FromQuery(Name = "state")] string state,
-    [FromQuery(Name = "code_challenge")] string codeChallenge,
-    [FromQuery(Name = "code_challenge_method")] string codeChallengeMethod)
+  public IActionResult Index()
   {
-
-    return View(new AuthorizeModel
-    {
-      ResponseType = responseType,
-      ClientId = clientId,
-      RedirectUri = redirectUri,
-      Scope = scope,
-      State = state,
-      CodeChallenge = codeChallenge,
-      CodeChallengeMethod = codeChallengeMethod
-    });
+    return View();
   }
 
   [ValidateAntiForgeryToken]
@@ -60,14 +43,18 @@ public class AuthorizeController : Controller
     [FromQuery(Name = "scope")] string scope,
     [FromQuery(Name = "state")] string state,
     [FromQuery(Name = "code_challenge")] string codeChallenge,
-    [FromQuery(Name = "code_challenge_method")] string codeChallengeMethod)
+    [FromQuery(Name = "code_challenge_method")] string codeChallengeMethod,
+    [FromQuery(Name = "nonce")] string nonce)
   {
     if (await _clientManager.IsValidClientAsync(clientId) is null)
       return BadRequest("client_id does not exist");
 
-    var scopes = scope.Split(" ");
+    var scopes = scope.Split(' ');
     if (!await _clientManager.IsValidScopesAsync(clientId, scopes))
       return BadRequest("scopes are not valid for this client_id");
+
+    if (!scopes.Contains("openid"))
+      return BadRequest("openid scope must be present");
 
     if (!await _clientManager.IsValidRedirectUrisAsync(clientId, new[] { redirectUri }))
       return BadRequest("redirect_uri is not valid for this client_id");
@@ -82,16 +69,15 @@ public class AuthorizeController : Controller
         scopes,
         clientId,
         codeChallenge,
-        codeChallengeMethod,
-        user.Id);
+        user.Id,
+        nonce);
 
     var claims = new Claim[]
     {
       new (ClaimTypes.GivenName, user.UserName),
       new (ClaimTypes.Name, user.UserName),
       new (ClaimTypes.Email, user.Email),
-      new (ClaimTypes.MobilePhone, user.PhoneNumber),
-      new (ClaimTypes.DateOfBirth, DateTime.Now.Ticks.ToString())
+      new (ClaimTypes.MobilePhone, user.PhoneNumber)
     };
 
     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -102,8 +88,7 @@ public class AuthorizeController : Controller
         new AuthenticationProperties
         {
           IsPersistent = true,
-          IssuedUtc = DateTime.Now,
-          AllowRefresh = true
+          IssuedUtc = DateTimeOffset.UtcNow
         });
 
     return Redirect($"{redirectUri}?code={code}&state={state}");

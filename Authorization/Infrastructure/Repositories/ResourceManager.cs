@@ -20,7 +20,7 @@ public class ResourceManager
       if (resourceScope is not null)
       {
         var resource = await _context.Resources.FindAsync(resourceScope.ResourceId);
-        resources.Add(resource);
+        resources.Add(resource!);
       }
     }
     return resources;

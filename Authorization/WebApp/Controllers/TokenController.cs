@@ -112,10 +112,10 @@ public class TokenController : ControllerBase
     if (!await _clientManager.IsValidRedirectUrisAsync(request.ClientId!, new[] { request.RedirectUri! }))
       return BadRequest("redirect_uri is not valid for client");
 
-    if (!await _authorizationCodeTokenFactory.ValidateAsync(request.GrantType, request.Code!, request.RedirectUri!, request.ClientId!, request.CodeVerifier!))
+    if (!await _authorizationCodeTokenFactory.ValidateAsync(request.Code!, request.RedirectUri!, request.ClientId!, request.CodeVerifier!))
       return BadRequest("code is not valid");
 
-    var decodedAuthorizationCode = await _authorizationCodeTokenFactory.DecodeTokenAsync(request.Code!);
+    var decodedAuthorizationCode = _authorizationCodeTokenFactory.DecodeToken(request.Code!);
 
     if (!string.IsNullOrWhiteSpace(request.Scope))
     {
@@ -125,10 +125,12 @@ public class TokenController : ControllerBase
 
     var accessToken = await _accessTokenFactory.GenerateTokenAsync(request.ClientId!, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.UserId);
     var refreshToken = await _refreshTokenFactory.GenerateTokenAsync(request.ClientId!, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.UserId);
+    var idToken = await _idTokenFactory.GenerateTokenAsync(request.ClientId!, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.Nonce, decodedAuthorizationCode.UserId);
     return Ok(new PostTokenResponse
     {
       AccessToken = accessToken,
       RefreshToken = refreshToken,
+      IdToken = idToken,
       ExpiresIn = _authenticationConfiguration.AccessTokenExpiration
     });
   }

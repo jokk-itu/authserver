@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using System.Net.Http.Headers;
 
 namespace WebApp;
@@ -17,7 +18,7 @@ public class PopulateAccessTokenDelegatingHandler : DelegatingHandler
 
   protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
   {
-    var accessToken = await _httpContextAccessor.HttpContext!.GetTokenAsync(OAuthDefaults.DisplayName, "access_token");
+    var accessToken = await _httpContextAccessor.HttpContext!.GetTokenAsync(OpenIdConnectDefaults.AuthenticationScheme, "access_token");
     if (accessToken is null)
     {
       _logger.LogWarning("Accesstoken is not present");

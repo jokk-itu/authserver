@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Logging;
 using Serilog;
 
@@ -21,10 +22,10 @@ builder.WebHost.ConfigureServices(services =>
   services
   .AddAuthentication(authenticationOptions =>
   {
-    authenticationOptions.DefaultScheme = OAuthDefaults.DisplayName;
-    authenticationOptions.DefaultAuthenticateScheme = OAuthDefaults.DisplayName;
+    authenticationOptions.DefaultScheme = OpenIdConnectDefaults.AuthenticationScheme;
+    authenticationOptions.DefaultAuthenticateScheme = OpenIdConnectDefaults.AuthenticationScheme;
   })
-  .AddJwtBearer(OAuthDefaults.DisplayName, jwtBearerOptions =>
+  .AddJwtBearer(OpenIdConnectDefaults.AuthenticationScheme, jwtBearerOptions =>
   {
     var identity = builder.Configuration.GetSection("Identity");
     jwtBearerOptions.Authority = identity["Authority"];

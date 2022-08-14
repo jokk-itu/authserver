@@ -3,10 +3,22 @@ using AuthorizationServer.Extensions;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggerConfiguration) =>
+{
+  loggerConfiguration
+  .Enrich.FromLogContext()
+  .MinimumLevel.Information()
+  .MinimumLevel.Override("Microsoft.EntityFrameworkCore", Serilog.Events.LogEventLevel.Warning)
+  .WriteTo.Console();
+});
 
 builder.WebHost.ConfigureServices(services =>
 {
@@ -34,7 +46,7 @@ builder.WebHost.ConfigureServices(services =>
       configureOptions.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     })
     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddJwtBearer(OAuthDefaults.DisplayName, config =>
+    .AddJwtBearer(OpenIdConnectDefaults.AuthenticationScheme, config =>
     {
       config.IncludeErrorDetails = true; //DEVELOP READY
       config.RequireHttpsMetadata = false; //DEVELOP READY
@@ -87,6 +99,7 @@ await JwkManager.GenerateJwkAsync(identityContext, identityConfiguration, DateTi
 
 if (!app.Environment.IsDevelopment())
 {
+  IdentityModelEventSource.ShowPII = true;
   app.UseExceptionHandler("/Home/Error");
 }
 

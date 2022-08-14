@@ -1,9 +1,20 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using WebApp;
 using WebApp.Services;
+using Serilog;
+using Microsoft.IdentityModel.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggingConfiguration) => 
+{
+  loggingConfiguration
+    .Enrich.FromLogContext()
+    .WriteTo.Console();
+});
 
 builder.WebHost.ConfigureServices(services =>
 {
@@ -12,10 +23,67 @@ builder.WebHost.ConfigureServices(services =>
   {
     configureOptions.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     configureOptions.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    configureOptions.DefaultChallengeScheme = OAuthDefaults.DisplayName;
+    configureOptions.DefaultChallengeScheme = OpenIdConnectDefaults.DisplayName;
   })
   .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
-  .AddOAuth(OAuthDefaults.DisplayName, configureOptions =>
+  .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, configureOptions => 
+  {
+    var identity = builder.Configuration.GetSection("Identity");
+    configureOptions.Authority = identity["InternalAuthority"];
+    configureOptions.ClientId = identity["ClientId"];
+    configureOptions.ClientSecret = identity["ClientSecret"];
+    configureOptions.MetadataAddress = $"{identity["InternalAuthority"]}{identity["MetaPath"]}";
+    configureOptions.CallbackPath = identity["CallbackPath"];
+    configureOptions.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    configureOptions.ResponseType = OpenIdConnectResponseType.Code;
+    configureOptions.UsePkce = true;
+    configureOptions.SaveTokens = true;
+    configureOptions.Scope.Add("profile");
+    configureOptions.Scope.Add("openid");
+    configureOptions.Scope.Add("api1");
+    configureOptions.Events = new OpenIdConnectEvents
+    {
+      OnAccessDenied = context => 
+      {
+        Log.Information("Access denied");
+        return Task.CompletedTask;
+      },
+      OnAuthorizationCodeReceived = context => 
+      {
+        Log.Information("AuthorizationCode received");
+        return Task.CompletedTask;
+      },
+      OnRedirectToIdentityProvider = context => 
+      {
+        Log.Information("Redirecting to Authorize endpoint");
+        return Task.CompletedTask;
+      },
+      OnAuthenticationFailed = context => 
+      {
+        Log.Information("Authentication failed");
+        return Task.CompletedTask;
+      }
+    };
+    configureOptions.RequireHttpsMetadata = false;
+    configureOptions.NonceCookie = new CookieBuilder 
+    {
+      Name = "OpenId-Auth-Nonce",
+      SameSite = SameSiteMode.None,
+      SecurePolicy = CookieSecurePolicy.Always,
+      IsEssential = true,
+      HttpOnly = true
+    };
+    configureOptions.CorrelationCookie = new CookieBuilder
+    {
+      Name = "OpenId-Auth-Correlation",
+      SameSite = SameSiteMode.None,
+      SecurePolicy = CookieSecurePolicy.Always,
+      IsEssential = true,
+      HttpOnly = true
+    };
+    //configureOptions.Validate();
+  })
+  /*.AddOAuth(OAuthDefaults.DisplayName, configureOptions =>
   {
     var identity = builder.Configuration.GetSection("Identity");
     configureOptions.ClientId = identity["ClientId"];
@@ -31,14 +99,15 @@ builder.WebHost.ConfigureServices(services =>
     configureOptions.Scope.Add("api1");
     configureOptions.CorrelationCookie = new CookieBuilder
     {
-      Name = "Auth-Correlation",
+      Name = "OAuth-Auth-Correlation",
       SameSite = SameSiteMode.None,
       SecurePolicy = CookieSecurePolicy.Always,
       IsEssential = true,
       HttpOnly = true
     };
     configureOptions.Validate();
-  });
+  })*/;
+
   services.AddAuthorization();
   services.AddCookiePolicy(cookiePolicyOptions =>
   {
@@ -59,6 +128,7 @@ var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
+  IdentityModelEventSource.ShowPII = true;
   app.UseExceptionHandler("/Home/Error");
 }
 app.UseStaticFiles();
