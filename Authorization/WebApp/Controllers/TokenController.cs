@@ -1,8 +1,10 @@
 ﻿using AuthorizationServer;
 using AuthorizationServer.Repositories;
 using AuthorizationServer.TokenFactories;
+using Contracts.GetTokenIntrospeciton;
 using Contracts.PostToken;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Extensions;
 
@@ -136,10 +138,31 @@ public class TokenController : ControllerBase
   }
 
   [HttpGet]
-  [Route("{token}")]
-  public async Task<IActionResult> VerifyAsync(string token)
+  [Authorize]
+  [Route("introspection")]
+  [Consumes("application/x-www-form-urlencoded")]
+  public async Task<IActionResult> IntrospectAsync([FromForm] IFormCollection formCollection)
   {
-    await _jwkManager.VerifyAsync(token);
-    return Ok();
+        if (!formCollection.TryGetValue("token", out var token))
+            return BadRequest();
+
+        var response = new GetTokenIntrospectionResponse();
+        var decodedToken = _accessTokenFactory.DecodeToken(token);
+
+        if (decodedToken is null) 
+        {
+            response.Active = false;
+            return Ok(response);
+        }
+
+        response.Active = true;
+        response.Audience = string.Join(' ', decodedToken.Audiences);
+        response.Issuer = decodedToken.Issuer;
+        response.Expires = decodedToken.ValidTo.Ticks;
+        response.IssuedAt = decodedToken.IssuedAt.Ticks;
+        response.Scope = string.Join(' ', decodedToken.Claims.Select(x => x.Type.Equals("scope")));
+        response.SubjectId = decodedToken.Subject;
+
+        return Ok(response);
   }
 }
