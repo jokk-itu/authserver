@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.DatabaseConfigurations;
-public class NonceManager : IEntityTypeConfiguration<Nonce>
+public class NonceConfiguration : IEntityTypeConfiguration<Nonce>
 {
   public void Configure(EntityTypeBuilder<Nonce> builder)
   {
