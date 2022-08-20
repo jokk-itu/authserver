@@ -1,4 +1,4 @@
-﻿using AuthorizationServer;
+﻿using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 

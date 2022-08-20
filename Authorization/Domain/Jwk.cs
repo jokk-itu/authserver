@@ -1,6 +1,7 @@
 ﻿namespace Domain;
 
-public class IdentityJwk
+#nullable disable
+public class Jwk
 {
   public long KeyId { get; set; }
   public DateTimeOffset CreatedTimestamp { get; set; } = DateTimeOffset.Now;
