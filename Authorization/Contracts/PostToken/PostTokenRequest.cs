@@ -10,10 +10,10 @@ public class PostTokenRequest
   public string? Code { get; set; }
 
   [FromForm(Name = "client_id")]
-  public string? ClientId { get; set; }
+  public string ClientId { get; set; } = null!;
 
   [FromForm(Name = "client_secret")]
-  public string? ClientSecret { get; set; }
+  public string ClientSecret { get; set; } = null!;
 
   [FromForm(Name = "redirect_uri")]
   public string? RedirectUri { get; set; }

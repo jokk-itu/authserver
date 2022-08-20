@@ -1,5 +1,6 @@
 namespace Infrastructure;
 
+#nullable disable
 public record IdentityConfiguration
 {
   public string Audience { get; init; }
