@@ -1,7 +1,7 @@
-﻿using AuthorizationServer.TokenFactories;
-using Contracts.RegisterUser;
+﻿using Contracts.RegisterUser;
 using Contracts.ResetPassword;
 using Domain;
+using Infrastructure.Factories.TokenFactories;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -15,10 +15,10 @@ namespace WebApp.Controllers;
 [Route("connect/v1/[controller]")]
 public class AccountController : Controller
 {
-  private readonly UserManager<IdentityUserExtended> _userManager;
+  private readonly UserManager<User> _userManager;
   private readonly AccessTokenFactory _accessTokenFactory;
 
-  public AccountController(UserManager<IdentityUserExtended> userManager, AccessTokenFactory accessTokenFactory)
+  public AccountController(UserManager<User> userManager, AccessTokenFactory accessTokenFactory)
   {
     _userManager = userManager;
     _accessTokenFactory = accessTokenFactory;
@@ -37,7 +37,7 @@ public class AccountController : Controller
   public async Task<IActionResult> Register(
     PostRegisterUserRequest request)
   {
-    var identityResult = await _userManager.CreateAsync(new IdentityUserExtended
+    var identityResult = await _userManager.CreateAsync(new User
     {
       GivenName = request.GivenName,
       FamilyName = request.FamilyName,

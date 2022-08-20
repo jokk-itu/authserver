@@ -1,28 +1,23 @@
-using AuthorizationServer.Entities;
+using Domain;
+using Microsoft.EntityFrameworkCore;
 
-namespace AuthorizationServer.Repositories;
+namespace Infrastructure.Repositories;
 
 public class ResourceManager
 {
-  private readonly IdentityContext _context;
+  private readonly IdentityContext _identityContext;
 
   public ResourceManager(IdentityContext context)
   {
-    _context = context;
+    _identityContext = context;
   }
 
-  public async Task<ICollection<IdentityResource>> FindResourcesByScopes(ICollection<string> scopes)
+  public async Task<ICollection<Resource>> ReadResourcesAsync(ICollection<string> scopes, CancellationToken cancellationToken = default)
   {
-    var resources = new List<IdentityResource>();
-    foreach (var scope in scopes)
-    {
-      var resourceScope = _context.ResourceScopes.Where(x => x.ScopeId.Equals(scope)).SingleOrDefault();
-      if (resourceScope is not null)
-      {
-        var resource = await _context.Resources.FindAsync(resourceScope.ResourceId);
-        resources.Add(resource!);
-      }
-    }
-    return resources;
+    return await _identityContext
+      .Set<Resource>()
+      .Include(resource => resource.Scopes)
+      .Where(resource => resource.Scopes.Any(scope => scopes.Contains(scope.Name)))
+      .ToListAsync();
   }
 }

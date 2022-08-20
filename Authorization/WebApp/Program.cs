@@ -1,5 +1,5 @@
-using AuthorizationServer;
-using AuthorizationServer.Extensions;
+using Infrastructure;
+using Infrastructure.Extensions;
 using Domain;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -79,11 +79,11 @@ var app = builder.Build();
 using var scope = app.Services.CreateScope();
 var identityContext = scope.ServiceProvider.GetRequiredService<IdentityContext>();
 var identityConfiguration = scope.ServiceProvider.GetRequiredService<IdentityConfiguration>();
-var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUserExtended>>();
+var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
 await identityContext.Database.EnsureDeletedAsync();
 await identityContext.Database.EnsureCreatedAsync();
 
-await userManager.CreateAsync(new IdentityUserExtended
+await userManager.CreateAsync(new User
 {
   Address = "John Doe Street, 51",
   Name = "John WaitForIt Doe",

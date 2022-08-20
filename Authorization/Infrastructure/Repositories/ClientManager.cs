@@ -1,96 +1,110 @@
-using AuthorizationServer.Entities;
-using AuthorizationServer.Extensions;
+using Domain;
+using Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+using Microsoft.Extensions.Logging;
 
-namespace AuthorizationServer.Repositories;
+namespace Infrastructure.Repositories;
 
 public class ClientManager
 {
-  private readonly IdentityContext _context;
+  private readonly IdentityContext _identityContext;
+  private readonly ILogger<ClientManager> _logger;
 
-  public ClientManager(IdentityContext context)
+  public ClientManager(IdentityContext identityContext, ILogger<ClientManager> logger)
   {
-    _context = context;
+    _identityContext = identityContext;
+    _logger = logger;
   }
 
-  public async Task<IdentityClient?> IsValidClientAsync(
-      string clientId)
+  public async Task<Client?> ReadClientAsync(string clientId, CancellationToken cancellationToken = default)
   {
-    return await _context.Clients.FindAsync(clientId);
+    var client = await _identityContext
+      .Set<Client>()
+      .Include(client => client.Scopes)
+      .Include(client => client.Grants)
+      .Include(client => client.RedirectUris)
+      .SingleOrDefaultAsync(client => client.Id == clientId, cancellationToken: cancellationToken);
+
+    if (client is null)
+      _logger.LogDebug("Client {ClientId} not found", clientId);
+
+    return client;
   }
 
-  public async Task<bool> IsValidClientAsync(
-      [Required] string clientId,
-      [Required] string clientSecret)
+  public bool Login(string clientSecret, Client client)
   {
-    var client = await _context.Clients.FindAsync(clientId);
-    return client is not null && clientSecret.Sha256().Equals(client.SecretHash);
-  }
+    if (string.IsNullOrWhiteSpace(clientSecret))
+      throw new ArgumentException("Must not be null or only whitespace", nameof(clientSecret));
 
-  public async Task<bool> IsValidScopesAsync(
-      [Required] string clientId,
-      ICollection<string> scopes)
-  {
-    if (scopes is null)
-      throw new ArgumentNullException(nameof(scopes));
+    if (client is null)
+      throw new ArgumentNullException(nameof(client));
 
-    var clientScopes = await _context.ClientScopes
-        .Where(cs => cs.ClientId.Equals(clientId))
-        .ToListAsync();
-
-    var isValid = true;
-    using var enumerator = scopes.GetEnumerator();
-    while (isValid && enumerator.MoveNext())
+    if (client.SecretHash == clientSecret.Sha256())
     {
-      if (!clientScopes.Exists(cs => cs.ScopeId.Equals(enumerator.Current)))
-        isValid = false;
+      _logger.LogDebug("ClientSecret {ClientSecret} is wrong", clientSecret);
+      return false;
     }
 
-    return isValid;
+    return true;
   }
 
-  public async Task<bool> IsValidGrantsAsync(
-      [Required] string clientId,
-      ICollection<string> grants)
+  public bool IsAuthorizedRedirectUris(Client client, IEnumerable<string> redirectUris)
   {
-    if (grants is null)
-      throw new ArgumentNullException(nameof(grants));
+    if (client is null)
+      throw new ArgumentNullException(nameof(client));
 
-    var clientGrants = await _context.ClientGrants
-        .Where(cs => cs.ClientId.Equals(clientId))
-        .ToListAsync();
+    if (redirectUris is null || !redirectUris.Any())
+      throw new ArgumentException("Must not be null or empty", nameof(redirectUris));
 
-    var isValid = true;
-    using var enumerator = grants.GetEnumerator();
-    while (isValid && enumerator.MoveNext())
+    foreach (var redirectUri in redirectUris)
     {
-      if (!clientGrants.Exists(cs => cs.Name.Equals(enumerator.Current)))
-        isValid = false;
+      if (!client.RedirectUris.Any(r => r.Uri == redirectUri))
+      {
+        _logger.LogDebug("Client with clientId {ClientId} is not authorized to use redirectUri {RedirectUri}", client.Id, redirectUri);
+        return false;
+      }
     }
 
-    return isValid;
+    return true;
   }
 
-  public async Task<bool> IsValidRedirectUrisAsync(
-      [Required] string clientId,
-      ICollection<string> redirectUris)
+  public async Task<bool> IsAuthorizedGrants(Client client, IEnumerable<string> grants)
   {
-    if (redirectUris is null)
-      throw new ArgumentNullException(nameof(redirectUris));
+    if (client is null)
+      throw new ArgumentNullException(nameof(client));
 
-    var clientRedirectUris = await _context.ClientRedirectUris
-        .Where(cs => cs.ClientId.Equals(clientId))
-        .ToListAsync();
+    if (grants is null || !grants.Any())
+      throw new ArgumentException("Must not be null or empty", nameof(grants));
 
-    var isValid = true;
-    using var enumerator = redirectUris.GetEnumerator();
-    while (isValid && enumerator.MoveNext())
+    foreach (var grant in grants)
     {
-      if (!clientRedirectUris.Exists(cs => cs.Uri.Equals(enumerator.Current)))
-        isValid = false;
+      if (!client.Grants.Any(g => g.Name == grant))
+      {
+        _logger.LogDebug("Client {ClientId} is not authorized to use {Grant}", client.Id, grant);
+        return false;
+      }
     }
 
-    return isValid;
+    return true;
+  }
+
+  public bool IsAuthorizedScopes(Client client, IEnumerable<string> scopes)
+  {
+    if (client is null)
+      throw new ArgumentNullException(nameof(client));
+
+    if (scopes is null || !scopes.Any())
+      throw new ArgumentException("Must not be null or empty", nameof(scopes));
+
+    foreach (var scope in scopes)
+    {
+      if (!client.Scopes.Any(s => s.Name == scope))
+      {
+        _logger.LogDebug("Client {ClientId} is not authorized to use {Scope}", client.Id, scope);
+        return false;
+      }
+    }
+
+    return true;
   }
 }

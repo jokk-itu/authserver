@@ -1,4 +1,5 @@
-﻿using AuthorizationServer;
+﻿using Domain;
+using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
@@ -11,8 +12,10 @@ public class ScopeManager
     _identityContext = identityContext;
   }
 
-  public async Task<IEnumerable<string>> ReadScopesAsync()
+  public async Task<IEnumerable<Scope>> ReadScopesAsync(CancellationToken cancellationToken = default)
   {
-    return await _identityContext.Scopes.Select(x => x.Id).ToListAsync();
+    return await _identityContext
+      .Set<Scope>()
+      .ToListAsync();
   }
 }

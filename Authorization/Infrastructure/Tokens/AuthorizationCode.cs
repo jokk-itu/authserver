@@ -1,5 +1,6 @@
-namespace AuthorizationServer.Tokens;
+namespace Infrastructure.Tokens;
 
+#nullable disable
 public record AuthorizationCode
 {
   public long CreatedAt { get; init; }

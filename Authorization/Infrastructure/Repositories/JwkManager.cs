@@ -1,7 +1,5 @@
-﻿using AuthorizationServer;
-using Domain;
+﻿using Domain;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
@@ -16,9 +14,9 @@ public class JwkManager
   private readonly IdentityContext _identityContext;
   private readonly IdentityConfiguration _identityConfiguration;
 
-  private IdentityJwk _previous;
-  private IdentityJwk _current;
-  private IdentityJwk _future;
+  private Jwk _previous;
+  private Jwk _current;
+  private Jwk _future;
   private DateTimeOffset _expirationDate;
 
   private RSACryptoServiceProvider _rsaCryptoServiceProvider;
@@ -36,7 +34,7 @@ public class JwkManager
     }
   }
 
-  public IEnumerable<IdentityJwk> Jwks
+  public IEnumerable<Jwk> Jwks
   {
     get
     {
@@ -64,7 +62,7 @@ public class JwkManager
     _identityContext = scope.ServiceProvider.GetRequiredService<IdentityContext>();
     _identityConfiguration = scope.ServiceProvider.GetRequiredService<IdentityConfiguration>();
 
-    var jwks = _identityContext.Jwks
+    var jwks = _identityContext.Set<Jwk>()
       .OrderBy(jwk => jwk.CreatedTimestamp)
       .Take(3)
       .ToList();
@@ -78,12 +76,12 @@ public class JwkManager
       throw new Exception("Privatekey has not been read correctly");
   }
 
-  private async Task RotateAsync()
+  private async Task RotateAsync(CancellationToken cancellationToken = default)
   {
     _previous = _current;
     _current = _future;
-    await GenerateJwkAsync();
-    var jwk = _identityContext.Jwks
+    await GenerateJwkAsync(cancellationToken);
+    var jwk = _identityContext.Set<Jwk>()
       .OrderByDescending(jwk => jwk.CreatedTimestamp)
       .Last();
     _future = jwk;
@@ -97,9 +95,8 @@ public class JwkManager
       throw new Exception("Privatekey has not been read correctly");
   }
 
-  public async Task<bool> VerifyAsync(string token)
+  public bool Verify(string token)
   {
-    IdentityModelEventSource.ShowPII = true;
     var rsaParameters = RsaCryptoServiceProvider.ExportParameters(false);
     var tokenValidationParameters = new TokenValidationParameters
     {
@@ -112,31 +109,31 @@ public class JwkManager
     return true;
   }
 
-  public static async Task GenerateJwkAsync(IdentityContext identityContext, IdentityConfiguration identityConfiguration, DateTimeOffset createdTimeStamp)
+  public static async Task GenerateJwkAsync(IdentityContext identityContext, IdentityConfiguration identityConfiguration, DateTimeOffset createdTimeStamp, CancellationToken cancellationToken = default)
   {
     using var rsa = new RSACryptoServiceProvider(_keySize);
     var password = Encoding.Default.GetBytes(identityConfiguration.PrivateKeySecret);
     var pbeParameters = new PbeParameters(PbeEncryptionAlgorithm.Aes128Cbc, HashAlgorithmName.SHA256, 10);
     var privateKey = rsa.ExportEncryptedPkcs8PrivateKey(password, pbeParameters);
     var publicKey = rsa.ExportParameters(false);
-    var jwk = new IdentityJwk
+    var jwk = new Jwk
     {
       PrivateKey = privateKey,
       Modulus = publicKey.Modulus!,
       Exponent = publicKey.Exponent!,
       CreatedTimestamp = createdTimeStamp
     };
-    await identityContext.Jwks.AddAsync(jwk);
-    await identityContext.SaveChangesAsync();
+    await identityContext.Set<Jwk>().AddAsync(jwk, cancellationToken);
+    await identityContext.SaveChangesAsync(cancellationToken);
   }
 
-  public async Task GenerateJwkAsync(DateTimeOffset createdTimeStamp)
+  public async Task GenerateJwkAsync(DateTimeOffset createdTimeStamp, CancellationToken cancellationToken = default)
   {
     await GenerateJwkAsync(_identityContext, _identityConfiguration, createdTimeStamp);
   }
 
-  public async Task GenerateJwkAsync()
+  public async Task GenerateJwkAsync(CancellationToken cancellationToken = default)
   {
-    await GenerateJwkAsync(DateTimeOffset.UtcNow);
+    await GenerateJwkAsync(DateTimeOffset.UtcNow, cancellationToken: cancellationToken);
   }
 }
