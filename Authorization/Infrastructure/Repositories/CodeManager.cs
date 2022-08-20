@@ -26,9 +26,17 @@ public class CodeManager
     {
       Client = client,
       CodeType = codeType,
-      Value = encryptedCode
+      Value = encryptedCode,
+      IsRedeemed = false
     };
     await _identityContext.Set<Code>().AddAsync(code, cancellationToken);
+    var result = await _identityContext.SaveChangesAsync(cancellationToken);
+    return result > 0;
+  }
+
+  public async Task<bool> ReedemCodeAsync(Code code, CancellationToken cancellationToken = default)
+  {
+    code.IsRedeemed = true;
     var result = await _identityContext.SaveChangesAsync(cancellationToken);
     return result > 0;
   }

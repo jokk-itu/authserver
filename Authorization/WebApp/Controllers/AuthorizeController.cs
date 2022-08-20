@@ -1,5 +1,5 @@
-﻿using AuthorizationServer.Repositories;
-using AuthorizationServer.TokenFactories;
+﻿using Infrastructure.Repositories;
+using Infrastructure.TokenFactories;
 using Contracts.AuthorizeCode;
 using Domain;
 using Microsoft.AspNetCore.Authentication;
@@ -7,25 +7,37 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using WebApp.Models;
+using WebApp.Constants;
+using Domain.Constants;
+using System.Text.RegularExpressions;
+using WebApp.Extensions;
 
 namespace WebApp.Controllers;
 
 [Route("connect/v1/[controller]")]
 public class AuthorizeController : Controller
 {
-  private readonly UserManager<IdentityUserExtended> _userManager;
+  private readonly UserManager<User> _userManager;
   private readonly ClientManager _clientManager;
-  private readonly AuthorizationCodeTokenFactory _authorizationCodeTokenFactory;
+  private readonly CodeFactory _authorizationCodeTokenFactory;
+  private readonly CodeManager _codeManager;
+  private readonly NonceManager _nonceManager;
+  private readonly ILogger<AuthorizeController> _logger;
 
   public AuthorizeController(
-    UserManager<IdentityUserExtended> userManager,
+    UserManager<User> userManager,
     ClientManager clientManager,
-    AuthorizationCodeTokenFactory authorizationCodeTokenFactory)
+    CodeFactory authorizationCodeTokenFactory,
+    CodeManager codeManager, 
+    NonceManager nonceManager,
+    ILogger<AuthorizeController> logger)
   {
     _userManager = userManager;
     _clientManager = clientManager;
     _authorizationCodeTokenFactory = authorizationCodeTokenFactory;
+    _codeManager = codeManager;
+    _nonceManager = nonceManager;
+    _logger = logger;
   }
 
   [HttpGet]
@@ -36,8 +48,9 @@ public class AuthorizeController : Controller
 
   [ValidateAntiForgeryToken]
   [HttpPost]
+  [Consumes("application/x-www-form-urlencoded")]
   public async Task<IActionResult> PostAuthorizeAsync(
-    [FromForm] PostAuthorizeCodeRequest request,
+    PostAuthorizeCodeRequest request,
     [FromQuery(Name = "response_type")] string responseType,
     [FromQuery(Name = "client_id")] string clientId,
     [FromQuery(Name = "redirect_uri")] string redirectUri,
@@ -45,27 +58,58 @@ public class AuthorizeController : Controller
     [FromQuery(Name = "state")] string state,
     [FromQuery(Name = "code_challenge")] string codeChallenge,
     [FromQuery(Name = "code_challenge_method")] string codeChallengeMethod,
-    [FromQuery(Name = "nonce")] string nonce)
+    [FromQuery(Name = "nonce")] string nonce,
+    [FromQuery(Name = "prompt")] string prompt,
+    CancellationToken cancellationToken = default)
   {
-    if (await _clientManager.IsValidClientAsync(clientId) is null)
-      return BadRequest("client_id does not exist");
+    if (string.IsNullOrWhiteSpace(clientId))
+      return this.BadOAuthRequest(ErrorCode.InvalidRequest);
+
+    if (string.IsNullOrWhiteSpace(redirectUri))
+      return this.BadOAuthRequest(ErrorCode.InvalidRequest);
+
+    var client = await _clientManager.ReadClientAsync(clientId, cancellationToken: cancellationToken);
+    if (client is null)
+      return this.BadOAuthRequest(ErrorCode.InvalidRequest);
+
+    if (!_clientManager.IsAuthorizedRedirectUris(client, new string[] { redirectUri }))
+      return this.BadOAuthRequest(ErrorCode.InvalidRequest);
+
+    if (string.IsNullOrWhiteSpace(state))
+      return Redirect($"{redirectUri}?error={ErrorCode.InvalidRequest}");
+
+    if (string.IsNullOrWhiteSpace(codeChallenge) || !Regex.IsMatch(codeChallenge, "$[0-9a-zA-Z]{43,128}^"))
+      return Redirect($"{redirectUri}?state={state}&error={ErrorCode.InvalidRequest}");
+
+    if (string.IsNullOrWhiteSpace(codeChallengeMethod) || codeChallengeMethod != CodeChallengeMethodConstants.S256)
+      return Redirect($"{redirectUri}?state={state}&error={ErrorCode.InvalidRequest}");
+
+    if (string.IsNullOrEmpty(nonce))
+      return Redirect($"{redirectUri}?state={state}&error={ErrorCode.InvalidRequest}");
+
+    if (responseType != ResponseTypeConstants.Code)
+      return Redirect($"{redirectUri}?state={state}&error={ErrorCode.UnsupportedResponseType}");
 
     var scopes = scope.Split(' ');
-    if (!await _clientManager.IsValidScopesAsync(clientId, scopes))
-      return BadRequest("scopes are not valid for this client_id");
-
-    if (!scopes.Contains("openid"))
-      return BadRequest("openid scope must be present");
-
-    if (!await _clientManager.IsValidRedirectUrisAsync(clientId, new[] { redirectUri }))
-      return BadRequest("redirect_uri is not valid for this client_id");
+    if (!scopes.Contains(Domain.Constants.ScopeConstants.OpenId))
+      return Redirect($"{redirectUri}?state={state}&error={ErrorCode.InvalidScope}");
 
     var user = await _userManager.FindByNameAsync(request.Username);
+    if (user is null)
+      return Redirect($"{redirectUri}?state={state}&error={ErrorCode.AccessDenied}");
+
     var isPasswordValid = await _userManager.CheckPasswordAsync(user, request.Password);
     if (!isPasswordValid)
-      return BadRequest("username or password is wrong");
+      return Redirect($"{redirectUri}?state={state}&error={ErrorCode.AccessDenied}");
 
-    var code = await _authorizationCodeTokenFactory.GenerateTokenAsync(
+    var storedNonce = await _nonceManager.ReadNonceAsync(nonce, cancellationToken: cancellationToken);
+    if (storedNonce is not null)
+    {
+      _logger.LogWarning("Nonce {Nonce} replay detected", nonce);
+      return Redirect($"{redirectUri}?state={state}&error={ErrorCode.AccessDenied}");
+    }
+
+    var code = await _authorizationCodeTokenFactory.GenerateCodeAsync(
         redirectUri,
         scopes,
         clientId,
@@ -73,24 +117,13 @@ public class AuthorizeController : Controller
         user.Id,
         nonce);
 
-    var claims = new Claim[]
-    {
-      new (ClaimTypes.GivenName, user.UserName),
-      new (ClaimTypes.Name, user.UserName),
-      new (ClaimTypes.Email, user.Email),
-      new (ClaimTypes.MobilePhone, user.PhoneNumber)
-    };
+    var isCodeCreated = await _codeManager.CreateAuthorizationCodeAsync(client, code, cancellationToken: cancellationToken);
+    if (!isCodeCreated)
+      return Redirect($"{redirectUri}?state={state}&error={ErrorCode.ServerError}");
 
-    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-    await HttpContext.SignInAsync(
-        CookieAuthenticationDefaults.AuthenticationScheme,
-        new ClaimsPrincipal(claimsIdentity),
-        new AuthenticationProperties
-        {
-          IsPersistent = true,
-          IssuedUtc = DateTimeOffset.UtcNow
-        });
+    var isNonceCreated = await _nonceManager.CreateNonceAsync(nonce, cancellationToken: cancellationToken);
+    if (!isNonceCreated)
+      return Redirect($"{redirectUri}?state={state}&error={ErrorCode.ServerError}");
 
     return Redirect($"{redirectUri}?code={code}&state={state}");
   }
