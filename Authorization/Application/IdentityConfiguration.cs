@@ -1,4 +1,4 @@
-namespace AuthorizationServer;
+namespace Infrastructure;
 
 public record IdentityConfiguration
 {
@@ -10,7 +10,7 @@ public record IdentityConfiguration
 
   public string PrivateKeySecret { get; init; }
 
-  public string AuthorizationCodeSecret { get; init; }
+  public string CodeSecret { get; init; }
 
   //Seconds
   public int AccessTokenExpiration { get; init; }
@@ -22,5 +22,5 @@ public record IdentityConfiguration
   public int IdTokenExpiration { get; init; }
 
   //Seconds
-  public int AuthorizationCodeExpiration { get; init; }
+  public int CodeExpiration { get; init; }
 }
