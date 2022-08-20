@@ -10,10 +10,12 @@ internal class ClientTypeConfiguration : IEntityTypeConfiguration<ClientType>
     builder.HasData(
       new ClientType
       {
+        Id = 1,
         Name = Domain.Constants.ClientTypeConstants.Confidential
       },
       new ClientType
       {
+        Id = 2,
         Name = Domain.Constants.ClientTypeConstants.Public
       });
 

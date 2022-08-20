@@ -14,14 +14,17 @@ internal class ClientProfileConfiguration : IEntityTypeConfiguration<ClientProfi
     builder.HasData(
       new ClientProfile 
       {
+        Id = 1,
         Name = Domain.Constants.ClientProfileConstants.WebApplication
       },
       new ClientProfile
       {
+        Id = 2,
         Name = Domain.Constants.ClientProfileConstants.UserAgentApplication
       },
       new ClientProfile
       {
+        Id = 3,
         Name = Domain.Constants.ClientProfileConstants.NativeApplication
       });
 
