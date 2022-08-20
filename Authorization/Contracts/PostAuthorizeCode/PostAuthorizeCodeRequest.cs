@@ -1,12 +1,11 @@
-using System.Text.Json.Serialization;
-
+using Microsoft.AspNetCore.Mvc;
 namespace Contracts.AuthorizeCode;
 
 public record PostAuthorizeCodeRequest
 {
-  [JsonPropertyName("username")]
+  [FromForm(Name = "username")]
   public string Username { get; init; }
 
-  [JsonPropertyName("password")]
+  [FromForm(Name = "password")]
   public string Password { get; init; }
 }
