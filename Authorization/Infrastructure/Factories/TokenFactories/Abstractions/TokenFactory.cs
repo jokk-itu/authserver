@@ -1,12 +1,12 @@
-﻿using AuthorizationServer;
-using AuthorizationServer.Repositories;
+﻿using Infrastructure;
+using Infrastructure.Repositories;
 using Infrastructure.Repositories;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace Infrastructure.TokenFactories;
+namespace Infrastructure.Factories.TokenFactories.Abstractions;
 public abstract class TokenFactory
 {
   protected readonly IdentityConfiguration _identityConfiguration;

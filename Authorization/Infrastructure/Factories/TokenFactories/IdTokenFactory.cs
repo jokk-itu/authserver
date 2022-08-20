@@ -1,23 +1,25 @@
+using Infrastructure;
 using Domain;
+using Infrastructure.Factories.TokenFactories.Abstractions;
 using Infrastructure.Repositories;
-using Infrastructure.TokenFactories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
+using Domain.Constants;
 
-namespace AuthorizationServer.TokenFactories;
+namespace Infrastructure.Factories.TokenFactories;
 
 public class IdTokenFactory : TokenFactory
 {
-  private readonly UserManager<IdentityUserExtended> _userManager;
+  private readonly UserManager<User> _userManager;
 
   public IdTokenFactory(
     IdentityConfiguration identityConfiguration,
     TokenValidationParameters tokenValidationParameters,
-    UserManager<IdentityUserExtended> userManager,
+    UserManager<User> userManager,
     JwkManager jwkManager,
     ILogger<IdTokenFactory> logger)
     : base(logger, identityConfiguration, tokenValidationParameters, jwkManager)
@@ -33,7 +35,7 @@ public class IdTokenFactory : TokenFactory
     var claims = new List<Claim>
     {
       new(JwtRegisteredClaimNames.Sub, userId),
-      new("scope", string.Join(' ', scopes)),
+      new(ClaimNameConstants.Scope, string.Join(' ', scopes)),
       new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())
     };
 
@@ -44,7 +46,7 @@ public class IdTokenFactory : TokenFactory
     var userClaims = await _userManager.GetClaimsAsync(user);
     var userRoles = await _userManager.GetRolesAsync(user);
     claims.AddRange(userClaims.Select(claim => new Claim(claim.Type, claim.Value)));
-    claims.Add(new Claim("roles", JsonSerializer.Serialize(userRoles)));
+    claims.Add(new Claim(ClaimTypes.Role, JsonSerializer.Serialize(userRoles)));
 
     return GetSignedToken(claims, audience, expires);
   }

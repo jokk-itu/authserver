@@ -1,4 +1,4 @@
-using AuthorizationServer.Tokens;
+using Infrastructure.Tokens;
 using Domain;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
@@ -7,24 +7,24 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
-namespace AuthorizationServer.TokenFactories;
-public class AuthorizationCodeTokenFactory
+namespace Infrastructure.TokenFactories;
+public class CodeFactory
 {
   private readonly IdentityConfiguration _identityConfiguration;
-  private readonly UserManager<IdentityUserExtended> _userManager;
+  private readonly UserManager<User> _userManager;
   private readonly IDataProtector _protector;
 
-  public AuthorizationCodeTokenFactory(
+  public CodeFactory(
     IdentityConfiguration identityConfiguration,
     IDataProtectionProvider protectorProvider,
-    UserManager<IdentityUserExtended> userManager)
+    UserManager<User> userManager)
   {
     _identityConfiguration = identityConfiguration;
     _userManager = userManager;
-    _protector = protectorProvider.CreateProtector(identityConfiguration.AuthorizationCodeSecret);
+    _protector = protectorProvider.CreateProtector(identityConfiguration.CodeSecret);
   }
 
-  public async Task<string> GenerateTokenAsync(
+  public async Task<string> GenerateCodeAsync(
     string redirectUri,
     ICollection<string> scopes,
     string clientId,
@@ -49,7 +49,7 @@ public class AuthorizationCodeTokenFactory
     return Base64UrlEncoder.Encode(protectedBytes);
   }
 
-  public AuthorizationCode DecodeToken(string token)
+  public AuthorizationCode DecodeCode(string token)
   {
     var decoded = Base64UrlEncoder.DecodeBytes(token);
     var unProtectedBytes = _protector.Unprotect(decoded);
@@ -57,7 +57,7 @@ public class AuthorizationCodeTokenFactory
     using var reader = new BinaryReader(ms, Encoding.UTF8, false);
     var code = reader.ReadString();
     return JsonSerializer.Deserialize<AuthorizationCode>(code) 
-      ?? throw new Exception("AuthorizationCode is not valid");
+      ?? throw new Exception("Code is not valid");
   }
 
   public async Task<bool> ValidateAsync(
@@ -66,9 +66,9 @@ public class AuthorizationCodeTokenFactory
    string clientId,
    string codeVerifier)
   {
-    var code = DecodeToken(token);
+    var code = DecodeCode(token);
     var creationTime = new DateTimeOffset(code.CreatedAt, TimeSpan.Zero);
-    if (creationTime + TimeSpan.FromSeconds(_identityConfiguration.AuthorizationCodeExpiration) <
+    if (creationTime + TimeSpan.FromSeconds(_identityConfiguration.CodeExpiration) <
         DateTimeOffset.UtcNow)
       return false;
 
