@@ -1,4 +1,4 @@
-﻿using AuthorizationServer;
+﻿using Infrastructure;
 using Contracts.GetDiscovery;
 using Contracts.GetJwksDocument;
 using Infrastructure.Repositories;
@@ -35,14 +35,14 @@ public class DiscoveryController : ControllerBase
       AuthorizationEndpoint = $"{_identityConfiguration.ExternalIssuer}/connect/v1/authorize",
       TokenEndpoint = $"{_identityConfiguration.InternalIssuer}/connect/v1/token",
       JwksUri = $"{_identityConfiguration.InternalIssuer}/.well-known/jwks",
-      Scopes = await _scopeManager.ReadScopesAsync()
+      Scopes = (await _scopeManager.ReadScopesAsync()).Select(scope => scope.Name)
     };
     return Ok(discoveryDocumentResponse);
   }
 
   [HttpGet]
   [Route("jwks")]
-  public async Task<IActionResult> GetJwksDocumentAsync()
+  public IActionResult GetJwksDocument()
   {
     var response = new GetJwksDocumentResponse();
     foreach (var jwk in _jwkManager.Jwks)
