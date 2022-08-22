@@ -27,7 +27,7 @@ public class AccessTokenFactory : TokenFactory
   {
     var expires = DateTime.Now + TimeSpan.FromSeconds(_identityConfiguration.AccessTokenExpiration);
     var resources = await _resourceManager.ReadResourcesAsync(scopes);
-    var audience = string.Join(' ', resources.Select(x => x.Id));
+    var audience = string.Join(' ', resources.Select(x => x.Name));
     var claims = new[]
     {
       new Claim(JwtRegisteredClaimNames.Sub, userId),
