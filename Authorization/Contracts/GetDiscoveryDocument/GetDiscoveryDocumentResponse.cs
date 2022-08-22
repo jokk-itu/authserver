@@ -19,7 +19,7 @@ public class GetDiscoveryDocumentResponse
   public IEnumerable<string> Scopes { get; set; }
 
   [JsonPropertyName("response_types_supported")]
-  public IEnumerable<string> ResponseTypes => new string[] { "code", "code id_token" };
+  public IEnumerable<string> ResponseTypes => new string[] { "code" };
 
   [JsonPropertyName("grant_types_supported")]
   public IEnumerable<string> GrantTypes => new string[] { "authorization_code", "refresh_token" };

@@ -49,6 +49,8 @@ public class AuthorizeController : Controller
   [ValidateAntiForgeryToken]
   [HttpPost]
   [Consumes("application/x-www-form-urlencoded")]
+  [ProducesResponseType(StatusCodes.Status302Found)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> PostAuthorizeAsync(
     PostAuthorizeCodeRequest request,
     [FromQuery(Name = "response_type")] string responseType,
@@ -59,7 +61,6 @@ public class AuthorizeController : Controller
     [FromQuery(Name = "code_challenge")] string codeChallenge,
     [FromQuery(Name = "code_challenge_method")] string codeChallengeMethod,
     [FromQuery(Name = "nonce")] string nonce,
-    [FromQuery(Name = "prompt")] string prompt,
     CancellationToken cancellationToken = default)
   {
     if (string.IsNullOrWhiteSpace(clientId))
@@ -91,7 +92,7 @@ public class AuthorizeController : Controller
       return Redirect($"{redirectUri}?state={state}&error={ErrorCode.UnsupportedResponseType}");
 
     var scopes = scope.Split(' ');
-    if (!scopes.Contains(Domain.Constants.ScopeConstants.OpenId))
+    if (!scopes.Contains(ScopeConstants.OpenId))
       return Redirect($"{redirectUri}?state={state}&error={ErrorCode.InvalidScope}");
 
     var user = await _userManager.FindByNameAsync(request.Username);

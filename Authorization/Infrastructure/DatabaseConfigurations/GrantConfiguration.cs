@@ -20,6 +20,6 @@ internal class GrantConfiguration : IEntityTypeConfiguration<Grant>
         Name = GrantConstants.RefreshToken
       });
 
-    builder.ToTable("ClientGrants");
+    builder.ToTable("Grants");
   }
 }

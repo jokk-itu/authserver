@@ -17,7 +17,7 @@ public class CodeTypeConfiguration : IEntityTypeConfiguration<CodeType>
       {
         Id = 2,
         Name = Domain.Constants.CodeTypeConstants.DeviceCode
-      };
+      });
 
     builder.ToTable("CodeTypes");
   }
