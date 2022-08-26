@@ -1,11 +1,13 @@
-using Domain;
+using Domain.Enums;
 
 namespace Domain;
 
 #nullable disable
 public class Client
 {
-  public string Id { get; set; }
+  public int Id { get; set; }
+
+  public string Name { get; set; }
 
   public string SecretHash { get; set; }
 

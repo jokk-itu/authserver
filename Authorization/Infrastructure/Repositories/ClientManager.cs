@@ -23,7 +23,7 @@ public class ClientManager
       .Include(client => client.Scopes)
       .Include(client => client.Grants)
       .Include(client => client.RedirectUris)
-      .SingleOrDefaultAsync(client => client.Id == clientId, cancellationToken: cancellationToken);
+      .SingleOrDefaultAsync(client => client.Name == clientId, cancellationToken: cancellationToken);
 
     if (client is null)
       _logger.LogDebug("Client {ClientId} not found", clientId);
@@ -39,7 +39,7 @@ public class ClientManager
     if (client is null)
       throw new ArgumentNullException(nameof(client));
 
-    if (client.SecretHash == clientSecret.Sha256())
+    if (client.SecretHash != clientSecret.Sha256())
     {
       _logger.LogDebug("ClientSecret {ClientSecret} is wrong", clientSecret);
       return false;
@@ -60,7 +60,7 @@ public class ClientManager
     {
       if (!client.RedirectUris.Any(r => r.Uri == redirectUri))
       {
-        _logger.LogDebug("Client with clientId {ClientId} is not authorized to use redirectUri {RedirectUri}", client.Id, redirectUri);
+        _logger.LogDebug("Client with clientId {ClientId} is not authorized to use redirectUri {RedirectUri}", client.Name, redirectUri);
         return false;
       }
     }
@@ -68,7 +68,7 @@ public class ClientManager
     return true;
   }
 
-  public async Task<bool> IsAuthorizedGrants(Client client, IEnumerable<string> grants)
+  public bool IsAuthorizedGrants(Client client, IEnumerable<string> grants)
   {
     if (client is null)
       throw new ArgumentNullException(nameof(client));
@@ -80,7 +80,7 @@ public class ClientManager
     {
       if (!client.Grants.Any(g => g.Name == grant))
       {
-        _logger.LogDebug("Client {ClientId} is not authorized to use {Grant}", client.Id, grant);
+        _logger.LogDebug("Client {ClientId} is not authorized to use {Grant}", client.Name, grant);
         return false;
       }
     }
@@ -100,7 +100,7 @@ public class ClientManager
     {
       if (!client.Scopes.Any(s => s.Name == scope))
       {
-        _logger.LogDebug("Client {ClientId} is not authorized to use {Scope}", client.Id, scope);
+        _logger.LogDebug("Client {ClientId} is not authorized to use {Scope}", client.Name, scope);
         return false;
       }
     }

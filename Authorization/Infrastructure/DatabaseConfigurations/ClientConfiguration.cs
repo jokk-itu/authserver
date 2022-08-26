@@ -1,14 +1,21 @@
 ﻿using Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Infrastructure.DatabaseConfigurations;
 internal class ClientConfiguration : IEntityTypeConfiguration<Client>
 {
   public void Configure(EntityTypeBuilder<Client> builder)
   {
-    builder.HasOne(client => client.ClientType);
-    builder.HasOne(client => client.ClientProfile);
+    builder
+      .Property(client => client.ClientType)
+      .HasConversion<string>();
+
+    builder
+      .Property(client => client.ClientProfile)
+      .HasConversion<string>();
+
     builder.HasMany(client => client.RedirectUris);
 
     builder
@@ -17,10 +24,8 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
       .UsingEntity(link => link.ToTable("ClientScopes"));
 
     builder
-      .HasMany(client => client.Grants)
-      .WithMany(grant => grant.Clients)
-      .UsingEntity(link => link.ToTable("ClientGrants"));
-
+      .HasMany(client => client.Grants);
+      
     builder.ToTable("Clients");
   }
 }
