@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MediatR;
+using System.Reflection;
+using Infrastructure.PipelineBehaviours;
 
 namespace Infrastructure.Extensions;
 
@@ -24,6 +27,8 @@ public static class ServiceCollectionExtensions
     services.AddScoped<ScopeManager>();
     services.AddScoped<TokenManager>();
     services.AddScoped<CodeManager>();
+    services.AddScoped<NonceManager>();
+    services.AddScoped<TestManager>();
 
     services.AddSingleton<JwkManager>();
 
@@ -41,8 +46,10 @@ public static class ServiceCollectionExtensions
     services.AddIdentityCore<User>()
         .AddRoles<IdentityRole>()
         .AddDefaultTokenProviders()
-        .AddEntityFrameworkStores<IdentityContext>()
-        .AddSignInManager<SignInManager<User>>();
+        .AddEntityFrameworkStores<IdentityContext>();
+
+    services.AddMediatR(Assembly.GetExecutingAssembly());
+    services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingPipelineBehaviour<,>));
 
     return services;
   }

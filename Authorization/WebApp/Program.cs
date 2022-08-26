@@ -42,10 +42,9 @@ builder.WebHost.ConfigureServices(services =>
   services
     .AddAuthentication(configureOptions =>
     {
-      configureOptions.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-      configureOptions.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+      configureOptions.DefaultAuthenticateScheme = OpenIdConnectDefaults.AuthenticationScheme;
+      configureOptions.DefaultSignInScheme = OpenIdConnectDefaults.AuthenticationScheme;
     })
-    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddJwtBearer(OpenIdConnectDefaults.AuthenticationScheme, config =>
     {
       config.IncludeErrorDetails = true; //DEVELOP READY
@@ -79,32 +78,15 @@ var app = builder.Build();
 using var scope = app.Services.CreateScope();
 var identityContext = scope.ServiceProvider.GetRequiredService<IdentityContext>();
 var identityConfiguration = scope.ServiceProvider.GetRequiredService<IdentityConfiguration>();
-var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+var testManager = scope.ServiceProvider.GetRequiredService<TestManager>();
 await identityContext.Database.EnsureDeletedAsync();
 await identityContext.Database.EnsureCreatedAsync();
-
-await userManager.CreateAsync(new User
-{
-  Address = "John Doe Street, 51",
-  Name = "John WaitForIt Doe",
-  Birthdate = DateTime.Now,
-  Gender = "Man",
-  Locale = "DA-DK",
-  FamilyName = "Doe",
-  MiddleName = "WaitForIt",
-  GivenName = "John",
-  NickName = "John",
-  UserName = "jokk",
-  NormalizedEmail = "HEJMEDDIG@GMAIL.COM",
-  NormalizedUserName = "JOKK",
-  Email = "hejmeddig@gmail.com",
-  PhoneNumber = "88888888"
-}, "Password12!");
 
 await JwkManager.GenerateJwkAsync(identityContext, identityConfiguration, DateTimeOffset.UtcNow.AddDays(-7));
 await JwkManager.GenerateJwkAsync(identityContext, identityConfiguration, DateTimeOffset.UtcNow);
 await JwkManager.GenerateJwkAsync(identityContext, identityConfiguration, DateTimeOffset.UtcNow.AddDays(7));
 
+await testManager.AddDataAsync();
 
 if (!app.Environment.IsDevelopment())
 {
@@ -116,6 +98,11 @@ app.UseStaticFiles();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
+app.Use(async (context, next) => 
+{
+  Log.Information("Incoming request");
+  await next();
+});
 app.MapControllers();
 
 app.Run();
