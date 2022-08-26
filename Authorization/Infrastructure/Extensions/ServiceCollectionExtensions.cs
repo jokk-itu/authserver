@@ -48,9 +48,6 @@ public static class ServiceCollectionExtensions
         .AddDefaultTokenProviders()
         .AddEntityFrameworkStores<IdentityContext>();
 
-    services.AddMediatR(Assembly.GetExecutingAssembly());
-    services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingPipelineBehaviour<,>));
-
     return services;
   }
 }

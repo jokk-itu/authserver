@@ -6,7 +6,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -19,10 +18,5 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\Application\Application.csproj" />
 	  <ProjectReference Include="..\Domain\Domain.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="Requests\GetJwks\" />
-	  <Folder Include="Requests\GetDiscovery\" />
-	  <Folder Include="Requests\GetUserInfo\" />
 	</ItemGroup>
 </Project>
