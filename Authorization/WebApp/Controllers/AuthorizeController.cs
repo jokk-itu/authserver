@@ -2,15 +2,13 @@
 using Infrastructure.TokenFactories;
 using Contracts.AuthorizeCode;
 using Domain;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using WebApp.Constants;
 using Domain.Constants;
 using System.Text.RegularExpressions;
 using WebApp.Extensions;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace WebApp.Controllers;
 
@@ -52,7 +50,7 @@ public class AuthorizeController : Controller
   [ProducesResponseType(StatusCodes.Status302Found)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> PostAuthorizeAsync(
-    PostAuthorizeCodeRequest request,
+    [FromForm] PostAuthorizeCodeRequest request,
     [FromQuery(Name = "response_type")] string responseType,
     [FromQuery(Name = "client_id")] string clientId,
     [FromQuery(Name = "redirect_uri")] string redirectUri,
@@ -64,50 +62,59 @@ public class AuthorizeController : Controller
     CancellationToken cancellationToken = default)
   {
     if (string.IsNullOrWhiteSpace(clientId))
-      return this.BadOAuthRequest(ErrorCode.InvalidRequest);
+      return this.BadOAuthResult(ErrorCode.InvalidRequest);
 
     if (string.IsNullOrWhiteSpace(redirectUri))
-      return this.BadOAuthRequest(ErrorCode.InvalidRequest);
+      return this.BadOAuthResult(ErrorCode.InvalidRequest);
 
     var client = await _clientManager.ReadClientAsync(clientId, cancellationToken: cancellationToken);
     if (client is null)
-      return this.BadOAuthRequest(ErrorCode.InvalidRequest);
+      return this.BadOAuthResult(ErrorCode.InvalidRequest);
 
     if (!_clientManager.IsAuthorizedRedirectUris(client, new string[] { redirectUri }))
-      return this.BadOAuthRequest(ErrorCode.InvalidRequest);
+      return this.BadOAuthResult(ErrorCode.InvalidRequest);
 
     if (string.IsNullOrWhiteSpace(state))
-      return Redirect($"{redirectUri}?error={ErrorCode.InvalidRequest}");
-
-    if (string.IsNullOrWhiteSpace(codeChallenge) || !Regex.IsMatch(codeChallenge, "$[0-9a-zA-Z]{43,128}^"))
-      return Redirect($"{redirectUri}?state={state}&error={ErrorCode.InvalidRequest}");
-
-    if (string.IsNullOrWhiteSpace(codeChallengeMethod) || codeChallengeMethod != CodeChallengeMethodConstants.S256)
-      return Redirect($"{redirectUri}?state={state}&error={ErrorCode.InvalidRequest}");
-
-    if (string.IsNullOrEmpty(nonce))
-      return Redirect($"{redirectUri}?state={state}&error={ErrorCode.InvalidRequest}");
-
-    if (responseType != ResponseTypeConstants.Code)
-      return Redirect($"{redirectUri}?state={state}&error={ErrorCode.UnsupportedResponseType}");
+    {
+      var stateQuery = new QueryBuilder 
+      { 
+        { "error", ErrorCode.InvalidRequest } 
+      }.ToQueryString();
+      return Redirect($"{redirectUri}{stateQuery}");
+    }
 
     var scopes = scope.Split(' ');
     if (!scopes.Contains(ScopeConstants.OpenId))
-      return Redirect($"{redirectUri}?state={state}&error={ErrorCode.InvalidScope}");
+      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.InvalidScope, "scope is invalid");
+
+    if (!_clientManager.IsAuthorizedScopes(client, scopes))
+      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.UnauthorizedClient, "client is not authorized for scope");
+
+    if (string.IsNullOrWhiteSpace(codeChallenge) || !Regex.IsMatch(codeChallenge, "^[0-9a-zA-Z-_~.]{43,128}$"))
+      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.InvalidRequest, "code_challenge is invalid");
+
+    if (string.IsNullOrWhiteSpace(codeChallengeMethod) || codeChallengeMethod != CodeChallengeMethodConstants.S256)
+      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.InvalidRequest, "code_challenge_method is invalid");
+
+    if (string.IsNullOrWhiteSpace(nonce))
+      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.InvalidRequest, "nonce is invalid");
+
+    if (responseType != ResponseTypeConstants.Code)
+      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.UnsupportedResponseType, "response_type is invalid");
 
     var user = await _userManager.FindByNameAsync(request.Username);
     if (user is null)
-      return Redirect($"{redirectUri}?state={state}&error={ErrorCode.AccessDenied}");
+      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.AccessDenied, "user not found");
 
     var isPasswordValid = await _userManager.CheckPasswordAsync(user, request.Password);
     if (!isPasswordValid)
-      return Redirect($"{redirectUri}?state={state}&error={ErrorCode.AccessDenied}");
+      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.AccessDenied, "user not found");
 
     var storedNonce = await _nonceManager.ReadNonceAsync(nonce, cancellationToken: cancellationToken);
     if (storedNonce is not null)
     {
-      _logger.LogWarning("Nonce {Nonce} replay detected", nonce);
-      return Redirect($"{redirectUri}?state={state}&error={ErrorCode.AccessDenied}");
+      _logger.LogWarning("Nonce {Nonce} replay attack detected", nonce);
+      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.AccessDenied, "nonce replay attack detected");
     }
 
     var code = await _authorizationCodeTokenFactory.GenerateCodeAsync(
@@ -120,12 +127,18 @@ public class AuthorizeController : Controller
 
     var isCodeCreated = await _codeManager.CreateAuthorizationCodeAsync(client, code, cancellationToken: cancellationToken);
     if (!isCodeCreated)
-      return Redirect($"{redirectUri}?state={state}&error={ErrorCode.ServerError}");
+      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.ServerError);
 
     var isNonceCreated = await _nonceManager.CreateNonceAsync(nonce, cancellationToken: cancellationToken);
     if (!isNonceCreated)
-      return Redirect($"{redirectUri}?state={state}&error={ErrorCode.ServerError}");
+      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.ServerError);
 
-    return Redirect($"{redirectUri}?code={code}&state={state}");
+    var codeQuery = new QueryBuilder 
+    {
+      { "code", code },
+      { "state", state }
+    }.ToQueryString();
+
+    return Redirect($"{redirectUri}{codeQuery}");
   }
 }

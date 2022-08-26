@@ -46,16 +46,18 @@ public class TokenController : ControllerBase
 
   [HttpPost]
   [Consumes("application/x-www-form-urlencoded")]
+  [ProducesResponseType(typeof(PostTokenResponse), StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> PostAsync(
-    PostTokenRequest request,
+    [FromForm] PostTokenRequest request,
     CancellationToken cancellationToken = default)
   {
     var client = await _clientManager.ReadClientAsync(request.ClientId, cancellationToken: cancellationToken);
     if (client is null)
-      return this.BadOAuthRequest(ErrorCode.InvalidClient);
+      return this.BadOAuthResult(ErrorCode.InvalidClient);
 
     if (!_clientManager.Login(request.ClientSecret, client))
-        return this.BadOAuthRequest(ErrorCode.InvalidClient);
+        return this.BadOAuthResult(ErrorCode.InvalidClient);
 
     if (request.GrantType.Equals(GrantConstants.AuthorizationCode)) 
     {
@@ -66,15 +68,15 @@ public class TokenController : ControllerBase
       return await PostRefreshAsync(request, cancellationToken: cancellationToken);
     }
 
-    return this.BadOAuthRequest(ErrorCode.UnsupportedGrantType);
+    return this.BadOAuthResult(ErrorCode.UnsupportedGrantType);
   }
 
-  public async Task<IActionResult> PostRefreshAsync(
+  private async Task<IActionResult> PostRefreshAsync(
     PostTokenRequest request,
     CancellationToken cancellationToken = default)
   {
     if (string.IsNullOrWhiteSpace(request.RefreshToken))
-      return this.BadOAuthRequest(ErrorCode.InvalidRequest);
+      return this.BadOAuthResult(ErrorCode.InvalidRequest);
 
     var decodedRefreshToken = _refreshTokenFactory.DecodeToken(request.RefreshToken);
     var scopes = decodedRefreshToken.Claims
@@ -91,7 +93,7 @@ public class TokenController : ControllerBase
       //then revoke refresh_token and return BadRequest
     }
 
-    var accessToken = await _accessTokenFactory.GenerateTokenAsync(request.ClientId, scopes, decodedRefreshToken.Subject);
+    var accessToken = await _accessTokenFactory.GenerateTokenAsync(request.ClientId, scopes, decodedRefreshToken.Subject, cancellationToken);
 
     return Ok(new PostTokenResponse
     {
@@ -101,33 +103,33 @@ public class TokenController : ControllerBase
     });
   }
 
-  public async Task<IActionResult> PostAuthorizeAsync(
+  private async Task<IActionResult> PostAuthorizeAsync(
       PostTokenRequest request,
       Client client,
       CancellationToken cancellationToken = default)
   {
     if (string.IsNullOrWhiteSpace(request.RedirectUri))
-      return this.BadOAuthRequest(ErrorCode.InvalidRequest);
+      return this.BadOAuthResult(ErrorCode.InvalidRequest);
 
     if (string.IsNullOrWhiteSpace(request.Code))
-      return this.BadOAuthRequest(ErrorCode.InvalidRequest);
+      return this.BadOAuthResult(ErrorCode.InvalidRequest);
 
     if (string.IsNullOrWhiteSpace(request.CodeVerifier))
-      return this.BadOAuthRequest(ErrorCode.InvalidRequest);
+      return this.BadOAuthResult(ErrorCode.InvalidRequest);
 
     var code = await _codeManager.ReadCodeAsync(request.Code, cancellationToken: cancellationToken);
     var decodedAuthorizationCode = _codeFactory.DecodeCode(request.Code);
     if (code is not null && code.IsRedeemed)
     {
       _logger.LogWarning("Code {@Code} replay detected", decodedAuthorizationCode);
-      return this.BadOAuthRequest(ErrorCode.AccessDenied);
+      return this.BadOAuthResult(ErrorCode.AccessDenied);
     }
 
     if (!_clientManager.IsAuthorizedRedirectUris(client, new[] { request.RedirectUri }))
-      return this.BadOAuthRequest(ErrorCode.UnauthorizedClient);
+      return this.BadOAuthResult(ErrorCode.UnauthorizedClient);
 
     if (!await _codeFactory.ValidateAsync(request.Code, request.RedirectUri, request.ClientId, request.CodeVerifier))
-      return this.BadOAuthRequest(ErrorCode.InvalidRequest);
+      return this.BadOAuthResult(ErrorCode.InvalidRequest, "code is invalid");
 
     if (!string.IsNullOrWhiteSpace(request.Scope))
     {
@@ -135,9 +137,9 @@ public class TokenController : ControllerBase
       //If any deviates then return BadRequest
     }
 
-    var accessToken = await _accessTokenFactory.GenerateTokenAsync(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.UserId);
-    var refreshToken = await _refreshTokenFactory.GenerateTokenAsync(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.UserId);
-    var idToken = await _idTokenFactory.GenerateTokenAsync(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.Nonce, decodedAuthorizationCode.UserId);
+    var accessToken = await _accessTokenFactory.GenerateTokenAsync(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.UserId, cancellationToken);
+    var refreshToken = await _refreshTokenFactory.GenerateTokenAsync(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.UserId, cancellationToken);
+    var idToken = await _idTokenFactory.GenerateTokenAsync(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.Nonce, decodedAuthorizationCode.UserId, cancellationToken);
     return Ok(new PostTokenResponse
     {
       AccessToken = accessToken,
