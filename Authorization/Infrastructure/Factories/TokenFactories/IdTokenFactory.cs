@@ -1,4 +1,3 @@
-using Infrastructure;
 using Domain;
 using Infrastructure.Factories.TokenFactories.Abstractions;
 using Infrastructure.Repositories;
@@ -28,7 +27,7 @@ public class IdTokenFactory : TokenFactory
   }
 
   public async Task<string> GenerateTokenAsync(string clientId, IEnumerable<string> scopes,
-      string nonce, string userId)
+      string nonce, string userId, CancellationToken cancellationToken = default)
   {
     var expires = DateTime.Now + TimeSpan.FromSeconds(_identityConfiguration.IdTokenExpiration);
     var audience = clientId;

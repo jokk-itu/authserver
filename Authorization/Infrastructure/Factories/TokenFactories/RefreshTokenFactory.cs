@@ -1,7 +1,6 @@
 using Infrastructure;
 using Infrastructure.Repositories;
 using Infrastructure.Factories.TokenFactories.Abstractions;
-using Infrastructure.Repositories;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -25,10 +24,10 @@ public class RefreshTokenFactory : TokenFactory
     _resourceManager = resourceManager;
   }
 
-  public async Task<string> GenerateTokenAsync(string clientId, ICollection<string> scopes, string userId)
+  public async Task<string> GenerateTokenAsync(string clientId, ICollection<string> scopes, string userId, CancellationToken cancellationToken = default)
   {
     var expires = DateTime.Now + TimeSpan.FromSeconds(_identityConfiguration.RefreshTokenExpiration);
-    var resources = await _resourceManager.ReadResourcesAsync(scopes);
+    var resources = await _resourceManager.ReadResourcesAsync(scopes, cancellationToken);
     var audience = string.Join(' ', resources.Select(x => x.Name));
     var claims = new[]
     {
