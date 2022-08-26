@@ -34,6 +34,7 @@ public class DiscoveryController : ControllerBase
       Issuer = _identityConfiguration.InternalIssuer,
       AuthorizationEndpoint = $"{_identityConfiguration.ExternalIssuer}/connect/v1/authorize",
       TokenEndpoint = $"{_identityConfiguration.InternalIssuer}/connect/v1/token",
+      UserInfoEndpoint = $"{_identityConfiguration.InternalIssuer}/connect/v1/account/userinfo",
       JwksUri = $"{_identityConfiguration.InternalIssuer}/.well-known/jwks",
       Scopes = (await _scopeManager.ReadScopesAsync()).Select(scope => scope.Name)
     };

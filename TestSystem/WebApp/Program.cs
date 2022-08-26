@@ -41,6 +41,8 @@ builder.WebHost.ConfigureServices(services =>
     configureOptions.Scope.Add("profile");
     configureOptions.Scope.Add("openid");
     configureOptions.Scope.Add("api1");
+    configureOptions.MapInboundClaims = true;
+    configureOptions.GetClaimsFromUserInfoEndpoint = true;
     configureOptions.Events = new OpenIdConnectEvents
     {
       OnAccessDenied = context => 
