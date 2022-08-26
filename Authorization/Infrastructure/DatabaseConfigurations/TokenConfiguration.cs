@@ -8,7 +8,14 @@ internal class TokenConfiguration : IEntityTypeConfiguration<Token>
   public void Configure(EntityTypeBuilder<Token> builder)
   {
     builder.HasKey(token => token.KeyId);
-    builder.HasOne(token => token.TokenType);
+    builder
+      .Property(token => token.TokenType)
+      .HasConversion<string>();
+
+    builder
+      .Property(token => token.Value)
+      .HasMaxLength(int.MaxValue);
+
     builder.HasOne(token => token.RevokedBy);
     builder.ToTable("Tokens");
   }

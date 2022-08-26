@@ -1,4 +1,5 @@
 ﻿using Domain;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -18,14 +19,10 @@ public class CodeManager
 
   public async Task<bool> CreateAuthorizationCodeAsync(Client client, string encryptedCode, CancellationToken cancellationToken = default)
   {
-    var codeType = await _identityContext
-      .Set<CodeType>()
-      .SingleAsync(codeType => codeType.Name == Domain.Constants.CodeTypeConstants.AuthorizationCode, cancellationToken: cancellationToken);
-
     var code = new Code
     {
       Client = client,
-      CodeType = codeType,
+      CodeType = CodeType.AuthorizationCode,
       Value = encryptedCode,
       IsRedeemed = false
     };

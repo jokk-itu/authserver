@@ -1,4 +1,5 @@
 ﻿using Domain;
+using Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -51,15 +52,8 @@ public class TokenManager
     return result > 0;
   }
 
-  public async Task<bool> CreateTokenAsync(int tokenTypeId, string tokenValue) 
+  public async Task<bool> CreateTokenAsync(TokenType tokenType, string tokenValue) 
   {
-    var tokenType = await _identityContext
-      .Set<TokenType>()
-      .SingleOrDefaultAsync(tokenType => tokenType.Id == tokenTypeId);
-
-    if (tokenType is null)
-      return false;
-
     var token = new Token
     {
       TokenType = tokenType,

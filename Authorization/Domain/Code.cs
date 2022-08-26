@@ -1,4 +1,6 @@
-﻿namespace Domain;
+﻿using Domain.Enums;
+
+namespace Domain;
 
 #nullable disable
 public class Code

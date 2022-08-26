@@ -8,11 +8,13 @@ internal class CodeConfiguration : IEntityTypeConfiguration<Code>
   public void Configure(EntityTypeBuilder<Code> builder)
   {
     builder.HasOne(code => code.Client);
-    builder.HasOne(code => code.CodeType);
+    builder
+      .Property(code => code.CodeType)
+      .HasConversion<string>();
 
     builder
-      .HasIndex(code => code.Value)
-      .IsUnique(true);
+      .Property(code => code.Value)
+      .HasMaxLength(int.MaxValue);    
 
     builder.ToTable("Codes");
   }
