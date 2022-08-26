@@ -1,4 +1,3 @@
-using Infrastructure.Tokens;
 using Domain;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
@@ -30,7 +29,8 @@ public class CodeFactory
     string clientId,
     string codeChallenge,
     string userId,
-    string nonce)
+    string nonce,
+    CancellationToken cancellationToken = default)
   {
     var ms = new MemoryStream();
     await using var writer = new BinaryWriter(ms, Encoding.UTF8, false);
@@ -64,7 +64,8 @@ public class CodeFactory
    string token,
    string redirectUri,
    string clientId,
-   string codeVerifier)
+   string codeVerifier,
+   CancellationToken cancellationToken = default)
   {
     var code = DecodeCode(token);
     var creationTime = new DateTimeOffset(code.CreatedAt, TimeSpan.Zero);
