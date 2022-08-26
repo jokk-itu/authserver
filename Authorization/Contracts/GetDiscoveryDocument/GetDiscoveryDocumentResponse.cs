@@ -12,6 +12,9 @@ public class GetDiscoveryDocumentResponse
   [JsonPropertyName("token_endpoint")]
   public string TokenEndpoint { get; set; }
 
+  [JsonPropertyName("userinfo_endpoint")]
+  public string UserInfoEndpoint { get; set; }
+
   [JsonPropertyName("jwks_uri")]
   public string JwksUri { get; set; }
 
