@@ -117,7 +117,9 @@ public class AccountController : Controller
       if (user.NickName is not null)
         claims.Add("nickname", user.NickName);
 
-      claims.Add(JwtRegisteredClaimNames.Gender, user.Gender);
+      if(user.Gender is not null)
+        claims.Add(JwtRegisteredClaimNames.Gender, user.Gender);
+
       claims.Add(JwtRegisteredClaimNames.Birthdate, user.Birthdate.ToString());
       claims.Add("locale", user.Locale);
     }
