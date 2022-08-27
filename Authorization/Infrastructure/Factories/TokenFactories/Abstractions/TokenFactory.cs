@@ -1,6 +1,4 @@
-﻿using Infrastructure;
-using Infrastructure.Repositories;
-using Infrastructure.Repositories;
+﻿using Infrastructure.Repositories;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -50,17 +48,39 @@ public abstract class TokenFactory
     return token;
   }
 
-  public JwtSecurityToken DecodeToken(string token)
+  public JwtSecurityToken? DecodeToken(string token)
   {
-    new JwtSecurityTokenHandler()
+    if (string.IsNullOrWhiteSpace(token))
+      return null;
+
+    try
+    {
+      new JwtSecurityTokenHandler()
         .ValidateToken(token, _tokenValidationParameters, out var validatedToken);
-    return (JwtSecurityToken)validatedToken;
+      return (JwtSecurityToken)validatedToken;
+    }
+    catch(SecurityTokenException exception)
+    {
+      _logger.LogError(exception, "Token {token} is invalid", token);
+      return null;
+    }
   }
 
   public bool ValidateToken(string token)
   {
-    new JwtSecurityTokenHandler()
-        .ValidateToken(token, _tokenValidationParameters, out _);
-    return true;
+    if (string.IsNullOrWhiteSpace(token))
+      return false;
+
+    try
+    {
+      new JwtSecurityTokenHandler()
+        .ValidateToken(token, _tokenValidationParameters, out var _);
+      return true;
+    }
+    catch (SecurityTokenException exception)
+    {
+      _logger.LogError(exception, "Token {token} is invalid", token);
+      return false;
+    }
   }
 }
