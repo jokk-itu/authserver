@@ -2,6 +2,10 @@
 
 Supporting the Authorization Code flow for OAuth 2.0 and OpenId Connect v1.
 
+## Pipeline runs
+
+[![CI](https://github.com/jokk-itu/authserver/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/jokk-itu/authserver/actions/workflows/build.yml)
+
 ## Documentation
 
 Take a look in the Wiki section of the repository.

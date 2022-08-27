@@ -1,4 +1,4 @@
-name: .NET
+name: CI
 
 on:
   push:
@@ -18,8 +18,8 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore Auth.sln
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build Auth.sln --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test Auth.sln --no-build --verbosity normal
