@@ -9,17 +9,20 @@ public class TestManager
 {
 	private readonly IdentityContext _identityContext;
 	private readonly UserManager<User> _userManager;
+  private readonly RoleManager<IdentityRole> _roleManager;
 
-	public TestManager(IdentityContext identityContext, UserManager<User> userManager)
+  public TestManager(IdentityContext identityContext, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
 	{
 		_identityContext = identityContext;
 		_userManager = userManager;
-	}
+    _roleManager = roleManager;
+  }
 
   public async Task AddDataAsync()
   {
     await AddRedirectUrisAsync();
     await AddScopesAsync();
+    await AddRolesAsync();
     await AddUsersAsync();
     await AddResourcesAsync();
     await AddClientsAsync();
@@ -53,23 +56,46 @@ public class TestManager
 
   private async Task AddScopesAsync()
   {
-    var scope = new Scope
+    var apiScope = new Scope
     {
       Name = "api1"
     };
-    await _identityContext.Set<Scope>().AddAsync(scope);
+    var identityScope = new Scope 
+    {
+      Name = "identity-provider"
+    };
+    await _identityContext.Set<Scope>().AddRangeAsync(apiScope, identityScope);
     await _identityContext.SaveChangesAsync();
+  }
+
+  private async Task AddRolesAsync()
+  {
+    await _roleManager.CreateAsync(new IdentityRole 
+    {
+      Name = "SuperUser",
+      NormalizedName = "SUPERUSER"
+    });
+    await _roleManager.CreateAsync(new IdentityRole
+    {
+      Name = "Administrator",
+      NormalizedName = "ADMINISTRATOR"
+    });
+    await _roleManager.CreateAsync(new IdentityRole
+    {
+      Name = "Default",
+      NormalizedName = "DEFAULT"
+    });
   }
 
 	private async Task AddUsersAsync()
 	{
-    await _userManager.CreateAsync(new User
+    var user = new User
     {
       Address = "John Doe Street, 51",
       Name = "John WaitForIt Doe",
       Birthdate = DateTime.Now,
       Gender = "Man",
-      Locale = "DA-DK",
+      Locale = "da-DK",
       FamilyName = "Doe",
       MiddleName = "WaitForIt",
       GivenName = "John",
@@ -79,18 +105,26 @@ public class TestManager
       NormalizedUserName = "JOKK",
       Email = "hejmeddig@gmail.com",
       PhoneNumber = "88888888"
-    }, "Password12!");
+    };
+    await _userManager.CreateAsync(user, "Password12!");
+    await _userManager.AddToRolesAsync(user, new string[] {"Default", "SuperUser", "Administrator"});
   }
 
 	private async Task AddResourcesAsync()
 	{
-    var resource = new Resource
+    var apiResource = new Resource
     {
       Name = "api1",
 			SecretHash = "secret".Sha256(),
       Scopes = await _identityContext.Set<Scope>().ToListAsync()
     };
-		await _identityContext.Set<Resource>().AddAsync(resource);
+    var identityResource = new Resource 
+    {
+      Name = "identity-provider",
+      SecretHash = "secret".Sha256(),
+      Scopes = await _identityContext.Set<Scope>().ToListAsync()
+    };
+		await _identityContext.Set<Resource>().AddRangeAsync(apiResource, identityResource);
 		await _identityContext.SaveChangesAsync();
   }
 }

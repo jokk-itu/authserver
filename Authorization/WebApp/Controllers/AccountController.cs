@@ -1,13 +1,16 @@
 ﻿using Contracts.RegisterUser;
 using Contracts.ResetPassword;
 using Domain;
+using Domain.Constants;
 using Infrastructure.Factories.TokenFactories;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace WebApp.Controllers;
@@ -18,7 +21,9 @@ public class AccountController : Controller
   private readonly UserManager<User> _userManager;
   private readonly AccessTokenFactory _accessTokenFactory;
 
-  public AccountController(UserManager<User> userManager, AccessTokenFactory accessTokenFactory)
+  public AccountController(
+    UserManager<User> userManager, 
+    AccessTokenFactory accessTokenFactory)
   {
     _userManager = userManager;
     _accessTokenFactory = accessTokenFactory;
@@ -87,17 +92,21 @@ public class AccountController : Controller
   [HttpGet]
   [Route("userinfo")]
   [Authorize]
+  [ProducesResponseType(StatusCodes.Status200OK)]
   public async Task<IActionResult> UserInfo() 
   {
-    var accessToken = await HttpContext.GetTokenAsync(OpenIdConnectDefaults.AuthenticationScheme, "access_token");
+    var accessToken = await HttpContext.GetTokenAsync(OpenIdConnectDefaults.AuthenticationScheme, TokenTypeConstants.AccessToken);
     if (string.IsNullOrWhiteSpace(accessToken))
       return Forbid();
 
-    var decodedAccessToken = _accessTokenFactory.DecodeToken(accessToken);
+    var decodedAccessToken = await _accessTokenFactory.DecodeTokenAsync(accessToken);
+    if (decodedAccessToken is null)
+      return BadRequest(); // TODO send something else
+
     var subjectIdentifier = decodedAccessToken.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Sub);
     var user = await _userManager.FindByIdAsync(subjectIdentifier.Value);
     var scopes = decodedAccessToken.Claims
-      .Single(x => x.Type.Equals("scope")).Value
+      .Single(x => x.Type.Equals(ClaimNameConstants.Scope)).Value
       .Split(' ');
 
     var claims = new Dictionary<string, string>
@@ -105,34 +114,43 @@ public class AccountController : Controller
       { JwtRegisteredClaimNames.Sub, user.Id }
     };
 
-    if (scopes.Contains("profile")) 
+    if (scopes.Contains(ScopeConstants.Profile)) 
     {
+      claims.Add(ClaimTypes.Name, user.Name);
       claims.Add(JwtRegisteredClaimNames.Name, user.Name);
+
+      claims.Add(ClaimTypes.Surname, user.FamilyName);
       claims.Add(JwtRegisteredClaimNames.FamilyName, user.FamilyName);
+
+      claims.Add(ClaimTypes.GivenName, user.GivenName);
       claims.Add(JwtRegisteredClaimNames.GivenName, user.GivenName);
-      
-      if(user.MiddleName is not null)
+
+      var roles = await _userManager.GetRolesAsync(user);
+      if (roles.Any())
+        claims.Add(ClaimTypes.Role, JsonSerializer.Serialize(roles));
+
+      if (user.MiddleName is not null)
         claims.Add("middle_name", user.MiddleName);
 
       if (user.NickName is not null)
         claims.Add("nickname", user.NickName);
 
       if(user.Gender is not null)
-        claims.Add(JwtRegisteredClaimNames.Gender, user.Gender);
+        claims.Add(ClaimTypes.Gender, user.Gender);
 
       claims.Add(JwtRegisteredClaimNames.Birthdate, user.Birthdate.ToString());
-      claims.Add("locale", user.Locale);
+      claims.Add(ClaimTypes.Locality, user.Locale);
     }
 
-    if (scopes.Contains("email")) 
-      claims.Add(JwtRegisteredClaimNames.Email, user.Email);
+    if (scopes.Contains(OpenIdConnectScope.Email)) 
+      claims.Add(ClaimTypes.Email, user.Email);
 
     if (scopes.Contains("address"))
-      claims.Add("address", user.Address);
+      claims.Add(ClaimTypes.StreetAddress, user.Address);
 
     if (scopes.Contains("phone"))
-      claims.Add("phone", user.PhoneNumber);
+      claims.Add(ClaimTypes.MobilePhone, user.PhoneNumber);
 
-    return Ok(JsonSerializer.Serialize(claims));
+    return Json(claims);
   }
 }
