@@ -7,14 +7,10 @@ namespace Infrastructure.Repositories;
 public class CodeManager
 {
   private readonly IdentityContext _identityContext;
-  private readonly ClientManager _clientManager;
-  private readonly ILogger<CodeManager> _logger;
 
-  public CodeManager(IdentityContext identityContext, ClientManager clientManager, ILogger<CodeManager> logger)
+  public CodeManager(IdentityContext identityContext)
   {
     _identityContext = identityContext;
-    _clientManager = clientManager;
-    _logger = logger;
   }
 
   public async Task<bool> CreateAuthorizationCodeAsync(Client client, string encryptedCode, CancellationToken cancellationToken = default)
