@@ -1,5 +1,4 @@
 ﻿using Domain;
-using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
@@ -16,6 +15,6 @@ public class ScopeManager
   {
     return await _identityContext
       .Set<Scope>()
-      .ToListAsync();
+      .ToListAsync(cancellationToken: cancellationToken);
   }
 }
