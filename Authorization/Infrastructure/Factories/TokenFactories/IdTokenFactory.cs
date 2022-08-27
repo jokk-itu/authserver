@@ -8,6 +8,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
 using Domain.Constants;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Infrastructure.Factories.TokenFactories;
 
@@ -17,11 +20,11 @@ public class IdTokenFactory : TokenFactory
 
   public IdTokenFactory(
     IdentityConfiguration identityConfiguration,
-    TokenValidationParameters tokenValidationParameters,
+    IOptionsMonitor<JwtBearerOptions> jwtBearerOptions,
     UserManager<User> userManager,
     JwkManager jwkManager,
     ILogger<IdTokenFactory> logger)
-    : base(logger, identityConfiguration, tokenValidationParameters, jwkManager)
+    : base(logger, identityConfiguration, jwtBearerOptions.Get(OpenIdConnectDefaults.AuthenticationScheme), jwkManager)
   {
     _userManager = userManager;
   }
@@ -30,23 +33,15 @@ public class IdTokenFactory : TokenFactory
       string nonce, string userId, CancellationToken cancellationToken = default)
   {
     var expires = DateTime.Now + TimeSpan.FromSeconds(_identityConfiguration.IdTokenExpiration);
-    var audience = clientId;
-    var claims = new List<Claim>
+    var audiences = new string[] { clientId};
+    var claims = new Dictionary<string, object>
     {
-      new(JwtRegisteredClaimNames.Sub, userId),
-      new(ClaimNameConstants.Scope, string.Join(' ', scopes)),
-      new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())
+      { JwtRegisteredClaimNames.Sub, userId },
+      { JwtRegisteredClaimNames.Aud, audiences },
+      { ClaimNameConstants.Scope, string.Join(' ', scopes) },
+      { ClaimNameConstants.ClientId, clientId },
+      { JwtRegisteredClaimNames.Nonce, nonce }
     };
-
-    if (!string.IsNullOrWhiteSpace(nonce))
-      claims.Add(new(JwtRegisteredClaimNames.Nonce, nonce));
-
-    var user = await _userManager.FindByIdAsync(userId);
-    var userClaims = await _userManager.GetClaimsAsync(user);
-    var userRoles = await _userManager.GetRolesAsync(user);
-    claims.AddRange(userClaims.Select(claim => new Claim(claim.Type, claim.Value)));
-    claims.Add(new Claim(ClaimTypes.Role, JsonSerializer.Serialize(userRoles)));
-
-    return GetSignedToken(claims, audience, expires);
+    return GetSignedToken(claims, expires);
   }
 }

@@ -1,11 +1,11 @@
-using Infrastructure;
 using Infrastructure.Repositories;
 using Infrastructure.Factories.TokenFactories.Abstractions;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.Options;
 using Domain.Constants;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Infrastructure.Factories.TokenFactories;
 
@@ -15,11 +15,11 @@ public class RefreshTokenFactory : TokenFactory
 
   public RefreshTokenFactory(
     IdentityConfiguration identityConfiguration,
-    TokenValidationParameters tokenValidationParameters,
+    IOptionsMonitor<JwtBearerOptions> jwtBearerOptions,
     ResourceManager resourceManager,
     JwkManager jwkManager,
     ILogger<RefreshTokenFactory> logger)
-    : base(logger, identityConfiguration, tokenValidationParameters, jwkManager)
+    : base(logger, identityConfiguration, jwtBearerOptions.Get(OpenIdConnectDefaults.AuthenticationScheme), jwkManager)
   {
     _resourceManager = resourceManager;
   }
@@ -28,14 +28,14 @@ public class RefreshTokenFactory : TokenFactory
   {
     var expires = DateTime.Now + TimeSpan.FromSeconds(_identityConfiguration.RefreshTokenExpiration);
     var resources = await _resourceManager.ReadResourcesAsync(scopes, cancellationToken);
-    var audience = string.Join(' ', resources.Select(x => x.Name));
-    var claims = new[]
+    var audiences = resources.Select(x => x.Name).ToArray();
+    var claims = new Dictionary<string, object>
     {
-      new Claim(JwtRegisteredClaimNames.Sub, userId),
-      new Claim(ClaimNameConstants.Scope, string.Join(' ', scopes)),
-      new Claim(ClaimNameConstants.ClientId, clientId)
+      { JwtRegisteredClaimNames.Sub, userId },
+      { JwtRegisteredClaimNames.Aud, audiences },
+      { ClaimNameConstants.Scope, string.Join(' ', scopes) },
+      { ClaimNameConstants.ClientId, clientId }
     };
-
-    return GetSignedToken(claims, audience, expires);
+    return GetSignedToken(claims, expires);
   }
 }

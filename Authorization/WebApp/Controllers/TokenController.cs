@@ -78,7 +78,7 @@ public class TokenController : ControllerBase
     if (string.IsNullOrWhiteSpace(request.RefreshToken))
       return this.BadOAuthResult(ErrorCode.InvalidRequest);
 
-    var decodedRefreshToken = _refreshTokenFactory.DecodeToken(request.RefreshToken);
+    var decodedRefreshToken = await _refreshTokenFactory.DecodeTokenAsync(request.RefreshToken);
     var scopes = decodedRefreshToken.Claims
       .Single(c => c.Type.Equals(ClaimNameConstants.Scope))
       .Value.Split(' ');
