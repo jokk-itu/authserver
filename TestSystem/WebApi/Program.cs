@@ -65,6 +65,7 @@ Log.Logger = new LoggerConfiguration()
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
+  IdentityModelEventSource.ShowPII = true;
   app.UseSwagger();
   app.UseSwaggerUI();
 }

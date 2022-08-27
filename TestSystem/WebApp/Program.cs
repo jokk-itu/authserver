@@ -26,7 +26,7 @@ builder.WebHost.ConfigureServices(services =>
     configureOptions.DefaultChallengeScheme = OpenIdConnectDefaults.DisplayName;
   })
   .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
-  .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, configureOptions => 
+  .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, configureOptions =>
   {
     var identity = builder.Configuration.GetSection("Identity");
     configureOptions.Authority = identity["InternalAuthority"];
@@ -41,33 +41,34 @@ builder.WebHost.ConfigureServices(services =>
     configureOptions.Scope.Add("profile");
     configureOptions.Scope.Add("openid");
     configureOptions.Scope.Add("api1");
+    configureOptions.Scope.Add("identity-provider");
     configureOptions.MapInboundClaims = true;
     configureOptions.GetClaimsFromUserInfoEndpoint = true;
     configureOptions.Events = new OpenIdConnectEvents
     {
-      OnAccessDenied = context => 
+      OnAccessDenied = context =>
       {
         Log.Information("Access denied");
         return Task.CompletedTask;
       },
-      OnAuthorizationCodeReceived = context => 
+      OnAuthorizationCodeReceived = context =>
       {
         Log.Information("AuthorizationCode received");
         return Task.CompletedTask;
       },
-      OnRedirectToIdentityProvider = context => 
+      OnRedirectToIdentityProvider = context =>
       {
         Log.Information("Redirecting to Authorize endpoint");
         return Task.CompletedTask;
       },
-      OnAuthenticationFailed = context => 
+      OnAuthenticationFailed = context =>
       {
         Log.Information("Authentication failed");
         return Task.CompletedTask;
       }
     };
     configureOptions.RequireHttpsMetadata = false;
-    configureOptions.NonceCookie = new CookieBuilder 
+    configureOptions.NonceCookie = new CookieBuilder
     {
       Name = "OpenId-Auth-Nonce",
       SameSite = SameSiteMode.None,
@@ -83,32 +84,7 @@ builder.WebHost.ConfigureServices(services =>
       IsEssential = true,
       HttpOnly = true
     };
-    //configureOptions.Validate();
-  })
-  /*.AddOAuth(OAuthDefaults.DisplayName, configureOptions =>
-  {
-    var identity = builder.Configuration.GetSection("Identity");
-    configureOptions.ClientId = identity["ClientId"];
-    configureOptions.ClientSecret = identity["ClientSecret"];
-    configureOptions.AuthorizationEndpoint = $"http://localhost:5000{identity["AuthorizationPath"]}";
-    configureOptions.TokenEndpoint = $"http://auth-app:80{identity["TokenPath"]}";
-    configureOptions.CallbackPath = identity["CallbackPath"];
-    configureOptions.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    configureOptions.UsePkce = true;
-    configureOptions.SaveTokens = true;
-    configureOptions.Scope.Add("profile");
-    configureOptions.Scope.Add("openid");
-    configureOptions.Scope.Add("api1");
-    configureOptions.CorrelationCookie = new CookieBuilder
-    {
-      Name = "OAuth-Auth-Correlation",
-      SameSite = SameSiteMode.None,
-      SecurePolicy = CookieSecurePolicy.Always,
-      IsEssential = true,
-      HttpOnly = true
-    };
-    configureOptions.Validate();
-  })*/;
+  });
 
   services.AddAuthorization();
   services.AddCookiePolicy(cookiePolicyOptions =>
@@ -129,10 +105,11 @@ builder.WebHost.ConfigureServices(services =>
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
-{
-  IdentityModelEventSource.ShowPII = true;
   app.UseExceptionHandler("/Home/Error");
-}
+
+if (app.Environment.IsDevelopment())
+  IdentityModelEventSource.ShowPII = true;
+
 app.UseStaticFiles();
 
 app.UseRouting();
