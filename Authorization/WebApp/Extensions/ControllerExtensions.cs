@@ -1,5 +1,4 @@
 ﻿using Contracts;
-using Domain;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
