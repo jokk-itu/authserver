@@ -73,7 +73,7 @@ public class JwkManager
     _rsaCryptoServiceProvider = new RSACryptoServiceProvider(_keySize);
     _rsaCryptoServiceProvider.ImportEncryptedPkcs8PrivateKey(_identityConfiguration.PrivateKeySecret, _current.PrivateKey, out var bytesRead);
     if (bytesRead != _current.PrivateKey.Length)
-      throw new Exception("Privatekey has not been read correctly");
+      throw new CryptographicException("Private key has not been read correctly");
   }
 
   private async Task RotateAsync(CancellationToken cancellationToken = default)
@@ -92,24 +92,14 @@ public class JwkManager
     _rsaCryptoServiceProvider = new RSACryptoServiceProvider(_keySize);
     _rsaCryptoServiceProvider.ImportEncryptedPkcs8PrivateKey(_identityConfiguration.PrivateKeySecret, _current.PrivateKey, out var bytesRead);
     if (bytesRead != _current.PrivateKey.Length)
-      throw new Exception("Privatekey has not been read correctly");
+      throw new CryptographicException("Private key has not been read correctly");
   }
 
-  public bool Verify(string token)
-  {
-    var rsaParameters = RsaCryptoServiceProvider.ExportParameters(false);
-    var tokenValidationParameters = new TokenValidationParameters
-    {
-      IssuerSigningKey = new RsaSecurityKey(rsaParameters) { KeyId = "2" },
-      ValidAudience = "api1",
-      ValidIssuer = "http://auth-app:80",
-      ValidateLifetime = false
-    };
-    var claimsPrincipal = new JwtSecurityTokenHandler().ValidateToken(token, tokenValidationParameters, out var validatedToken);
-    return true;
-  }
-
-  public static async Task GenerateJwkAsync(IdentityContext identityContext, IdentityConfiguration identityConfiguration, DateTimeOffset createdTimeStamp, CancellationToken cancellationToken = default)
+  public static async Task GenerateJwkAsync(
+    IdentityContext identityContext, 
+    IdentityConfiguration identityConfiguration, 
+    DateTimeOffset createdTimeStamp, 
+    CancellationToken cancellationToken = default)
   {
     using var rsa = new RSACryptoServiceProvider(_keySize);
     var password = Encoding.Default.GetBytes(identityConfiguration.PrivateKeySecret);
@@ -129,7 +119,7 @@ public class JwkManager
 
   public async Task GenerateJwkAsync(DateTimeOffset createdTimeStamp, CancellationToken cancellationToken = default)
   {
-    await GenerateJwkAsync(_identityContext, _identityConfiguration, createdTimeStamp);
+    await GenerateJwkAsync(_identityContext, _identityConfiguration, createdTimeStamp, cancellationToken);
   }
 
   public async Task GenerateJwkAsync(CancellationToken cancellationToken = default)
