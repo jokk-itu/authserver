@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace Contracts.PostToken;
+#nullable disable
 public class PostTokenResponse
 {
   [JsonPropertyName("access_token")]

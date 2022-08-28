@@ -1,29 +1,29 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 namespace Contracts.PostToken;
-public class PostTokenRequest
+public record PostTokenRequest
 {
   [FromForm(Name = "grant_type")]
-  public string GrantType { get; set; } = null!;
+  public string GrantType { get; init; } = null!;
 
   [FromForm(Name = "code")]
-  public string? Code { get; set; }
+  public string? Code { get; init; }
 
   [FromForm(Name = "client_id")]
-  public string ClientId { get; set; } = null!;
+  public string ClientId { get; init; } = null!;
 
   [FromForm(Name = "client_secret")]
-  public string ClientSecret { get; set; } = null!;
+  public string ClientSecret { get; init; } = null!;
 
   [FromForm(Name = "redirect_uri")]
-  public string? RedirectUri { get; set; }
+  public string? RedirectUri { get; init; }
 
   [FromForm(Name = "scope")]
-  public string? Scope { get; set; }
+  public string? Scope { get; init; }
 
   [FromForm(Name = "code_verifier")]
-  public string? CodeVerifier { get; set; }
+  public string? CodeVerifier { get; init; }
 
   [FromForm(Name = "refresh_token")]
-  public string? RefreshToken { get; set; }
+  public string? RefreshToken { get; init; }
 }
