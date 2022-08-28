@@ -1,7 +1,5 @@
 ﻿using Domain;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -66,12 +64,14 @@ public class JwkManager
       .OrderBy(jwk => jwk.CreatedTimestamp)
       .Take(3)
       .ToList();
+
     _previous = jwks[0];
     _current = jwks[1];
     _future = jwks[2];
     _expirationDate = _current.CreatedTimestamp.AddDays(_expirationDays);
     _rsaCryptoServiceProvider = new RSACryptoServiceProvider(_keySize);
     _rsaCryptoServiceProvider.ImportEncryptedPkcs8PrivateKey(_identityConfiguration.PrivateKeySecret, _current.PrivateKey, out var bytesRead);
+
     if (bytesRead != _current.PrivateKey.Length)
       throw new CryptographicException("Private key has not been read correctly");
   }
@@ -84,6 +84,7 @@ public class JwkManager
     var jwk = _identityContext.Set<Jwk>()
       .OrderByDescending(jwk => jwk.CreatedTimestamp)
       .Last();
+
     _future = jwk;
 
     _expirationDate = _current.CreatedTimestamp.AddDays(_expirationDays);

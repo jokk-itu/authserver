@@ -25,7 +25,7 @@ public class NonceManager
       .Set<Nonce>()
       .AddAsync(nonce, cancellationToken);
 
-    var result = await _identityContext.SaveChangesAsync();
+    var result = await _identityContext.SaveChangesAsync(cancellationToken);
     return result > 0;
   }
 
@@ -36,6 +36,6 @@ public class NonceManager
 
     return await _identityContext
       .Set<Nonce>()
-      .SingleOrDefaultAsync(nonce => nonce.Value == nonceValue);
+      .SingleOrDefaultAsync(nonce => nonce.Value == nonceValue, cancellationToken: cancellationToken);
   }
 }
