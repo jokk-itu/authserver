@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "develop", "feature/**", "bug/**" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "develop", "feature/**" ]
 
 jobs:
   build:
@@ -26,6 +26,8 @@ jobs:
   
   sonarscan:
     name: SonarScan
+    needs: build
+    if: github.event_name == 'pull_request' && success()
     runs-on: windows-latest
     steps:
       - name: Set up JDK 11
