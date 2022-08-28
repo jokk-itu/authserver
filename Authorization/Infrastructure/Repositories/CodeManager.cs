@@ -1,7 +1,6 @@
 ﻿using Domain;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Repositories;
 public class CodeManager

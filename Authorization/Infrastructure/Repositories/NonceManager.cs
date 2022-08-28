@@ -16,16 +16,16 @@ public class NonceManager
     if (string.IsNullOrWhiteSpace(nonceValue))
       throw new ArgumentException("Must not be empty or whitespace", nameof(nonceValue));
 
-    var nonce = new Nonce 
+    var nonce = new Nonce
     {
       Value = nonceValue
     };
 
     await _identityContext
       .Set<Nonce>()
-      .AddAsync(nonce);
+      .AddAsync(nonce, cancellationToken);
 
-    var result = await _identityContext.SaveChangesAsync();
+    var result = await _identityContext.SaveChangesAsync(cancellationToken);
     return result > 0;
   }
 
@@ -36,6 +36,6 @@ public class NonceManager
 
     return await _identityContext
       .Set<Nonce>()
-      .SingleOrDefaultAsync(nonce => nonce.Value == nonceValue);
+      .SingleOrDefaultAsync(nonce => nonce.Value == nonceValue, cancellationToken: cancellationToken);
   }
 }

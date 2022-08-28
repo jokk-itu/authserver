@@ -88,7 +88,7 @@ public class CodeManagerTests
 
     // Assert
     Assert.NotNull(code);
-    Assert.Equal(codeToBeInserted.Id, code.Id);
+    Assert.Equal(codeToBeInserted.Id, code!.Id);
   }
 
   [Fact]

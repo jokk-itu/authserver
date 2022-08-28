@@ -22,7 +22,7 @@ public class TokenManager
   {
     var token = await _identityContext
       .Set<Token>()
-      .FindAsync(new object?[] { keyId }, cancellationToken: cancellationToken);
+      .FindAsync(new object[] { keyId } , cancellationToken: cancellationToken);
 
     if(token is null)
     {
@@ -33,26 +33,32 @@ public class TokenManager
     return token.RevokedAt is not null && token.RevokedBy is not null;
   }
 
-  public async Task<bool> RevokeTokenAsync(long keyId, string userId) 
+  public async Task<bool> RevokeTokenAsync(long keyId, string userId, CancellationToken cancellationToken = default) 
   {
     var user = await _userManager.FindByIdAsync(userId);
-    if (user is null)
+    if (user is null) 
+    {
+      _logger.LogDebug("User {userId} does not exist", userId);
       return false;
+    }
 
     var token = await _identityContext
       .Set<Token>()
-      .SingleOrDefaultAsync(token => token.KeyId == keyId);
+      .SingleOrDefaultAsync(token => token.KeyId == keyId, cancellationToken: cancellationToken);
 
     if (token is null)
+    {
+      _logger.LogDebug("Token {KeyId} does not exist", keyId);
       return false;
+    }      
 
     token.RevokedBy = user;
     token.RevokedAt = DateTime.UtcNow;
-    var result = await _identityContext.SaveChangesAsync();
+    var result = await _identityContext.SaveChangesAsync(cancellationToken);
     return result > 0;
   }
 
-  public async Task<bool> CreateTokenAsync(TokenType tokenType, string tokenValue) 
+  public async Task<bool> CreateTokenAsync(TokenType tokenType, string tokenValue, CancellationToken cancellationToken = default) 
   {
     var token = new Token
     {
@@ -60,7 +66,7 @@ public class TokenManager
       Value = tokenValue
     };
 
-    await _identityContext.Set<Token>().AddAsync(token);
+    await _identityContext.Set<Token>().AddAsync(token, cancellationToken);
     var result = await _identityContext.SaveChangesAsync();
     return result > 0;
   }
