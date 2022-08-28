@@ -1,10 +1,8 @@
 ﻿using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using System.Threading;
 
 namespace Infrastructure.Factories.TokenFactories.Abstractions;
 public abstract class TokenFactory
