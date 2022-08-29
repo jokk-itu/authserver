@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 namespace Contracts.AuthorizeCode;
-
+#nullable disable
 public record PostAuthorizeCodeRequest
 {
   [FromForm(Name = "username")]

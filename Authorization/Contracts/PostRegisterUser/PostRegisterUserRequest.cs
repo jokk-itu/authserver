@@ -7,41 +7,41 @@ namespace Contracts.RegisterUser;
 public record PostRegisterUserRequest
 {
   [JsonPropertyName("username")]
-  public string Username { get; init; }
+  public string Username { get; init; } = null!;
 
   [JsonPropertyName("password")]
   [PasswordPropertyText]
-  public string Password { get; init; }
+  public string Password { get; init; } = null!;
 
   [JsonPropertyName("email")]
   [EmailAddress]
-  public string Email { get; init; }
+  public string Email { get; init; } = null!;
 
   [JsonPropertyName("phonenumber")]
   [Phone]
-  public string PhoneNumber { get; init; }
+  public string PhoneNumber { get; init; } = null!;
 
   [JsonPropertyName("address")]
-  public string Address { get; set; }
+  public string Address { get; init; } = null!;
 
   [JsonPropertyName("family_name")]
-  public string FamilyName { get; set; }
+  public string FamilyName { get; init; } = null!;
 
   [JsonPropertyName("given_name")]
-  public string GivenName { get; set; }
+  public string GivenName { get; init; } = null!;
 
   [JsonPropertyName("middle_name")]
-  public string? MiddleName { get; set; }
+  public string? MiddleName { get; init; }
 
   [JsonPropertyName("nickname")]
-  public string NickName { get; set; }
+  public string NickName { get; init; } = null!;
 
   [JsonPropertyName("gender")]
-  public string Gender { get; set; }
+  public string Gender { get; init; } = null!;
 
   [JsonPropertyName("birthdate")]
-  public DateTime BirthDate { get; set; }
+  public DateTime BirthDate { get; init; }
 
   [JsonPropertyName("locale")]
-  public string Locale { get; set; }
+  public string Locale { get; init; } = null!;
 }

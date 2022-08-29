@@ -1,19 +1,21 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace Contracts.GetJwksDocument;
+
+#nullable disable
 public class JwkDto
 {
   [JsonPropertyName("kty")]
-  public string KeyType => "RSA";
+  public static string KeyType => "RSA";
 
   [JsonPropertyName("use")]
-  public string Use => "sig";
+  public static string Use => "sig";
 
   [JsonPropertyName("kid")]
   public long KeyId { get; init; }
 
   [JsonPropertyName("alg")]
-  public string Alg => "RS256";
+  public static string Alg => "RS256";
 
   [JsonPropertyName("n")]
   public string Modulus { get; init; }
