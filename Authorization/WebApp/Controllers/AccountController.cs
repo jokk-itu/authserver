@@ -97,11 +97,11 @@ public class AccountController : Controller
   {
     var accessToken = await HttpContext.GetTokenAsync(OpenIdConnectDefaults.AuthenticationScheme, TokenTypeConstants.AccessToken);
     if (string.IsNullOrWhiteSpace(accessToken))
-      return Forbid();
+      return Forbid(OpenIdConnectDefaults.AuthenticationScheme);
 
     var decodedAccessToken = await _accessTokenFactory.DecodeTokenAsync(accessToken);
     if (decodedAccessToken is null)
-      return BadRequest(); // TODO send something else
+      return Forbid(OpenIdConnectDefaults.AuthenticationScheme);
 
     var subjectIdentifier = decodedAccessToken.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Sub);
     var user = await _userManager.FindByIdAsync(subjectIdentifier.Value);
