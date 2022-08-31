@@ -12,11 +12,12 @@ services:
     networks:
       - net
 
-  webapi:
-    hostname: webapi
-    container_name: webapi
+  weatherservice:
+    hostname: weatherservice
+    container_name: weatherservice
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - Identity__Authority=http://auth-app:80
     ports:
       - "5001:80"
     networks:
@@ -27,7 +28,20 @@ services:
     container_name: webapp
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - Identity__InternalAuthority=http://auth-app:80
     ports:
       - "5002:80"
     networks:
-      - net        
+      - net      
+      
+  spa:
+    hostname: spa
+    container_name: spa
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Identity__InternalAuthority=http://auth-app:80
+    ports:
+      - "5003:80"
+    networks:
+      - net
+

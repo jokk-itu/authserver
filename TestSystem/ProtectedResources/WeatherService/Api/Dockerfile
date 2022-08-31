@@ -5,10 +5,11 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["NuGet.config", "."]
-COPY ["TestSystem/Api/Api.csproj", "TestSystem/Api/"]
-RUN dotnet restore "TestSystem/Api/Api.csproj"
+COPY ["TestSystem/ProtectedResources/WeatherService/Api.csproj", "Api/"]
+COPY ["TestSystem/ProtectedResources/WeatherService/Contracts/Contracts.csproj", "Contracts/"]
+RUN dotnet restore "Api/Api.csproj"
 COPY . .
-WORKDIR "/src/TestSystem/Api"
+WORKDIR "/src/Api"
 RUN dotnet build "Api.csproj" -c Release -o /app/build
 
 FROM build AS publish

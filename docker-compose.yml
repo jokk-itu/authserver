@@ -22,14 +22,21 @@ services:
     networks:
       - net
 
-  webapi:
-    image: ${DOCKER_REGISTRY}webapi
+  weatherservice:
+    image: ${DOCKER_REGISTRY}weatherservice
     build:
       context: .
-      dockerfile: TestSystem/WebApi/Dockerfile
+      dockerfile: TestSystem/ProtectedResources/WeatherService/Api/Dockerfile
 
   webapp:
     image: ${DOCKER_REGISTRY}webapp
     build:
       context: .
-      dockerfile: TestSystem/WebApp/Dockerfile
+      dockerfile: TestSystem/Web/Dockerfile
+
+  spa:
+    image: ${DOCKER_REGISTRY-}spa
+    build:
+      context: .
+      dockerfile: TestSystem/SinglePage/Server/Dockerfile
+

@@ -5,6 +5,9 @@ using WebApp;
 using WebApp.Services;
 using Serilog;
 using Microsoft.IdentityModel.Logging;
+using Microsoft.AspNetCore.Authentication;
+using IdentityModel.Client;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +27,61 @@ builder.WebHost.ConfigureServices(services =>
     configureOptions.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     configureOptions.DefaultChallengeScheme = OpenIdConnectDefaults.DisplayName;
   })
-  .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+  .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, configureOptions =>
+  {
+    configureOptions.Events = new CookieAuthenticationEvents
+    {
+      OnValidatePrincipal = async context =>
+      {
+        if (context.Principal?.Identity?.IsAuthenticated ?? false)
+        {
+          var tokens = context.Properties.GetTokens();
+          var expires = DateTime.Parse(tokens.FirstOrDefault(token => token.Name == "expires_at").Value).ToUniversalTime();
+          if (expires < DateTime.UtcNow)
+          {
+            var openIdConnectOptions = context.HttpContext.RequestServices.GetRequiredService<IOptionsSnapshot<OpenIdConnectOptions>>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            var configuration = openIdConnectOptions.Configuration
+              ?? await openIdConnectOptions.ConfigurationManager.GetConfigurationAsync(context.HttpContext.RequestAborted);
+
+            var tokenClientOptions = new TokenClientOptions
+            {
+              ClientCredentialStyle = ClientCredentialStyle.PostBody,
+              ClientId = openIdConnectOptions.ClientId,
+              ClientSecret = openIdConnectOptions.ClientSecret
+            };
+            using var httpClient = context.HttpContext.RequestServices.GetRequiredService<IHttpClientFactory>().CreateClient();
+            var tokenClient = new TokenClient(httpClient, tokenClientOptions);
+            var tokenResponse = await tokenClient.RequestRefreshTokenAsync(OpenIdConnectGrantTypes.RefreshToken);
+            if (tokenResponse.IsError)
+            {
+              context.RejectPrincipal();
+              return;
+            }
+            var expirationValue = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
+            context.Properties.StoreTokens(new[]
+            {
+              new AuthenticationToken
+              {
+                Name = "access_token",
+                Value = tokenResponse.AccessToken
+              },
+              new AuthenticationToken
+              {
+                Name = "refresh_token",
+                Value = tokenResponse.RefreshToken
+              },
+              new AuthenticationToken
+              {
+                Name = "expires_at",
+                Value = expirationValue.ToString()
+              }
+            });
+            context.ShouldRenew = true;
+          }
+        }
+      },
+    };
+  })
   .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, configureOptions =>
   {
     var identity = builder.Configuration.GetSection("Identity");
@@ -94,7 +151,7 @@ builder.WebHost.ConfigureServices(services =>
   });
   services.AddHttpClient<WebApiService>(httpClient =>
   {
-    httpClient.BaseAddress = new Uri("http://webapi:80");
+    httpClient.BaseAddress = new Uri("http://weatherservice:80");
   }).AddHttpMessageHandler<PopulateAccessTokenDelegatingHandler>();
 
   services.AddHttpContextAccessor();
