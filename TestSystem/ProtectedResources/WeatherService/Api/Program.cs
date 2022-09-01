@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Logging;
 using Serilog;
@@ -9,13 +8,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggerConfiguration) =>
 {
   loggerConfiguration
-  .Enrich.FromLogContext()
-  .WriteTo.Console();
+    .Enrich.FromLogContext()
+    .WriteTo.Console();
 });
 
 builder.WebHost.ConfigureServices(services =>
 {
-  IdentityModelEventSource.ShowPII = true; //DEVELOPER ready
   services.AddControllers();
   services.AddEndpointsApiExplorer();
   services.AddSwaggerGen();
@@ -31,13 +29,13 @@ builder.WebHost.ConfigureServices(services =>
     jwtBearerOptions.Authority = identity["Authority"];
     jwtBearerOptions.Audience = identity["Audience"];
     jwtBearerOptions.RequireHttpsMetadata = false;
-    jwtBearerOptions.Challenge = OAuthDefaults.DisplayName;
+    jwtBearerOptions.Challenge = OpenIdConnectDefaults.AuthenticationScheme;
     jwtBearerOptions.MetadataAddress = $"{jwtBearerOptions.Authority}/.well-known/openid-configuration";
     jwtBearerOptions.Events = new JwtBearerEvents
     {
       OnAuthenticationFailed = context =>
       {
-        Log.Error(context.Exception, "Error occured during authentication");
+        Log.Error(context.Exception, "Error occurred during authentication");
         return Task.CompletedTask;
       },
       OnTokenValidated = context =>
