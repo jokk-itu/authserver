@@ -44,6 +44,7 @@ if (!app.Environment.IsDevelopment())
 if(app.Environment.IsDevelopment())
   IdentityModelEventSource.ShowPII = true;
 
+app.UseSerilogRequestLogging();
 app.UseStaticFiles();
 app.UseCors();
 app.UseAuthentication();
