@@ -9,6 +9,7 @@ using Xunit;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Domain.Constants;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Specs.Repositories;
 public class ClientManagerTests
@@ -179,7 +180,7 @@ public class ClientManagerTests
       SecretHash = "secret".Sha256(),
       ClientProfile = ClientProfile.WebApplication,
       ClientType = ClientType.Confidential,
-      Grants = await _identityContext.Set<Grant>().Where(x => x.Name == GrantConstants.AuthorizationCode).ToListAsync()
+      Grants = await _identityContext.Set<Grant>().Where(x => x.Name == OpenIdConnectGrantTypes.AuthorizationCode).ToListAsync()
     };
     await _identityContext.Set<Client>().AddAsync(client);
     await _identityContext.SaveChangesAsync();
@@ -203,7 +204,7 @@ public class ClientManagerTests
       SecretHash = "secret".Sha256(),
       ClientProfile = ClientProfile.WebApplication,
       ClientType = ClientType.Confidential,
-      Grants = await _identityContext.Set<Grant>().Where(x => x.Name == GrantConstants.AuthorizationCode).ToListAsync()
+      Grants = await _identityContext.Set<Grant>().Where(x => x.Name == OpenIdConnectGrantTypes.AuthorizationCode).ToListAsync()
     };
     await _identityContext.Set<Client>().AddAsync(client);
     await _identityContext.SaveChangesAsync();
@@ -211,7 +212,7 @@ public class ClientManagerTests
     var clientManager = new ClientManager(_identityContext, Mock.Of<ILogger<ClientManager>>());
 
     // Act
-    var isAuthorized = clientManager.IsAuthorizedGrants(client, new[] { GrantConstants.AuthorizationCode });
+    var isAuthorized = clientManager.IsAuthorizedGrants(client, new[] { OpenIdConnectGrantTypes.AuthorizationCode });
 
     // Assert
     Assert.True(isAuthorized);

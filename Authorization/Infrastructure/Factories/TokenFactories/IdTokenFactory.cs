@@ -20,7 +20,7 @@ public class IdTokenFactory : TokenFactory
   {
   }
 
-  public async Task<string> GenerateTokenAsync(string clientId, IEnumerable<string> scopes,
+  public string GenerateToken(string clientId, IEnumerable<string> scopes,
       string nonce, string userId, CancellationToken cancellationToken = default)
   {
     var expires = DateTime.Now + TimeSpan.FromSeconds(_identityConfiguration.IdTokenExpiration);
