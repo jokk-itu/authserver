@@ -11,7 +11,9 @@ builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggerConfiguratio
   loggerConfiguration
     .Enrich.FromLogContext()
     .MinimumLevel.Information()
+    .Enrich.WithProperty("Application", "AuthorizationServer")
     .MinimumLevel.Override("Microsoft.EntityFrameworkCore", Serilog.Events.LogEventLevel.Warning)
+    .WriteTo.Seq(builder.Configuration.GetSection("Log")["SeqUrl"])
     .WriteTo.Console();
 });
 
@@ -37,6 +39,7 @@ await app.UseTestData();
 
 if (!app.Environment.IsDevelopment())
   app.UseExceptionHandler("/Home/Error");
+
 
 if(app.Environment.IsDevelopment())
   IdentityModelEventSource.ShowPII = true;

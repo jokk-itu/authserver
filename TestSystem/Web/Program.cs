@@ -15,6 +15,8 @@ builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggingConfigurati
 {
   loggingConfiguration
     .Enrich.FromLogContext()
+    .Enrich.WithProperty("Application", "WebApp")
+    .WriteTo.Seq(builder.Configuration.GetSection("Log")["SeqUrl"])
     .WriteTo.Console();
 });
 
@@ -36,13 +38,10 @@ builder.WebHost.ConfigureServices(services =>
         if (context.Principal?.Identity?.IsAuthenticated ?? false)
         {
           var tokens = context.Properties.GetTokens();
-          var expires = DateTime.Parse(tokens.FirstOrDefault(token => token.Name == "expires_at").Value).ToUniversalTime();
+          var expires = DateTime.Parse(tokens.FirstOrDefault(token => token.Name == "expires_at")!.Value).ToUniversalTime();
           if (expires < DateTime.UtcNow)
           {
             var openIdConnectOptions = context.HttpContext.RequestServices.GetRequiredService<IOptionsSnapshot<OpenIdConnectOptions>>().Get(OpenIdConnectDefaults.AuthenticationScheme);
-            var configuration = openIdConnectOptions.Configuration
-              ?? await openIdConnectOptions.ConfigurationManager.GetConfigurationAsync(context.HttpContext.RequestAborted);
-
             var tokenClientOptions = new TokenClientOptions
             {
               ClientCredentialStyle = ClientCredentialStyle.PostBody,
@@ -102,6 +101,16 @@ builder.WebHost.ConfigureServices(services =>
     configureOptions.GetClaimsFromUserInfoEndpoint = true;
     configureOptions.Events = new OpenIdConnectEvents
     {
+      OnTokenValidated = context => 
+      {
+        Log.Information("IdToken Validated");
+        return Task.CompletedTask;
+      },
+      OnTokenResponseReceived = context => 
+      {
+        Log.Information("Received Token Response");
+        return Task.CompletedTask;
+      },
       OnAccessDenied = context =>
       {
         Log.Information("Access denied");
@@ -151,7 +160,7 @@ builder.WebHost.ConfigureServices(services =>
   });
   services.AddHttpClient<WebApiService>(httpClient =>
   {
-    httpClient.BaseAddress = new Uri("http://weatherservice:80");
+    httpClient.BaseAddress = new Uri(builder.Configuration.GetSection("WeatherService")["Url"]);
   }).AddHttpMessageHandler<PopulateAccessTokenDelegatingHandler>();
 
   services.AddHttpContextAccessor();

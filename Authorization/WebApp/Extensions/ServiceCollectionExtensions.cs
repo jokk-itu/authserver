@@ -1,5 +1,7 @@
 ﻿using Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Serilog;
 
 namespace WebApp.Extensions;
 
@@ -21,6 +23,24 @@ public static class ServiceCollectionExtensions
         config.Audience = identityConfiguration.Audience;
         config.Authority = identityConfiguration.InternalIssuer;
         config.SaveToken = true;
+        config.Events = new JwtBearerEvents 
+        {
+          OnAuthenticationFailed = context => 
+          {
+            Log.Error(context.Exception, "Authentication failed");
+            return Task.CompletedTask;
+          },
+          OnForbidden = context =>
+          {
+            Log.Information("Forbidden");
+            return Task.CompletedTask;
+          },
+          OnTokenValidated = context =>
+          {
+            Log.Information("Token Validated");
+            return Task.CompletedTask;
+          }
+        };
         config.Validate();
       });
     return services;

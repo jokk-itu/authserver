@@ -9,6 +9,8 @@ builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggerConfiguratio
 {
   loggerConfiguration
     .Enrich.FromLogContext()
+    .Enrich.WithProperty("Application", "WeatherService")
+    .WriteTo.Seq(builder.Configuration.GetSection("Log")["SeqUrl"])
     .WriteTo.Console();
 });
 

@@ -1,8 +1,5 @@
 version: '3.4'
 
-networks:
-  net:
-
 services:
   auth-app:
     image: ${DOCKER_REGISTRY-}auth-app
@@ -12,15 +9,6 @@ services:
 
   mssql:
     image: mcr.microsoft.com/mssql/server:2019-latest
-    hostname: mssql
-    container_name: mssql
-    environment:
-      -  ACCEPT_EULA=Y
-      -  SA_PASSWORD=Password12!
-    ports:
-      - "1433:1433"
-    networks:
-      - net
 
   weatherservice:
     image: ${DOCKER_REGISTRY}weatherservice
@@ -40,3 +28,5 @@ services:
       context: .
       dockerfile: TestSystem/SinglePage/Server/Dockerfile
 
+  logger:
+    image: datalust/seq:latest

@@ -2,46 +2,53 @@ version: '3.4'
 
 services:
   auth-app:
-    hostname: auth-app
     container_name: auth-app
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Identity__InternalIssuer=http://auth-app:80
+      - Log__SeqUrl=http://logger:80
     ports:
       - "5000:80"
-    networks:
-      - net
 
   weatherservice:
-    hostname: weatherservice
     container_name: weatherservice
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Identity__Authority=http://auth-app:80
+      - Log__SeqUrl=http://logger:80
     ports:
       - "5001:80"
-    networks:
-      - net
 
   webapp:
-    hostname: webapp
     container_name: webapp
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Identity__InternalAuthority=http://auth-app:80
+      - WeatherService__Url=http://weatherservice:80
+      - Log__SeqUrl=http://logger:80
     ports:
       - "5002:80"
-    networks:
-      - net      
       
   spa:
-    hostname: spa
     container_name: spa
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Identity__InternalAuthority=http://auth-app:80
+      - Log__SeqUrl=http://logger:80
     ports:
       - "5003:80"
-    networks:
-      - net
 
+  logger:
+    ports:
+      - "5341:80"
+    environment:
+      - ACCEPT_EULA=Y
+    container_name: logger
+
+  mssql:
+    container_name: mssql
+    environment:
+      -  ACCEPT_EULA=Y
+      -  SA_PASSWORD=Password12!
+    ports:
+      - "1433:1433"
