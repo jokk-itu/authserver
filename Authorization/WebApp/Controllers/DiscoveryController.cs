@@ -38,6 +38,7 @@ public class DiscoveryController : ControllerBase
       JwksUri = $"{_identityConfiguration.InternalIssuer}/.well-known/jwks",
       Scopes = (await _scopeManager.ReadScopesAsync()).Select(scope => scope.Name)
     };
+    
     return Ok(discoveryDocumentResponse);
   }
 

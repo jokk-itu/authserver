@@ -1,7 +1,10 @@
 ﻿using Domain;
 using Domain.Constants;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Infrastructure.DatabaseConfigurations;
 internal class ScopeConfiguration : IEntityTypeConfiguration<Scope>
@@ -16,12 +19,12 @@ internal class ScopeConfiguration : IEntityTypeConfiguration<Scope>
       new Scope 
       {
         Id = 1,
-        Name = ScopeConstants.OpenId
+        Name = OpenIdConnectScope.OpenId
       },
       new Scope
       {
         Id = 2,
-        Name = ScopeConstants.Email
+        Name = OpenIdConnectScope.Email
       },
       new Scope
       {
@@ -31,7 +34,7 @@ internal class ScopeConfiguration : IEntityTypeConfiguration<Scope>
       new Scope
       {
         Id = 4,
-        Name = ScopeConstants.OfflineAccess
+        Name = OpenIdConnectScope.OfflineAccess
       },
       new Scope
       {

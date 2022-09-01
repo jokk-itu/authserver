@@ -8,6 +8,7 @@ using WebApp.Extensions;
 using Domain.Constants;
 using WebApp.Constants;
 using Domain;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace WebApp.Controllers;
 
@@ -59,11 +60,11 @@ public class TokenController : ControllerBase
     if (!_clientManager.Login(request.ClientSecret, client))
         return this.BadOAuthResult(ErrorCode.InvalidClient);
 
-    if (request.GrantType.Equals(GrantConstants.AuthorizationCode)) 
+    if (request.GrantType.Equals(OpenIdConnectGrantTypes.AuthorizationCode)) 
     {
       return await PostAuthorizeAsync(request, client, cancellationToken: cancellationToken);
     }
-    else if(request.GrantType.Equals(GrantConstants.RefreshToken))
+    else if(request.GrantType.Equals(OpenIdConnectGrantTypes.RefreshToken))
     {
       return await PostRefreshAsync(request, cancellationToken: cancellationToken);
     }
