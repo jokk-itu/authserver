@@ -2,26 +2,26 @@
 
 namespace Contracts.GetTokenIntrospeciton;
 #nullable enable
-public class GetTokenIntrospectionResponse
+public record GetTokenIntrospectionResponse
 {
   [JsonPropertyName("active")]
-  public bool Active { get; set; }
+  public bool Active { get; init; }
 
   [JsonPropertyName("scope")]
-  public string Scope { get; set; } = null!;
+  public string Scope { get; init; } = null!;
 
   [JsonPropertyName("sub")]
-  public string? SubjectId { get; set; }
+  public string? SubjectId { get; init; }
 
   [JsonPropertyName("aud")]
-  public string Audience { get; set; } = null!;
+  public string Audience { get; init; } = null!;
 
   [JsonPropertyName("iss")]
-  public string Issuer { get; set; } = null!;
+  public string Issuer { get; init; } = null!;
 
   [JsonPropertyName("exp")]
-  public long Expires { get; set; }
+  public long Expires { get; init; }
 
   [JsonPropertyName("iat")]
-  public long IssuedAt { get; set; }
+  public long IssuedAt { get; init; }
 }

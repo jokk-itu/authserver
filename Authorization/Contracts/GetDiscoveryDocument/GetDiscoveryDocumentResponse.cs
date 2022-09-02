@@ -3,47 +3,59 @@
 namespace Contracts.GetDiscovery;
 
 #nullable disable
-public class GetDiscoveryDocumentResponse
+public record GetDiscoveryDocumentResponse
 {
+  public GetDiscoveryDocumentResponse()
+  {
+    ResponseTypes = new[] { "code" };
+    GrantTypes = new[] { "authorization_code", "refresh_token" };
+    TokenEndpointAuthMethods = new[] { "client_secret_basic" };
+    TokenEndpointAuthSigningAlgValues = new[] { "RS256" };
+    CodeChallengeMethods = new[] { "S256" };
+    SubjectTypes = new[] { "public" };
+    IdTokenSigningAlgValues = new[] { "RS256" };
+    ResponseModes = new[] { "query" };
+  }
+
   [JsonPropertyName("issuer")]
-  public string Issuer { get; set; }
+  public string Issuer { get; init; }
 
   [JsonPropertyName("authorization_endpoint")]
-  public string AuthorizationEndpoint { get; set; }
+  public string AuthorizationEndpoint { get; init; }
 
   [JsonPropertyName("token_endpoint")]
-  public string TokenEndpoint { get; set; }
+  public string TokenEndpoint { get; init; }
 
   [JsonPropertyName("userinfo_endpoint")]
-  public string UserInfoEndpoint { get; set; }
+  public string UserInfoEndpoint { get; init; }
 
   [JsonPropertyName("jwks_uri")]
-  public string JwksUri { get; set; }
+  public string JwksUri { get; init; }
 
   [JsonPropertyName("scopes_supported")]
-  public IEnumerable<string> Scopes { get; set; }
+  public IEnumerable<string> Scopes { get; init; }
 
   [JsonPropertyName("response_types_supported")]
-  public static IEnumerable<string> ResponseTypes => new string[] { "code" };
+  public IEnumerable<string> ResponseTypes { get; } = new[] { "code" };
 
   [JsonPropertyName("grant_types_supported")]
-  public static IEnumerable<string> GrantTypes => new string[] { "authorization_code", "refresh_token" };
+  public IEnumerable<string> GrantTypes { get; } = new[] { "authorization_code", "refresh_token" };
 
   [JsonPropertyName("token_endpoint_auth_methods_supported")]
-  public static IEnumerable<string> TokenEndpointAuthMethods => new string[] { "client_secret_basic" };
+  public IEnumerable<string> TokenEndpointAuthMethods { get; } = new[] { "client_secret_basic" };
 
   [JsonPropertyName("token_endpoint_auth_signing_alg_values_supported")]
-  public static IEnumerable<string> TokenEndpointAuthSigningAlgValues => new string[] { "RS256" };
+  public IEnumerable<string> TokenEndpointAuthSigningAlgValues { get; } = new[] { "RS256" };
 
   [JsonPropertyName("code_challenge_methods_supported")]
-  public static IEnumerable<string> CodeChallengeMethods => new string[] { "S256" };
+  public IEnumerable<string> CodeChallengeMethods { get; } = new[] { "S256" };
 
   [JsonPropertyName("subject_types_supported")]
-  public static IEnumerable<string> SubjectTypes => new string[] { "public" };
+  public IEnumerable<string> SubjectTypes { get; } = new[] { "public" };
 
   [JsonPropertyName("id_token_signing_alg_values_supported")]
-  public static IEnumerable<string> IdTokenSigningAlgValues => new string[] { "RS256" };
+  public IEnumerable<string> IdTokenSigningAlgValues { get; } = new[] { "RS256" };
 
   [JsonPropertyName("response_modes_supported")]
-  public static IEnumerable<string> ResponseModes => new string[] { "query" };
+  public IEnumerable<string> ResponseModes { get; } = new[] { "query" };
 }

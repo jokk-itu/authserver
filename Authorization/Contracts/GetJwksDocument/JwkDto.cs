@@ -3,19 +3,19 @@
 namespace Contracts.GetJwksDocument;
 
 #nullable disable
-public class JwkDto
+public record JwkDto
 {
   [JsonPropertyName("kty")]
-  public static string KeyType => "RSA";
+  public string KeyType { get; } = "RSA";
 
   [JsonPropertyName("use")]
-  public static string Use => "sig";
+  public string Use { get; } = "sig";
 
   [JsonPropertyName("kid")]
   public long KeyId { get; init; }
 
   [JsonPropertyName("alg")]
-  public static string Alg => "RS256";
+  public string Alg { get; } = "RS256";
 
   [JsonPropertyName("n")]
   public string Modulus { get; init; }
