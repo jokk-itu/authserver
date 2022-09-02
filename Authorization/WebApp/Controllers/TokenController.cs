@@ -80,6 +80,9 @@ public class TokenController : ControllerBase
       return this.BadOAuthResult(ErrorCode.InvalidRequest);
 
     var decodedRefreshToken = await _refreshTokenFactory.DecodeTokenAsync(request.RefreshToken, cancellationToken);
+    if (decodedRefreshToken is null)
+      return this.BadOAuthResult(ErrorCode.InvalidRequest);
+
     var scopes = decodedRefreshToken.Claims
       .Single(c => c.Type.Equals(ClaimNameConstants.Scope))
       .Value.Split(' ');
@@ -130,7 +133,7 @@ public class TokenController : ControllerBase
       return this.BadOAuthResult(ErrorCode.UnauthorizedClient);
 
     if (!await _codeFactory.ValidateAsync(request.Code, request.RedirectUri, request.ClientId, request.CodeVerifier, cancellationToken))
-      return this.BadOAuthResult(ErrorCode.InvalidRequest, "code is invalid");
+      return this.BadOAuthResult(ErrorCode.InvalidRequest);
 
     if (!string.IsNullOrWhiteSpace(request.Scope))
     {

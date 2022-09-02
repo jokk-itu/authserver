@@ -2,20 +2,20 @@
 
 namespace Contracts.PostToken;
 #nullable disable
-public class PostTokenResponse
+public record PostTokenResponse
 {
   [JsonPropertyName("access_token")]
-  public string AccessToken { get; set; }
+  public string AccessToken { get; init; }
 
   [JsonPropertyName("refresh_token")]
-  public string RefreshToken { get; set; }
+  public string RefreshToken { get; init; }
 
   [JsonPropertyName("id_token")]
-  public string IdToken { get; set; }
+  public string IdToken { get; init; }
 
   [JsonPropertyName("token_type")]
-  public string TokenType => "Bearer";
+  public const string TokenType = "Bearer";
 
   [JsonPropertyName("expires_in")]
-  public int ExpiresIn { get; set; }
+  public int ExpiresIn { get; init; }
 }
