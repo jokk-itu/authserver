@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Infrastructure.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -92,7 +92,7 @@ namespace Infrastructure.Migrations
                 {
                     KeyId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CreatedTimestamp = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    CreatedTimestamp = table.Column<DateTime>(type: "datetime2", nullable: false),
                     PrivateKey = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     Modulus = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     Exponent = table.Column<byte[]>(type: "varbinary(max)", nullable: true)

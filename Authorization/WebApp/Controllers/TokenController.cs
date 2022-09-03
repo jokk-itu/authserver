@@ -143,7 +143,7 @@ public class TokenController : ControllerBase
 
     var accessToken = await _accessTokenFactory.GenerateTokenAsync(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.UserId, cancellationToken);
     var refreshToken = await _refreshTokenFactory.GenerateTokenAsync(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.UserId, cancellationToken);
-    var idToken = _idTokenFactory.GenerateToken(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.Nonce, decodedAuthorizationCode.UserId, cancellationToken);
+    var idToken = _idTokenFactory.GenerateToken(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.Nonce, decodedAuthorizationCode.UserId);
     return Ok(new PostTokenResponse
     {
       AccessToken = accessToken,

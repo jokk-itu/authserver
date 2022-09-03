@@ -76,33 +76,4 @@ public abstract class TokenFactory
       return null;
     }
   }
-
-  public async Task<bool> ValidateTokenAsync(string token, CancellationToken cancellationToken = default)
-  {
-    if (string.IsNullOrWhiteSpace(token))
-      return false;
-
-    var configuration = await _jwtBearerOptions.ConfigurationManager!.GetConfigurationAsync(cancellationToken);
-    var tokenValidationParameters = new TokenValidationParameters
-    {
-      IssuerSigningKeys = configuration.SigningKeys,
-      ValidIssuer = _jwtBearerOptions.Authority,
-      ValidAudience = _jwtBearerOptions.Audience,
-      ValidateIssuer = true,
-      ValidateAudience = true,
-      ValidateIssuerSigningKey = true
-    };
-
-    try
-    {
-      new JwtSecurityTokenHandler()
-        .ValidateToken(token, tokenValidationParameters, out var _);
-      return true;
-    }
-    catch (SecurityTokenException exception)
-    {
-      _logger.LogError(exception, "Token {token} is invalid", token);
-      return false;
-    }
-  }
 }

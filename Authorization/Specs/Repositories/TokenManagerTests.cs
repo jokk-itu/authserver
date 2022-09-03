@@ -17,13 +17,4 @@ public class TokenManagerTests
     _identityContext = new IdentityContext(options);
     _identityContext.Database.EnsureCreated();
   }
-
-  public async Task IsTokenRevokedAsync_ExpectTrue()
-  {
-    // Arrange
-
-    // Act
-
-    // Assert
-  }
 }
