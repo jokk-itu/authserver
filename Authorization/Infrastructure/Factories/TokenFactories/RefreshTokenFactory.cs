@@ -15,7 +15,7 @@ public class RefreshTokenFactory : TokenFactory
 
   public RefreshTokenFactory(
     IdentityConfiguration identityConfiguration,
-    IOptionsMonitor<JwtBearerOptions> jwtBearerOptions,
+    IOptionsSnapshot<JwtBearerOptions> jwtBearerOptions,
     ResourceManager resourceManager,
     JwkManager jwkManager,
     ILogger<RefreshTokenFactory> logger)

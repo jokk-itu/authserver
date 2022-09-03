@@ -15,7 +15,7 @@ public class AccessTokenFactory : TokenFactory
 
   public AccessTokenFactory(
       IdentityConfiguration identityConfiguration,
-      IOptionsMonitor<JwtBearerOptions> jwtBearerOptions,
+      IOptionsSnapshot<JwtBearerOptions> jwtBearerOptions,
       ResourceManager resourceManager,
       JwkManager jwkManager,
       ILogger<AccessTokenFactory> logger)

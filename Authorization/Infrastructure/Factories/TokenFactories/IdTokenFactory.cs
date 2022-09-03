@@ -13,7 +13,7 @@ public class IdTokenFactory : TokenFactory
 {
   public IdTokenFactory(
     IdentityConfiguration identityConfiguration,
-    IOptionsMonitor<JwtBearerOptions> jwtBearerOptions,
+    IOptionsSnapshot<JwtBearerOptions> jwtBearerOptions,
     JwkManager jwkManager,
     ILogger<IdTokenFactory> logger)
     : base(logger, identityConfiguration, jwtBearerOptions.Get(OpenIdConnectDefaults.AuthenticationScheme), jwkManager)
