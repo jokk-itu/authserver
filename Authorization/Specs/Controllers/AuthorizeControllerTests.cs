@@ -2,9 +2,8 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Net.Http.Headers;
 using System.Net;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.RegularExpressions;
+using System.Web;
 using Xunit;
 
 namespace Specs.Controllers;
@@ -64,8 +63,11 @@ public class AuthorizeControllerTests : IClassFixture<WebApplicationFactory<Prog
 		});
 		postAuthorizeRequest.Content = loginForm;
 		var authorizeResponse = await client.SendAsync(postAuthorizeRequest);
+		var queryParameters = HttpUtility.ParseQueryString(authorizeResponse.Headers.Location!.Query);
 
 		// Assert
 		Assert.Equal(HttpStatusCode.Found, authorizeResponse.StatusCode);
+		Assert.NotEmpty(queryParameters.Get("code"));
+		Assert.Equal(state, queryParameters.Get("state"));
 	}
 }
