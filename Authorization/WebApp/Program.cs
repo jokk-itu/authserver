@@ -31,6 +31,11 @@ builder.WebHost.ConfigureServices(services =>
   services.AddDatastore(builder.Configuration);
   services.AddCorsPolicy();
   services.AddCookiePolicy();
+  services.AddAntiforgery(antiForgeryOptions =>
+  {
+    antiForgeryOptions.FormFieldName = "AntiForgeryField";
+    antiForgeryOptions.Cookie.Name = "AntiForgeryCookie";
+  });
 });
 
 var app = builder.Build();
@@ -52,3 +57,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }
