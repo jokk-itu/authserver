@@ -8,6 +8,9 @@ jobs:
   build:
     name: Build and Test
     runs-on: ubuntu-latest
+    
+    env:
+      DOTNET_NOLOGO: true
 
     steps:
     - uses: actions/checkout@v3
@@ -19,8 +22,10 @@ jobs:
       run: dotnet restore Auth.sln
     - name: Build
       run: dotnet build Auth.sln --no-restore
+    - name: Setup database
+      run: docker-compose up -d mssql
     - name: Test
-      run: dotnet test Auth.sln --no-build --verbosity normal
+      run: dotnet test Auth.sln --no-build --verbosity normal --filter Category=Unit
   
   sonarscan:
     name: SonarScan
