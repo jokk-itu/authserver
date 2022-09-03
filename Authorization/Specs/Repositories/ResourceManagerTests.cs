@@ -23,6 +23,7 @@ public class ResourceManagerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task ReadResourcesAsync_ExpectTwo()
   {
     // Arrange
@@ -60,6 +61,7 @@ public class ResourceManagerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task ReadResourcesAsync_ExpectZero()
   {
     // Arrange

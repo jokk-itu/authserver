@@ -24,7 +24,8 @@ public class CodeManagerTests
   }
 
   [Fact]
-	public async Task CreateAuthorizationCodeAsync_Ok()
+  [Trait("Category", "Unit")]
+  public async Task CreateAuthorizationCodeAsync_Ok()
 	{
     // Arrange
     var client = new Client 
@@ -47,6 +48,7 @@ public class CodeManagerTests
 	}
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task ReedemCodeAsync_Ok()
   {
     // Arrange
@@ -69,6 +71,7 @@ public class CodeManagerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task ReadCodeAsync_ExpectCode()
   {
     // Arrange
@@ -92,6 +95,7 @@ public class CodeManagerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task ReadCodeAsync_ExpectNull()
   {
     // Arrange

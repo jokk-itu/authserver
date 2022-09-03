@@ -22,6 +22,7 @@ public class NonceManagerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task CreateNonceAsync_ExpectTrue()
   {
     // Arrange
@@ -35,6 +36,7 @@ public class NonceManagerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task ReadNonceAsync_ExpectNonce()
   {
     // Arrange
@@ -56,6 +58,7 @@ public class NonceManagerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task ReadNonceAsync_ExpectNull()
   {
     // Arrange
