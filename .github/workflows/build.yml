@@ -25,7 +25,7 @@ jobs:
     - name: Setup database
       run: docker-compose up -d mssql
     - name: Test
-      run: dotnet test Auth.sln --no-build --verbosity normal
+      run: dotnet test Auth.sln --no-build --verbosity normal --filter Category=Unit
   
   sonarscan:
     name: SonarScan
