@@ -11,6 +11,10 @@ public static class WebApplicationExtensions
     var identityContext = scope.ServiceProvider.GetRequiredService<IdentityContext>();
     var identityConfiguration = scope.ServiceProvider.GetRequiredService<IdentityConfiguration>();
     var testManager = scope.ServiceProvider.GetRequiredService<TestManager>();
+
+    if (await identityContext.Database.CanConnectAsync())
+      return app;
+
     await identityContext.Database.EnsureDeletedAsync();
     await identityContext.Database.EnsureCreatedAsync();
 
