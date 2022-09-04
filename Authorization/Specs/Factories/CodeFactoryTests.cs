@@ -8,6 +8,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Specs.Helpers;
 using System.Security.Cryptography;
 using System.Text;
 using Xunit;
@@ -142,10 +143,7 @@ public class CodeFactoryTests
       serviceProvider.GetRequiredService<IDataProtectionProvider>(),
       userManager);
 
-    var codeVerifier = "wilunhbgiwubnguiwebg";
-    using var sha256 = SHA256.Create();
-    var hashed = sha256.ComputeHash(Encoding.Default.GetBytes(codeVerifier));
-    var codeChallenge = Base64UrlEncoder.Encode(hashed);
+    var (codeVerifier, codeChallenge) = ProofKeyForCodeExchangeHelper.GetCodes();
 
     // Act
     var user = await userManager.FindByNameAsync("jokk");

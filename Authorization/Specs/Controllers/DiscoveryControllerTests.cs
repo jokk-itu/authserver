@@ -1,6 +1,7 @@
 ﻿using Contracts.GetDiscovery;
 using Contracts.GetJwksDocument;
 using Microsoft.AspNetCore.Mvc.Testing;
+using System.Net;
 using System.Net.Http.Json;
 using Xunit;
 
@@ -22,10 +23,12 @@ public class DiscoveryControllerTests : IClassFixture<WebApplicationFactory<Prog
     var client = _applicationFactory.CreateClient();
 
     // Act
-    var document = await client.GetFromJsonAsync<GetDiscoveryDocumentResponse>(".well-known/openid-configuration");
+    var response = await client.GetAsync(".well-known/openid-configuration");
+    var document = await response.Content.ReadFromJsonAsync<GetDiscoveryDocumentResponse>();
 
     // Assert
     Assert.NotNull(document);
+    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
   }
 
   [Fact]
@@ -36,9 +39,11 @@ public class DiscoveryControllerTests : IClassFixture<WebApplicationFactory<Prog
     var client = _applicationFactory.CreateClient();
 
     // Act
-    var document = await client.GetFromJsonAsync<GetJwksDocumentResponse>(".well-known/jwks");
+    var response = await client.GetAsync(".well-known/jwks");
+    var document = await response.Content.ReadFromJsonAsync<GetJwksDocumentResponse>();
 
     // Assert
     Assert.NotNull(document);
+    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
   }
 }

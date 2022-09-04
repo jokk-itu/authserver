@@ -140,7 +140,7 @@ public class TokenController : ControllerBase
 
     var requestScopes = request.Scope?.Split(' ');
     if (requestScopes is not null
-      && requestScopes.All(scope => decodedAuthorizationCode.Scopes.Contains(scope)))
+      && !requestScopes.All(scope => decodedAuthorizationCode.Scopes.Contains(scope)))
     {
       _logger.LogWarning("Scope {@Scope} deviates from code", requestScopes);
       return this.BadOAuthResult(ErrorCode.InvalidRequest);

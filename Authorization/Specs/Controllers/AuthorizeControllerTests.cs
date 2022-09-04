@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Net.Http.Headers;
+using Specs.Helpers;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -43,23 +44,15 @@ public class AuthorizeControllerTests : IClassFixture<WebApplicationFactory<Prog
 
     // Act
     var loginViewResponse = await client.GetAsync($"connect/v1/authorize{query}");
-		var loginViewHtml = await loginViewResponse.Content.ReadAsStringAsync();
-
-    var antiForgeryCookie = loginViewResponse.Headers
-			.GetValues("Set-Cookie")
-			.FirstOrDefault(x => x.Contains("AntiForgeryCookie"));
-
-		var antiForgeryCookieValue = SetCookieHeaderValue.Parse(antiForgeryCookie).Value;
-		var antiForgeryFieldMatch = Regex.Match(loginViewHtml, $@"\<input name=""AntiForgeryField"" type=""hidden"" value=""([^""]+)"" \/\>");
-		var antiForgeryField = antiForgeryFieldMatch.Groups[1].Captures[0].Value;
+		var (cookie, field) = await AntiForgeryHelper.GetAntiForgeryAsync(loginViewResponse);
 
 		var postAuthorizeRequest = new HttpRequestMessage(HttpMethod.Post, $"connect/v1/authorize{query}");
-		postAuthorizeRequest.Headers.Add("Cookie", new CookieHeaderValue("AntiForgeryCookie", antiForgeryCookieValue).ToString());
+		postAuthorizeRequest.Headers.Add("Cookie", new CookieHeaderValue("AntiForgeryCookie", cookie).ToString());
 		var loginForm = new FormUrlEncodedContent(new Dictionary<string, string>
 		{
 			{ "username", "jokk" },
 			{ "password", "Password12!" },
-			{ "AntiForgeryField", antiForgeryField }
+			{ "AntiForgeryField", field }
 		});
 		postAuthorizeRequest.Content = loginForm;
 		var authorizeResponse = await client.SendAsync(postAuthorizeRequest);
