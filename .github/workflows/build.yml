@@ -11,6 +11,7 @@ jobs:
     
     env:
       DOTNET_NOLOGO: true
+      ConnectionStrings__SqlServer: 'Server={{ secrets.DB_HOST }},{{ secrets.DB_PORT }};Initial Catalog=Identity_Test;Trusted_Connection=False;User ID={{ secrets.DB_USER }};Password={{ secrets.DB_PASSWORD }}'
 
     steps:
     - uses: actions/checkout@v3
