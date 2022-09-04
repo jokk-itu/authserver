@@ -27,9 +27,9 @@ public class AuthorizeControllerTests : IClassFixture<WebApplicationFactory<Prog
 			 AllowAutoRedirect = false
 		});
 
-    var state = "rsbghiwsbgiwebgiuwbgiwubgebggbweige";
-    var nonce = "wrjibgnwiubgwieubgiwuqebgiwbgiuwebgfiuwebgiuwebgiuwebgweiu";
-    var codeChallenge = "ijwbnfiwebgfuibewgjbwseijgbweiugbieuwwkbfgwiuebgiwuebgibweiugweibgieb";
+    var state = RandomGeneratorHelper.GeneratorRandomString(16);
+		var nonce = RandomGeneratorHelper.GeneratorRandomString(32);
+		var (_, codeChallenge) = ProofKeyForCodeExchangeHelper.GetCodes();
     var query = new QueryBuilder
     {
       { "response_type", "code" },

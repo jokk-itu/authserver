@@ -28,8 +28,8 @@ public class TokenControllerTests : IClassFixture<WebApplicationFactory<Program>
       AllowAutoRedirect = false
     });
     var (codeVerifier, codeChallenge) = ProofKeyForCodeExchangeHelper.GetCodes();
-    var state = "rsbghiwsbgiwebgiuwbgiwubgebggbweige";
-    var nonce = "wrjibgnwiubgwieubgiwuqebgiwbgiuwebgfiuwebgiuwebgiuwebgweiu";
+    var state = RandomGeneratorHelper.GeneratorRandomString(16);
+    var nonce = RandomGeneratorHelper.GeneratorRandomString(32);
     var query = new QueryBuilder
     {
       { "response_type", "code" },
