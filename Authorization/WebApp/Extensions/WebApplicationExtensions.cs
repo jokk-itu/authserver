@@ -15,7 +15,6 @@ public static class WebApplicationExtensions
     if (await identityContext.Database.CanConnectAsync())
       return app;
 
-    await identityContext.Database.EnsureDeletedAsync();
     await identityContext.Database.EnsureCreatedAsync();
 
     await JwkManager.GenerateJwkAsync(identityContext, identityConfiguration, DateTime.UtcNow.AddDays(-7));
