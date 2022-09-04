@@ -9,6 +9,7 @@ using Domain.Constants;
 using WebApp.Constants;
 using Domain;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using System.Text.RegularExpressions;
 
 namespace WebApp.Controllers;
 
@@ -118,7 +119,7 @@ public class TokenController : ControllerBase
     if (string.IsNullOrWhiteSpace(request.Code))
       return this.BadOAuthResult(ErrorCode.InvalidRequest);
 
-    if (string.IsNullOrWhiteSpace(request.CodeVerifier))
+    if (string.IsNullOrWhiteSpace(request.CodeVerifier) || !Regex.IsMatch(request.CodeVerifier, "^[0-9a-zA-Z-_~.]{43,128}$"))
       return this.BadOAuthResult(ErrorCode.InvalidRequest);
 
     var decodedAuthorizationCode = _codeFactory.DecodeCode(request.Code);
