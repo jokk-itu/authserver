@@ -53,10 +53,13 @@ public abstract class TokenFactory
     if (string.IsNullOrWhiteSpace(token))
       return null;
 
-    var configuration = await _jwtBearerOptions.ConfigurationManager!.GetConfigurationAsync(cancellationToken);
-    var tokenValidationParameters = new TokenValidationParameters 
+    var signingKeys = _jwkManager.Jwks
+      .Select(x => new RsaSecurityKey(_jwkManager.RsaCryptoServiceProvider) { KeyId = x.KeyId.ToString() })
+      .ToList();
+
+    var tokenValidationParameters = new TokenValidationParameters
     {
-      IssuerSigningKeys = configuration.SigningKeys,
+      IssuerSigningKeys = signingKeys,
       ValidIssuer = _jwtBearerOptions.Authority,
       ValidAudience = _jwtBearerOptions.Audience,
       ValidateIssuer = true,

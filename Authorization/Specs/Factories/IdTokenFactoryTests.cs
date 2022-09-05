@@ -1,5 +1,4 @@
-﻿using Contracts.GetJwksDocument;
-using Domain.Constants;
+﻿using Domain.Constants;
 using Infrastructure;
 using Infrastructure.Factories.TokenFactories;
 using Infrastructure.Repositories;
@@ -10,13 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Protocols;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.IdentityModel.Tokens;
 using Moq;
 using Xunit;
-using System.Text.Json;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Specs.Factories;
 public class IdTokenFactoryTests
@@ -55,25 +49,10 @@ public class IdTokenFactoryTests
       .BuildServiceProvider();
     var jwkManager = new JwkManager(serviceProvider);
 
-    var openIdConnectConfiguration = new OpenIdConnectConfiguration();
-    foreach(var key in jwkManager.Jwks)
-    {
-      openIdConnectConfiguration.SigningKeys.Add(new RsaSecurityKey(jwkManager.RsaCryptoServiceProvider)
-      {
-        KeyId = key.KeyId.ToString()
-      });
-    }
-
-    var fakeConfigurationManager = new Mock<IConfigurationManager<OpenIdConnectConfiguration>>();
-    fakeConfigurationManager
-      .Setup(x => x.GetConfigurationAsync(It.IsAny<CancellationToken>()))
-      .ReturnsAsync(openIdConnectConfiguration);
-
     var jwtBearerOptions = new JwtBearerOptions
     {
       Audience = "test",
-      Authority = "auth-server",
-      ConfigurationManager = fakeConfigurationManager.Object
+      Authority = "auth-server"
     };
     var fakeJwtBearerOptions = new Mock<IOptionsSnapshot<JwtBearerOptions>>();
     fakeJwtBearerOptions.Setup(x => x.Get(It.IsAny<string>())).Returns(jwtBearerOptions);

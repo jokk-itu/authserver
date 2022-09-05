@@ -8,9 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.IdentityModel.Protocols;
-using Microsoft.IdentityModel.Tokens;
 using Moq;
 using Xunit;
 using Domain;
@@ -69,25 +66,10 @@ public class RefreshTokenFactoryTests
       .BuildServiceProvider();
     var jwkManager = new JwkManager(serviceProvider);
 
-    var openIdConnectConfiguration = new OpenIdConnectConfiguration();
-    foreach (var key in jwkManager.Jwks)
-    {
-      openIdConnectConfiguration.SigningKeys.Add(new RsaSecurityKey(jwkManager.RsaCryptoServiceProvider)
-      {
-        KeyId = key.KeyId.ToString()
-      });
-    }
-
-    var fakeConfigurationManager = new Mock<IConfigurationManager<OpenIdConnectConfiguration>>();
-    fakeConfigurationManager
-      .Setup(x => x.GetConfigurationAsync(It.IsAny<CancellationToken>()))
-      .ReturnsAsync(openIdConnectConfiguration);
-
     var jwtBearerOptions = new JwtBearerOptions
     {
       Audience = "identity-provider",
-      Authority = "auth-server",
-      ConfigurationManager = fakeConfigurationManager.Object
+      Authority = "auth-server"
     };
     var fakeJwtBearerOptions = new Mock<IOptionsSnapshot<JwtBearerOptions>>();
     fakeJwtBearerOptions.Setup(x => x.Get(It.IsAny<string>())).Returns(jwtBearerOptions);

@@ -11,25 +11,25 @@ services:
     image: mcr.microsoft.com/mssql/server:2019-latest
 
   weatherservice:
-    image: ${DOCKER_REGISTRY}weatherservice
+    image: ${DOCKER_REGISTRY-}weatherservice
     build:
       context: .
       dockerfile: TestSystem/ProtectedResources/WeatherService/Api/Dockerfile
 
   webapp:
-    image: ${DOCKER_REGISTRY}webapp
+    image: ${DOCKER_REGISTRY-}webapp
     build:
       context: .
       dockerfile: TestSystem/Web/Dockerfile
 
   blazor.bff:
-    image: ${DOCKER_REGISTRY-}-blazor.bff
+    image: ${DOCKER_REGISTRY-}blazor.bff
     build:
       context: .
       dockerfile: TestSystem/SinglePage/Server/Dockerfile
 
   svelte.bff:
-    image: ${DOCKER_REGISTRY}-svelte.bff
+    image: ${DOCKER_REGISTRY-}svelte.bff
     build:
       context: .
       dockerfile: TestSystem/Svelte.BFF/Api/Dockerfile
