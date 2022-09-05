@@ -22,11 +22,17 @@ services:
       context: .
       dockerfile: TestSystem/Web/Dockerfile
 
-  spa:
-    image: ${DOCKER_REGISTRY-}spa
+  blazor.bff:
+    image: ${DOCKER_REGISTRY-}-blazor.bff
     build:
       context: .
       dockerfile: TestSystem/SinglePage/Server/Dockerfile
+
+  svelte.bff:
+    image: ${DOCKER_REGISTRY}-svelte.bff
+    build:
+      context: .
+      dockerfile: TestSystem/Svelte.BFF/Api/Dockerfile
 
   logger:
     image: datalust/seq:latest
