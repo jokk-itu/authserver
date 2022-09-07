@@ -3,25 +3,33 @@ namespace Infrastructure;
 #nullable disable
 public record IdentityConfiguration
 {
-  public string Audience { get; init; }
+  public virtual string Audience { get; init; }
 
-  public string ExternalIssuer { get; init; }
+  public virtual string ExternalIssuer { get; init; }
 
-  public string InternalIssuer { get; init; }
+  public virtual string InternalIssuer { get; init; }
 
-  public string PrivateKeySecret { get; init; }
+  public virtual string PrivateKeySecret { get; init; }
 
-  public string CodeSecret { get; init; }
+  public virtual string CodeSecret { get; init; }
 
-  //Seconds
-  public int AccessTokenExpiration { get; init; }
+  /// <summary>
+  /// Defined in seconds
+  /// </summary>
+  public virtual int AccessTokenExpiration { get; init; }
 
-  //Seconds
-  public int RefreshTokenExpiration { get; init; }
+  /// <summary>
+  /// Defined in seconds
+  /// </summary>
+  public virtual int RefreshTokenExpiration { get; init; }
 
-  //Seconds
-  public int IdTokenExpiration { get; init; }
+  /// <summary>
+  /// Defined in seconds
+  /// </summary>
+  public virtual int IdTokenExpiration { get; init; }
 
-  //Seconds
-  public int CodeExpiration { get; init; }
+  /// <summary>
+  /// Defined in seconds
+  /// </summary>
+  public virtual int CodeExpiration { get; init; }
 }

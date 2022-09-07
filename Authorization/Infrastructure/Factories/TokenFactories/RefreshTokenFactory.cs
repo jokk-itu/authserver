@@ -15,7 +15,7 @@ public class RefreshTokenFactory : TokenFactory
 
   public RefreshTokenFactory(
     IdentityConfiguration identityConfiguration,
-    IOptionsMonitor<JwtBearerOptions> jwtBearerOptions,
+    IOptionsSnapshot<JwtBearerOptions> jwtBearerOptions,
     ResourceManager resourceManager,
     JwkManager jwkManager,
     ILogger<RefreshTokenFactory> logger)
@@ -24,7 +24,11 @@ public class RefreshTokenFactory : TokenFactory
     _resourceManager = resourceManager;
   }
 
-  public async Task<string> GenerateTokenAsync(string clientId, ICollection<string> scopes, string userId, CancellationToken cancellationToken = default)
+  public async Task<string> GenerateTokenAsync(
+    string clientId, 
+    ICollection<string> scopes, 
+    string userId, 
+    CancellationToken cancellationToken = default)
   {
     var expires = DateTime.Now + TimeSpan.FromSeconds(_identityConfiguration.RefreshTokenExpiration);
     var resources = await _resourceManager.ReadResourcesAsync(scopes, cancellationToken);

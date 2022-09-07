@@ -11,7 +11,10 @@ public class TestManager
 	private readonly UserManager<User> _userManager;
   private readonly RoleManager<IdentityRole> _roleManager;
 
-  public TestManager(IdentityContext identityContext, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+  public TestManager(
+    IdentityContext identityContext, 
+    UserManager<User> userManager, 
+    RoleManager<IdentityRole> roleManager)
 	{
 		_identityContext = identityContext;
 		_userManager = userManager;

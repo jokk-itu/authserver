@@ -28,6 +28,7 @@ public class ClientManagerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task ReadClientAsync_ExpectClient()
   {
     // Arrange
@@ -52,6 +53,7 @@ public class ClientManagerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task ReadClientAsync_ExpectNull()
   {
     // Arrange
@@ -65,6 +67,7 @@ public class ClientManagerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task Login_ExpectTrue()
   {
     // Arrange
@@ -88,6 +91,7 @@ public class ClientManagerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task Login_ExpectFalse()
   {
     // Arrange
@@ -111,6 +115,7 @@ public class ClientManagerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsAuthorizedRedirectUris_ExpectFalse()
   {
     // Arrange
@@ -141,6 +146,7 @@ public class ClientManagerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsAuthorizedRedirectUris_ExpectTrue()
   {
     // Arrange
@@ -171,6 +177,7 @@ public class ClientManagerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsAuthorizedGrants_ExpectFalse()
   {
     // Arrange
@@ -195,6 +202,7 @@ public class ClientManagerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsAuthorizedGrants_ExpectTrue()
   {
     // Arrange
@@ -219,6 +227,7 @@ public class ClientManagerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsAuthorizedScopes_ExpectFalse()
   {
     // Arrange
@@ -243,6 +252,7 @@ public class ClientManagerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsAuthorizedScopes_ExpectTrue()
   {
     // Arrange

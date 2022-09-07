@@ -22,7 +22,8 @@ public class ScopeManagerTests
   }
 
   [Fact]
-	public async Task ReadScopesAsync_GetTwoScopes()
+  [Trait("Category", "Unit")]
+  public async Task ReadScopesAsync_GetTwoScopes()
   {
     //Arrange
     _identityContext.Set<Scope>().RemoveRange(await _identityContext.Set<Scope>().ToListAsync());
@@ -50,6 +51,7 @@ public class ScopeManagerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task ReadScopesAsync_GetZeroScopes()
   {
     //Arrange

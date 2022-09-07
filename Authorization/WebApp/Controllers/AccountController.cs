@@ -4,6 +4,7 @@ using Domain;
 using Domain.Constants;
 using Infrastructure.Factories.TokenFactories;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -39,6 +40,8 @@ public class AccountController : Controller
   [ValidateAntiForgeryToken]
   [HttpPost]
   [Route("register")]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status200OK)]
   public async Task<IActionResult> Register(
     PostRegisterUserRequest request)
   {
@@ -67,35 +70,12 @@ public class AccountController : Controller
   }
 
   [HttpGet]
-  [Route("reset/password")]
-  public IActionResult ResetPassword()
-  {
-    return View();
-  }
-
-  [ValidateAntiForgeryToken]
-  [HttpPost]
-  [Route("reset/password")]
-  public async Task<IActionResult> ResetPassword(
-    PostResetPasswordRequest request)
-  {
-    var user = await _userManager.FindByNameAsync(request.Username);
-    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-    var result = await _userManager.ResetPasswordAsync(user, token, request.Password);
-
-    if (result.Succeeded)
-      return Ok();
-
-    return BadRequest();
-  }
-
-  [HttpGet]
   [Route("userinfo")]
   [Authorize]
   [ProducesResponseType(StatusCodes.Status200OK)]
-  public async Task<IActionResult> UserInfo() 
+  public async Task<IActionResult> UserInfo()
   {
-    var accessToken = await HttpContext.GetTokenAsync(OpenIdConnectDefaults.AuthenticationScheme, TokenTypeConstants.AccessToken);
+    var accessToken = await HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, TokenTypeConstants.AccessToken);
     if (string.IsNullOrWhiteSpace(accessToken))
       return Forbid(OpenIdConnectDefaults.AuthenticationScheme);
 
@@ -125,15 +105,17 @@ public class AccountController : Controller
       claims.Add(ClaimTypes.GivenName, user.GivenName);
       claims.Add(JwtRegisteredClaimNames.GivenName, user.GivenName);
 
+      claims.Add(ClaimTypes.StreetAddress, user.Address);
+
       var roles = await _userManager.GetRolesAsync(user);
       if (roles.Any())
         claims.Add(ClaimTypes.Role, JsonSerializer.Serialize(roles));
 
       if (user.MiddleName is not null)
-        claims.Add("middle_name", user.MiddleName);
+        claims.Add(ClaimNameConstants.MiddleName, user.MiddleName);
 
       if (user.NickName is not null)
-        claims.Add("nickname", user.NickName);
+        claims.Add(ClaimNameConstants.Nickname, user.NickName);
 
       if(user.Gender is not null)
         claims.Add(ClaimTypes.Gender, user.Gender);
@@ -145,10 +127,7 @@ public class AccountController : Controller
     if (scopes.Contains(OpenIdConnectScope.Email)) 
       claims.Add(ClaimTypes.Email, user.Email);
 
-    if (scopes.Contains("address"))
-      claims.Add(ClaimTypes.StreetAddress, user.Address);
-
-    if (scopes.Contains("phone"))
+    if (scopes.Contains(ScopeConstants.Phone))
       claims.Add(ClaimTypes.MobilePhone, user.PhoneNumber);
 
     return Json(claims);

@@ -97,9 +97,9 @@ public class JwkManager
   }
 
   public static async Task GenerateJwkAsync(
-    IdentityContext identityContext, 
-    IdentityConfiguration identityConfiguration, 
-    DateTimeOffset createdTimeStamp, 
+    IdentityContext identityContext,
+    IdentityConfiguration identityConfiguration,
+    DateTime createdTimeStamp,
     CancellationToken cancellationToken = default)
   {
     using var rsa = new RSACryptoServiceProvider(_keySize);
@@ -118,13 +118,13 @@ public class JwkManager
     await identityContext.SaveChangesAsync(cancellationToken);
   }
 
-  public async Task GenerateJwkAsync(DateTimeOffset createdTimeStamp, CancellationToken cancellationToken = default)
+  public async Task GenerateJwkAsync(DateTime createdTimeStamp, CancellationToken cancellationToken = default)
   {
     await GenerateJwkAsync(_identityContext, _identityConfiguration, createdTimeStamp, cancellationToken);
   }
 
   public async Task GenerateJwkAsync(CancellationToken cancellationToken = default)
   {
-    await GenerateJwkAsync(DateTimeOffset.UtcNow, cancellationToken: cancellationToken);
+    await GenerateJwkAsync(DateTime.UtcNow, cancellationToken: cancellationToken);
   }
 }

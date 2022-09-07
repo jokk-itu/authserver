@@ -7,6 +7,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - Identity__InternalIssuer=http://auth-app:80
       - Log__SeqUrl=http://logger:80
+      - ConnectionStrings__SqlServer=Server=mssql,1433;Initial Catalog=Identity;Trusted_Connection=False;User ID=sa;Password=Password12!
     ports:
       - "5000:80"
 
@@ -29,14 +30,23 @@ services:
     ports:
       - "5002:80"
       
-  spa:
-    container_name: spa
+  blazor.bff:
+    container_name: blazor.bff
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Identity__InternalAuthority=http://auth-app:80
       - Log__SeqUrl=http://logger:80
     ports:
       - "5003:80"
+
+  svelte.bff:
+    container_name: svelte.bff
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Identity__InternalAuthority=http://auth-app:80
+      - Log__SeqUrl=http://logger:80
+    ports:
+      - "5004:80"
 
   logger:
     ports:

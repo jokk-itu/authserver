@@ -144,8 +144,8 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("KeyId"), 1L, 1);
 
-                    b.Property<DateTimeOffset>("CreatedTimestamp")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime>("CreatedTimestamp")
+                        .HasColumnType("datetime2");
 
                     b.Property<byte[]>("Exponent")
                         .HasColumnType("varbinary(max)");

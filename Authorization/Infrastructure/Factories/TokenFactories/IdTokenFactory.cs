@@ -13,7 +13,7 @@ public class IdTokenFactory : TokenFactory
 {
   public IdTokenFactory(
     IdentityConfiguration identityConfiguration,
-    IOptionsMonitor<JwtBearerOptions> jwtBearerOptions,
+    IOptionsSnapshot<JwtBearerOptions> jwtBearerOptions,
     JwkManager jwkManager,
     ILogger<IdTokenFactory> logger)
     : base(logger, identityConfiguration, jwtBearerOptions.Get(OpenIdConnectDefaults.AuthenticationScheme), jwkManager)
@@ -21,7 +21,7 @@ public class IdTokenFactory : TokenFactory
   }
 
   public string GenerateToken(string clientId, IEnumerable<string> scopes,
-      string nonce, string userId, CancellationToken cancellationToken = default)
+      string nonce, string userId)
   {
     var expires = DateTime.Now + TimeSpan.FromSeconds(_identityConfiguration.IdTokenExpiration);
     var audiences = new string[] { clientId};

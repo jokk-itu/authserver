@@ -5,10 +5,10 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["NuGet.config", "."]
-COPY ["Authorization/WebApp/WebApp.csproj", "Authorization/WebApp/"]
-RUN dotnet restore "Authorization/WebApp/WebApp.csproj"
+COPY ["Authorization/WebApp/WebApp.csproj", "WebApp/"]
+RUN dotnet restore "WebApp/WebApp.csproj"
 COPY . .
-WORKDIR "/src/Authorization/WebApp"
+WORKDIR "/src/WebApp"
 RUN dotnet build "WebApp.csproj" -c Release -o /app/build
 
 FROM build AS publish

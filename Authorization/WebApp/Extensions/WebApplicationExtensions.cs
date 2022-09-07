@@ -11,12 +11,15 @@ public static class WebApplicationExtensions
     var identityContext = scope.ServiceProvider.GetRequiredService<IdentityContext>();
     var identityConfiguration = scope.ServiceProvider.GetRequiredService<IdentityConfiguration>();
     var testManager = scope.ServiceProvider.GetRequiredService<TestManager>();
-    await identityContext.Database.EnsureDeletedAsync();
+
+    if (await identityContext.Database.CanConnectAsync())
+      return app;
+
     await identityContext.Database.EnsureCreatedAsync();
 
-    await JwkManager.GenerateJwkAsync(identityContext, identityConfiguration, DateTimeOffset.UtcNow.AddDays(-7));
-    await JwkManager.GenerateJwkAsync(identityContext, identityConfiguration, DateTimeOffset.UtcNow);
-    await JwkManager.GenerateJwkAsync(identityContext, identityConfiguration, DateTimeOffset.UtcNow.AddDays(7));
+    await JwkManager.GenerateJwkAsync(identityContext, identityConfiguration, DateTime.UtcNow.AddDays(-7));
+    await JwkManager.GenerateJwkAsync(identityContext, identityConfiguration, DateTime.UtcNow);
+    await JwkManager.GenerateJwkAsync(identityContext, identityConfiguration, DateTime.UtcNow.AddDays(7));
 
     await testManager.AddDataAsync();
     return app;

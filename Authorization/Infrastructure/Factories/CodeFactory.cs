@@ -29,14 +29,13 @@ public class CodeFactory
     string clientId,
     string codeChallenge,
     string userId,
-    string nonce,
-    CancellationToken cancellationToken = default)
+    string nonce)
   {
     var ms = new MemoryStream();
     await using var writer = new BinaryWriter(ms, Encoding.UTF8, false);
     var code = new AuthorizationCode 
     {
-      CreatedAt = DateTimeOffset.UtcNow.Ticks,
+      CreatedAt = DateTime.UtcNow.Ticks,
       ClientId = clientId,
       RedirectUri = redirectUri,
       Scopes = scopes,
@@ -49,43 +48,43 @@ public class CodeFactory
     return Base64UrlEncoder.Encode(protectedBytes);
   }
 
-  public AuthorizationCode DecodeCode(string token)
+  public AuthorizationCode? DecodeCode(string token)
   {
     var decoded = Base64UrlEncoder.DecodeBytes(token);
     var unProtectedBytes = _protector.Unprotect(decoded);
     var ms = new MemoryStream(unProtectedBytes);
     using var reader = new BinaryReader(ms, Encoding.UTF8, false);
     var code = reader.ReadString();
-    return JsonSerializer.Deserialize<AuthorizationCode>(code) 
-      ?? throw new Exception("Code is not valid");
+    return JsonSerializer.Deserialize<AuthorizationCode>(code);
   }
 
   public async Task<bool> ValidateAsync(
-   string token,
+   string code,
    string redirectUri,
    string clientId,
-   string codeVerifier,
-   CancellationToken cancellationToken = default)
+   string codeVerifier)
   {
-    var code = DecodeCode(token);
-    var creationTime = new DateTimeOffset(code.CreatedAt, TimeSpan.Zero);
-    if (creationTime + TimeSpan.FromSeconds(_identityConfiguration.CodeExpiration) <
-        DateTimeOffset.UtcNow)
+    var decodedCode = DecodeCode(code);
+    if (decodedCode is null)
       return false;
 
-    if (!code.RedirectUri.Equals(redirectUri))
+    if (new DateTime(decodedCode.CreatedAt) + TimeSpan.FromSeconds(_identityConfiguration.CodeExpiration) <
+        DateTime.UtcNow)
       return false;
 
-    if (!code.ClientId.Equals(clientId))
+    if (!decodedCode.RedirectUri.Equals(redirectUri))
+      return false;
+
+    if (!decodedCode.ClientId.Equals(clientId))
       return false;
 
     using var sha256 = SHA256.Create();
     var hashed = sha256.ComputeHash(Encoding.Default.GetBytes(codeVerifier));
     var encoded = Base64UrlEncoder.Encode(hashed);
-    if (!code.CodeChallenge.Equals(encoded))
+    if (!decodedCode.CodeChallenge.Equals(encoded))
       return false;
 
-    var user = await _userManager.FindByIdAsync(code.UserId);
+    var user = await _userManager.FindByIdAsync(decodedCode.UserId);
     if (user is null)
       return false;
 

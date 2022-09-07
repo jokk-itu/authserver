@@ -9,6 +9,7 @@ using Domain.Constants;
 using WebApp.Constants;
 using Domain;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using System.Text.RegularExpressions;
 
 namespace WebApp.Controllers;
 
@@ -89,8 +90,8 @@ public class TokenController : ControllerBase
 
     var requestScopes = request.Scope?.Split(' ');
 
-    if (!string.IsNullOrWhiteSpace(request.Scope) && requestScopes is not null
-      && !request.Scope.Split(' ').All(scope => scopes.Contains(scope)))
+    if (requestScopes is not null
+      && requestScopes.All(scope => scopes.Contains(scope)))
     {
       //Check every scope against the scope in refresh_token
       //If any new scope is not present in refresh_token
@@ -118,32 +119,37 @@ public class TokenController : ControllerBase
     if (string.IsNullOrWhiteSpace(request.Code))
       return this.BadOAuthResult(ErrorCode.InvalidRequest);
 
-    if (string.IsNullOrWhiteSpace(request.CodeVerifier))
+    if (string.IsNullOrWhiteSpace(request.CodeVerifier) || !Regex.IsMatch(request.CodeVerifier, "^[0-9a-zA-Z-_~.]{43,128}$"))
+      return this.BadOAuthResult(ErrorCode.InvalidRequest);
+
+    var decodedAuthorizationCode = _codeFactory.DecodeCode(request.Code);
+    if (decodedAuthorizationCode is null)
       return this.BadOAuthResult(ErrorCode.InvalidRequest);
 
     var code = await _codeManager.ReadCodeAsync(request.Code, cancellationToken: cancellationToken);
-    var decodedAuthorizationCode = _codeFactory.DecodeCode(request.Code);
     if (code is not null && code.IsRedeemed)
     {
-      _logger.LogWarning("Code {@Code} replay detected", decodedAuthorizationCode);
+      _logger.LogWarning("Code {@Code} replay detected", code);
       return this.BadOAuthResult(ErrorCode.AccessDenied);
     }
 
     if (!_clientManager.IsAuthorizedRedirectUris(client, new[] { request.RedirectUri }))
       return this.BadOAuthResult(ErrorCode.UnauthorizedClient);
 
-    if (!await _codeFactory.ValidateAsync(request.Code, request.RedirectUri, request.ClientId, request.CodeVerifier, cancellationToken))
+    if (!await _codeFactory.ValidateAsync(request.Code, request.RedirectUri, request.ClientId, request.CodeVerifier))
       return this.BadOAuthResult(ErrorCode.InvalidRequest);
 
-    if (!string.IsNullOrWhiteSpace(request.Scope))
+    var requestScopes = request.Scope?.Split(' ');
+    if (requestScopes is not null
+      && !requestScopes.All(scope => decodedAuthorizationCode.Scopes.Contains(scope)))
     {
-      //Check every scope against the scope in authorization_code
-      //If any deviates then return BadRequest
+      _logger.LogWarning("Scope {@Scope} deviates from code", requestScopes);
+      return this.BadOAuthResult(ErrorCode.InvalidRequest);
     }
 
     var accessToken = await _accessTokenFactory.GenerateTokenAsync(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.UserId, cancellationToken);
     var refreshToken = await _refreshTokenFactory.GenerateTokenAsync(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.UserId, cancellationToken);
-    var idToken = _idTokenFactory.GenerateToken(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.Nonce, decodedAuthorizationCode.UserId, cancellationToken);
+    var idToken = _idTokenFactory.GenerateToken(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.Nonce, decodedAuthorizationCode.UserId);
     return Ok(new PostTokenResponse
     {
       AccessToken = accessToken,

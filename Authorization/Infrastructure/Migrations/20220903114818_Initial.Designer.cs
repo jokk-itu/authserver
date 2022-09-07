@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20220825175818_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20220903114818_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -146,8 +146,8 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("KeyId"), 1L, 1);
 
-                    b.Property<DateTimeOffset>("CreatedTimestamp")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime>("CreatedTimestamp")
+                        .HasColumnType("datetime2");
 
                     b.Property<byte[]>("Exponent")
                         .HasColumnType("varbinary(max)");
