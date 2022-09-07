@@ -13,15 +13,23 @@ public record IdentityConfiguration
 
   public virtual string CodeSecret { get; init; }
 
-  //Seconds
+  /// <summary>
+  /// Defined in seconds
+  /// </summary>
   public virtual int AccessTokenExpiration { get; init; }
 
-  //Seconds
+  /// <summary>
+  /// Defined in seconds
+  /// </summary>
   public virtual int RefreshTokenExpiration { get; init; }
 
-  //Seconds
+  /// <summary>
+  /// Defined in seconds
+  /// </summary>
   public virtual int IdTokenExpiration { get; init; }
 
-  //Seconds
+  /// <summary>
+  /// Defined in seconds
+  /// </summary>
   public virtual int CodeExpiration { get; init; }
 }

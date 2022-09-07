@@ -1,7 +1,7 @@
 ﻿using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Serilog;
+using WebApp.Options;
 
 namespace WebApp.Extensions;
 
@@ -9,40 +9,16 @@ public static class ServiceCollectionExtensions
 {
   public static IServiceCollection AddOpenIdAuthentication(this IServiceCollection services, IdentityConfiguration identityConfiguration)
   {
+    services.AddSingleton<InternalConfigurationManager>();
+    services.ConfigureOptions<ConfigureJwtBearerOptions>();
     services
       .AddAuthentication(configureOptions =>
       {
-        configureOptions.DefaultAuthenticateScheme = OpenIdConnectDefaults.AuthenticationScheme;
-        configureOptions.DefaultSignInScheme = OpenIdConnectDefaults.AuthenticationScheme;
+        configureOptions.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        configureOptions.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+        configureOptions.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
       })
-      .AddJwtBearer(OpenIdConnectDefaults.AuthenticationScheme, config =>
-      {
-        config.IncludeErrorDetails = true; //DEVELOP READY
-        config.RequireHttpsMetadata = false; //DEVELOP READY
-        config.MetadataAddress = $"{identityConfiguration.InternalIssuer}/.well-known/openid-configuration";
-        config.Audience = identityConfiguration.Audience;
-        config.Authority = identityConfiguration.InternalIssuer;
-        config.SaveToken = true;
-        config.Events = new JwtBearerEvents 
-        {
-          OnAuthenticationFailed = context => 
-          {
-            Log.Error(context.Exception, "Authentication failed");
-            return Task.CompletedTask;
-          },
-          OnForbidden = context =>
-          {
-            Log.Information("Forbidden");
-            return Task.CompletedTask;
-          },
-          OnTokenValidated = context =>
-          {
-            Log.Information("Token Validated");
-            return Task.CompletedTask;
-          }
-        };
-        config.Validate();
-      });
+      .AddJwtBearer();
     return services;
   }
 

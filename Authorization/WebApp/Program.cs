@@ -2,6 +2,7 @@ using Infrastructure;
 using Infrastructure.Extensions;
 using Microsoft.IdentityModel.Logging;
 using Serilog;
+using WebApp;
 using WebApp.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
