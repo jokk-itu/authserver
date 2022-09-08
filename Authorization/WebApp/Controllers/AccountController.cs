@@ -1,5 +1,4 @@
 ﻿using Contracts.RegisterUser;
-using Contracts.ResetPassword;
 using Domain;
 using Domain.Constants;
 using Infrastructure.Factories.TokenFactories;

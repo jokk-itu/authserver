@@ -1,21 +1,22 @@
 ﻿using System.Text.Json.Serialization;
+using WebApp.Constants;
 
 namespace Contracts.PostToken;
 #nullable disable
 public record PostTokenResponse
 {
-  [JsonPropertyName("access_token")]
+  [JsonPropertyName(ParameterNames.AccessToken)]
   public string AccessToken { get; init; }
 
-  [JsonPropertyName("refresh_token")]
+  [JsonPropertyName(ParameterNames.RefreshToken)]
   public string RefreshToken { get; init; }
 
-  [JsonPropertyName("id_token")]
+  [JsonPropertyName(ParameterNames.IdToken)]
   public string IdToken { get; init; }
 
-  [JsonPropertyName("token_type")]
+  [JsonPropertyName(ParameterNames.TokenType)]
   public const string TokenType = "Bearer";
 
-  [JsonPropertyName("expires_in")]
+  [JsonPropertyName(ParameterNames.ExpiresIn)]
   public int ExpiresIn { get; init; }
 }

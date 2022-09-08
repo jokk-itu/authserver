@@ -7,8 +7,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestSystem", "TestSystem", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Authorization", "Authorization", "{BCD328D3-B78D-4432-AE4E-A8C293E8C77A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contracts", "Authorization\Contracts\Contracts.csproj", "{48548FF2-1FBA-406B-A0A8-D2BDF9BDEFB1}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Authorization\Domain\Domain.csproj", "{51299EFD-5B0B-49D7-A260-B9D069828F93}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "Authorization\Infrastructure\Infrastructure.csproj", "{C3841991-9CF0-4E6A-8727-F792F293C07B}"
@@ -54,10 +52,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{48548FF2-1FBA-406B-A0A8-D2BDF9BDEFB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{48548FF2-1FBA-406B-A0A8-D2BDF9BDEFB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{48548FF2-1FBA-406B-A0A8-D2BDF9BDEFB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{48548FF2-1FBA-406B-A0A8-D2BDF9BDEFB1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{51299EFD-5B0B-49D7-A260-B9D069828F93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{51299EFD-5B0B-49D7-A260-B9D069828F93}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51299EFD-5B0B-49D7-A260-B9D069828F93}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -111,7 +105,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{48548FF2-1FBA-406B-A0A8-D2BDF9BDEFB1} = {BCD328D3-B78D-4432-AE4E-A8C293E8C77A}
 		{51299EFD-5B0B-49D7-A260-B9D069828F93} = {BCD328D3-B78D-4432-AE4E-A8C293E8C77A}
 		{C3841991-9CF0-4E6A-8727-F792F293C07B} = {BCD328D3-B78D-4432-AE4E-A8C293E8C77A}
 		{26F034D4-BD1E-40C9-A64C-D1A05D3DF576} = {BCD328D3-B78D-4432-AE4E-A8C293E8C77A}

@@ -9,6 +9,10 @@ using Domain.Constants;
 using System.Text.RegularExpressions;
 using WebApp.Extensions;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.OpenApi.Validations.Rules;
 
 namespace WebApp.Controllers;
 
@@ -51,14 +55,14 @@ public class AuthorizeController : Controller
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> PostAuthorizeAsync(
     [FromForm] PostAuthorizeCodeRequest request,
-    [FromQuery(Name = "response_type")] string responseType,
-    [FromQuery(Name = "client_id")] string clientId,
-    [FromQuery(Name = "redirect_uri")] string redirectUri,
-    [FromQuery(Name = "scope")] string scope,
-    [FromQuery(Name = "state")] string state,
-    [FromQuery(Name = "code_challenge")] string codeChallenge,
-    [FromQuery(Name = "code_challenge_method")] string codeChallengeMethod,
-    [FromQuery(Name = "nonce")] string nonce,
+    [FromQuery(Name = ParameterNames.ResponseType)] string responseType,
+    [FromQuery(Name = ParameterNames.ClientId)] string clientId,
+    [FromQuery(Name = ParameterNames.RedirectUri)] string redirectUri,
+    [FromQuery(Name = ParameterNames.Scope)] string scope,
+    [FromQuery(Name = ParameterNames.State)] string state,
+    [FromQuery(Name = ParameterNames.CodeChallenge)] string codeChallenge,
+    [FromQuery(Name = ParameterNames.CodeChallengeMethod)] string codeChallengeMethod,
+    [FromQuery(Name = ParameterNames.Nonce)] string nonce,
     CancellationToken cancellationToken = default)
   {
     if (string.IsNullOrWhiteSpace(clientId))

@@ -1,22 +1,11 @@
-﻿using System.Text.Json.Serialization;
+﻿using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using System.Text.Json.Serialization;
 
 namespace Contracts.GetDiscovery;
 
 #nullable disable
 public record GetDiscoveryDocumentResponse
 {
-  public GetDiscoveryDocumentResponse()
-  {
-    ResponseTypes = new[] { "code" };
-    GrantTypes = new[] { "authorization_code", "refresh_token" };
-    TokenEndpointAuthMethods = new[] { "client_secret_basic" };
-    TokenEndpointAuthSigningAlgValues = new[] { "RS256" };
-    CodeChallengeMethods = new[] { "S256" };
-    SubjectTypes = new[] { "public" };
-    IdTokenSigningAlgValues = new[] { "RS256" };
-    ResponseModes = new[] { "query" };
-  }
-
   [JsonPropertyName("issuer")]
   public string Issuer { get; init; }
 
