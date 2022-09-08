@@ -7,11 +7,11 @@ using WebApp.Services;
 namespace WebApp.Controllers;
 public class HomeController : Controller
 {
-  private readonly WebApiService _webApiService;
+  private readonly WeatherService _weatherService;
 
-  public HomeController(WebApiService webApiService)
+  public HomeController(WeatherService weatherService)
   {
-    _webApiService = webApiService;
+    _weatherService = weatherService;
   }
 
   public IActionResult Index()
@@ -20,22 +20,9 @@ public class HomeController : Controller
   }
 
   [Authorize]
-  public async Task<IActionResult> Secret()
+  public async Task<IActionResult> Weather()
   {
-    var secret = await _webApiService.GetSecretAsync();
-    return View(new SecretModel { Secret = secret });
-  }
-
-  [AllowAnonymous]
-  public async Task<IActionResult> Anonymous()
-  {
-    var anonymous = await _webApiService.GetAnonymousAsync();
-    return View(new AnonymousModel { Anonymous = anonymous });
-  }
-
-  [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-  public IActionResult Error()
-  {
-    return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    var secret = await _weatherService.GetSecretAsync();
+    return View(new WeatherModel { Secret = secret });
   }
 }

@@ -94,6 +94,8 @@ builder.WebHost.ConfigureServices(services =>
     configureOptions.UsePkce = true;
     configureOptions.SaveTokens = true;
     configureOptions.Scope.Add("profile");
+    configureOptions.Scope.Add("email");
+    configureOptions.Scope.Add("phone");
     configureOptions.Scope.Add("openid");
     configureOptions.Scope.Add("api1");
     configureOptions.Scope.Add("identity-provider");
@@ -158,7 +160,7 @@ builder.WebHost.ConfigureServices(services =>
     cookiePolicyOptions.MinimumSameSitePolicy = SameSiteMode.None;
     cookiePolicyOptions.Secure = CookieSecurePolicy.Always;
   });
-  services.AddHttpClient<WebApiService>(httpClient =>
+  services.AddHttpClient<WeatherService>(httpClient =>
   {
     httpClient.BaseAddress = new Uri(builder.Configuration.GetSection("WeatherService")["Url"]);
   }).AddHttpMessageHandler<PopulateAccessTokenDelegatingHandler>();

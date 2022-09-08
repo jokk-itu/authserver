@@ -1,6 +1,6 @@
 ﻿namespace WebApp.Models;
 
-public class SecretModel
+public class WeatherModel
 {
   public string Secret { get; set; }
 }

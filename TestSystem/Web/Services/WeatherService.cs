@@ -1,10 +1,10 @@
 ﻿namespace WebApp.Services;
 
-public class WebApiService
+public class WeatherService
 {
   private readonly HttpClient _httpClient;
 
-  public WebApiService(HttpClient httpClient)
+  public WeatherService(HttpClient httpClient)
   {
     _httpClient = httpClient;
   }
