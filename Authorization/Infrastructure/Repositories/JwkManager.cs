@@ -38,6 +38,9 @@ public class JwkManager
     {
       lock (_rsaCryptoServiceProvider)
       {
+        if (_expirationDate.CompareTo(DateTimeOffset.UtcNow) < 0)
+          RotateAsync().GetAwaiter().GetResult();
+
         yield return _previous;
         yield return _current;
         yield return _future;

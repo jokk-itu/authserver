@@ -62,3 +62,6 @@ services:
       -  SA_PASSWORD=Password12!
     ports:
       - "1433:1433"
+    volumes:
+      - "./Volumes/mssql/data:/var/opt/mssql/data"
+      - "./Volumes/mssql/log:/var/opt/mssql/log"

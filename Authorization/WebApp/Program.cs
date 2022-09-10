@@ -2,7 +2,6 @@ using Infrastructure;
 using Infrastructure.Extensions;
 using Microsoft.IdentityModel.Logging;
 using Serilog;
-using WebApp;
 using WebApp.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,11 +40,8 @@ builder.WebHost.ConfigureServices(services =>
 
 var app = builder.Build();
 
-await app.UseTestData();
-
 if (!app.Environment.IsDevelopment())
   app.UseExceptionHandler("/Home/Error");
-
 
 if(app.Environment.IsDevelopment())
   IdentityModelEventSource.ShowPII = true;
@@ -59,4 +55,10 @@ app.MapControllers();
 
 app.Run();
 
-public partial class Program { }
+public partial class Program 
+{
+  public Program()
+  {
+
+  }
+}
