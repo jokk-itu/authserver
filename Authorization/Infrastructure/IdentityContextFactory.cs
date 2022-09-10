@@ -6,8 +6,11 @@ public class IdentityContextFactory : IDesignTimeDbContextFactory<IdentityContex
 {
   public IdentityContext CreateDbContext(string[] args)
   {
+    if (args.Length == 0)
+      throw new ArgumentException("First argument must be an SqlConnection string");
+
     var optionsBuilder = new DbContextOptionsBuilder<IdentityContext>();
-    optionsBuilder.UseSqlServer("Server=localhost,1433;Initial Catalog=Identity;Trusted_Connection=False;User ID=sa;Password=Password12!");
+    optionsBuilder.UseSqlServer(args[0]);
 
     return new IdentityContext(optionsBuilder.Options);
   }
