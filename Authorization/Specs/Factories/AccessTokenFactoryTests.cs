@@ -57,9 +57,6 @@ public class AccessTokenFactoryTests
       Audience = "identity-provider",
       InternalIssuer = "auth-server"
     };
-    await JwkManager.GenerateJwkAsync(_identityContext, identityConfiguration, DateTime.UtcNow.AddDays(-7));
-    await JwkManager.GenerateJwkAsync(_identityContext, identityConfiguration, DateTime.UtcNow);
-    await JwkManager.GenerateJwkAsync(_identityContext, identityConfiguration, DateTime.UtcNow.AddDays(7));
     var serviceProvider = new ServiceCollection()
       .AddScoped(_ => _identityContext)
       .AddSingleton(_ => identityConfiguration)
