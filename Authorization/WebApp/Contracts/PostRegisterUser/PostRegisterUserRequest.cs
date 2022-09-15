@@ -24,20 +24,11 @@ public record PostRegisterUserRequest
   [JsonPropertyName("address")]
   public string Address { get; init; } = null!;
 
-  [JsonPropertyName("family_name")]
+  [JsonPropertyName("last_name")]
   public string FamilyName { get; init; } = null!;
 
-  [JsonPropertyName("given_name")]
+  [JsonPropertyName("first_name")]
   public string GivenName { get; init; } = null!;
-
-  [JsonPropertyName("middle_name")]
-  public string? MiddleName { get; init; }
-
-  [JsonPropertyName("nickname")]
-  public string NickName { get; init; } = null!;
-
-  [JsonPropertyName("gender")]
-  public string Gender { get; init; } = null!;
 
   [JsonPropertyName("birthdate")]
   public DateTime BirthDate { get; init; }

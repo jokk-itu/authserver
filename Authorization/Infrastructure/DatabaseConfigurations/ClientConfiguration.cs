@@ -1,7 +1,6 @@
 ﻿using Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Reflection.Metadata.Ecma335;
 
 namespace Infrastructure.DatabaseConfigurations;
 internal class ClientConfiguration : IEntityTypeConfiguration<Client>

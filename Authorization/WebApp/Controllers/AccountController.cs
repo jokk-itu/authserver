@@ -22,7 +22,7 @@ public class AccountController : Controller
   private readonly AccessTokenFactory _accessTokenFactory;
 
   public AccountController(
-    UserManager<User> userManager, 
+    UserManager<User> userManager,
     AccessTokenFactory accessTokenFactory)
   {
     _userManager = userManager;
@@ -46,20 +46,16 @@ public class AccountController : Controller
   {
     var identityResult = await _userManager.CreateAsync(new User
     {
-      GivenName = request.GivenName,
-      FamilyName = request.FamilyName,
-      MiddleName = request.MiddleName,
-      Name = $"{request.GivenName}{(string.IsNullOrWhiteSpace(request.MiddleName) ? string.Empty : request.MiddleName)}{request.FamilyName}",
+      FirstName = request.GivenName,
+      LastName = request.FamilyName,
       Address = request.Address,
-      NickName = request.NickName,
       Locale = request.Locale,
-      Gender = request.Gender,
       Birthdate = request.BirthDate,
       UserName = request.Username,
       Email = request.Email,
       PhoneNumber = request.PhoneNumber,
-      NormalizedEmail = request.Email.ToUpper(),
-      NormalizedUserName = request.Username.ToUpper()
+      NormalizedEmail = _userManager.NormalizeEmail(request.Email),
+      NormalizedUserName = _userManager.NormalizeName(request.Username)
     }, request.Password);
 
     if (identityResult.Succeeded)
@@ -90,19 +86,16 @@ public class AccountController : Controller
 
     var claims = new Dictionary<string, string>
     {
-      { JwtRegisteredClaimNames.Sub, user.Id }
+      { ClaimTypes.NameIdentifier, user.Id }
     };
 
     if (scopes.Contains(ScopeConstants.Profile)) 
     {
-      claims.Add(ClaimTypes.Name, user.Name);
-      claims.Add(JwtRegisteredClaimNames.Name, user.Name);
+      claims.Add(ClaimTypes.Name, $"{user.FirstName} {user.LastName}");
 
-      claims.Add(ClaimTypes.Surname, user.FamilyName);
-      claims.Add(JwtRegisteredClaimNames.FamilyName, user.FamilyName);
+      claims.Add(ClaimTypes.Surname, user.LastName);
 
-      claims.Add(ClaimTypes.GivenName, user.GivenName);
-      claims.Add(JwtRegisteredClaimNames.GivenName, user.GivenName);
+      claims.Add(ClaimTypes.GivenName, user.FirstName);
 
       claims.Add(ClaimTypes.StreetAddress, user.Address);
 
@@ -110,16 +103,7 @@ public class AccountController : Controller
       if (roles.Any())
         claims.Add(ClaimTypes.Role, JsonSerializer.Serialize(roles));
 
-      if (user.MiddleName is not null)
-        claims.Add(ClaimNameConstants.MiddleName, user.MiddleName);
-
-      if (user.NickName is not null)
-        claims.Add(ClaimNameConstants.Nickname, user.NickName);
-
-      if(user.Gender is not null)
-        claims.Add(ClaimTypes.Gender, user.Gender);
-
-      claims.Add(JwtRegisteredClaimNames.Birthdate, user.Birthdate.ToString());
+      claims.Add(ClaimTypes.DateOfBirth, user.Birthdate.ToString());
       claims.Add(ClaimTypes.Locality, user.Locale);
     }
 

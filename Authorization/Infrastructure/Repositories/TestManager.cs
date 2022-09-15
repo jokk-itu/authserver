@@ -95,14 +95,10 @@ public class TestManager
     var user = new User
     {
       Address = "John Doe Street, 51",
-      Name = "John WaitForIt Doe",
       Birthdate = DateTime.Now,
-      Gender = "Man",
       Locale = "da-DK",
-      FamilyName = "Doe",
-      MiddleName = "WaitForIt",
-      GivenName = "John",
-      NickName = "John",
+      LastName = "Doe",
+      FirstName = "John",
       UserName = "jokk",
       NormalizedEmail = "HEJMEDDIG@GMAIL.COM",
       NormalizedUserName = "JOKK",
