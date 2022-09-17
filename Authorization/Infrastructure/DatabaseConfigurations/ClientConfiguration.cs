@@ -42,6 +42,11 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
       .HasMany(client => client.Grants)
       .WithMany(grant => grant.Clients)
       .UsingEntity(link => link.ToTable("ClientGrants"));
+
+    builder
+      .HasMany(client => client.Contacts)
+      .WithMany(contact => contact.Clients)
+      .UsingEntity(link => link.ToTable("ClientContacts"));
       
     builder.ToTable("Clients");
   }

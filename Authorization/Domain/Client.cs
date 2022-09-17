@@ -27,7 +27,8 @@ public class Client
 
   public ICollection<Scope> Scopes { get; set; }
 
-  // Make ClientContact entity
+  public ICollection<Contact> Contacts { get; set; }
+
   // Make TokenEndpointAuthMethod enum and constants
   // Make ResponseType entity and associate with client
 }
