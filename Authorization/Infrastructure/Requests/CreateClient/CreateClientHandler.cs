@@ -2,6 +2,7 @@
 using Application.Validation;
 using Domain;
 using Domain.Enums;
+using Domain.Extensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -40,6 +41,18 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       .Select(x => new RedirectUri { Uri = x })
       .ToList();
 
+    var responseTypes = await _identityContext
+      .Set<ResponseType>()
+      .IgnoreAutoIncludes()
+      .Where(x => request.ResponseTypes.Contains(x.Name))
+      .ToListAsync(cancellationToken: cancellationToken);
+
+    var contacts = request.Contacts
+      .Select(email => new Contact
+      {
+        Email = email
+      }).ToList();
+
     var client = new Client
     {
       Id = Guid.NewGuid().ToString(),
@@ -49,7 +62,13 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       RedirectUris = redirectUris,
       Grants = grants,
       ClientProfile = ClientProfile.WebApplication,
-      ClientType = ClientType.Confidential
+      ClientType = ClientType.Confidential,
+      ResponseTypes = responseTypes,
+      TokenEndpointAuthMethod = request.TokenEndpointAuthMethod.GetEnum<TokenEndpointAuthMethod>(),
+      PolicyUri = request.PolicyUri,
+      Contacts = contacts,
+      SubjectType = request.SubjectType.GetEnum<SubjectType>(),
+      TosUri = request.TosUri
     };
     await _identityContext
       .Set<Client>()
@@ -57,6 +76,8 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
 
     await _identityContext.SaveChangesAsync(cancellationToken: cancellationToken);
 
+    // TODO RegistrationAccessToken
+    // TODO RegistrationClientUri
     return new CreateClientResponse(HttpStatusCode.Created)
     {
       ApplicationType = request.ApplicationType,
@@ -65,7 +86,13 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       ClientName = client.Name,
       ClientSecret = client.Secret,
       Scope = string.Join(' ', client.Scopes),
-      RedirectUris = request.RedirectUris
+      RedirectUris = client.RedirectUris.Select(x => x.Uri).ToList(),
+      SubjectType = request.SubjectType,
+      TosUri = client.TosUri,
+      Contacts = client.Contacts.Select(x => x.Email).ToList(),
+      PolicyUri = client.PolicyUri,
+      TokenEndpointAuthMethod = request.TokenEndpointAuthMethod,
+      ResponseTypes = client.ResponseTypes.Select(x => x.Name).ToList(),
     };
   }
 }
