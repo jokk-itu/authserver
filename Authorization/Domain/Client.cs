@@ -5,11 +5,11 @@ namespace Domain;
 #nullable disable
 public class Client
 {
-  public int Id { get; set; }
+  public string Id { get; set; }
 
   public string Name { get; set; }
 
-  public string SecretHash { get; set; }
+  public string Secret { get; set; }
 
   public ClientType ClientType { get; set; }
 
@@ -20,4 +20,12 @@ public class Client
   public ICollection<Grant> Grants { get; set; }
 
   public ICollection<Scope> Scopes { get; set; }
+
+  // Make Secret to cleartext (not hashed)
+  // Make TosUri
+  // Make PolicyUri
+  // Make ClientContact entity
+  // Make SubjectType enum
+  // Make TokenEndpointAuthMethod enum and constants
+  // Make ResponseType entity and associate with client
 }
