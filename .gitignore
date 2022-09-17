@@ -8,3 +8,4 @@ node_modules
 **/Svelte.BFF/Api/wwwroot/
 package-lock.json
 /Volumes/
+/RunMigrationIntegration.ps1
