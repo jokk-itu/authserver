@@ -1,4 +1,3 @@
-using Domain.Constants;
 using Domain.Enums;
 
 namespace Domain;
@@ -32,5 +31,5 @@ public class Client
 
   public ICollection<Contact> Contacts { get; set; }
 
-  // Make ResponseType entity and associate with client
+  public ICollection<ResponseType> ResponseTypes { get; set; }
 }

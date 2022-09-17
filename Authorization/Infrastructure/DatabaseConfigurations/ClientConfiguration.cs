@@ -51,6 +51,11 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
       .HasMany(client => client.Contacts)
       .WithMany(contact => contact.Clients)
       .UsingEntity(link => link.ToTable("ClientContacts"));
+
+    builder
+      .HasMany(client => client.ResponseTypes)
+      .WithMany(contact => contact.Clients)
+      .UsingEntity(link => link.ToTable("ClientResponseTypes"));
       
     builder.ToTable("Clients");
   }
