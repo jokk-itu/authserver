@@ -21,7 +21,6 @@ public class Client
 
   public ICollection<Scope> Scopes { get; set; }
 
-  // Make Secret to cleartext (not hashed)
   // Make TosUri
   // Make PolicyUri
   // Make ClientContact entity

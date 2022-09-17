@@ -1,4 +1,5 @@
-﻿using Contracts.RegisterUser;
+﻿using System.Globalization;
+using Contracts.RegisterUser;
 using Domain;
 using Domain.Constants;
 using Infrastructure.Factories.TokenFactories;
@@ -103,7 +104,7 @@ public class AccountController : Controller
       if (roles.Any())
         claims.Add(ClaimTypes.Role, JsonSerializer.Serialize(roles));
 
-      claims.Add(ClaimTypes.DateOfBirth, user.Birthdate.ToString());
+      claims.Add(ClaimTypes.DateOfBirth, user.Birthdate.ToString(CultureInfo.InvariantCulture));
       claims.Add(ClaimTypes.Locality, user.Locale);
     }
 

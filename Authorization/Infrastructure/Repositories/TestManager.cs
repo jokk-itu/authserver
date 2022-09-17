@@ -41,7 +41,7 @@ public class TestManager
       RedirectUris = await _identityContext.Set<RedirectUri>().ToListAsync(),
       Scopes = await _identityContext.Set<Scope>().ToListAsync(),
       Name = "test",
-      SecretHash = "secret".Sha256()
+      Secret = "secret"
     };
     await _identityContext.Set<Client>().AddAsync(client);
     await _identityContext.SaveChangesAsync();
@@ -114,13 +114,13 @@ public class TestManager
     var apiResource = new Resource
     {
       Name = "api1",
-			SecretHash = "secret".Sha256(),
+			SecretHash = "secret",
       Scopes = await _identityContext.Set<Scope>().ToListAsync()
     };
     var identityResource = new Resource 
     {
       Name = "identity-provider",
-      SecretHash = "secret".Sha256(),
+      SecretHash = "secret",
       Scopes = await _identityContext.Set<Scope>().ToListAsync()
     };
 		await _identityContext.Set<Resource>().AddRangeAsync(apiResource, identityResource);

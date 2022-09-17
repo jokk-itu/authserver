@@ -23,7 +23,7 @@ public class ClientManager
       .Include(client => client.Scopes)
       .Include(client => client.Grants)
       .Include(client => client.RedirectUris)
-      .SingleOrDefaultAsync(client => client.Name == clientId, cancellationToken: cancellationToken);
+      .SingleOrDefaultAsync(client => client.Id == clientId, cancellationToken: cancellationToken);
 
     if (client is null)
       _logger.LogDebug("Client {ClientId} not found", clientId);
@@ -39,16 +39,15 @@ public class ClientManager
     if (client is null)
       throw new ArgumentNullException(nameof(client));
 
-    if (client.SecretHash != clientSecret.Sha256())
-    {
-      _logger.LogDebug("ClientSecret {ClientSecret} is wrong", clientSecret);
-      return false;
-    }
+    if (client.Secret == clientSecret) 
+      return true;
 
-    return true;
+    _logger.LogDebug("ClientSecret {ClientSecret} is wrong", clientSecret);
+    return false;
+
   }
 
-  public bool IsAuthorizedRedirectUris(Client client, IEnumerable<string> redirectUris)
+  public bool IsAuthorizedRedirectUris(Client client, ICollection<string> redirectUris)
   {
     if (client is null)
       throw new ArgumentNullException(nameof(client));
@@ -58,17 +57,17 @@ public class ClientManager
 
     foreach (var redirectUri in redirectUris)
     {
-      if (!client.RedirectUris.Any(r => r.Uri == redirectUri))
-      {
-        _logger.LogDebug("Client with clientId {ClientId} is not authorized to use redirectUri {RedirectUri}", client.Name, redirectUri);
-        return false;
-      }
+      if (client.RedirectUris.Any(r => r.Uri == redirectUri)) 
+        continue;
+
+      _logger.LogDebug("Client with clientId {ClientId} is not authorized to use redirectUri {RedirectUri}", client.Id, redirectUri);
+      return false;
     }
 
     return true;
   }
 
-  public bool IsAuthorizedGrants(Client client, IEnumerable<string> grants)
+  public bool IsAuthorizedGrants(Client client, ICollection<string> grants)
   {
     if (client is null)
       throw new ArgumentNullException(nameof(client));
@@ -78,17 +77,17 @@ public class ClientManager
 
     foreach (var grant in grants)
     {
-      if (!client.Grants.Any(g => g.Name == grant))
-      {
-        _logger.LogDebug("Client {ClientId} is not authorized to use {Grant}", client.Name, grant);
-        return false;
-      }
+      if (client.Grants.Any(g => g.Name == grant)) 
+        continue;
+
+      _logger.LogDebug("Client {ClientId} is not authorized to use {Grant}", client.Id, grant);
+      return false;
     }
 
     return true;
   }
 
-  public bool IsAuthorizedScopes(Client client, IEnumerable<string> scopes)
+  public bool IsAuthorizedScopes(Client client, ICollection<string> scopes)
   {
     if (client is null)
       throw new ArgumentNullException(nameof(client));
@@ -98,11 +97,11 @@ public class ClientManager
 
     foreach (var scope in scopes)
     {
-      if (!client.Scopes.Any(s => s.Name == scope))
-      {
-        _logger.LogDebug("Client {ClientId} is not authorized to use {Scope}", client.Name, scope);
-        return false;
-      }
+      if (client.Scopes.Any(s => s.Name == scope)) 
+        continue;
+
+      _logger.LogDebug("Client {ClientId} is not authorized to use {Scope}", client.Id, scope);
+      return false;
     }
 
     return true;
