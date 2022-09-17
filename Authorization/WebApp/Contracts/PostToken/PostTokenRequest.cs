@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebApp.Constants;
 
-namespace Contracts.PostToken;
+namespace WebApp.Contracts.PostToken;
 public record PostTokenRequest
 {
   [FromForm(Name = ParameterNames.GrantType)]

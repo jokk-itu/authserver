@@ -10,6 +10,7 @@ using WebApp.Constants;
 using Domain;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Text.RegularExpressions;
+using WebApp.Contracts.PostToken;
 
 namespace WebApp.Controllers;
 
@@ -61,16 +62,12 @@ public class TokenController : ControllerBase
     if (!_clientManager.Login(request.ClientSecret, client))
         return this.BadOAuthResult(ErrorCode.InvalidClient);
 
-    if (request.GrantType.Equals(OpenIdConnectGrantTypes.AuthorizationCode)) 
+    return request.GrantType switch
     {
-      return await PostAuthorizeAsync(request, client, cancellationToken: cancellationToken);
-    }
-    else if(request.GrantType.Equals(OpenIdConnectGrantTypes.RefreshToken))
-    {
-      return await PostRefreshAsync(request, cancellationToken: cancellationToken);
-    }
-
-    return this.BadOAuthResult(ErrorCode.UnsupportedGrantType);
+      OpenIdConnectGrantTypes.AuthorizationCode => await PostAuthorizeAsync(request, client, cancellationToken: cancellationToken),
+      OpenIdConnectGrantTypes.RefreshToken => await PostRefreshAsync(request, cancellationToken: cancellationToken),
+      _ => this.BadOAuthResult(ErrorCode.UnsupportedGrantType)
+    };
   }
 
   private async Task<IActionResult> PostRefreshAsync(
