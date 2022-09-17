@@ -46,6 +46,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project", "Project", "{1839
 		CODE_OF_CONDUCT.md = CODE_OF_CONDUCT.md
 		CreateMigration.ps1 = CreateMigration.ps1
 		README.md = README.md
+		RemoveMigration.ps1 = RemoveMigration.ps1
 		RunMigrationIntegration.ps1 = RunMigrationIntegration.ps1
 		RunMigrationLocal.ps1 = RunMigrationLocal.ps1
 	EndProjectSection

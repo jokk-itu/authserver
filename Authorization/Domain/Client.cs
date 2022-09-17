@@ -23,10 +23,7 @@ public class Client
 
   public ICollection<Scope> Scopes { get; set; }
 
-  // Make TosUri
-  // Make PolicyUri
   // Make ClientContact entity
-  // Make SubjectType enum
   // Make TokenEndpointAuthMethod enum and constants
   // Make ResponseType entity and associate with client
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20220917143606_SetExplicitRelationsInClient")]
-    partial class SetExplicitRelationsInClient
+    [Migration("20220917144756_AddSubjectTypeColumnToClient")]
+    partial class AddSubjectTypeColumnToClient
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -70,7 +70,14 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PolicyUri")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Secret")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SubjectType")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TosUri")
