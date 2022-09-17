@@ -13,6 +13,10 @@ public class Client
 
   public string TosUri { get; set; }
 
+  public string PolicyUri { get; set; }
+
+  public SubjectType SubjectType { get; set; }
+
   public ClientType ClientType { get; set; }
 
   public ClientProfile ClientProfile { get; set; }
