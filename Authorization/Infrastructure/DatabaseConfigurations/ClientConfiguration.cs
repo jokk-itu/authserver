@@ -22,6 +22,10 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
       .HasConversion<string>();
 
     builder
+      .Property(client => client.TokenEndpointAuthMethod)
+      .HasConversion<string>();
+
+    builder
       .Property(client => client.TosUri)
       .IsRequired(false);
 

@@ -1,3 +1,4 @@
+using Domain.Constants;
 using Domain.Enums;
 
 namespace Domain;
@@ -15,6 +16,8 @@ public class Client
 
   public string PolicyUri { get; set; }
 
+  public TokenEndpointAuthMethod TokenEndpointAuthMethod { get; set; }
+
   public SubjectType SubjectType { get; set; }
 
   public ClientType ClientType { get; set; }
@@ -29,6 +32,5 @@ public class Client
 
   public ICollection<Contact> Contacts { get; set; }
 
-  // Make TokenEndpointAuthMethod enum and constants
   // Make ResponseType entity and associate with client
 }
