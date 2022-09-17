@@ -143,7 +143,7 @@ public class CodeFactoryTests
       serviceProvider.GetRequiredService<IDataProtectionProvider>(),
       userManager);
 
-    var (codeVerifier, codeChallenge) = ProofKeyForCodeExchangeHelper.GetCodes();
+    var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
 
     // Act
     var user = await userManager.FindByNameAsync("jokk");
@@ -151,7 +151,7 @@ public class CodeFactoryTests
       "http://localhost:5002/callback",
       new[] { "openid" },
       "test",
-      codeChallenge,
+      pkce.CodeChallenge,
       user.Id,
       "nonce");
 
@@ -159,7 +159,7 @@ public class CodeFactoryTests
       code, 
       "http://localhost:5002/callback", 
       "test", 
-      codeVerifier);
+      pkce.CodeVerifier);
 
     // Assert
     Assert.True(isValid);
@@ -194,10 +194,7 @@ public class CodeFactoryTests
       serviceProvider.GetRequiredService<IDataProtectionProvider>(),
       userManager);
 
-    var codeVerifier = "wilunhbgiwubnguiwebg";
-    using var sha256 = SHA256.Create();
-    var hashed = sha256.ComputeHash(Encoding.Default.GetBytes(codeVerifier));
-    var codeChallenge = Base64UrlEncoder.Encode(hashed);
+    var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
 
     // Act
     var user = await userManager.FindByNameAsync("jokk");
@@ -205,7 +202,7 @@ public class CodeFactoryTests
       "http://localhost:5002/callback",
       new[] { "openid" },
       "test",
-      codeChallenge,
+      pkce.CodeChallenge,
       user.Id,
       "nonce");
 
@@ -213,7 +210,7 @@ public class CodeFactoryTests
       code,
       "http://localhost:5002/wrong-callback",
       "test",
-      codeVerifier);
+      pkce.CodeVerifier);
 
     // Assert
     Assert.False(isValid);
@@ -248,10 +245,7 @@ public class CodeFactoryTests
       serviceProvider.GetRequiredService<IDataProtectionProvider>(),
       userManager);
 
-    var codeVerifier = "wilunhbgiwubnguiwebg";
-    using var sha256 = SHA256.Create();
-    var hashed = sha256.ComputeHash(Encoding.Default.GetBytes(codeVerifier));
-    var codeChallenge = Base64UrlEncoder.Encode(hashed);
+    var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
 
     // Act
     var user = await userManager.FindByNameAsync("jokk");
@@ -259,7 +253,7 @@ public class CodeFactoryTests
       "http://localhost:5002/callback",
       new[] { "openid" },
       "test",
-      codeChallenge,
+      pkce.CodeChallenge,
       user.Id,
       "nonce");
 
@@ -267,7 +261,7 @@ public class CodeFactoryTests
       code,
       "http://localhost:5002/callback",
       "wrong-clientid",
-      codeVerifier);
+      pkce.CodeVerifier);
 
     // Assert
     Assert.False(isValid);
@@ -302,10 +296,7 @@ public class CodeFactoryTests
       serviceProvider.GetRequiredService<IDataProtectionProvider>(),
       userManager);
 
-    var codeVerifier = "wilunhbgiwubnguiwebg";
-    using var sha256 = SHA256.Create();
-    var hashed = sha256.ComputeHash(Encoding.Default.GetBytes(codeVerifier));
-    var codeChallenge = Base64UrlEncoder.Encode(hashed);
+    var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
 
     // Act
     var user = await userManager.FindByNameAsync("jokk");
@@ -313,7 +304,7 @@ public class CodeFactoryTests
       "http://localhost:5002/callback",
       new[] { "openid" },
       "test",
-      codeChallenge,
+      pkce.CodeChallenge,
       user.Id,
       "nonce");
 
@@ -356,17 +347,14 @@ public class CodeFactoryTests
       serviceProvider.GetRequiredService<IDataProtectionProvider>(),
       userManager);
 
-    var codeVerifier = "wilunhbgiwubnguiwebg";
-    using var sha256 = SHA256.Create();
-    var hashed = sha256.ComputeHash(Encoding.Default.GetBytes(codeVerifier));
-    var codeChallenge = Base64UrlEncoder.Encode(hashed);
+    var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
 
     // Act
     var code = await codeFactory.GenerateCodeAsync(
       "http://localhost:5002/callback",
       new[] { "openid" },
       "test",
-      codeChallenge,
+      pkce.CodeChallenge,
       "wrong-userId",
       "nonce");
 
@@ -374,7 +362,7 @@ public class CodeFactoryTests
       code,
       "http://localhost:5002/callback",
       "test",
-      codeVerifier);
+      pkce.CodeVerifier);
 
     // Assert
     Assert.False(isValid);

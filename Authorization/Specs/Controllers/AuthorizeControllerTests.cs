@@ -29,7 +29,7 @@ public class AuthorizeControllerTests : IClassFixture<WebApplicationFactory<Prog
 
     var state = RandomGeneratorHelper.GeneratorRandomString(16);
 		var nonce = RandomGeneratorHelper.GeneratorRandomString(32);
-		var (_, codeChallenge) = ProofKeyForCodeExchangeHelper.GetCodes();
+		var pkce= ProofKeyForCodeExchangeHelper.GetPkce();
     var query = new QueryBuilder
     {
       { "response_type", "code" },
@@ -37,7 +37,7 @@ public class AuthorizeControllerTests : IClassFixture<WebApplicationFactory<Prog
       { "redirect_uri", "http://localhost:5002/callback" },
       { "scope", "openid identity-provider profile api1" },
       { "state", state },
-      { "code_challenge", codeChallenge },
+      { "code_challenge", pkce.CodeChallenge },
       { "code_challenge_method", "S256" },
       { "nonce", nonce }
     }.ToQueryString();

@@ -30,8 +30,9 @@ public class CodeManagerTests
     // Arrange
     var client = new Client 
     {
+      Id = Guid.NewGuid().ToString(),
       Name = "test",
-      SecretHash = "secret".Sha256(),
+      Secret = "secret",
       ClientProfile = ClientProfile.WebApplication,
       ClientType = ClientType.Confidential
     };
@@ -49,7 +50,7 @@ public class CodeManagerTests
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task ReedemCodeAsync_Ok()
+  public async Task RedeemCodeAsync_Ok()
   {
     // Arrange
     var code = new Code 

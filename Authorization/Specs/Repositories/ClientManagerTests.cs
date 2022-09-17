@@ -34,8 +34,9 @@ public class ClientManagerTests
     // Arrange
     var clientToBeInserted = new Client
     {
+      Id = Guid.NewGuid().ToString(),
       Name = "test",
-      SecretHash = "secret".Sha256(),
+      Secret = "secret",
       ClientProfile = ClientProfile.WebApplication,
       ClientType = ClientType.Confidential
     };
@@ -45,7 +46,7 @@ public class ClientManagerTests
     var clientManager = new ClientManager(_identityContext, Mock.Of<ILogger<ClientManager>>());
 
     // Act
-    var client = await clientManager.ReadClientAsync("test");
+    var client = await clientManager.ReadClientAsync(clientToBeInserted.Id);
 
     // Assert
     Assert.NotNull(client);
@@ -73,8 +74,9 @@ public class ClientManagerTests
     // Arrange
     var client = new Client
     {
+      Id = Guid.NewGuid().ToString(),
       Name = "test",
-      SecretHash = "secret".Sha256(),
+      Secret = "secret",
       ClientProfile = ClientProfile.WebApplication,
       ClientType = ClientType.Confidential
     };
@@ -97,8 +99,9 @@ public class ClientManagerTests
     // Arrange
     var client = new Client
     {
+      Id = Guid.NewGuid().ToString(),
       Name = "test",
-      SecretHash = "secret".Sha256(),
+      Secret = "secret",
       ClientProfile = ClientProfile.WebApplication,
       ClientType = ClientType.Confidential
     };
@@ -127,8 +130,9 @@ public class ClientManagerTests
 
     var client = new Client
     {
+      Id = Guid.NewGuid().ToString(),
       Name = "test",
-      SecretHash = "secret".Sha256(),
+      Secret = "secret",
       ClientProfile = ClientProfile.WebApplication,
       ClientType = ClientType.Confidential,
       RedirectUris = new List<RedirectUri> { redirectUri }
@@ -158,8 +162,9 @@ public class ClientManagerTests
 
     var client = new Client
     {
+      Id = Guid.NewGuid().ToString(),
       Name = "test",
-      SecretHash = "secret".Sha256(),
+      Secret = "secret",
       ClientProfile = ClientProfile.WebApplication,
       ClientType = ClientType.Confidential,
       RedirectUris = new List<RedirectUri> { redirectUri }
@@ -183,8 +188,9 @@ public class ClientManagerTests
     // Arrange
     var client = new Client
     {
+      Id = Guid.NewGuid().ToString(),
       Name = "test",
-      SecretHash = "secret".Sha256(),
+      Secret = "secret",
       ClientProfile = ClientProfile.WebApplication,
       ClientType = ClientType.Confidential,
       Grants = await _identityContext.Set<Grant>().Where(x => x.Name == OpenIdConnectGrantTypes.AuthorizationCode).ToListAsync()
@@ -208,8 +214,9 @@ public class ClientManagerTests
     // Arrange
     var client = new Client
     {
+      Id = Guid.NewGuid().ToString(),
       Name = "test",
-      SecretHash = "secret".Sha256(),
+      Secret = "secret",
       ClientProfile = ClientProfile.WebApplication,
       ClientType = ClientType.Confidential,
       Grants = await _identityContext.Set<Grant>().Where(x => x.Name == OpenIdConnectGrantTypes.AuthorizationCode).ToListAsync()
@@ -233,8 +240,9 @@ public class ClientManagerTests
     // Arrange
     var client = new Client
     {
+      Id = Guid.NewGuid().ToString(),
       Name = "test",
-      SecretHash = "secret".Sha256(),
+      Secret = "secret",
       ClientProfile = ClientProfile.WebApplication,
       ClientType = ClientType.Confidential,
       Scopes = await _identityContext.Set<Scope>().ToListAsync()
@@ -258,8 +266,9 @@ public class ClientManagerTests
     // Arrange
     var client = new Client
     {
+      Id = Guid.NewGuid().ToString(),
       Name = "test",
-      SecretHash = "secret".Sha256(),
+      Secret = "secret",
       ClientProfile = ClientProfile.WebApplication,
       ClientType = ClientType.Confidential,
       Scopes = await _identityContext.Set<Scope>().ToListAsync()

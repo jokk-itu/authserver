@@ -7,6 +7,7 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
 {
   public void Configure(EntityTypeBuilder<Client> builder)
   {
+    builder.HasKey(client => client.Id);
     builder
       .Property(client => client.ClientType)
       .HasConversion<string>();

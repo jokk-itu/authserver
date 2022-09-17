@@ -7,12 +7,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using Application.Validation;
+using MediatR;
 
 namespace Infrastructure.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-  public static IServiceCollection AddDatastore(this IServiceCollection services, IConfiguration configuration)
+  public static IServiceCollection AddDataStore(this IServiceCollection services, IConfiguration configuration)
   {
     services.AddDataProtection();
     services.AddTransient<CodeFactory>();
@@ -46,6 +48,21 @@ public static class ServiceCollectionExtensions
         .AddDefaultTokenProviders()
         .AddEntityFrameworkStores<IdentityContext>();
 
+    return services;
+  }
+
+  public static IServiceCollection AddRequests(this IServiceCollection services)
+  {
+    services.AddMediatR(Assembly.GetExecutingAssembly());
+    return services;
+  }
+
+  public static IServiceCollection AddValidators(this IServiceCollection services)
+  {
+    foreach (var validator in Assembly.GetExecutingAssembly().GetTypes().Where(x => x.GetInterface(typeof(IValidator<>).Name) is not null))
+    {
+      services.AddScoped(validator.GetInterface(typeof(IValidator<>).Name)!, validator);
+    }
     return services;
   }
 }

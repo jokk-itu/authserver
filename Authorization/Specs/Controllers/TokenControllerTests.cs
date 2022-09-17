@@ -27,7 +27,7 @@ public class TokenControllerTests : IClassFixture<WebApplicationFactory<Program>
     {
       AllowAutoRedirect = false
     });
-    var (codeVerifier, codeChallenge) = ProofKeyForCodeExchangeHelper.GetCodes();
+    var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
     var state = RandomGeneratorHelper.GeneratorRandomString(16);
     var nonce = RandomGeneratorHelper.GeneratorRandomString(32);
     var query = new QueryBuilder
@@ -37,7 +37,7 @@ public class TokenControllerTests : IClassFixture<WebApplicationFactory<Program>
       { "redirect_uri", "http://localhost:5002/callback" },
       { "scope", "openid identity-provider profile api1" },
       { "state", state },
-      { "code_challenge", codeChallenge },
+      { "code_challenge", pkce.CodeChallenge },
       { "code_challenge_method", "S256" },
       { "nonce", nonce }
     }.ToQueryString();
@@ -66,7 +66,7 @@ public class TokenControllerTests : IClassFixture<WebApplicationFactory<Program>
       { "grant_type", "authorization_code" },
       { "redirect_uri", "http://localhost:5002/callback" },
       { "scope", "openid identity-provider profile api1" },
-      { "code_verifier", codeVerifier }
+      { "code_verifier", pkce.CodeVerifier }
     });
     var request = new HttpRequestMessage(HttpMethod.Post, "connect/v1/token")
     {
@@ -89,7 +89,7 @@ public class TokenControllerTests : IClassFixture<WebApplicationFactory<Program>
     {
       AllowAutoRedirect = false
     });
-    var (codeVerifier, codeChallenge) = ProofKeyForCodeExchangeHelper.GetCodes();
+    var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
     var state = RandomGeneratorHelper.GeneratorRandomString(16);
     var nonce = RandomGeneratorHelper.GeneratorRandomString(32);
     var query = new QueryBuilder
@@ -99,7 +99,7 @@ public class TokenControllerTests : IClassFixture<WebApplicationFactory<Program>
       { "redirect_uri", "http://localhost:5002/callback" },
       { "scope", "openid identity-provider profile api1" },
       { "state", state },
-      { "code_challenge", codeChallenge },
+      { "code_challenge", pkce.CodeChallenge },
       { "code_challenge_method", "S256" },
       { "nonce", nonce }
     }.ToQueryString();
@@ -128,7 +128,7 @@ public class TokenControllerTests : IClassFixture<WebApplicationFactory<Program>
       { "grant_type", "authorization_code" },
       { "redirect_uri", "http://localhost:5002/callback" },
       { "scope", "openid identity-provider profile api1" },
-      { "code_verifier", codeVerifier }
+      { "code_verifier", pkce.CodeVerifier }
     });
     var tokenRequest = new HttpRequestMessage(HttpMethod.Post, "connect/v1/token")
     {

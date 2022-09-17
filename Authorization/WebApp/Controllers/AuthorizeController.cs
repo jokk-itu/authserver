@@ -9,10 +9,6 @@ using Domain.Constants;
 using System.Text.RegularExpressions;
 using WebApp.Extensions;
 using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.OpenApi.Validations.Rules;
 
 namespace WebApp.Controllers;
 

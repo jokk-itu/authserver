@@ -28,7 +28,7 @@ builder.WebHost.ConfigureServices(services =>
   services.AddOpenIdAuthentication(identityConfiguration);
   services.AddOpenIdAuthorization();
 
-  services.AddDatastore(builder.Configuration);
+  services.AddDataStore(builder.Configuration);
   services.AddCorsPolicy();
   services.AddCookiePolicy();
   services.AddAntiforgery(antiForgeryOptions =>
