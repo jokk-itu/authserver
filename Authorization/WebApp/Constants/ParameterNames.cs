@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+﻿using System.Security.Policy;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace WebApp.Constants;
@@ -22,4 +23,17 @@ public static class ParameterNames
   public const string TokenType = OpenIdConnectParameterNames.TokenType;
   public const string ExpiresIn = OpenIdConnectParameterNames.ExpiresIn;
   public const string GrantType = OpenIdConnectParameterNames.GrantType;
+  public const string RedirectUris = "redirect_uris";
+  public const string ResponseTypes = "response_types";
+  public const string GrantTypes = "grant_types";
+  public const string ApplicationType = "application_type";
+  public const string Contacts = "contacts";
+  public const string ClientName = "client_name";
+  public const string PolicyUri = "policy_uri";
+  public const string TosUri = "tos_uri";
+  public const string SubjectType = "subject_type";
+  public const string TokenEndpointAuthMethod = "token_endpoint_auth_method";
+  public const string ClientSecretExpiresAt = "client_secret_expires_at";
+  public const string RegistrationAccessToken = "registration_access_token";
+  public const string RegistrationClientUri = "registration_client_uri";
 }
