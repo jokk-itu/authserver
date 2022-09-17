@@ -25,10 +25,12 @@ builder.WebHost.ConfigureServices(services =>
   var identityConfiguration = builder.Configuration.GetSection("Identity").Get<IdentityConfiguration>();
   services.AddSingleton(identityConfiguration);
 
-  services.AddOpenIdAuthentication(identityConfiguration);
+  services.AddOpenIdAuthentication();
   services.AddOpenIdAuthorization();
 
   services.AddDataStore(builder.Configuration);
+  services.AddRequests();
+  services.AddValidators();
   services.AddCorsPolicy();
   services.AddCookiePolicy();
   services.AddAntiforgery(antiForgeryOptions =>

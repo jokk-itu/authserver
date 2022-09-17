@@ -26,7 +26,7 @@ public class CodeManager
     return result > 0;
   }
 
-  public async Task<bool> ReedemCodeAsync(Code code, CancellationToken cancellationToken = default)
+  public async Task<bool> RedeemCodeAsync(Code code, CancellationToken cancellationToken = default)
   {
     code.IsRedeemed = true;
     var result = await _identityContext.SaveChangesAsync(cancellationToken);

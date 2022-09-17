@@ -48,7 +48,7 @@ public abstract class TokenFactory
     return tokenHandler.WriteToken(token);
   }
 
-  public async Task<JwtSecurityToken?> DecodeTokenAsync(string token, CancellationToken cancellationToken = default)
+  public JwtSecurityToken? DecodeToken(string token)
   {
     if (string.IsNullOrWhiteSpace(token))
       return null;

@@ -3,6 +3,8 @@ using Application.Validation;
 using Domain;
 using Domain.Enums;
 using Domain.Extensions;
+using Infrastructure.Factories.TokenFactories;
+using Infrastructure.Helpers;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,11 +13,16 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
 {
   private readonly IValidator<CreateClientCommand> _createClientValidator;
   private readonly IdentityContext _identityContext;
+  private readonly RegistrationAccessTokenFactory _registrationAccessTokenFactory;
 
-  public CreateClientHandler(IValidator<CreateClientCommand> createClientValidator, IdentityContext identityContext)
+  public CreateClientHandler(
+    IValidator<CreateClientCommand> createClientValidator,
+    IdentityContext identityContext,
+    RegistrationAccessTokenFactory registrationAccessTokenFactory)
   {
     _createClientValidator = createClientValidator;
     _identityContext = identityContext;
+    _registrationAccessTokenFactory = registrationAccessTokenFactory;
   }
 
   public async Task<CreateClientResponse> Handle(CreateClientCommand request, CancellationToken cancellationToken)
@@ -57,7 +64,7 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
     {
       Id = Guid.NewGuid().ToString(),
       Name = request.ClientName,
-      Secret = request.ClientSecret,
+      Secret = CryptographyHelper.RandomSecret(32),
       Scopes = scopes,
       RedirectUris = redirectUris,
       Grants = grants,
@@ -76,8 +83,6 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
 
     await _identityContext.SaveChangesAsync(cancellationToken: cancellationToken);
 
-    // TODO RegistrationAccessToken
-    // TODO RegistrationClientUri
     return new CreateClientResponse(HttpStatusCode.Created)
     {
       ApplicationType = request.ApplicationType,
@@ -93,6 +98,7 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       PolicyUri = client.PolicyUri,
       TokenEndpointAuthMethod = request.TokenEndpointAuthMethod,
       ResponseTypes = client.ResponseTypes.Select(x => x.Name).ToList(),
+      RegistrationAccessToken = _registrationAccessTokenFactory.GenerateToken(client.Id)
     };
   }
 }

@@ -24,13 +24,12 @@ public class TokenManager
       .Set<Token>()
       .FindAsync(new object[] { keyId } , cancellationToken: cancellationToken);
 
-    if(token is null)
-    {
-      _logger.LogDebug("Token {KeyId} does not exist", keyId);
-      return false;
-    }
+    if (token is not null) 
+      return token.RevokedAt is not null && token.RevokedBy is not null;
 
-    return token.RevokedAt is not null && token.RevokedBy is not null;
+    _logger.LogDebug("Token {KeyId} does not exist", keyId);
+    return false;
+
   }
 
   public async Task<bool> RevokeTokenAsync(long keyId, string userId, CancellationToken cancellationToken = default) 
@@ -67,7 +66,7 @@ public class TokenManager
     };
 
     await _identityContext.Set<Token>().AddAsync(token, cancellationToken);
-    var result = await _identityContext.SaveChangesAsync();
+    var result = await _identityContext.SaveChangesAsync(cancellationToken);
     return result > 0;
   }
 }

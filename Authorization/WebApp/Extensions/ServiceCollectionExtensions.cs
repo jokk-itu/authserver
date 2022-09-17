@@ -7,7 +7,7 @@ namespace WebApp.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-  public static IServiceCollection AddOpenIdAuthentication(this IServiceCollection services, IdentityConfiguration identityConfiguration)
+  public static IServiceCollection AddOpenIdAuthentication(this IServiceCollection services)
   {
     services.AddSingleton<InternalConfigurationManager>();
     services.ConfigureOptions<ConfigureJwtBearerOptions>();

@@ -5,7 +5,6 @@ using Infrastructure.Repositories;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
-using Infrastructure.Extensions;
 
 namespace Specs.Repositories;
 public class CodeManagerTests
@@ -65,7 +64,7 @@ public class CodeManagerTests
     var codeManager = new CodeManager(_identityContext);
 
     // Act
-    var isRedeemed = await codeManager.ReedemCodeAsync(code);
+    var isRedeemed = await codeManager.RedeemCodeAsync(code);
 
     // Assert
     Assert.True(isRedeemed);

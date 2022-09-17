@@ -1,4 +1,5 @@
-﻿using Infrastructure;
+﻿using Domain.Constants;
+using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 
@@ -29,7 +30,7 @@ public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions
     {
         options.IncludeErrorDetails = true; //DEVELOP READY
         options.RequireHttpsMetadata = false; //DEVELOP READY
-        options.Audience = _identityConfiguration.Audience;
+        options.Audience = AudienceConstants.IdentityProvider;
         options.Authority = _identityConfiguration.InternalIssuer;
         options.ConfigurationManager = _internalConfigurationManager;
         options.SaveToken = true;

@@ -75,7 +75,7 @@ public class AccountController : Controller
     if (string.IsNullOrWhiteSpace(accessToken))
       return Forbid(OpenIdConnectDefaults.AuthenticationScheme);
 
-    var decodedAccessToken = await _accessTokenFactory.DecodeTokenAsync(accessToken);
+    var decodedAccessToken = _accessTokenFactory.DecodeToken(accessToken);
     if (decodedAccessToken is null)
       return Forbid(OpenIdConnectDefaults.AuthenticationScheme);
 

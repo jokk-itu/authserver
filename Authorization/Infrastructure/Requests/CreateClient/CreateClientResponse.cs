@@ -19,7 +19,6 @@ public class CreateClientResponse : Response
   public string ClientId { get; init; } = null!;
   public string ClientSecret { get; init; } = null!;
   public string RegistrationAccessToken { get; init; } = null!;
-  public string RegistrationClientUri { get; init; } = null!;
 
   public CreateClientResponse(HttpStatusCode statusCode) : base(statusCode)
   {

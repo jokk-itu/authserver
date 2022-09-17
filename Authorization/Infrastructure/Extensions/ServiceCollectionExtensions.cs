@@ -21,6 +21,7 @@ public static class ServiceCollectionExtensions
     services.AddTransient<AccessTokenFactory>();
     services.AddTransient<IdTokenFactory>();
     services.AddTransient<RefreshTokenFactory>();
+    services.AddTransient<RegistrationAccessTokenFactory>();
 
     services.AddScoped<ClientManager>();
     services.AddScoped<ResourceManager>();
@@ -28,7 +29,6 @@ public static class ServiceCollectionExtensions
     services.AddScoped<TokenManager>();
     services.AddScoped<CodeManager>();
     services.AddScoped<NonceManager>();
-    services.AddScoped<TestManager>();
 
     services.AddSingleton<JwkManager>();
 

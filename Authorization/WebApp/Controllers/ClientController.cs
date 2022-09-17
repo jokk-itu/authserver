@@ -42,14 +42,14 @@ public class ClientController : Controller
       RedirectUris = request.RedirectUris,
       PolicyUri = request.PolicyUri,
       SubjectType = request.SubjectType,
-      Scopes = scopes,
-      ClientSecret = CryptographyHelper.RandomSecret(32)
+      Scopes = scopes
     }, cancellationToken: cancellationToken);
 
     if (response.IsError())
       return BadRequest();
 
-    return Created(new Uri("http://localhost:5000/connect/client/configuration"), new PostClientResponse
+    var uri = $"{Request.Scheme}://{Request.Host}/connect/client/configuration";
+    return Created(new Uri(uri), new PostClientResponse
     {
       ApplicationType = response.ApplicationType,
       GrantTypes = response.GrantTypes,
@@ -63,7 +63,7 @@ public class ClientController : Controller
       PolicyUri = response.PolicyUri,
       RedirectUris = response.RedirectUris,
       RegistrationAccessToken = response.RegistrationAccessToken,
-      RegistrationClientUri = response.RegistrationClientUri,
+      RegistrationClientUri = uri,
       Scope = response.Scope,
       SubjectType = response.SubjectType,
       ClientSecretExpiresAt = 0

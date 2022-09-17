@@ -1,10 +1,11 @@
 ﻿using Domain;
+using Domain.Constants;
 using Domain.Enums;
-using Infrastructure.Extensions;
+using Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Repositories;
+namespace Specs;
 public class TestManager
 {
 	private readonly IdentityContext _identityContext;
@@ -28,7 +29,18 @@ public class TestManager
     await AddRolesAsync();
     await AddUsersAsync();
     await AddResourcesAsync();
+    await AddContactsAsync();
     await AddClientsAsync();
+  }
+
+  private async Task AddContactsAsync()
+  {
+    var contact = new Contact
+    {
+      Email = "contact@contact.com"
+    };
+    await _identityContext.Set<Contact>().AddAsync(contact);
+    await _identityContext.SaveChangesAsync();
   }
 
 	private async Task AddClientsAsync()
@@ -41,7 +53,13 @@ public class TestManager
       RedirectUris = await _identityContext.Set<RedirectUri>().ToListAsync(),
       Scopes = await _identityContext.Set<Scope>().ToListAsync(),
       Name = "test",
-      Secret = "secret"
+      Secret = "secret",
+      Contacts = await _identityContext.Set<Contact>().ToListAsync(),
+      PolicyUri = "http://localhost:5002/policy",
+      SubjectType = SubjectType.Public,
+      TokenEndpointAuthMethod = TokenEndpointAuthMethod.ClientSecretPost,
+      TosUri = "http://localhost:5002/tos",
+      ResponseTypes = await _identityContext.Set<ResponseType>().Where(x => x.Name == ResponseTypeConstants.Code).ToListAsync(),
     };
     await _identityContext.Set<Client>().AddAsync(client);
     await _identityContext.SaveChangesAsync();
@@ -65,7 +83,7 @@ public class TestManager
     };
     var identityScope = new Scope 
     {
-      Name = "identity-provider"
+      Name = "identityprovider"
     };
     await _identityContext.Set<Scope>().AddRangeAsync(apiScope, identityScope);
     await _identityContext.SaveChangesAsync();
@@ -106,7 +124,7 @@ public class TestManager
       PhoneNumber = "88888888"
     };
     await _userManager.CreateAsync(user, "Password12!");
-    await _userManager.AddToRolesAsync(user, new string[] {"Default", "SuperUser", "Administrator"});
+    await _userManager.AddToRolesAsync(user, new[] {"Default", "SuperUser", "Administrator"});
   }
 
 	private async Task AddResourcesAsync()
@@ -119,7 +137,7 @@ public class TestManager
     };
     var identityResource = new Resource 
     {
-      Name = "identity-provider",
+      Name = "identityprovider",
       SecretHash = "secret",
       Scopes = await _identityContext.Set<Scope>().ToListAsync()
     };

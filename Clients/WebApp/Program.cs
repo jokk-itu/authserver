@@ -98,7 +98,7 @@ builder.WebHost.ConfigureServices(services =>
     configureOptions.Scope.Add("phone");
     configureOptions.Scope.Add("openid");
     configureOptions.Scope.Add("api1");
-    configureOptions.Scope.Add("identity-provider");
+    configureOptions.Scope.Add("identityprovider");
     configureOptions.MapInboundClaims = true;
     configureOptions.GetClaimsFromUserInfoEndpoint = true;
     configureOptions.Events = new OpenIdConnectEvents

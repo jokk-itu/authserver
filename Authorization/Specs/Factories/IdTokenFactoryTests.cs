@@ -58,7 +58,7 @@ public class IdTokenFactoryTests
 
 		// Act
 		var token = idTokenFactory.GenerateToken("test", new[] { "openid" }, "nonce", "1234");
-		var securityToken = await idTokenFactory.DecodeTokenAsync(token);
+		var securityToken = idTokenFactory.DecodeToken(token);
 
 		// Assert
 		Assert.NotEmpty(token);

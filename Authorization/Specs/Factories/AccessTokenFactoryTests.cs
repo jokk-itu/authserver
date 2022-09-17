@@ -36,14 +36,14 @@ public class AccessTokenFactoryTests
     // Arrange
     var identityScope = new Scope
     {
-      Name = "identity-provider"
+      Name = "identityprovider"
     };
     await _identityContext.Set<Scope>().AddAsync(identityScope);
     await _identityContext.SaveChangesAsync();
 
     var identityResource = new Resource
     {
-      Name = "identity-provider",
+      Name = "identityprovider",
       SecretHash = "secret".Sha256(),
       Scopes = await _identityContext.Set<Scope>().ToListAsync()
     };
@@ -54,7 +54,7 @@ public class AccessTokenFactoryTests
     {
       AccessTokenExpiration = 3600,
       PrivateKeySecret = "wufigbwiubwgub",
-      Audience = "identity-provider",
+      Audience = "identityprovider",
       InternalIssuer = "auth-server"
     };
     var serviceProvider = new ServiceCollection()
@@ -65,7 +65,7 @@ public class AccessTokenFactoryTests
 
     var jwtBearerOptions = new JwtBearerOptions
     {
-      Audience = "identity-provider",
+      Audience = "identityprovider",
       Authority = "auth-server"
     };
     var fakeJwtBearerOptions = new Mock<IOptionsSnapshot<JwtBearerOptions>>();
@@ -75,15 +75,15 @@ public class AccessTokenFactoryTests
     var accessTokenFactory = new AccessTokenFactory(identityConfiguration, fakeJwtBearerOptions.Object, resourceManager, jwkManager, logger);
 
     // Act
-    var token = await accessTokenFactory.GenerateTokenAsync("test", new[] { "openid", "identity-provider" }, "1234");
-    var securityToken = await accessTokenFactory.DecodeTokenAsync(token);
+    var token = await accessTokenFactory.GenerateTokenAsync("test", new[] { "openid", "identityprovider" }, "1234");
+    var securityToken = accessTokenFactory.DecodeToken(token);
 
     // Assert
     Assert.NotEmpty(token);
     Assert.NotNull(securityToken);
     Assert.Equal("1234", securityToken!.Subject);
-    Assert.Contains("identity-provider", securityToken!.Audiences);
-    Assert.Equal("openid identity-provider", securityToken.Claims.Single(x => x.Type == ClaimNameConstants.Scope).Value);
+    Assert.Contains("identityprovider", securityToken!.Audiences);
+    Assert.Equal("openid identityprovider", securityToken.Claims.Single(x => x.Type == ClaimNameConstants.Scope).Value);
     Assert.Equal("test", securityToken.Claims.Single(x => x.Type == ClaimNameConstants.ClientId).Value);
   }
 }

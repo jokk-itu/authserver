@@ -7,7 +7,7 @@ using System.Text;
 namespace Infrastructure.Repositories;
 public class JwkManager
 {
-  private static readonly int _keySize = 4096;
+  private const int KeySize = 4096;
 
   private readonly IdentityContext _identityContext;
   private readonly IdentityConfiguration _identityConfiguration;
@@ -16,14 +16,7 @@ public class JwkManager
   private readonly Jwk _current;
   private readonly Jwk _future;
 
-  private readonly RSACryptoServiceProvider _rsaCryptoServiceProvider;
-  public RSACryptoServiceProvider RsaCryptoServiceProvider
-  {
-    get
-    {
-      return _rsaCryptoServiceProvider;
-    }
-  }
+  public RSACryptoServiceProvider RsaCryptoServiceProvider { get; }
 
   public IEnumerable<Jwk> Jwks
   {
@@ -35,13 +28,7 @@ public class JwkManager
     }
   }
 
-  public string KeyId
-  {
-    get
-    {
-      return _current.KeyId.ToString();
-    }
-  }
+  public string KeyId => _current.KeyId.ToString();
 
   public JwkManager(IServiceProvider serviceProvider)
   {
@@ -63,8 +50,8 @@ public class JwkManager
     _current = jwks.ElementAt(1);
     _future = jwks.ElementAt(2);
 
-    _rsaCryptoServiceProvider = new RSACryptoServiceProvider(_keySize);
-    _rsaCryptoServiceProvider.ImportEncryptedPkcs8PrivateKey(_identityConfiguration.PrivateKeySecret, _current.PrivateKey, out var bytesRead);
+    RsaCryptoServiceProvider = new RSACryptoServiceProvider(KeySize);
+    RsaCryptoServiceProvider.ImportEncryptedPkcs8PrivateKey(_identityConfiguration.PrivateKeySecret, _current.PrivateKey, out var bytesRead);
 
     if (bytesRead != _current.PrivateKey.Length)
       throw new CryptographicException("Private key has not been read correctly");
@@ -74,7 +61,7 @@ public class JwkManager
     DateTime createdTimeStamp,
     CancellationToken cancellationToken = default)
   {
-    using var rsa = new RSACryptoServiceProvider(_keySize);
+    using var rsa = new RSACryptoServiceProvider(KeySize);
     var password = Encoding.Default.GetBytes(_identityConfiguration.PrivateKeySecret);
     var pbeParameters = new PbeParameters(PbeEncryptionAlgorithm.Aes128Cbc, HashAlgorithmName.SHA256, 10);
     var privateKey = rsa.ExportEncryptedPkcs8PrivateKey(password, pbeParameters);

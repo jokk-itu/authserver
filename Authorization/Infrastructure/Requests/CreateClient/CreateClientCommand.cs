@@ -7,7 +7,6 @@ namespace Infrastructure.Requests.CreateClient;
 public class CreateClientCommand : IRequest<CreateClientResponse>
 {
   public string ClientName { get; set; }
-  public string ClientSecret { get; set; }
   public ICollection<string> RedirectUris { get; set; } = new List<string>();
   public ICollection<string> ResponseTypes { get; set; } = new[] { ResponseTypeConstants.Code };
   public ICollection<string> GrantTypes { get; set; } = new List<string>();
