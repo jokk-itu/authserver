@@ -8,6 +8,7 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
   public void Configure(EntityTypeBuilder<Client> builder)
   {
     builder.HasKey(client => client.Id);
+
     builder
       .Property(client => client.ClientType)
       .HasConversion<string>();
@@ -16,7 +17,9 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
       .Property(client => client.ClientProfile)
       .HasConversion<string>();
 
-    builder.HasMany(client => client.RedirectUris);
+    builder
+      .HasMany(client => client.RedirectUris)
+      .WithOne(redirectUri => redirectUri.Client);
 
     builder
       .HasMany(client => client.Scopes)
@@ -24,7 +27,9 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
       .UsingEntity(link => link.ToTable("ClientScopes"));
 
     builder
-      .HasMany(client => client.Grants);
+      .HasMany(client => client.Grants)
+      .WithMany(grant => grant.Clients)
+      .UsingEntity(link => link.ToTable("ClientGrants"));
       
     builder.ToTable("Clients");
   }

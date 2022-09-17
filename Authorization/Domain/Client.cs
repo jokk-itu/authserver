@@ -11,6 +11,8 @@ public class Client
 
   public string Secret { get; set; }
 
+  public string TosUri { get; set; }
+
   public ClientType ClientType { get; set; }
 
   public ClientProfile ClientProfile { get; set; }
