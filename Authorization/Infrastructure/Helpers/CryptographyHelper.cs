@@ -1,12 +1,16 @@
-﻿using System.Security.Cryptography;
+﻿using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
 
 namespace Infrastructure.Helpers;
 public static class CryptographyHelper
 {
-  public static string RandomSecret(long size)
+  public static string GetUrlEncodedRandomString(int length)
   {
-    var data = new byte[size];
-    RandomNumberGenerator.Create().GetBytes(data);
-    return Convert.ToBase64String(data);
+    return Base64UrlEncoder.Encode(RandomNumberGenerator.GetBytes(length));
+  }
+
+  public static string GetRandomString(int length)
+  {
+    return Convert.ToBase64String(RandomNumberGenerator.GetBytes(length));
   }
 }
