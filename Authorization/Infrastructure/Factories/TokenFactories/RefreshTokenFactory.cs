@@ -30,9 +30,9 @@ public class RefreshTokenFactory : TokenFactory
     string userId, 
     CancellationToken cancellationToken = default)
   {
-    var expires = DateTime.Now + TimeSpan.FromSeconds(_identityConfiguration.RefreshTokenExpiration);
+    var expires = DateTime.Now.AddSeconds(_identityConfiguration.RefreshTokenExpiration);
     var resources = await _resourceManager.ReadResourcesAsync(scopes, cancellationToken);
-    var audiences = resources.Select(x => x.Name).ToArray();
+    var audiences = resources.Select(x => x.Id).ToArray();
     var claims = new Dictionary<string, object>
     {
       { JwtRegisteredClaimNames.Sub, userId },

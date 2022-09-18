@@ -23,7 +23,7 @@ public class IdTokenFactory : TokenFactory
   public string GenerateToken(string clientId, IEnumerable<string> scopes,
       string nonce, string userId)
   {
-    var expires = DateTime.Now + TimeSpan.FromSeconds(_identityConfiguration.IdTokenExpiration);
+    var expires = DateTime.Now.AddSeconds(_identityConfiguration.IdTokenExpiration);
     var audiences = new string[] { clientId};
     var claims = new Dictionary<string, object>
     {
