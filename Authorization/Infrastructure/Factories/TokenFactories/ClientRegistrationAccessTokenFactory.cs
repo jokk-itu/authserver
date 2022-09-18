@@ -12,7 +12,7 @@ public class ClientRegistrationAccessTokenFactory : TokenFactory
   public ClientRegistrationAccessTokenFactory(
     ILogger<ClientRegistrationAccessTokenFactory> logger, 
     IdentityConfiguration identityConfiguration, 
-    IOptionsSnapshot<JwtBearerOptions> jwtBearerOptions,
+    IOptions<JwtBearerOptions> jwtBearerOptions,
     JwkManager jwkManager) : base(logger, identityConfiguration, jwtBearerOptions.Value, jwkManager)
   {
   }

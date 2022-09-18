@@ -3,6 +3,7 @@ using Infrastructure.Factories.TokenFactories.Abstractions;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Infrastructure.Factories.TokenFactories;
@@ -11,8 +12,8 @@ public class ResourceRegistrationAccessTokenFactory : TokenFactory
   public ResourceRegistrationAccessTokenFactory(
     ILogger<TokenFactory> logger, 
     IdentityConfiguration identityConfiguration, 
-    JwtBearerOptions jwtBearerOptions, 
-    JwkManager jwkManager) : base(logger, identityConfiguration, jwtBearerOptions, jwkManager)
+    IOptions<JwtBearerOptions> jwtBearerOptions, 
+    JwkManager jwkManager) : base(logger, identityConfiguration, jwtBearerOptions.Value, jwkManager)
   {
   }
 
