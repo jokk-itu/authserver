@@ -12,9 +12,7 @@ public class JwkManager
   private readonly IdentityContext _identityContext;
   private readonly IdentityConfiguration _identityConfiguration;
 
-  private readonly Jwk _previous;
   private readonly Jwk _current;
-  private readonly Jwk _future;
 
   public RSACryptoServiceProvider RsaCryptoServiceProvider { get; }
 
@@ -22,9 +20,7 @@ public class JwkManager
   {
     get
     {
-      yield return _previous;
       yield return _current;
-      yield return _future;
     }
   }
 
@@ -36,19 +32,15 @@ public class JwkManager
     _identityContext = scope.ServiceProvider.GetRequiredService<IdentityContext>();
     _identityConfiguration = scope.ServiceProvider.GetRequiredService<IdentityConfiguration>();
 
-    var jwks = GetThreeJwksAsync().GetAwaiter().GetResult();
+    var jwks = GetOneJwkAsync().GetAwaiter().GetResult();
 
-    if(jwks.Count != 3)
+    if(jwks.Count != 1)
     {
-      GenerateJwkAsync(DateTime.UtcNow.AddDays(-7)).GetAwaiter().GetResult();
       GenerateJwkAsync(DateTime.UtcNow).GetAwaiter().GetResult();
-      GenerateJwkAsync(DateTime.UtcNow.AddDays(7)).GetAwaiter().GetResult();
-      jwks = GetThreeJwksAsync().GetAwaiter().GetResult();
+      jwks = GetOneJwkAsync().GetAwaiter().GetResult();
     }
 
-    _previous = jwks.ElementAt(0);
-    _current = jwks.ElementAt(1);
-    _future = jwks.ElementAt(2);
+    _current = jwks.ElementAt(0);
 
     RsaCryptoServiceProvider = new RSACryptoServiceProvider(KeySize);
     RsaCryptoServiceProvider.ImportEncryptedPkcs8PrivateKey(_identityConfiguration.PrivateKeySecret, _current.PrivateKey, out var bytesRead);
@@ -77,11 +69,11 @@ public class JwkManager
     await _identityContext.SaveChangesAsync(cancellationToken);
   }
 
-  private async Task<ICollection<Jwk>> GetThreeJwksAsync()
+  private async Task<ICollection<Jwk>> GetOneJwkAsync()
   {
     return await _identityContext.Set<Jwk>()
       .OrderBy(jwk => jwk.CreatedTimestamp)
-      .Take(3)
+      .Take(1)
       .ToListAsync();
   }
 }

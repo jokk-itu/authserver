@@ -131,17 +131,22 @@ public class TestManager
 	{
     var apiResource = new Resource
     {
+      Id = Guid.NewGuid().ToString(),
       Name = "api1",
-			SecretHash = "secret",
+			Secret = "secret",
       Scopes = await _identityContext.Set<Scope>().ToListAsync()
     };
     var identityResource = new Resource 
     {
+      Id = Guid.NewGuid().ToString(),
       Name = "identityprovider",
-      SecretHash = "secret",
+      Secret = "secret",
       Scopes = await _identityContext.Set<Scope>().ToListAsync()
     };
-		await _identityContext.Set<Resource>().AddRangeAsync(apiResource, identityResource);
+		await _identityContext
+      .Set<Resource>()
+      .AddRangeAsync(apiResource, identityResource);
+
 		await _identityContext.SaveChangesAsync();
   }
 }

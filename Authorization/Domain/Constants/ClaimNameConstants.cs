@@ -5,4 +5,5 @@ public static class ClaimNameConstants
   public const string ClientId = "client_id";
   public const string MiddleName = "middle_name";
   public const string Nickname = "nickname";
+  public const string ResourceId = "resource_id";
 }

@@ -8,4 +8,6 @@ public static class ScopeConstants
   public const string OpenId = "openid";
   public const string ClientRegistration = "identityprovider:clientregistration";
   public const string ClientConfiguration = "identityprovider:clientconfiguration";
+  public const string ResourceRegistration = "identityprovider:resourceregistration";
+  public const string ResourceConfiguration = "identityprovider:resourceconfiguration";
 }

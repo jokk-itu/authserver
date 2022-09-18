@@ -101,8 +101,10 @@ public class AccountController : Controller
       claims.Add(ClaimTypes.StreetAddress, user.Address);
 
       var roles = await _userManager.GetRolesAsync(user);
-      if (roles.Any())
-        claims.Add(ClaimTypes.Role, JsonSerializer.Serialize(roles));
+      foreach (var role in roles)
+      {
+        claims.Add(ClaimTypes.Role, role);
+      }
 
       claims.Add(ClaimTypes.DateOfBirth, user.Birthdate.ToString(CultureInfo.InvariantCulture));
       claims.Add(ClaimTypes.Locality, user.Locale);

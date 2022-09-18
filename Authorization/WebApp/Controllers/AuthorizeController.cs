@@ -1,5 +1,4 @@
 ﻿using Infrastructure.Repositories;
-using Infrastructure.TokenFactories;
 using Contracts.AuthorizeCode;
 using Domain;
 using Microsoft.AspNetCore.Identity;
@@ -10,6 +9,7 @@ using System.Text.RegularExpressions;
 using Application;
 using WebApp.Extensions;
 using Microsoft.AspNetCore.Http.Extensions;
+using Infrastructure.Factories.CodeFactories;
 
 namespace WebApp.Controllers;
 
@@ -72,7 +72,7 @@ public class AuthorizeController : Controller
     if (client is null)
       return this.BadOAuthResult(ErrorCode.InvalidRequest);
 
-    if (!_clientManager.IsAuthorizedRedirectUris(client, new string[] { redirectUri }))
+    if (!_clientManager.IsAuthorizedRedirectUris(client, new[] { redirectUri }))
       return this.BadOAuthResult(ErrorCode.InvalidRequest);
 
     if (string.IsNullOrWhiteSpace(state))
