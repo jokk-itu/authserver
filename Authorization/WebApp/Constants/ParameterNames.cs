@@ -36,4 +36,8 @@ public static class ParameterNames
   public const string ClientSecretExpiresAt = "client_secret_expires_at";
   public const string RegistrationAccessToken = "registration_access_token";
   public const string RegistrationClientUri = "registration_client_uri";
+  public const string ResourceName = "resource_name";
+  public const string ResourceId = "resource_id";
+  public const string RegistrationResourceUri = "registration_resource_uri";
+  public const string ResourceSecret = "resource_secret";
 }
