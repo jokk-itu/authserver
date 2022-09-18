@@ -1,16 +1,12 @@
 ﻿using Domain;
 using Infrastructure;
-using Infrastructure.Repositories;
-using Infrastructure.TokenFactories;
+using Infrastructure.Factories.CodeFactories;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 using Specs.Helpers;
-using System.Security.Cryptography;
-using System.Text;
 using Xunit;
 
 namespace Specs.Factories;

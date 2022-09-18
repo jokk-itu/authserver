@@ -43,8 +43,9 @@ public class AccessTokenFactoryTests
 
     var identityResource = new Resource
     {
-      Name = "identityprovider",
-      SecretHash = "secret".Sha256(),
+      Id = Guid.NewGuid().ToString(),
+      Name = "identityprovider", 
+      Secret = "secret",
       Scopes = await _identityContext.Set<Scope>().ToListAsync()
     };
     await _identityContext.Set<Resource>().AddAsync(identityResource);
@@ -54,7 +55,6 @@ public class AccessTokenFactoryTests
     {
       AccessTokenExpiration = 3600,
       PrivateKeySecret = "wufigbwiubwgub",
-      Audience = "identityprovider",
       InternalIssuer = "auth-server"
     };
     var serviceProvider = new ServiceCollection()

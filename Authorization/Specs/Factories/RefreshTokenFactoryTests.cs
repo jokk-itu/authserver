@@ -11,7 +11,6 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 using Domain;
-using Infrastructure.Extensions;
 
 namespace Specs.Factories;
 public class RefreshTokenFactoryTests
@@ -44,7 +43,7 @@ public class RefreshTokenFactoryTests
     var identityResource = new Resource
     {
       Name = "identityprovider",
-      SecretHash = "secret".Sha256(),
+      Secret = "secret",
       Scopes = await _identityContext.Set<Scope>().ToListAsync()
     };
     await _identityContext.Set<Resource>().AddAsync(identityResource);
@@ -54,7 +53,6 @@ public class RefreshTokenFactoryTests
     {
       RefreshTokenExpiration = 2600000,
       PrivateKeySecret = "wufigbwiubwgub",
-      Audience = "identityprovider",
       InternalIssuer = "auth-server"
     };
     var serviceProvider = new ServiceCollection()

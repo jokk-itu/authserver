@@ -34,19 +34,19 @@ public class ResourceManagerTests
       new Resource
       {
         Name = "api1",
-        SecretHash = "secret".Sha256(),
+        Secret = "secret",
         Scopes = new[] { scope1 }
       },
       new Resource
       {
         Name = "api2",
-        SecretHash = "secret".Sha256(),
+        Secret = "secret",
         Scopes = new[] { scope2 }
       },
       new Resource
       {
         Name = "api3",
-        SecretHash = "secret".Sha256()
+        Secret = "secret"
       });
     await _identityContext.SaveChangesAsync();
 

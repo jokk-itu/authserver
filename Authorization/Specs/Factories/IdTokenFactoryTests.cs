@@ -37,7 +37,6 @@ public class IdTokenFactoryTests
     {
       IdTokenExpiration = 3600,
       PrivateKeySecret = "wufigbwiubwgub",
-      Audience = "test",
       InternalIssuer = "auth-server"
     };
     var serviceProvider = new ServiceCollection()
