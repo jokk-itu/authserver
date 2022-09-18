@@ -261,16 +261,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Resource", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SecretHash")
+                    b.Property<string>("Secret")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -597,8 +594,8 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("ResourceScope", b =>
                 {
-                    b.Property<int>("ResourcesId")
-                        .HasColumnType("int");
+                    b.Property<string>("ResourcesId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("ScopesId")
                         .HasColumnType("int");
