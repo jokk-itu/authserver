@@ -1,4 +1,5 @@
-﻿using Domain.Constants;
+﻿using System.Security.Claims;
+using Domain.Constants;
 using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
@@ -38,28 +39,31 @@ public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions
         {
             OnAuthenticationFailed = context =>
             {
-                _logger.LogError(context.Exception, "Authentication failed");
+              _logger.LogError(context.Exception, "Authentication failed");
                 return Task.CompletedTask;
             },
             OnForbidden = context =>
             {
-                _logger.LogInformation("Forbidden");
+              var scopes = context.Principal?.Claims.Where(x => x.Type == ClaimNameConstants.Scope);
+              var roles = context.Principal?.Claims.Where(x => x.Type == ClaimTypes.Role);
+              _logger.LogInformation("User is not Authorized, with scopes {@Scopes}, in roles {@Roles}", scopes, roles);
                 return Task.CompletedTask;
             },
             OnTokenValidated = context =>
             {
-                _logger.LogInformation("Token Validated");
-                return Task.CompletedTask;
+              _logger.LogInformation("Token is validated, with id {TokenId}, from {ValidFrom}, to {ValidTo}",
+                context.SecurityToken.Id, context.SecurityToken.ValidFrom, context.SecurityToken.ValidTo);
+              return Task.CompletedTask;
             },
-            OnChallenge = context =>
+            OnChallenge = _ =>
             {
-                _logger.LogInformation("Challenge response returned");
-                return Task.CompletedTask;
+              _logger.LogInformation("Challenge response returned");
+              return Task.CompletedTask;
             },
-            OnMessageReceived = context =>
+            OnMessageReceived = _ =>
             {
-                _logger.LogInformation("Initiating bearer validation");
-                return Task.CompletedTask;
+              _logger.LogInformation("Initiating bearer validation");
+              return Task.CompletedTask;
             }
         };
         options.Validate();
