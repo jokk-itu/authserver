@@ -23,6 +23,9 @@ public static class ServiceCollectionExtensions
     services.AddTransient<IdTokenFactory>();
     services.AddTransient<RefreshTokenFactory>();
     services.AddTransient<ClientRegistrationAccessTokenFactory>();
+    services.AddTransient<ClientInitialAccessTokenFactory>();
+    services.AddTransient<ResourceRegistrationAccessTokenFactory>();
+    services.AddTransient<ResourceInitialAccessTokenFactory>();
 
     services.AddScoped<ClientManager>();
     services.AddScoped<ResourceManager>();
@@ -54,10 +57,16 @@ public static class ServiceCollectionExtensions
 
   public static IServiceCollection AddRequests(this IServiceCollection services)
   {
-    foreach (var validator in Assembly.GetExecutingAssembly().GetTypes()
-               .Where(x => x.IsClass && x.GetInterface(typeof(IValidator<>).Name) is not null && x.Namespace!.Contains(typeof(Response).Namespace!)))
+    var validators = Assembly
+      .GetExecutingAssembly()
+      .GetTypes()
+      .Where(x => x.IsClass 
+                  && x.GetInterface(typeof(IValidator<>).Name) is not null 
+                  && x.Namespace!.Contains(typeof(Response).Namespace!)).ToList();
+    foreach (var validator in validators)
     {
-      services.AddScoped(validator.GetInterface(typeof(IValidator<>).Name)!, validator);
+      var serviceType = validator.GetInterface(typeof(IValidator<>).Name)!;
+      services.AddScoped(serviceType, validator);
     }
 
     services.AddMediatR(Assembly.GetExecutingAssembly());
