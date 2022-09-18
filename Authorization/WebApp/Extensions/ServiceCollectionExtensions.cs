@@ -1,6 +1,12 @@
 ﻿using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using System.Reflection;
+using Application.Validation;
+using Domain;
+using Domain.Constants;
+using Microsoft.AspNetCore.Authorization;
+using WebApp.Constants;
 using WebApp.Options;
 
 namespace WebApp.Extensions;
@@ -24,7 +30,29 @@ public static class ServiceCollectionExtensions
 
   public static IServiceCollection AddOpenIdAuthorization(this IServiceCollection services)
   {
-    services.AddAuthorization();
+    services.AddAuthorization(options =>
+    {
+      options.AddPolicy(AuthorizationConstants.ClientRegistration, policy =>
+      {
+        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+        policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ClientRegistration);
+      });
+      options.AddPolicy(AuthorizationConstants.ClientConfiguration, policy =>
+      {
+        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+        policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ClientConfiguration);
+      });
+      options.AddPolicy(AuthorizationConstants.ResourceRegistration, policy =>
+      {
+        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+        policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ResourceRegistration);
+      });
+      options.AddPolicy(AuthorizationConstants.ResourceConfiguration, policy =>
+      {
+        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+        policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ResourceConfiguration);
+      });
+    });
     return services;
   }
 

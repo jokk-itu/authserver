@@ -1,6 +1,5 @@
 ﻿using Infrastructure;
 using Infrastructure.Repositories;
-using Infrastructure.TokenFactories;
 using Contracts.PostToken;
 using Infrastructure.Factories.TokenFactories;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +11,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Text.RegularExpressions;
 using Application;
 using WebApp.Contracts.PostToken;
+using Infrastructure.Factories.CodeFactories;
 
 namespace WebApp.Controllers;
 
