@@ -1,5 +1,4 @@
 using Infrastructure.Repositories;
-using Infrastructure.TokenFactories;
 using Domain;
 using Infrastructure.Factories.TokenFactories;
 using Microsoft.AspNetCore.Identity;
@@ -8,7 +7,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using Application.Validation;
+using Infrastructure.Requests;
 using MediatR;
+using Infrastructure.Factories.CodeFactories;
 
 namespace Infrastructure.Extensions;
 
@@ -21,7 +22,7 @@ public static class ServiceCollectionExtensions
     services.AddTransient<AccessTokenFactory>();
     services.AddTransient<IdTokenFactory>();
     services.AddTransient<RefreshTokenFactory>();
-    services.AddTransient<RegistrationAccessTokenFactory>();
+    services.AddTransient<ClientRegistrationAccessTokenFactory>();
 
     services.AddScoped<ClientManager>();
     services.AddScoped<ResourceManager>();
@@ -53,16 +54,13 @@ public static class ServiceCollectionExtensions
 
   public static IServiceCollection AddRequests(this IServiceCollection services)
   {
-    services.AddMediatR(Assembly.GetExecutingAssembly());
-    return services;
-  }
-
-  public static IServiceCollection AddValidators(this IServiceCollection services)
-  {
-    foreach (var validator in Assembly.GetExecutingAssembly().GetTypes().Where(x => x.GetInterface(typeof(IValidator<>).Name) is not null))
+    foreach (var validator in Assembly.GetExecutingAssembly().GetTypes()
+               .Where(x => x.IsClass && x.GetInterface(typeof(IValidator<>).Name) is not null && x.Namespace!.Contains(typeof(Response).Namespace!)))
     {
       services.AddScoped(validator.GetInterface(typeof(IValidator<>).Name)!, validator);
     }
+
+    services.AddMediatR(Assembly.GetExecutingAssembly());
     return services;
   }
 }

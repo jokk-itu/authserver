@@ -18,59 +18,23 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
 
   public async Task<ValidationResult> IsValidAsync(CreateClientCommand value)
   {
-    if (string.IsNullOrWhiteSpace(value.ApplicationType))
-      value.ApplicationType = "web";
-
-    if (!Regex.IsMatch(value.ApplicationType, "^web|native$"))
+    if (IsApplicationTypeInvalid(value))
       return GetInvalidClientMetadataResult("application_type is invalid");
 
     if (string.IsNullOrWhiteSpace(value.ClientName))
       return GetInvalidClientMetadataResult("client_name is required");
 
-    if (string.IsNullOrWhiteSpace(value.ClientSecret))
-      return GetInvalidClientMetadataResult("client_secret is required");
+    if (IsRedirectUrisInvalid(value))
+      return GetInvalidClientMetadataResult("redirect_uri is invalid");
 
-    if(!value.RedirectUris.Any())
-      return GetInvalidClientMetadataResult("application_type is invalid");
+    if (IsResponseTypesInvalid(value))
+      return GetInvalidClientMetadataResult("response_type is invalid");
 
-    foreach (var redirectUri in value.RedirectUris)
-    {
-      if (!Uri.IsWellFormedUriString(redirectUri, UriKind.Absolute))
-        return GetInvalidClientMetadataResult($"redirect_uri {redirectUri} must be a well formed uri");
-    }
+    if (await IsGrantTypeInvalidAsync(value))
+      return GetInvalidClientMetadataResult("grant_type is invalid");
 
-    if(!value.ResponseTypes.Any())
-      value.ResponseTypes.Add(ResponseTypeConstants.Code);
-
-    foreach (var responseType in value.ResponseTypes)
-    {
-      if (!ResponseTypeConstants.ResponseTypes.Contains(responseType))
-        return GetInvalidClientMetadataResult($"response_type {responseType} is not valid");
-    }
-
-    if (!value.GrantTypes.Any())
-      return GetInvalidClientMetadataResult("at least one grant_type is required");
-
-    var grants = await _identityContext
-      .Set<Grant>()
-      .IgnoreAutoIncludes()
-      .ToListAsync();
-
-    foreach (var grantType in value.GrantTypes)
-    {
-      if (grants.All(x => x.Name != grantType))
-        return GetInvalidClientMetadataResult($"grant_type {grantType} is invalid");
-    }
-
-    foreach (var contact in value.Contacts)
-    {
-      var ampersandPosition = contact.LastIndexOf('@');
-      var isValidContact = ampersandPosition > 0 
-                           && (contact.LastIndexOf(".", StringComparison.Ordinal) > ampersandPosition) 
-                           && (contact.Length - ampersandPosition > 4);
-      if (!isValidContact)
-        return GetInvalidClientMetadataResult($"contact {contact} is not a valid email address");
-    }
+    if (IsContactsInvalid(value))
+      return GetInvalidClientMetadataResult("contacts is invalid");
 
     if (!value.Scopes.Contains(ScopeConstants.OpenId))
       return GetInvalidClientMetadataResult($"scope must contain {ScopeConstants.OpenId}");
@@ -89,6 +53,50 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
       return GetInvalidClientMetadataResult($"token_endpoint_auth_method {value.TokenEndpointAuthMethod} is invalid");
 
     return new ValidationResult(HttpStatusCode.OK);
+  }
+
+  private static bool IsApplicationTypeInvalid(CreateClientCommand command)
+  {
+    if (string.IsNullOrWhiteSpace(command.ApplicationType))
+      command.ApplicationType = "web";
+
+    return !Regex.IsMatch(command.ApplicationType, "^web|native$");
+  }
+
+  private static bool IsRedirectUrisInvalid(CreateClientCommand command)
+  {
+    return !command.RedirectUris.Any() || command.RedirectUris.Any(redirectUri => !Uri.IsWellFormedUriString(redirectUri, UriKind.Absolute));
+  }
+
+  private static bool IsResponseTypesInvalid(CreateClientCommand command)
+  {
+    if(!command.ResponseTypes.Any())
+      command.ResponseTypes.Add(ResponseTypeConstants.Code);
+
+    return command.ResponseTypes.Any(responseType => !ResponseTypeConstants.ResponseTypes.Contains(responseType));
+  }
+
+  private async Task<bool> IsGrantTypeInvalidAsync(CreateClientCommand command)
+  {
+    if (!command.GrantTypes.Any())
+      return true;
+
+    var grants = await _identityContext
+      .Set<Grant>()
+      .IgnoreAutoIncludes()
+      .ToListAsync();
+
+    return command.GrantTypes.Any(grantType => grants.All(x => x.Name != grantType));
+  }
+
+  private static bool IsContactsInvalid(CreateClientCommand command)
+  {
+    return (
+      from contact in command.Contacts 
+      let ampersandPosition = contact.LastIndexOf('@') 
+      select ampersandPosition > 0 
+             && (contact.LastIndexOf(".", StringComparison.Ordinal) > ampersandPosition) 
+             && (contact.Length - ampersandPosition > 4)).Any(isValidContact => !isValidContact);
   }
 
   private static ValidationResult GetInvalidClientMetadataResult(string errorDescription)
