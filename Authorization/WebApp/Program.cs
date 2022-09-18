@@ -30,7 +30,6 @@ builder.WebHost.ConfigureServices(services =>
 
   services.AddDataStore(builder.Configuration);
   services.AddRequests();
-  services.AddEndpointValidators();
   services.AddCorsPolicy();
   services.AddCookiePolicy();
   services.AddAntiforgery(antiForgeryOptions =>
