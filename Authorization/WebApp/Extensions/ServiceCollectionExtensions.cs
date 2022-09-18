@@ -80,15 +80,4 @@ public static class ServiceCollectionExtensions
     });
     return services;
   }
-
-  public static IServiceCollection AddEndpointValidators(this IServiceCollection services)
-  {
-    foreach (var validator in Assembly.GetExecutingAssembly().GetTypes()
-               .Where(x => x.GetInterface(typeof(IValidator<>).Name) is not null))
-    {
-      services.AddScoped(validator.GetInterface(typeof(IValidator<>).Name)!, validator);
-    }
-
-    return services;
-  }
 }
