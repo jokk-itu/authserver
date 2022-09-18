@@ -13,12 +13,12 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
 {
   private readonly IValidator<CreateClientCommand> _createClientValidator;
   private readonly IdentityContext _identityContext;
-  private readonly RegistrationAccessTokenFactory _registrationAccessTokenFactory;
+  private readonly ClientRegistrationAccessTokenFactory _registrationAccessTokenFactory;
 
   public CreateClientHandler(
     IValidator<CreateClientCommand> createClientValidator,
     IdentityContext identityContext,
-    RegistrationAccessTokenFactory registrationAccessTokenFactory)
+    ClientRegistrationAccessTokenFactory registrationAccessTokenFactory)
   {
     _createClientValidator = createClientValidator;
     _identityContext = identityContext;
