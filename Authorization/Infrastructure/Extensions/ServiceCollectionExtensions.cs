@@ -1,6 +1,5 @@
 using Infrastructure.Repositories;
 using Domain;
-using Infrastructure.Factories.TokenFactories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -9,7 +8,8 @@ using System.Reflection;
 using Application.Validation;
 using Infrastructure.Requests;
 using MediatR;
-using Infrastructure.Factories.CodeFactories;
+using Infrastructure.Factories;
+using Infrastructure.Token;
 
 namespace Infrastructure.Extensions;
 
@@ -19,13 +19,7 @@ public static class ServiceCollectionExtensions
   {
     services.AddDataProtection();
     services.AddTransient<CodeFactory>();
-    services.AddTransient<AccessTokenFactory>();
-    services.AddTransient<IdTokenFactory>();
-    services.AddTransient<RefreshTokenFactory>();
-    services.AddTransient<ClientRegistrationAccessTokenFactory>();
-    services.AddTransient<ClientInitialAccessTokenFactory>();
-    services.AddTransient<ResourceRegistrationAccessTokenFactory>();
-    services.AddTransient<ResourceInitialAccessTokenFactory>();
+    services.AddTransient<ITokenBuilder, TokenBuilder>();
 
     services.AddScoped<ClientManager>();
     services.AddScoped<ResourceManager>();
