@@ -3,7 +3,7 @@ using Application.Validation;
 using Domain;
 using Domain.Enums;
 using Domain.Extensions;
-using Infrastructure.Factories.TokenFactories;
+using Infrastructure.Builders.Abstractions;
 using Infrastructure.Helpers;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -13,16 +13,16 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
 {
   private readonly IValidator<CreateClientCommand> _createClientValidator;
   private readonly IdentityContext _identityContext;
-  private readonly ClientRegistrationAccessTokenFactory _registrationAccessTokenFactory;
+  private readonly ITokenBuilder _tokenBuilder;
 
   public CreateClientHandler(
     IValidator<CreateClientCommand> createClientValidator,
     IdentityContext identityContext,
-    ClientRegistrationAccessTokenFactory registrationAccessTokenFactory)
+    ITokenBuilder tokenBuilder)
   {
     _createClientValidator = createClientValidator;
     _identityContext = identityContext;
-    _registrationAccessTokenFactory = registrationAccessTokenFactory;
+    _tokenBuilder = tokenBuilder;
   }
 
   public async Task<CreateClientResponse> Handle(CreateClientCommand request, CancellationToken cancellationToken)
@@ -64,7 +64,7 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
     {
       Id = Guid.NewGuid().ToString(),
       Name = request.ClientName,
-      Secret = CryptographyHelper.RandomSecret(32),
+      Secret = CryptographyHelper.GetRandomString(32),
       Scopes = scopes,
       RedirectUris = redirectUris,
       Grants = grants,
@@ -98,7 +98,7 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       PolicyUri = client.PolicyUri,
       TokenEndpointAuthMethod = request.TokenEndpointAuthMethod,
       ResponseTypes = client.ResponseTypes.Select(x => x.Name).ToList(),
-      RegistrationAccessToken = _registrationAccessTokenFactory.GenerateToken(client.Id)
+      RegistrationAccessToken = _tokenBuilder.BuildClientRegistrationAccessToken(client.Id)
     };
   }
 }

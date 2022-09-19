@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using Application.Validation;
 using Domain;
-using Infrastructure.Factories.TokenFactories;
+using Infrastructure.Builders.Abstractions;
 using Infrastructure.Helpers;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -11,16 +11,16 @@ public class CreateResourceHandler : IRequestHandler<CreateResourceCommand, Crea
 {
   private readonly IdentityContext _identityContext;
   private readonly IValidator<CreateResourceCommand> _validator;
-  private readonly ResourceRegistrationAccessTokenFactory _resourceRegistrationAccessTokenFactory;
+  private readonly ITokenBuilder _tokenBuilder;
 
   public CreateResourceHandler(
     IdentityContext identityContext, 
     IValidator<CreateResourceCommand> validator,
-    ResourceRegistrationAccessTokenFactory resourceRegistrationAccessTokenFactory)
+    ITokenBuilder tokenBuilder)
   {
     _identityContext = identityContext;
     _validator = validator;
-    _resourceRegistrationAccessTokenFactory = resourceRegistrationAccessTokenFactory;
+    _tokenBuilder = tokenBuilder;
   }
 
   public async Task<CreateResourceResponse> Handle(CreateResourceCommand request, CancellationToken cancellationToken)
@@ -39,7 +39,7 @@ public class CreateResourceHandler : IRequestHandler<CreateResourceCommand, Crea
       Id = Guid.NewGuid().ToString(),
       Scopes = scopes,
       Name = request.ResourceName,
-      Secret = CryptographyHelper.RandomSecret(32)
+      Secret = CryptographyHelper.GetRandomString(32)
     };
 
     await _identityContext
@@ -47,7 +47,7 @@ public class CreateResourceHandler : IRequestHandler<CreateResourceCommand, Crea
       .AddAsync(resource, cancellationToken);
 
     await _identityContext.SaveChangesAsync(cancellationToken);
-    var resourceRegistrationAccessToken = _resourceRegistrationAccessTokenFactory.GenerateToken(resource.Id);
+    var resourceRegistrationAccessToken = _tokenBuilder.BuildResourceRegistrationAccessToken(resource.Id);
     return new CreateResourceResponse(HttpStatusCode.Created)
     {
       ResourceId = resource.Id,

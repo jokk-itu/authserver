@@ -1,17 +1,17 @@
 ﻿using Infrastructure;
 using Infrastructure.Repositories;
 using Contracts.PostToken;
-using Infrastructure.Factories.TokenFactories;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Extensions;
 using Domain.Constants;
-using WebApp.Constants;
 using Domain;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Text.RegularExpressions;
 using Application;
 using WebApp.Contracts.PostToken;
 using Infrastructure.Factories;
+using Infrastructure.Builders.Abstractions;
+using Infrastructure.Decoders.Abstractions;
 
 namespace WebApp.Controllers;
 
@@ -20,28 +20,25 @@ namespace WebApp.Controllers;
 public class TokenController : ControllerBase
 {
   private readonly ClientManager _clientManager;
-  private readonly AccessTokenFactory _accessTokenFactory;
-  private readonly RefreshTokenFactory _refreshTokenFactory;
-  private readonly IdTokenFactory _idTokenFactory;
   private readonly CodeFactory _codeFactory;
   private readonly IdentityConfiguration _authenticationConfiguration;
   private readonly CodeManager _codeManager;
   private readonly ILogger<TokenController> _logger;
+  private readonly ITokenBuilder _tokenBuilder;
+  private readonly ITokenDecoder _tokenDecoder;
 
   public TokenController(
      ClientManager clientManager,
-     AccessTokenFactory accessTokenFactory,
-     RefreshTokenFactory refreshTokenFactory,
-     IdTokenFactory idTokenFactory,
+     ITokenBuilder tokenBuilder,
+     ITokenDecoder tokenDecoder,
      CodeFactory codeFactory,
      IdentityConfiguration authenticationConfiguration,
      CodeManager codeManager,
      ILogger<TokenController> logger)
   {
     _clientManager = clientManager;
-    _accessTokenFactory = accessTokenFactory;
-    _refreshTokenFactory = refreshTokenFactory;
-    _idTokenFactory = idTokenFactory;
+    _tokenBuilder = tokenBuilder;
+    _tokenDecoder = tokenDecoder;
     _codeFactory = codeFactory;
     _authenticationConfiguration = authenticationConfiguration;
     _codeManager = codeManager;
@@ -78,7 +75,7 @@ public class TokenController : ControllerBase
     if (string.IsNullOrWhiteSpace(request.RefreshToken))
       return this.BadOAuthResult(ErrorCode.InvalidRequest);
 
-    var decodedRefreshToken = _refreshTokenFactory.DecodeToken(request.RefreshToken);
+    var decodedRefreshToken = _tokenDecoder.DecodeToken(request.RefreshToken);
     if (decodedRefreshToken is null)
       return this.BadOAuthResult(ErrorCode.InvalidRequest);
 
@@ -96,7 +93,7 @@ public class TokenController : ControllerBase
       //then revoke refresh_token and return BadRequest
     }
 
-    var accessToken = await _accessTokenFactory.GenerateTokenAsync(request.ClientId, scopes, decodedRefreshToken.Subject, cancellationToken);
+    var accessToken = await _tokenBuilder.BuildRefreshTokenAsync(request.ClientId, scopes, decodedRefreshToken.Subject, cancellationToken);
 
     return Ok(new PostTokenResponse
     {
@@ -145,9 +142,9 @@ public class TokenController : ControllerBase
       return this.BadOAuthResult(ErrorCode.InvalidRequest);
     }
 
-    var accessToken = await _accessTokenFactory.GenerateTokenAsync(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.UserId, cancellationToken);
-    var refreshToken = await _refreshTokenFactory.GenerateTokenAsync(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.UserId, cancellationToken);
-    var idToken = _idTokenFactory.GenerateToken(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.Nonce, decodedAuthorizationCode.UserId);
+    var accessToken = await _tokenBuilder.BuildAccessTokenAsync(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.UserId, cancellationToken);
+    var refreshToken = await _tokenBuilder.BuildRefreshTokenAsync(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.UserId, cancellationToken);
+    var idToken = _tokenBuilder.BuildIdToken(request.ClientId, decodedAuthorizationCode.Scopes, decodedAuthorizationCode.Nonce, decodedAuthorizationCode.UserId);
     return Ok(new PostTokenResponse
     {
       AccessToken = accessToken,

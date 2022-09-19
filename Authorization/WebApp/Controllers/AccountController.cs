@@ -2,7 +2,6 @@
 using Contracts.RegisterUser;
 using Domain;
 using Domain.Constants;
-using Infrastructure.Factories.TokenFactories;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -12,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text.Json;
+using Infrastructure.Decoders.Abstractions;
 
 namespace WebApp.Controllers;
 
@@ -20,14 +19,14 @@ namespace WebApp.Controllers;
 public class AccountController : Controller
 {
   private readonly UserManager<User> _userManager;
-  private readonly AccessTokenFactory _accessTokenFactory;
+  private readonly ITokenDecoder _tokenDecoder;
 
   public AccountController(
     UserManager<User> userManager,
-    AccessTokenFactory accessTokenFactory)
+    ITokenDecoder tokenDecoder)
   {
     _userManager = userManager;
-    _accessTokenFactory = accessTokenFactory;
+    _tokenDecoder = tokenDecoder;
   }
 
   [HttpGet]
@@ -75,7 +74,7 @@ public class AccountController : Controller
     if (string.IsNullOrWhiteSpace(accessToken))
       return Forbid(OpenIdConnectDefaults.AuthenticationScheme);
 
-    var decodedAccessToken = _accessTokenFactory.DecodeToken(accessToken);
+    var decodedAccessToken = _tokenDecoder.DecodeToken(accessToken);
     if (decodedAccessToken is null)
       return Forbid(OpenIdConnectDefaults.AuthenticationScheme);
 

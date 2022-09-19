@@ -3,7 +3,6 @@ using Domain;
 using Infrastructure;
 using Infrastructure.Helpers;
 using Infrastructure.Repositories;
-using Infrastructure.Token;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +12,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Moq;
 using Xunit;
+using Infrastructure.Builders;
 
 namespace Specs.Token;
 public class TokenBuilderTests
@@ -76,7 +76,7 @@ public class TokenBuilderTests
     var tokenBuilder = new TokenBuilder(logger, identityConfiguration, fakeJwtBearerOptions.Object, jwkManager, resourceManager);
 
     // Act
-    var token = await tokenBuilder.BuildAccessToken("test", new[] { "openid", "identityprovider" }, "1234");
+    var token = await tokenBuilder.BuildAccessTokenAsync("test", new[] { "openid", "identityprovider" }, "1234");
     var securityToken = tokenBuilder.DecodeToken(token);
 
     // Assert
@@ -175,7 +175,7 @@ public class TokenBuilderTests
     var refreshTokenFactory = new TokenBuilder(logger, identityConfiguration, fakeJwtBearerOptions.Object, jwkManager, resourceManager);
 
     // Act
-    var token = await refreshTokenFactory.BuildRefreshToken("test", new[] { "openid", "identityprovider" }, "1234");
+    var token = await refreshTokenFactory.BuildRefreshTokenAsync("test", new[] { "openid", "identityprovider" }, "1234");
     var securityToken = refreshTokenFactory.DecodeToken(token);
 
     // Assert

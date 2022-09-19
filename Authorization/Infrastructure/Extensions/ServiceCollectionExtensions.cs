@@ -9,7 +9,10 @@ using Application.Validation;
 using Infrastructure.Requests;
 using MediatR;
 using Infrastructure.Factories;
-using Infrastructure.Token;
+using Infrastructure.Builders;
+using Infrastructure.Builders.Abstractions;
+using Infrastructure.Decoders;
+using Infrastructure.Decoders.Abstractions;
 
 namespace Infrastructure.Extensions;
 
@@ -20,6 +23,7 @@ public static class ServiceCollectionExtensions
     services.AddDataProtection();
     services.AddTransient<CodeFactory>();
     services.AddTransient<ITokenBuilder, TokenBuilder>();
+    services.AddTransient<ITokenDecoder, TokenDecoder>();
 
     services.AddScoped<ClientManager>();
     services.AddScoped<ResourceManager>();

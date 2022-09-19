@@ -1,5 +1,5 @@
 ﻿using Contracts;
-using Infrastructure.Factories.TokenFactories;
+using Infrastructure.Builders.Abstractions;
 using Infrastructure.Requests.CreateResource;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -17,12 +17,12 @@ namespace WebApp.Controllers;
 public class ResourceController : Controller
 {
   private readonly IMediator _mediator;
-  private readonly ResourceInitialAccessTokenFactory _resourceInitialAccessTokenFactory;
+  private readonly ITokenBuilder _tokenBuilder;
 
-  public ResourceController(IMediator mediator, ResourceInitialAccessTokenFactory resourceInitialAccessTokenFactory)
+  public ResourceController(IMediator mediator, ITokenBuilder tokenBuilder)
   {
     _mediator = mediator;
-    _resourceInitialAccessTokenFactory = resourceInitialAccessTokenFactory;
+    _tokenBuilder = tokenBuilder;
   }
 
   [HttpGet]
@@ -31,7 +31,7 @@ public class ResourceController : Controller
   [ProducesResponseType(typeof(GetResourceInitialAccessToken), StatusCodes.Status200OK)]
   public IActionResult GeResourceInitialToken()
   {
-    var token = _resourceInitialAccessTokenFactory.GenerateToken();
+    var token = _tokenBuilder.BuildResourceInitialAccessToken();
     return Ok(new GetResourceInitialAccessToken
     {
       AccessToken = token,
