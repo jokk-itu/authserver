@@ -1,6 +1,6 @@
 ﻿using Domain;
 using Infrastructure;
-using Infrastructure.Factories.CodeFactories;
+using Infrastructure.Code;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;

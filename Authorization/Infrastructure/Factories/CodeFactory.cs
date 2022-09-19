@@ -1,12 +1,12 @@
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 using Domain;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
 
-namespace Infrastructure.Factories.CodeFactories;
+namespace Infrastructure.Factories;
 public class CodeFactory
 {
     private readonly IdentityConfiguration _identityConfiguration;

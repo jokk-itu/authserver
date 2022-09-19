@@ -1,4 +1,4 @@
-namespace Infrastructure.Factories.CodeFactories;
+namespace Infrastructure.Factories;
 
 #nullable disable
 public record AuthorizationCode

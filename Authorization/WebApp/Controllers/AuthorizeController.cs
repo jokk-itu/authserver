@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 using Application;
 using WebApp.Extensions;
 using Microsoft.AspNetCore.Http.Extensions;
-using Infrastructure.Factories.CodeFactories;
+using Infrastructure.Factories;
 
 namespace WebApp.Controllers;
 
