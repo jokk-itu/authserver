@@ -5,6 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Specs.Handlers;
-public class CreateClientHandler
+public class CreateResourceHandlerTests
 {
 }

@@ -6,6 +6,7 @@ using Specs.Helpers;
 using System.Net;
 using System.Net.Http.Json;
 using System.Web;
+using Infrastructure.Helpers;
 using Xunit;
 
 namespace Specs.Controllers;
@@ -28,8 +29,8 @@ public class TokenControllerTests : IClassFixture<WebApplicationFactory<Program>
       AllowAutoRedirect = false
     });
     var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
-    var state = RandomGeneratorHelper.GeneratorRandomString(16);
-    var nonce = RandomGeneratorHelper.GeneratorRandomString(32);
+    var state = CryptographyHelper.GetRandomString(16);
+    var nonce = CryptographyHelper.GetRandomString(32);
     var query = new QueryBuilder
     {
       { "response_type", "code" },
@@ -44,15 +45,15 @@ public class TokenControllerTests : IClassFixture<WebApplicationFactory<Program>
 
     // Act
     var loginViewResponse = await client.GetAsync($"connect/v1/authorize{query}");
-    var (cookie, field) = await AntiForgeryHelper.GetAntiForgeryAsync(loginViewResponse);
+    var forgeryToken = await AntiForgeryHelper.GetAntiForgeryTokenAsync(client, $"connect/v1/authorize{query}");
 
     var postAuthorizeRequest = new HttpRequestMessage(HttpMethod.Post, $"connect/v1/authorize{query}");
-    postAuthorizeRequest.Headers.Add("Cookie", new CookieHeaderValue("AntiForgeryCookie", cookie).ToString());
+    postAuthorizeRequest.Headers.Add("Cookie", new CookieHeaderValue("AntiForgeryCookie", forgeryToken.Cookie).ToString());
     var loginForm = new FormUrlEncodedContent(new Dictionary<string, string>
     {
       { "username", "jokk" },
       { "password", "Password12!" },
-      { "AntiForgeryField", field }
+      { "AntiForgeryField", forgeryToken.Field }
     });
     postAuthorizeRequest.Content = loginForm;
     var authorizeResponse = await client.SendAsync(postAuthorizeRequest);
@@ -90,8 +91,8 @@ public class TokenControllerTests : IClassFixture<WebApplicationFactory<Program>
       AllowAutoRedirect = false
     });
     var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
-    var state = RandomGeneratorHelper.GeneratorRandomString(16);
-    var nonce = RandomGeneratorHelper.GeneratorRandomString(32);
+    var state = CryptographyHelper.GetRandomString(16);
+    var nonce = CryptographyHelper.GetRandomString(32);
     var query = new QueryBuilder
     {
       { "response_type", "code" },
@@ -105,16 +106,15 @@ public class TokenControllerTests : IClassFixture<WebApplicationFactory<Program>
     }.ToQueryString();
 
     // Act
-    var loginViewResponse = await client.GetAsync($"connect/v1/authorize{query}");
-    var (cookie, field) = await AntiForgeryHelper.GetAntiForgeryAsync(loginViewResponse);
+    var forgeryToken = await AntiForgeryHelper.GetAntiForgeryTokenAsync(client, $"connect/v1/authorize{query}");
 
     var postAuthorizeRequest = new HttpRequestMessage(HttpMethod.Post, $"connect/v1/authorize{query}");
-    postAuthorizeRequest.Headers.Add("Cookie", new CookieHeaderValue("AntiForgeryCookie", cookie).ToString());
+    postAuthorizeRequest.Headers.Add("Cookie", new CookieHeaderValue("AntiForgeryCookie", forgeryToken.Cookie).ToString());
     var loginForm = new FormUrlEncodedContent(new Dictionary<string, string>
     {
       { "username", "jokk" },
       { "password", "Password12!" },
-      { "AntiForgeryField", field }
+      { "AntiForgeryField", forgeryToken.Field }
     });
     postAuthorizeRequest.Content = loginForm;
     var authorizeResponse = await client.SendAsync(postAuthorizeRequest);
