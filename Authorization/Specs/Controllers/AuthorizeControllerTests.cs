@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Net.Http.Headers;
 using Specs.Helpers;
 using System.Net;
-using System.Text.RegularExpressions;
 using System.Web;
-using Infrastructure.Extensions;
+using Domain.Constants;
 using Infrastructure.Helpers;
+using WebApp.Constants;
 using Xunit;
 
 namespace Specs.Controllers;
@@ -34,30 +33,19 @@ public class AuthorizeControllerTests : IClassFixture<WebApplicationFactory<Prog
 		var pkce= ProofKeyForCodeExchangeHelper.GetPkce();
     var query = new QueryBuilder
     {
-      { "response_type", "code" },
-      { "client_id", "test" },
-      { "redirect_uri", "http://localhost:5002/callback" },
-      { "scope", "openid identity-provider profile api1" },
-      { "state", state },
-      { "code_challenge", pkce.CodeChallenge },
-      { "code_challenge_method", "S256" },
-      { "nonce", nonce }
+      { ParameterNames.ResponseType, ResponseTypeConstants.Code },
+      { ParameterNames.ClientId, "test" },
+      { ParameterNames.RedirectUri, "http://localhost:5002/callback" },
+      { ParameterNames.Scope, $"{ScopeConstants.OpenId} identity-provider {ScopeConstants.Profile} api1" },
+      { ParameterNames.State, state },
+      { ParameterNames.CodeChallenge, pkce.CodeChallenge },
+      { ParameterNames.CodeChallengeMethod, CodeChallengeMethodConstants.S256 },
+      { ParameterNames.Nonce, nonce }
     }.ToQueryString();
 
     // Act
-		var forgeryToken = await AntiForgeryHelper.GetAntiForgeryTokenAsync(client, $"connect/v1/authorize/{query}");
-
-		var postAuthorizeRequest = new HttpRequestMessage(HttpMethod.Post, $"connect/v1/authorize{query}");
-		postAuthorizeRequest.Headers.Add("Cookie", new CookieHeaderValue("AntiForgeryCookie", forgeryToken.Cookie).ToString());
-		var loginForm = new FormUrlEncodedContent(new Dictionary<string, string>
-		{
-			{ "username", "jokk" },
-			{ "password", "Password12!" },
-			{ "AntiForgeryField", forgeryToken.Field }
-		});
-		postAuthorizeRequest.Content = loginForm;
-		var authorizeResponse = await client.SendAsync(postAuthorizeRequest);
-		var queryParameters = HttpUtility.ParseQueryString(authorizeResponse.Headers.Location!.Query);
+    var authorizeResponse = await AuthorizeEndpointHelper.GetAuthorizationCodeAsync(client, query, "jokk", "Password12!");
+    var queryParameters = HttpUtility.ParseQueryString(authorizeResponse.Headers.Location!.Query);
 
 		// Assert
 		Assert.Equal(HttpStatusCode.Found, authorizeResponse.StatusCode);
