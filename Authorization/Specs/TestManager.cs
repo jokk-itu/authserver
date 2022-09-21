@@ -4,6 +4,7 @@ using Domain.Enums;
 using Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Bogus;
 
 namespace Specs;
 public class TestManager
