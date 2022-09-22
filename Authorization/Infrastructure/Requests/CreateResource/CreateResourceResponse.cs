@@ -11,13 +11,13 @@ public class CreateResourceResponse : Response
   {
   }
 
-  public string ResourceId { get; set; }
+  public string ResourceId { get; set; } = null!;
 
-  public string ResourceName { get; set; }
+  public string ResourceName { get; set; } = null!;
 
-  public string ResourceSecret { get; set; }
+  public string ResourceSecret { get; set; } = null!;
 
-  public string ResourceRegistrationAccessToken { get; set; }
+  public string ResourceRegistrationAccessToken { get; set; } = null!;
 
-  public string Scope { get; set; }
+  public string Scope { get; set; } = null!;
 }
