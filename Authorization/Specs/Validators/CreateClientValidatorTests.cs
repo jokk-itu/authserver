@@ -1,4 +1,5 @@
-﻿using Domain.Constants;
+﻿using Domain;
+using Domain.Constants;
 using Infrastructure;
 using Infrastructure.Requests.CreateClient;
 using Microsoft.Data.Sqlite;
@@ -120,6 +121,42 @@ public class CreateClientValidatorTests
       SubjectType = SubjectTypeConstants.Public,
       TosUri = "https://localhost:5002/tos",
       ClientName = string.Empty
+    };
+    var validator = new CreateClientValidator(_identityContext);
+
+    // Act
+    var validationResult = await validator.IsValidAsync(command);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+  }
+
+  [Fact]
+  public async Task IsValidAsync_ExistingClientName_ExpectErrorResult()
+  {
+    // Arrange
+    await _identityContext
+      .Set<Client>()
+      .AddAsync(new Client
+      {
+        Id = Guid.NewGuid().ToString(),
+        Name = "test"
+      });
+    await _identityContext.SaveChangesAsync();
+
+    var command = new CreateClientCommand
+    {
+      ApplicationType = ApplicationTypeConstants.Web,
+      ResponseTypes = new[] { ResponseTypeConstants.Code },
+      TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
+      Contacts = new[] { "test@mail.dk" },
+      PolicyUri = "https://localhost:5002/policy",
+      RedirectUris = new[] { "https://localhost:5002/callback" },
+      Scopes = new[] { ScopeConstants.OpenId },
+      GrantTypes = new[] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken },
+      SubjectType = SubjectTypeConstants.Public,
+      TosUri = "https://localhost:5002/tos",
+      ClientName = "test"
     };
     var validator = new CreateClientValidator(_identityContext);
 

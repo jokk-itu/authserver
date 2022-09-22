@@ -21,7 +21,7 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
     if (IsApplicationTypeInvalid(value))
       return GetInvalidClientMetadataResult("application_type is invalid");
 
-    if (string.IsNullOrWhiteSpace(value.ClientName))
+    if (await IsClientNameInvalidAsync(value))
       return GetInvalidClientMetadataResult("client_name is required");
 
     if (IsRedirectUrisInvalid(value))
@@ -60,6 +60,16 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
       command.ApplicationType = ApplicationTypeConstants.Web;
 
     return !ApplicationTypeConstants.ApplicationTypes.Contains(command.ApplicationType);
+  }
+
+  private async Task<bool> IsClientNameInvalidAsync(CreateClientCommand command)
+  {
+    if (string.IsNullOrWhiteSpace(command.ClientName))
+      return true;
+
+    return await _identityContext
+      .Set<Client>()
+      .AnyAsync(x => x.Name == command.ClientName);
   }
 
   private static bool IsRedirectUrisInvalid(CreateClientCommand command)
