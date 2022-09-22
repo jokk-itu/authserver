@@ -30,7 +30,7 @@ public class ClientController : Controller
   [Route("initial-token")]
   [AllowAnonymous]
   [ProducesResponseType(typeof(GetResourceInitialAccessToken), StatusCodes.Status200OK)]
-  public IActionResult GeResourceInitialToken()
+  public IActionResult GetResourceInitialToken()
   {
     var token = _tokenBuilder.BuildClientInitialAccessToken();
     return Ok(new GetResourceInitialAccessToken

@@ -17,13 +17,23 @@ public class CreateResourceValidator : IValidator<CreateResourceCommand>
 
   public async Task<ValidationResult> IsValidAsync(CreateResourceCommand value)
   {
-    if(string.IsNullOrWhiteSpace(value.ResourceName))
+    if(await IsResourceNameInvalidAsync(value))
       return GetInvalidResourceMetadataResult("resource_name is invalid");
 
     if (await IsScopesInvalidAsync(value))
       return GetInvalidResourceMetadataResult("scope is invalid");
 
     return new ValidationResult(HttpStatusCode.OK);
+  }
+
+  private async Task<bool> IsResourceNameInvalidAsync(CreateResourceCommand command)
+  {
+    if (string.IsNullOrWhiteSpace(command.ResourceName))
+      return true;
+
+    return await _identityContext
+      .Set<Resource>()
+      .AnyAsync(x => x.Name == command.ResourceName);
   }
 
   private async Task<bool> IsScopesInvalidAsync(CreateResourceCommand command)

@@ -1,4 +1,5 @@
-﻿using Domain.Constants;
+﻿using Domain;
+using Domain.Constants;
 using Infrastructure;
 using Infrastructure.Requests.CreateResource;
 using Microsoft.Data.Sqlite;
@@ -90,6 +91,33 @@ public class CreateResourceValidatorTests
     var validationResult = await validator.IsValidAsync(command);
 
     //Assert
+    Assert.True(validationResult.IsError());
+  }
+
+  [Fact]
+  public async Task IsValidAsync_ExistingResourceName_ExpectErrorResult()
+  {
+    // Arrange
+    await _identityContext
+      .Set<Resource>()
+      .AddAsync(new Resource
+      {
+        Id = Guid.NewGuid().ToString(),
+        Name = "test"
+      });
+    await _identityContext.SaveChangesAsync();
+
+    var command = new CreateResourceCommand
+    {
+      ResourceName = "test",
+      Scopes = new[] { ScopeConstants.OpenId }
+    };
+    var validator = new CreateResourceValidator(_identityContext);
+
+    // Act
+    var validationResult = await validator.IsValidAsync(command);
+
+    // Assert
     Assert.True(validationResult.IsError());
   }
 }
