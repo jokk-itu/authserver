@@ -36,8 +36,8 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
     if (IsContactsInvalid(value))
       return GetInvalidClientMetadataResult("contacts is invalid");
 
-    if (!value.Scopes.Contains(ScopeConstants.OpenId))
-      return GetInvalidClientMetadataResult($"scope must contain {ScopeConstants.OpenId}");
+    if (await IsScopeInvalidAsync(value))
+      return GetInvalidClientMetadataResult("scope is invalid");
 
     if (!string.IsNullOrWhiteSpace(value.PolicyUri) && !Uri.IsWellFormedUriString(value.PolicyUri, UriKind.Absolute))
       return GetInvalidClientMetadataResult("policy_uri must be a well formed uri");
@@ -45,12 +45,11 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
     if (!string.IsNullOrWhiteSpace(value.TosUri) && !Uri.IsWellFormedUriString(value.TosUri, UriKind.Absolute))
       return GetInvalidClientMetadataResult("tos_uri must be a well formed uri");
 
-    if (!string.IsNullOrWhiteSpace(value.SubjectType) && !SubjectTypeConstants.SubjectTypes.Contains(value.SubjectType))
+    if(IsSubjectTypeInvalid(value))
       return GetInvalidClientMetadataResult("subject_type is invalid");
 
-    if (!string.IsNullOrWhiteSpace(value.TokenEndpointAuthMethod) 
-        && !TokenEndpointAuthMethodConstants.TokenEndpointAuthMethods.Contains(value.TokenEndpointAuthMethod))
-      return GetInvalidClientMetadataResult($"token_endpoint_auth_method {value.TokenEndpointAuthMethod} is invalid");
+    if(IsTokenEndpointAuthMethodInvalid(value))
+      return GetInvalidClientMetadataResult("token_endpoint_auth_method is invalid");
 
     return new ValidationResult(HttpStatusCode.OK);
   }
@@ -58,14 +57,15 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
   private static bool IsApplicationTypeInvalid(CreateClientCommand command)
   {
     if (string.IsNullOrWhiteSpace(command.ApplicationType))
-      command.ApplicationType = "web";
+      command.ApplicationType = ApplicationTypeConstants.Web;
 
-    return !Regex.IsMatch(command.ApplicationType, "^web|native$");
+    return !ApplicationTypeConstants.ApplicationTypes.Contains(command.ApplicationType);
   }
 
   private static bool IsRedirectUrisInvalid(CreateClientCommand command)
   {
-    return !command.RedirectUris.Any() || command.RedirectUris.Any(redirectUri => !Uri.IsWellFormedUriString(redirectUri, UriKind.Absolute));
+    return !command.RedirectUris.Any() 
+           || command.RedirectUris.Any(redirectUri => !Uri.IsWellFormedUriString(redirectUri, UriKind.Absolute));
   }
 
   private static bool IsResponseTypesInvalid(CreateClientCommand command)
@@ -91,12 +91,47 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
 
   private static bool IsContactsInvalid(CreateClientCommand command)
   {
+    if (!command.Contacts.Any())
+      return false;
+
     return (
       from contact in command.Contacts 
       let ampersandPosition = contact.LastIndexOf('@') 
       select ampersandPosition > 0 
              && (contact.LastIndexOf(".", StringComparison.Ordinal) > ampersandPosition) 
              && (contact.Length - ampersandPosition > 4)).Any(isValidContact => !isValidContact);
+  }
+
+  private async Task<bool> IsScopeInvalidAsync(CreateClientCommand command)
+  {
+    if (!command.Scopes.Contains(ScopeConstants.OpenId))
+      return true;
+
+    foreach (var scope in command.Scopes)
+    {
+      if (!await _identityContext.Set<Scope>().AnyAsync(x => x.Name == scope))
+        return true;
+    }
+
+    return false;
+  }
+
+  private static bool IsSubjectTypeInvalid(CreateClientCommand command)
+  {
+    if (!string.IsNullOrWhiteSpace(command.SubjectType))
+      return !SubjectTypeConstants.SubjectTypes.Contains(command.SubjectType);
+
+    command.SubjectType = SubjectTypeConstants.Public;
+    return false;
+  }
+
+  private static bool IsTokenEndpointAuthMethodInvalid(CreateClientCommand command)
+  {
+    if (!string.IsNullOrWhiteSpace(command.TokenEndpointAuthMethod))
+      return !TokenEndpointAuthMethodConstants.TokenEndpointAuthMethods.Contains(command.TokenEndpointAuthMethod);
+
+    command.SubjectType = TokenEndpointAuthMethodConstants.ClientSecretPost;
+    return false;
   }
 
   private static ValidationResult GetInvalidClientMetadataResult(string errorDescription)

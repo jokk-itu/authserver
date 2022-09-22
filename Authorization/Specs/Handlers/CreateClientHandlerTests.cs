@@ -5,7 +5,6 @@ using Domain.Constants;
 using Infrastructure;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Requests.CreateClient;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -29,7 +28,7 @@ public class CreateClientHandlerTests
   }
 
   [Fact]
-  public async Task Handle_ValidateFalse_ExpectErrorResponse()
+  public async Task Handle_ValidateFalse_ExpectErrorResult()
   {
     // Arrange
     var fakeTokenBuilder = new Mock<ITokenBuilder>();
@@ -56,7 +55,7 @@ public class CreateClientHandlerTests
   }
 
   [Fact]
-  public async Task Handle_CreateClient_ExpectCreatedResponse()
+  public async Task Handle_CreateClient_ExpectCreatedResult()
   {
     // Arrange
     var command = new CreateClientCommand

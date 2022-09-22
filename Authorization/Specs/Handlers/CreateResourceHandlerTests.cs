@@ -27,7 +27,7 @@ public class CreateResourceHandlerTests
   }
 
   [Fact]
-  public async Task Handle_ValidateFalse_ExpectErrorResponse()
+  public async Task Handle_ValidateFalse_ExpectErrorResult()
   {
     // Arrange
     var fakeTokenBuilder = new Mock<ITokenBuilder>();
@@ -54,7 +54,7 @@ public class CreateResourceHandlerTests
   }
 
   [Fact]
-  public async Task Handle_CreateResource_ExpectCreatedResponse()
+  public async Task Handle_CreateResource_ExpectCreatedResult()
   {
     // Arrange
     var command = new CreateResourceCommand
