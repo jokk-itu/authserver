@@ -8,5 +8,7 @@ public interface ITokenBuilder
     string BuildResourceInitialAccessToken();
     string BuildClientInitialAccessToken();
     string BuildClientRegistrationAccessToken(string clientId);
-    string BuildResourceRegistrationAccessToken(string resourceId);
+    string BuildResourceRegistrationAccessToken(string resourceId); 
+    string BuildScopeInitialAccessToken();
+    string BuildScopeRegistrationAccessToken(string scopeId);
 }

@@ -10,4 +10,6 @@ public static class ScopeConstants
   public const string ClientConfiguration = "identityprovider:clientconfiguration";
   public const string ResourceRegistration = "identityprovider:resourceregistration";
   public const string ResourceConfiguration = "identityprovider:resourceconfiguration";
+  public const string ScopeRegistration = "identityprovider:scoperegistration";
+  public const string ScopeConfiguration = "identityprovider:scopeconfiguration";
 }

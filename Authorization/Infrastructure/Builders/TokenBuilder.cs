@@ -33,94 +33,117 @@ public class TokenBuilder : ITokenBuilder
     public async Task<string> BuildAccessTokenAsync(string clientId, ICollection<string> scopes, string userId,
       CancellationToken cancellationToken = default)
     {
-        var expires = DateTime.Now.AddSeconds(_identityConfiguration.AccessTokenExpiration);
+        var expires = DateTime.UtcNow.AddSeconds(_identityConfiguration.AccessTokenExpiration);
         var resources = await _resourceManager.ReadResourcesAsync(scopes, cancellationToken);
         var audiences = resources.Select(x => x.Id).ToArray();
         var claims = new Dictionary<string, object>
-    {
-      { JwtRegisteredClaimNames.Sub, userId },
-      { JwtRegisteredClaimNames.Aud, audiences },
-      { ClaimNameConstants.Scope, string.Join(' ', scopes) },
-      { ClaimNameConstants.ClientId, clientId }
-    };
+        {
+          { JwtRegisteredClaimNames.Sub, userId },
+          { JwtRegisteredClaimNames.Aud, audiences },
+          { ClaimNameConstants.Scope, string.Join(' ', scopes) },
+          { ClaimNameConstants.ClientId, clientId }
+        };
         return GetSignedToken(claims, expires);
     }
 
     public async Task<string> BuildRefreshTokenAsync(string clientId, ICollection<string> scopes, string userId,
       CancellationToken cancellationToken = default)
     {
-        var expires = DateTime.Now.AddSeconds(_identityConfiguration.RefreshTokenExpiration);
+        var expires = DateTime.UtcNow.AddSeconds(_identityConfiguration.RefreshTokenExpiration);
         var resources = await _resourceManager.ReadResourcesAsync(scopes, cancellationToken);
         var audiences = resources.Select(x => x.Id).ToArray();
         var claims = new Dictionary<string, object>
-    {
-      { JwtRegisteredClaimNames.Sub, userId },
-      { JwtRegisteredClaimNames.Aud, audiences },
-      { ClaimNameConstants.Scope, string.Join(' ', scopes) },
-      { ClaimNameConstants.ClientId, clientId }
-    };
+        {
+          { JwtRegisteredClaimNames.Sub, userId },
+          { JwtRegisteredClaimNames.Aud, audiences },
+          { ClaimNameConstants.Scope, string.Join(' ', scopes) },
+          { ClaimNameConstants.ClientId, clientId }
+        };
         return GetSignedToken(claims, expires);
     }
 
     public string BuildIdToken(string clientId, ICollection<string> scopes, string nonce, string userId)
     {
-        var expires = DateTime.Now.AddSeconds(_identityConfiguration.IdTokenExpiration);
-        var audiences = new string[] { clientId };
+        var expires = DateTime.UtcNow.AddSeconds(_identityConfiguration.IdTokenExpiration);
+        var audiences = new[] { clientId };
         var claims = new Dictionary<string, object>
-    {
-      { JwtRegisteredClaimNames.Sub, userId },
-      { JwtRegisteredClaimNames.Aud, audiences },
-      { ClaimNameConstants.Scope, string.Join(' ', scopes) },
-      { ClaimNameConstants.ClientId, clientId },
-      { JwtRegisteredClaimNames.Nonce, nonce }
-    };
+        {
+          { JwtRegisteredClaimNames.Sub, userId },
+          { JwtRegisteredClaimNames.Aud, audiences },
+          { ClaimNameConstants.Scope, string.Join(' ', scopes) },
+          { ClaimNameConstants.ClientId, clientId },
+          { JwtRegisteredClaimNames.Nonce, nonce }
+        };
         return GetSignedToken(claims, expires);
     }
 
     public string BuildResourceInitialAccessToken()
     {
-        var expires = DateTime.Now.AddSeconds(300);
+        var expires = DateTime.UtcNow.AddSeconds(300);
         var claims = new Dictionary<string, object>
-    {
-      { JwtRegisteredClaimNames.Aud, AudienceConstants.IdentityProvider },
-      { ClaimNameConstants.Scope, string.Join(' ', ScopeConstants.ResourceRegistration) },
-    };
+        {
+          { JwtRegisteredClaimNames.Aud, AudienceConstants.IdentityProvider },
+          { ClaimNameConstants.Scope, string.Join(' ', ScopeConstants.ResourceRegistration) },
+        };
         return GetSignedToken(claims, expires);
     }
 
     public string BuildResourceRegistrationAccessToken(string resourceId)
     {
-        var expires = DateTime.MaxValue;
+        var expires = DateTime.UnixEpoch.AddSeconds(2145993506);
         var claims = new Dictionary<string, object>
-    {
-      { JwtRegisteredClaimNames.Aud, AudienceConstants.IdentityProvider },
-      { ClaimNameConstants.Scope, string.Join(' ', ScopeConstants.ResourceConfiguration) },
-      { ClaimNameConstants.ResourceId, resourceId }
-    };
+        {
+          { JwtRegisteredClaimNames.Aud, AudienceConstants.IdentityProvider },
+          { ClaimNameConstants.Scope, string.Join(' ', ScopeConstants.ResourceConfiguration) },
+          { ClaimNameConstants.ResourceId, resourceId }
+        };
         return GetSignedToken(claims, expires);
     }
 
     public string BuildClientInitialAccessToken()
     {
-        var expires = DateTime.Now.AddSeconds(300);
+        var expires = DateTime.UtcNow.AddSeconds(300);
         var claims = new Dictionary<string, object>
-    {
-      { JwtRegisteredClaimNames.Aud, AudienceConstants.IdentityProvider },
-      { ClaimNameConstants.Scope, string.Join(' ', ScopeConstants.ClientRegistration) },
-    };
+        {
+          { JwtRegisteredClaimNames.Aud, AudienceConstants.IdentityProvider },
+          { ClaimNameConstants.Scope, string.Join(' ', ScopeConstants.ClientRegistration) },
+        };
         return GetSignedToken(claims, expires);
     }
 
     public string BuildClientRegistrationAccessToken(string clientId)
     {
-        var expires = DateTime.MaxValue;
+      var expires = DateTime.UnixEpoch.AddSeconds(2145993506);
         var claims = new Dictionary<string, object>
-    {
-      { JwtRegisteredClaimNames.Aud, AudienceConstants.IdentityProvider },
-      { ClaimNameConstants.Scope, string.Join(' ', ScopeConstants.ClientConfiguration) },
-      { ClaimNameConstants.ClientId, clientId }
-    };
+        {
+          { JwtRegisteredClaimNames.Aud, AudienceConstants.IdentityProvider },
+          { ClaimNameConstants.Scope, string.Join(' ', ScopeConstants.ClientConfiguration) },
+          { ClaimNameConstants.ClientId, clientId }
+        };
         return GetSignedToken(claims, expires);
+    }
+
+    public string BuildScopeInitialAccessToken()
+    {
+      var expires = DateTime.UtcNow.AddSeconds(300);
+      var claims = new Dictionary<string, object>
+      {
+        { JwtRegisteredClaimNames.Aud, AudienceConstants.IdentityProvider },
+        { ClaimNameConstants.Scope, string.Join(' ', ScopeConstants.ScopeRegistration) },
+      };
+      return GetSignedToken(claims, expires);
+    }
+
+    public string BuildScopeRegistrationAccessToken(string scopeId)
+    {
+      var expires = DateTime.UnixEpoch.AddSeconds(2145993506);
+      var claims = new Dictionary<string, object>
+      {
+        { JwtRegisteredClaimNames.Aud, AudienceConstants.IdentityProvider },
+        { ClaimNameConstants.Scope, string.Join(' ', ScopeConstants.ScopeConfiguration) },
+        { ClaimNameConstants.ScopeId, scopeId }
+      };
+      return GetSignedToken(claims, expires);
     }
 
     protected string GetSignedToken(
@@ -134,15 +157,16 @@ public class TokenBuilder : ITokenBuilder
         var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            IssuedAt = DateTime.Now,
+            IssuedAt = DateTime.UtcNow,
             Expires = expires,
-            NotBefore = DateTime.Now,
+            NotBefore = DateTime.UtcNow,
             Issuer = _identityConfiguration.InternalIssuer,
             SigningCredentials = signingCredentials,
             Claims = claims
         };
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(tokenDescriptor);
+        
         return tokenHandler.WriteToken(token);
     }
 
@@ -159,9 +183,8 @@ public class TokenBuilder : ITokenBuilder
         {
             IssuerSigningKeys = signingKeys,
             ValidIssuer = _jwtBearerOptions.Value.Authority,
-            ValidAudience = _jwtBearerOptions.Value.Audience,
             ValidateIssuer = true,
-            ValidateAudience = true,
+            ValidateAudience = false,
             ValidateIssuerSigningKey = true
         };
 
@@ -173,7 +196,7 @@ public class TokenBuilder : ITokenBuilder
         }
         catch (SecurityTokenException exception)
         {
-            _logger.LogError(exception, "Token {token} is invalid", token);
+            _logger.LogError(exception, "Token {@token} is invalid", token);
             return null;
         }
     }

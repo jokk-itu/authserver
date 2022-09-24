@@ -64,4 +64,9 @@ public static class ErrorCode
   /// Possibly several properties are invalid when registering or configuring resources.
   /// </summary>
   public const string InvalidResourceMetadata = "invalid_resource_metadata";
+
+  /// <summary>
+  /// Possibly several properties are invalid when registering or configuring scopes.
+  /// </summary>
+  public const string InvalidScopeMetadata = "invalid_scope_metadata";
 }
