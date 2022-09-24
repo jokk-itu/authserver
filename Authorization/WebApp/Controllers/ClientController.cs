@@ -1,7 +1,11 @@
 ﻿using Contracts;
+using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Requests.CreateClient;
+using Infrastructure.Requests.DeleteClient;
 using MediatR;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Constants;
@@ -88,21 +92,21 @@ public class ClientController : Controller
     });
   }
 
-  [HttpPut]
-  [Authorize(Policy = AuthorizationConstants.ClientConfiguration)]
-  [Route("configuration")]
-  [ProducesResponseType(typeof(PutClientResponse), StatusCodes.Status200OK)]
-  public async Task<IActionResult> PutClientAsync([FromBody] PutClientRequest request, CancellationToken cancellationToken = default)
-  {
-    return Ok();
-  }
-
   [HttpDelete]
   [Authorize(Policy = AuthorizationConstants.ClientConfiguration)]
   [Route("configuration")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   public async Task<IActionResult> DeleteClientAsync(CancellationToken cancellationToken = default)
   {
+    var token = await HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, TokenTypeConstants.AccessToken);
+    var command = new DeleteClientCommand
+    {
+      ClientRegistrationToken = token
+    };
+    var response = await _mediator.Send(command, cancellationToken: cancellationToken);
+
+
+
     return NoContent();
   }
 

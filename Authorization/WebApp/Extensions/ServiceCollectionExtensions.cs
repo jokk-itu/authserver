@@ -1,11 +1,5 @@
-﻿using Infrastructure;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using System.Reflection;
-using Application.Validation;
-using Domain;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Domain.Constants;
-using Microsoft.AspNetCore.Authorization;
 using WebApp.Constants;
 using WebApp.Options;
 
