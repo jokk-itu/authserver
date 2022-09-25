@@ -36,9 +36,8 @@ public class TokenDecoder : ITokenDecoder
         {
             IssuerSigningKeys = signingKeys,
             ValidIssuer = _jwtBearerOptions.Value.Authority,
-            ValidAudience = _jwtBearerOptions.Value.Audience,
             ValidateIssuer = true,
-            ValidateAudience = true,
+            ValidateAudience = false,
             ValidateIssuerSigningKey = true
         };
 

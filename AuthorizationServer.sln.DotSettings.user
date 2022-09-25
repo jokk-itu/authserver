@@ -1,28 +1,8 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=58921fac_002Da992_002D4559_002D8e9c_002De336a29cc40d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Session #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;And&gt;&#xD;
-    &lt;TestAncestor&gt;&#xD;
-      &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Token.TokenBuilderTests&lt;/TestId&gt;&#xD;
-    &lt;/TestAncestor&gt;&#xD;
-    &lt;Project Location="C:\Workspace\AuthServer\Authorization\Specs" Presentation="&amp;lt;Authorization&amp;gt;\&amp;lt;Specs&amp;gt;" /&gt;&#xD;
-    &lt;Namespace&gt;Specs.Token&lt;/Namespace&gt;&#xD;
-  &lt;/And&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=7647f36a_002D92d0_002D4561_002D81f0_002D7d0a49cf553e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Session" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Or&gt;&#xD;
-    &lt;And&gt;&#xD;
-      &lt;TestAncestor&gt;&#xD;
-        &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Token.TokenBuilderTests&lt;/TestId&gt;&#xD;
-      &lt;/TestAncestor&gt;&#xD;
-      &lt;Project Location="C:\Workspace\AuthServer\Authorization\Specs" Presentation="&amp;lt;Authorization&amp;gt;\&amp;lt;Specs&amp;gt;" /&gt;&#xD;
-      &lt;Namespace&gt;Specs.Token&lt;/Namespace&gt;&#xD;
-    &lt;/And&gt;&#xD;
-    &lt;TestAncestor&gt;&#xD;
-      &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Handlers.CreateScopeHandlerTests&lt;/TestId&gt;&#xD;
-    &lt;/TestAncestor&gt;&#xD;
-  &lt;/Or&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8a201e01_002D1f7b_002D4728_002Da69a_002Dd084a5a1d0b7/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Handle_ValidateFalse_ExpectErrorResponse" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">C:\Users\joach\AppData\Local\Temp\JetBrains\ReSharperPlatformVs17\vAny_9769f0be\CoverageData\_AuthorizationServer.-561961205\Snapshot\snapshot.utdcvr</s:String>
+	
+	
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8a201e01_002D1f7b_002D4728_002Da69a_002Dd084a5a1d0b7/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Handle_ValidateFalse_ExpectErrorResponse" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Or&gt;&#xD;
     &lt;And&gt;&#xD;
       &lt;TestAncestor&gt;&#xD;
@@ -36,6 +16,9 @@
       &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Token.TokenBuilderTests.BuildRefreshToken_ExpectRefreshToken&lt;/TestId&gt;&#xD;
       &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Token.TokenBuilderTests.BuildIdToken_ExpectIdToken&lt;/TestId&gt;&#xD;
       &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Token.TokenBuilderTests.BuildAccessTokenAsync_ExpectAccessToken&lt;/TestId&gt;&#xD;
+      &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Validators.DeleteClientValidatorTests.IsValidAsync_ExpectOkResult&lt;/TestId&gt;&#xD;
+      &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Validators.DeleteClientValidatorTests.IsValidAsync_TokenWithInvalidClientId_ExpectErrorResult&lt;/TestId&gt;&#xD;
+      &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Validators.DeleteClientValidatorTests.IsValidAsync_TokenWithoutClientIdScope_ExpectErrorResult&lt;/TestId&gt;&#xD;
     &lt;/TestAncestor&gt;&#xD;
     &lt;And&gt;&#xD;
       &lt;TestAncestor&gt;&#xD;

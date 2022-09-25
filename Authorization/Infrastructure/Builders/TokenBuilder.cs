@@ -10,22 +10,16 @@ using System.IdentityModel.Tokens.Jwt;
 namespace Infrastructure.Builders;
 public class TokenBuilder : ITokenBuilder
 {
-    private readonly ILogger<TokenBuilder> _logger;
     private readonly IdentityConfiguration _identityConfiguration;
-    private readonly IOptions<JwtBearerOptions> _jwtBearerOptions;
     private readonly JwkManager _jwkManager;
     private readonly ResourceManager _resourceManager;
 
     public TokenBuilder(
-      ILogger<TokenBuilder> logger,
       IdentityConfiguration identityConfiguration,
-      IOptions<JwtBearerOptions> jwtBearerOptions,
       JwkManager jwkManager,
       ResourceManager resourceManager)
     {
-        _logger = logger;
         _identityConfiguration = identityConfiguration;
-        _jwtBearerOptions = jwtBearerOptions;
         _jwkManager = jwkManager;
         _resourceManager = resourceManager;
     }
@@ -168,36 +162,5 @@ public class TokenBuilder : ITokenBuilder
         var token = tokenHandler.CreateToken(tokenDescriptor);
         
         return tokenHandler.WriteToken(token);
-    }
-
-    public JwtSecurityToken? DecodeToken(string token)
-    {
-        if (string.IsNullOrWhiteSpace(token))
-            return null;
-
-        var signingKeys = _jwkManager.Jwks
-          .Select(x => new RsaSecurityKey(_jwkManager.RsaCryptoServiceProvider) { KeyId = x.KeyId.ToString() })
-          .ToList();
-
-        var tokenValidationParameters = new TokenValidationParameters
-        {
-            IssuerSigningKeys = signingKeys,
-            ValidIssuer = _jwtBearerOptions.Value.Authority,
-            ValidateIssuer = true,
-            ValidateAudience = false,
-            ValidateIssuerSigningKey = true
-        };
-
-        try
-        {
-            new JwtSecurityTokenHandler()
-              .ValidateToken(token, tokenValidationParameters, out var validatedToken);
-            return validatedToken as JwtSecurityToken;
-        }
-        catch (SecurityTokenException exception)
-        {
-            _logger.LogError(exception, "Token {@token} is invalid", token);
-            return null;
-        }
     }
 }
