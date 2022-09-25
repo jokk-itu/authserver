@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Security.Cryptography.X509Certificates;
 using Application;
 using Application.Validation;
 using Domain;
@@ -30,8 +29,14 @@ public class DeleteClientHandler : IRequestHandler<DeleteClientCommand, DeleteCl
     if (validationResult.IsError())
       return new DeleteClientResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
 
-    var clientId = _tokenDecoder.DecodeToken(request.ClientRegistrationToken)!.Claims.Single(x => x.Type == ClaimNameConstants.ClientId).Value;
-    _identityContext.Set<Client>().Remove(new Client { Id = clientId});
+    var clientId = _tokenDecoder.DecodeToken(request.ClientRegistrationToken)!.Claims
+      .Single(x => x.Type == ClaimNameConstants.ClientId).Value;
+
+    var client = await _identityContext.Set<Client>().FindAsync(new object?[] { clientId }, cancellationToken: cancellationToken);
+    if (client is null)
+      return new DeleteClientResponse(ErrorCode.InvalidClientMetadata, "client_id does not exist", HttpStatusCode.BadRequest);
+
+    _identityContext.Set<Client>().Remove(client);
     await _identityContext.SaveChangesAsync(cancellationToken: cancellationToken);
     return new DeleteClientResponse(HttpStatusCode.NoContent);
   }

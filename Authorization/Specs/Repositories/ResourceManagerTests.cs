@@ -29,22 +29,24 @@ public class ResourceManagerTests
     // Arrange
     var scope1 = new Scope { Name = "api1" };
     var scope2 = new Scope { Name = "api2" };
-    await _identityContext.Set<Scope>().AddRangeAsync(scope1, scope2);
     await _identityContext.Set<Resource>().AddRangeAsync(
       new Resource
       {
+        Id = Guid.NewGuid().ToString(),
         Name = "api1",
         Secret = "secret",
         Scopes = new[] { scope1 }
       },
       new Resource
       {
+        Id = Guid.NewGuid().ToString(),
         Name = "api2",
         Secret = "secret",
         Scopes = new[] { scope2 }
       },
       new Resource
       {
+        Id = Guid.NewGuid().ToString(),
         Name = "api3",
         Secret = "secret"
       });

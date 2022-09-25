@@ -16,7 +16,6 @@ public class ResourceManager
   {
     return await _identityContext
       .Set<Resource>()
-      .Include(resource => resource.Scopes)
       .Where(resource => resource.Scopes.Any(scope => scopes.Contains(scope.Name)))
       .ToListAsync(cancellationToken: cancellationToken);
   }

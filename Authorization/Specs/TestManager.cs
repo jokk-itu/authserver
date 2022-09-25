@@ -48,6 +48,7 @@ public class TestManager
 	{
     var client = new Client 
     {
+      Id = Guid.NewGuid().ToString(),
       ClientProfile = ClientProfile.WebApplication,
       ClientType = ClientType.Confidential,
       Grants = await _identityContext.Set<Grant>().ToListAsync(),
