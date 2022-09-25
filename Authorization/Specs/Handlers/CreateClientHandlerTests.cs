@@ -28,6 +28,7 @@ public class CreateClientHandlerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task Handle_ValidateFalse_ExpectErrorResult()
   {
     // Arrange
@@ -55,6 +56,7 @@ public class CreateClientHandlerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task Handle_CreateClient_ExpectCreatedResult()
   {
     // Arrange

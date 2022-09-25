@@ -27,6 +27,7 @@ public class CreateResourceHandlerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task Handle_ValidateFalse_ExpectErrorResult()
   {
     // Arrange
@@ -54,6 +55,7 @@ public class CreateResourceHandlerTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task Handle_CreateResource_ExpectCreatedResult()
   {
     // Arrange

@@ -23,6 +23,7 @@ public class CreateResourceValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValidAsync_ExpectCreatedResult()
   {
     // Arrange
@@ -41,6 +42,7 @@ public class CreateResourceValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValidAsync_InvalidScopes_ExpectErrorResult()
   {
     // Arrange
@@ -59,6 +61,7 @@ public class CreateResourceValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValidAsync_EmptyScopes_ExpectErrorResult()
   {
     // Arrange
@@ -77,6 +80,7 @@ public class CreateResourceValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValidAsync_EmptyResourceName_ExpectErrorResult()
   {
     // Arrange
@@ -95,6 +99,7 @@ public class CreateResourceValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValidAsync_ExistingResourceName_ExpectErrorResult()
   {
     // Arrange

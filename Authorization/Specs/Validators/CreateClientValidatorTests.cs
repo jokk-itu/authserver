@@ -24,6 +24,7 @@ public class CreateClientValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValidAsync_ForceDefaultValues_ExpectCreatedResult()
   {
     // Arrange
@@ -51,6 +52,7 @@ public class CreateClientValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValid_ExpectCreatedResult()
   {
     // Arrange
@@ -78,6 +80,7 @@ public class CreateClientValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValidAsync_InvalidApplicationType_ExpectErrorResult()
   {
     // Arrange
@@ -105,6 +108,7 @@ public class CreateClientValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValidAsync_InvalidClientName_ExpectErrorResult()
   {
     // Arrange
@@ -132,6 +136,7 @@ public class CreateClientValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValidAsync_ExistingClientName_ExpectErrorResult()
   {
     // Arrange
@@ -168,6 +173,7 @@ public class CreateClientValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValidAsync_InvalidRedirectUris_ExpectErrorResult()
   {
     var command = new CreateClientCommand
@@ -194,6 +200,7 @@ public class CreateClientValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValidAsync_EmptyRedirectUris_ExpectErrorResult()
   {
     var command = new CreateClientCommand
@@ -220,6 +227,7 @@ public class CreateClientValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValidAsync_InvalidResponseType_ExpectErrorResult()
   {
     // Arrange
@@ -247,6 +255,7 @@ public class CreateClientValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValidAsync_InvalidGrantTypes_ExpectErrorResult()
   {
     // Arrange
@@ -274,6 +283,7 @@ public class CreateClientValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValidAsync_EmptyGrantTypes_ExpectErrorResult()
   {
     // Arrange
@@ -301,6 +311,7 @@ public class CreateClientValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValidAsync_InvalidContacts_ExpectErrorResult()
   {
     // Arrange
@@ -328,6 +339,7 @@ public class CreateClientValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValidAsync_EmptyScopes_ExpectErrorResult()
   {
     // Arrange
@@ -355,6 +367,7 @@ public class CreateClientValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValidAsync_InvalidScopes_ExpectErrorResult()
   {
     // Arrange
@@ -382,6 +395,7 @@ public class CreateClientValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValidAsync_InvalidPolicy_ExpectErrorResult()
   {
     // Arrange
@@ -409,6 +423,7 @@ public class CreateClientValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValidAsync_InvalidTos_ExpectErrorResult()
   {
     // Arrange
@@ -436,6 +451,7 @@ public class CreateClientValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValidAsync_InvalidSubjectType_ExpectErrorResult()
   {
     // Arrange
@@ -463,6 +479,7 @@ public class CreateClientValidatorTests
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsValidAsync_InvalidTokenEndpointAuthMethod_ExpectErrorResult()
   {
     // Arrange
