@@ -174,6 +174,7 @@ namespace Infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -184,12 +185,12 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Name = "authorization_code"
+                            Name = "AuthorizationCode"
                         },
                         new
                         {
                             Id = 2,
-                            Name = "refresh_token"
+                            Name = "RefreshToken"
                         });
                 });
 

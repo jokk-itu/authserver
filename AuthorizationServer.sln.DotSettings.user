@@ -2,44 +2,4 @@
 	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">C:\Users\joach\AppData\Local\Temp\JetBrains\ReSharperPlatformVs17\vAny_9769f0be\CoverageData\_AuthorizationServer.-561961205\Snapshot\snapshot.utdcvr</s:String>
 	
 	
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8a201e01_002D1f7b_002D4728_002Da69a_002Dd084a5a1d0b7/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Handle_ValidateFalse_ExpectErrorResponse" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Or&gt;&#xD;
-    &lt;And&gt;&#xD;
-      &lt;TestAncestor&gt;&#xD;
-        &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Validators.CreateClientValidatorTests&lt;/TestId&gt;&#xD;
-      &lt;/TestAncestor&gt;&#xD;
-      &lt;Project Location="C:\Workspace\AuthServer\Authorization\Specs" Presentation="&amp;lt;Authorization&amp;gt;\&amp;lt;Specs&amp;gt;" /&gt;&#xD;
-      &lt;Namespace&gt;Specs.Validators&lt;/Namespace&gt;&#xD;
-    &lt;/And&gt;&#xD;
-    &lt;TestAncestor&gt;&#xD;
-      &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Validators.CreateResourceValidatorTests&lt;/TestId&gt;&#xD;
-      &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Token.TokenBuilderTests.BuildRefreshToken_ExpectRefreshToken&lt;/TestId&gt;&#xD;
-      &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Token.TokenBuilderTests.BuildIdToken_ExpectIdToken&lt;/TestId&gt;&#xD;
-      &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Token.TokenBuilderTests.BuildAccessTokenAsync_ExpectAccessToken&lt;/TestId&gt;&#xD;
-      &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Validators.DeleteClientValidatorTests.IsValidAsync_ExpectOkResult&lt;/TestId&gt;&#xD;
-      &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Validators.DeleteClientValidatorTests.IsValidAsync_TokenWithInvalidClientId_ExpectErrorResult&lt;/TestId&gt;&#xD;
-      &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Validators.DeleteClientValidatorTests.IsValidAsync_TokenWithoutClientIdScope_ExpectErrorResult&lt;/TestId&gt;&#xD;
-    &lt;/TestAncestor&gt;&#xD;
-    &lt;And&gt;&#xD;
-      &lt;TestAncestor&gt;&#xD;
-        &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Token.TokenBuilderTests.BuildClientInitialAccessToken_ExpectInitialAccessToken&lt;/TestId&gt;&#xD;
-      &lt;/TestAncestor&gt;&#xD;
-      &lt;Project Location="C:\Workspace\AuthServer\Authorization\Specs" Presentation="&amp;lt;Authorization&amp;gt;\&amp;lt;Specs&amp;gt;" /&gt;&#xD;
-      &lt;Namespace&gt;Specs.Token&lt;/Namespace&gt;&#xD;
-    &lt;/And&gt;&#xD;
-    &lt;And&gt;&#xD;
-      &lt;TestAncestor&gt;&#xD;
-        &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Token.TokenBuilderTests&lt;/TestId&gt;&#xD;
-      &lt;/TestAncestor&gt;&#xD;
-      &lt;Project Location="C:\Workspace\AuthServer\Authorization\Specs" Presentation="&amp;lt;Authorization&amp;gt;\&amp;lt;Specs&amp;gt;" /&gt;&#xD;
-      &lt;Namespace&gt;Specs.Token&lt;/Namespace&gt;&#xD;
-    &lt;/And&gt;&#xD;
-    &lt;And&gt;&#xD;
-      &lt;TestAncestor&gt;&#xD;
-        &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Validators.CreateScopeValidatorTests&lt;/TestId&gt;&#xD;
-      &lt;/TestAncestor&gt;&#xD;
-      &lt;Project Location="C:\Workspace\AuthServer\Authorization\Specs" Presentation="&amp;lt;Authorization&amp;gt;\&amp;lt;Specs&amp;gt;" /&gt;&#xD;
-      &lt;Namespace&gt;Specs.Validators&lt;/Namespace&gt;&#xD;
-    &lt;/And&gt;&#xD;
-  &lt;/Or&gt;&#xD;
-&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
+	</wpf:ResourceDictionary>

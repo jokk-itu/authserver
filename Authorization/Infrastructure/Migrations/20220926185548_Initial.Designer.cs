@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20220918180241_Initial")]
+    [Migration("20220926185548_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -176,6 +176,7 @@ namespace Infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -186,12 +187,12 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Name = "authorization_code"
+                            Name = "AuthorizationCode"
                         },
                         new
                         {
                             Id = 2,
-                            Name = "refresh_token"
+                            Name = "RefreshToken"
                         });
                 });
 

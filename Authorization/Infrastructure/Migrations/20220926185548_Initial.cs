@@ -91,7 +91,7 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -458,8 +458,8 @@ namespace Infrastructure.Migrations
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { 1, "authorization_code" },
-                    { 2, "refresh_token" }
+                    { 1, "AuthorizationCode" },
+                    { 2, "RefreshToken" }
                 });
 
             migrationBuilder.InsertData(

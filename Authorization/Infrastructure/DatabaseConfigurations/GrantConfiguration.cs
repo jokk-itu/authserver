@@ -1,23 +1,27 @@
 ﻿using Domain;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Infrastructure.DatabaseConfigurations;
 internal class GrantConfiguration : IEntityTypeConfiguration<Grant>
 {
   public void Configure(EntityTypeBuilder<Grant> builder)
   {
+    builder
+      .Property(grant => grant.Name)
+      .HasConversion<string>();
+
     builder.HasData(
       new Grant 
       {
         Id = 1,
-        Name = OpenIdConnectGrantTypes.AuthorizationCode
+        Name = GrantType.AuthorizationCode
       }, 
       new Grant 
       {
         Id = 2,
-        Name = OpenIdConnectGrantTypes.RefreshToken
+        Name = GrantType.RefreshToken
       });
 
     builder.ToTable("Grants");
