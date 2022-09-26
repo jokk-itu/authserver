@@ -1,42 +1,23 @@
-﻿using Infrastructure.Repositories;
+﻿using System.Net;
 using Contracts.AuthorizeCode;
-using Domain;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Constants;
-using Domain.Constants;
-using System.Text.RegularExpressions;
 using Application;
 using WebApp.Extensions;
 using Microsoft.AspNetCore.Http.Extensions;
-using Infrastructure.Factories;
+using Infrastructure.Requests.GetAuthorizationCode;
+using MediatR;
 
 namespace WebApp.Controllers;
 
 [Route("connect/v1/[controller]")]
 public class AuthorizeController : Controller
 {
-  private readonly UserManager<User> _userManager;
-  private readonly ClientManager _clientManager;
-  private readonly CodeFactory _authorizationCodeTokenFactory;
-  private readonly CodeManager _codeManager;
-  private readonly NonceManager _nonceManager;
-  private readonly ILogger<AuthorizeController> _logger;
+  private readonly IMediator _mediator;
 
-  public AuthorizeController(
-    UserManager<User> userManager,
-    ClientManager clientManager,
-    CodeFactory authorizationCodeTokenFactory,
-    CodeManager codeManager, 
-    NonceManager nonceManager,
-    ILogger<AuthorizeController> logger)
+  public AuthorizeController(IMediator mediator)
   {
-    _userManager = userManager;
-    _clientManager = clientManager;
-    _authorizationCodeTokenFactory = authorizationCodeTokenFactory;
-    _codeManager = codeManager;
-    _nonceManager = nonceManager;
-    _logger = logger;
+    _mediator = mediator;
   }
 
   [HttpGet]
@@ -62,84 +43,37 @@ public class AuthorizeController : Controller
     [FromQuery(Name = ParameterNames.Nonce)] string nonce,
     CancellationToken cancellationToken = default)
   {
-    if (string.IsNullOrWhiteSpace(clientId))
-      return this.BadOAuthResult(ErrorCode.InvalidRequest);
-
-    if (string.IsNullOrWhiteSpace(redirectUri))
-      return this.BadOAuthResult(ErrorCode.InvalidRequest);
-
-    var client = await _clientManager.ReadClientAsync(clientId, cancellationToken: cancellationToken);
-    if (client is null)
-      return this.BadOAuthResult(ErrorCode.InvalidRequest);
-
-    if (!_clientManager.IsAuthorizedRedirectUris(client, new[] { redirectUri }))
-      return this.BadOAuthResult(ErrorCode.InvalidRequest);
-
-    if (string.IsNullOrWhiteSpace(state))
+    var query = new GetAuthorizationCodeQuery
     {
-      var stateQuery = new QueryBuilder 
-      { 
-        { "error", ErrorCode.InvalidRequest } 
-      }.ToQueryString();
-      return Redirect($"{redirectUri}{stateQuery}");
-    }
-
-    var scopes = scope.Split(' ');
-    if (!scopes.Contains(ScopeConstants.OpenId))
-      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.InvalidScope, "scope is invalid");
-
-    if (!_clientManager.IsAuthorizedScopes(client, scopes))
-      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.UnauthorizedClient, "client is not authorized for scope");
-
-    if (string.IsNullOrWhiteSpace(codeChallenge) || !Regex.IsMatch(codeChallenge, "^[0-9a-zA-Z-_~.]{43,128}$"))
-      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.InvalidRequest, "code_challenge is invalid");
-
-    if (string.IsNullOrWhiteSpace(codeChallengeMethod) || codeChallengeMethod != CodeChallengeMethodConstants.S256)
-      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.InvalidRequest, "code_challenge_method is invalid");
-
-    if (string.IsNullOrWhiteSpace(nonce))
-      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.InvalidRequest, "nonce is invalid");
-
-    if (responseType != ResponseTypeConstants.Code)
-      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.UnsupportedResponseType, "response_type is invalid");
-
-    var user = await _userManager.FindByNameAsync(request.Username);
-    if (user is null)
-      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.AccessDenied, "user not found");
-
-    var isPasswordValid = await _userManager.CheckPasswordAsync(user, request.Password);
-    if (!isPasswordValid)
-      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.AccessDenied, "user not found");
-
-    var storedNonce = await _nonceManager.ReadNonceAsync(nonce, cancellationToken: cancellationToken);
-    if (storedNonce is not null)
+      Username = request.Username,
+      Password = request.Password,
+      ResponseType = responseType,
+      ClientId = clientId,
+      CodeChallenge = codeChallenge,
+      RedirectUri = redirectUri,
+      CodeChallengeMethod = codeChallengeMethod,
+      Nonce = nonce,
+      Scopes = scope.Split(' '),
+      State = state
+    };
+    var response = await _mediator.Send(query, cancellationToken: cancellationToken);
+    return response.StatusCode switch
     {
-      _logger.LogWarning("Nonce {Nonce} replay attack detected", nonce);
-      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.AccessDenied, "nonce replay attack detected");
-    }
+      HttpStatusCode.Redirect when response.IsError() => 
+        this.RedirectOAuthResult(redirectUri, state, response.ErrorCode!, response.ErrorDescription!),
+      HttpStatusCode.BadRequest when response.IsError() =>
+        this.BadOAuthResult(response.ErrorCode!, response.ErrorDescription!),
+      HttpStatusCode.Redirect => Redirect($"{redirectUri}{GetCodeQuery(response)}"),
+      _ => this.BadOAuthResult(ErrorCode.ServerError)
+    };
+  }
 
-    var code = await _authorizationCodeTokenFactory.GenerateCodeAsync(
-        redirectUri,
-        scopes,
-        clientId,
-        codeChallenge,
-        user.Id,
-        nonce);
-
-    var isCodeCreated = await _codeManager.CreateAuthorizationCodeAsync(client, code, cancellationToken: cancellationToken);
-    if (!isCodeCreated)
-      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.ServerError);
-
-    var isNonceCreated = await _nonceManager.CreateNonceAsync(nonce, cancellationToken: cancellationToken);
-    if (!isNonceCreated)
-      return this.RedirectOAuthResult(redirectUri, state, ErrorCode.ServerError);
-
-    var codeQuery = new QueryBuilder 
+  private QueryString GetCodeQuery(GetAuthorizationCodeResponse response)
+  {
+    return new QueryBuilder
     {
-      { "code", code },
-      { "state", state }
+      {ParameterNames.State, response.State},
+      {ParameterNames.Code, response.Code}
     }.ToQueryString();
-
-    return Redirect($"{redirectUri}{codeQuery}");
   }
 }
