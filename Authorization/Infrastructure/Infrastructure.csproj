@@ -21,4 +21,7 @@
 	  <ProjectReference Include="..\Application\Application.csproj" />
 	  <ProjectReference Include="..\Domain\Domain.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="BaseValidators\" />
+	</ItemGroup>
 </Project>

@@ -4,6 +4,7 @@ using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
+using Domain.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.CreateClient;
@@ -96,7 +97,7 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
       .IgnoreAutoIncludes()
       .ToListAsync();
 
-    return command.GrantTypes.Any(grantType => grants.All(x => x.Name != grantType));
+    return command.GrantTypes.Any(grantType => grants.All(x => x.Name.GetDescription() != grantType));
   }
 
   private static bool IsContactsInvalid(CreateClientCommand command)

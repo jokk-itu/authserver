@@ -128,8 +128,8 @@ public class TokenController : ControllerBase
       return this.BadOAuthResult(ErrorCode.AccessDenied);
     }
 
-    if (!_clientManager.IsAuthorizedRedirectUris(client, new[] { request.RedirectUri }))
-      return this.BadOAuthResult(ErrorCode.UnauthorizedClient);
+    /*if (!_clientManager.IsAuthorizedRedirectUris(client, new[] { request.RedirectUri }))
+      return this.BadOAuthResult(ErrorCode.UnauthorizedClient);*/
 
     if (!await _codeFactory.ValidateAsync(request.Code, request.RedirectUri, request.ClientId, request.CodeVerifier))
       return this.BadOAuthResult(ErrorCode.InvalidRequest);

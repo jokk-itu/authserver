@@ -41,7 +41,7 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
     var grants = await _identityContext
       .Set<Grant>()
       .IgnoreAutoIncludes()
-      .Where(x => request.GrantTypes.Contains(x.Name))
+      .Where(x => request.GrantTypes.Contains(x.Name.GetDescription()))
       .ToListAsync(cancellationToken: cancellationToken);
 
     var redirectUris = request.RedirectUris
@@ -86,7 +86,7 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
     return new CreateClientResponse(HttpStatusCode.Created)
     {
       ApplicationType = request.ApplicationType,
-      GrantTypes = client.Grants.Select(x => x.Name).ToList(),
+      GrantTypes = client.Grants.Select(x => x.Name.GetDescription()).ToList(),
       ClientId = client.Id,
       ClientName = client.Name,
       ClientSecret = client.Secret,
