@@ -46,6 +46,16 @@ public static class ServiceCollectionExtensions
         policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
         policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ResourceConfiguration);
       });
+      options.AddPolicy(AuthorizationConstants.ScopeRegistration, policy =>
+      {
+        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+        policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ScopeRegistration);
+      });
+      options.AddPolicy(AuthorizationConstants.ScopeConfiguration, policy =>
+      {
+        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+        policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ScopeConfiguration);
+      });
     });
     return services;
   }
