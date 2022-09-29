@@ -1,5 +1,5 @@
 ﻿namespace Application.Validation;
 public interface IValidator<in T>
 {
-  Task<ValidationResult> IsValidAsync(T value);
+  Task<ValidationResult> ValidateAsync(T value, CancellationToken cancellationToken = default);
 }

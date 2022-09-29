@@ -58,7 +58,7 @@ public static class ServiceCollectionExtensions
     var validators = Assembly
       .GetExecutingAssembly()
       .GetTypes()
-      .Where(x => x.IsClass 
+      .Where(x => x.IsClass
                   && x.GetInterface(typeof(IValidator<>).Name) is not null 
                   && x.Namespace!.Contains(typeof(Response).Namespace!)).ToList();
     foreach (var validator in validators)

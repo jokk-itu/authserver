@@ -102,7 +102,7 @@ public class TokenControllerTests : IClassFixture<WebApplicationFactory<Program>
     {
       { ParameterNames.ClientId, "test" },
       { ParameterNames.ClientSecret, "secret" },
-      { ParameterNames.Code, queryParameters.Get("code")! },
+      { ParameterNames.Code, queryParameters.Get(ParameterNames.Code)! },
       { ParameterNames.GrantType, OpenIdConnectGrantTypes.AuthorizationCode },
       { ParameterNames.RedirectUri, "http://localhost:5002/callback" },
       { ParameterNames.Scope, $"{ScopeConstants.OpenId} identity-provider {ScopeConstants.Profile} api1" },

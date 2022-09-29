@@ -40,4 +40,6 @@ public static class ParameterNames
   public const string ResourceId = "resource_id";
   public const string RegistrationResourceUri = "registration_resource_uri";
   public const string ResourceSecret = "resource_secret";
+  public const string Error = "error";
+  public const string ErrorDescription = "error_description";
 }
