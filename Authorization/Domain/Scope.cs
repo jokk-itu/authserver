@@ -10,4 +10,6 @@ public class Scope
   public ICollection<Resource> Resources { get; set; }
 
   public ICollection<Client> Clients { get; set; }
+
+  public ICollection<Grant> Grants { get; set; }
 }

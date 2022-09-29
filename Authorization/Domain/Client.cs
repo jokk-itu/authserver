@@ -25,7 +25,7 @@ public class Client
 
   public ICollection<RedirectUri> RedirectUris { get; set; }
 
-  public ICollection<Grant> Grants { get; set; }
+  public ICollection<GrantType> Grants { get; set; }
 
   public ICollection<Scope> Scopes { get; set; }
 

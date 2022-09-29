@@ -1,13 +1,15 @@
-﻿using Domain.Enums;
-
-namespace Domain;
+﻿namespace Domain;
 
 #nullable disable
 public class Grant
 {
-  public int Id { get; set; }
+  public Guid Id { get; set; }
 
-  public GrantType Name { get; set; }
+  public DateTime IssuedAt { get; set; }
 
-  public ICollection<Client> Clients { get; set; }
+  public ICollection<Scope> Scopes { get; set; }
+
+  public bool IsRevoked { get; set; }
+
+  public bool IsRedeemed { get; set; }
 }
