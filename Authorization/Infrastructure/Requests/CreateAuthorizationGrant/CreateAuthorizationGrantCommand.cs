@@ -1,9 +1,9 @@
 ﻿using MediatR;
 
-namespace Infrastructure.Requests.GetAuthorizationCode;
+namespace Infrastructure.Requests.CreateAuthorizationGrant;
 
 #nullable disable
-public class GetAuthorizationCodeQuery : IRequest<GetAuthorizationCodeResponse>
+public class CreateAuthorizationGrantCommand : IRequest<CreateAuthorizationGrantResponse>
 {
   public string Username { get; init; }
 

@@ -4,23 +4,22 @@ using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
-using Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Requests.GetAuthorizationCode;
-public class GetAuthorizationCodeValidator : IValidator<GetAuthorizationCodeQuery>
+namespace Infrastructure.Requests.CreateAuthorizationGrant;
+public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationGrantCommand>
 {
   private readonly IdentityContext _identityContext;
   private readonly UserManager<User> _userManager;
 
-  public GetAuthorizationCodeValidator(IdentityContext identityContext, UserManager<User> userManager)
+  public CreateAuthorizationGrantValidator(IdentityContext identityContext, UserManager<User> userManager)
   {
     _identityContext = identityContext;
     _userManager = userManager;
   }
 
-  public async Task<ValidationResult> IsValidAsync(GetAuthorizationCodeQuery value)
+  public async Task<ValidationResult> ValidateAsync(CreateAuthorizationGrantCommand value, CancellationToken cancellationToken = default)
   {
     if (await IsClientIdInvalidAsync(value))
       return new ValidationResult(ErrorCode.InvalidRequest, "client_id is invalid", HttpStatusCode.BadRequest);
@@ -55,7 +54,7 @@ public class GetAuthorizationCodeValidator : IValidator<GetAuthorizationCodeQuer
     return new ValidationResult(HttpStatusCode.OK);
   }
 
-  private async Task<bool> IsClientIdInvalidAsync(GetAuthorizationCodeQuery query)
+  private async Task<bool> IsClientIdInvalidAsync(CreateAuthorizationGrantCommand query)
   {
     if (string.IsNullOrWhiteSpace(query.ClientId))
       return true;
@@ -67,12 +66,12 @@ public class GetAuthorizationCodeValidator : IValidator<GetAuthorizationCodeQuer
     return client is null;
   }
 
-  private static bool IsRedirectUriInvalid(GetAuthorizationCodeQuery query)
+  private static bool IsRedirectUriInvalid(CreateAuthorizationGrantCommand query)
   {
     return string.IsNullOrWhiteSpace(query.RedirectUri);
   }
 
-  private async Task<bool> IsClientUnauthorized(GetAuthorizationCodeQuery query)
+  private async Task<bool> IsClientUnauthorized(CreateAuthorizationGrantCommand query)
   {
     var client = await _identityContext
       .Set<Client>()
@@ -90,12 +89,12 @@ public class GetAuthorizationCodeValidator : IValidator<GetAuthorizationCodeQuer
     return query.Scopes.All(x => client.Scopes.Any(y => y.Name == x));
   }
 
-  private static bool IsResponseTypeInvalid(GetAuthorizationCodeQuery query)
+  private static bool IsResponseTypeInvalid(CreateAuthorizationGrantCommand query)
   {
     return query.ResponseType != ResponseTypeConstants.Code;
   }
 
-  private static bool IsCodeChallengeInvalid(GetAuthorizationCodeQuery query)
+  private static bool IsCodeChallengeInvalid(CreateAuthorizationGrantCommand query)
   {
     if (string.IsNullOrWhiteSpace(query.CodeChallenge))
       return true;
@@ -103,17 +102,17 @@ public class GetAuthorizationCodeValidator : IValidator<GetAuthorizationCodeQuer
     return !Regex.IsMatch(query.CodeChallenge, "^[0-9a-zA-Z-_~.]{43,128}$");
   }
 
-  private static bool IsCodeChallengeMethodInvalid(GetAuthorizationCodeQuery query)
+  private static bool IsCodeChallengeMethodInvalid(CreateAuthorizationGrantCommand query)
   {
     return query.CodeChallengeMethod != CodeChallengeMethodConstants.S256;
   }
 
-  private static bool IsStateInvalid(GetAuthorizationCodeQuery query)
+  private static bool IsStateInvalid(CreateAuthorizationGrantCommand query)
   {
     return string.IsNullOrWhiteSpace(query.State);
   }
 
-  private async Task<bool> IsNonceInvalidAsync(GetAuthorizationCodeQuery query)
+  private async Task<bool> IsNonceInvalidAsync(CreateAuthorizationGrantCommand query)
   {
     if (string.IsNullOrWhiteSpace(query.Nonce))
       return true;
@@ -123,7 +122,7 @@ public class GetAuthorizationCodeValidator : IValidator<GetAuthorizationCodeQuer
       .AnyAsync(x => x.Value == query.Nonce);
   }
 
-  private async Task<bool> IsScopesInvalidAsync(GetAuthorizationCodeQuery query)
+  private async Task<bool> IsScopesInvalidAsync(CreateAuthorizationGrantCommand query)
   {
     if (query.Scopes.Any(x => x == ScopeConstants.OpenId))
       return true;
@@ -137,7 +136,7 @@ public class GetAuthorizationCodeValidator : IValidator<GetAuthorizationCodeQuer
     return false;
   }
 
-  private async Task<bool> IsUserInvalid(GetAuthorizationCodeQuery query)
+  private async Task<bool> IsUserInvalid(CreateAuthorizationGrantCommand query)
   {
     if (string.IsNullOrWhiteSpace(query.Username) || string.IsNullOrWhiteSpace(query.Password))
       return true;

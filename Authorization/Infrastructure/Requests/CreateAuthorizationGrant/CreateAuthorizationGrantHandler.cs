@@ -6,17 +6,17 @@ using Infrastructure.Factories;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
-namespace Infrastructure.Requests.GetAuthorizationCode;
-public class GetAuthorizationCodeHandler : IRequestHandler<GetAuthorizationCodeQuery, GetAuthorizationCodeResponse>
+namespace Infrastructure.Requests.CreateAuthorizationGrant;
+public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizationGrantCommand, CreateAuthorizationGrantResponse>
 {
   private readonly IdentityContext _identityContext;
-  private readonly IValidator<GetAuthorizationCodeQuery> _validator;
+  private readonly IValidator<CreateAuthorizationGrantCommand> _validator;
   private readonly CodeFactory _codeFactory;
   private readonly UserManager<User> _userManager;
 
-  public GetAuthorizationCodeHandler(
+  public CreateAuthorizationGrantHandler(
     IdentityContext identityContext, 
-    IValidator<GetAuthorizationCodeQuery> validator,
+    IValidator<CreateAuthorizationGrantCommand> validator,
     CodeFactory codeFactory,
     UserManager<User> userManager)
   {
@@ -26,11 +26,11 @@ public class GetAuthorizationCodeHandler : IRequestHandler<GetAuthorizationCodeQ
     _userManager = userManager;
   }
 
-  public async Task<GetAuthorizationCodeResponse> Handle(GetAuthorizationCodeQuery request, CancellationToken cancellationToken)
+  public async Task<CreateAuthorizationGrantResponse> Handle(CreateAuthorizationGrantCommand request, CancellationToken cancellationToken)
   {
-    var validationResult = await _validator.IsValidAsync(request);
+    var validationResult = await _validator.ValidateAsync(request, cancellationToken);
     if (validationResult.IsError())
-      return new GetAuthorizationCodeResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
+      return new CreateAuthorizationGrantResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
 
     var user = await _userManager.FindByNameAsync(request.Username);
 
@@ -60,7 +60,7 @@ public class GetAuthorizationCodeHandler : IRequestHandler<GetAuthorizationCodeQ
 
     await _identityContext.SaveChangesAsync(cancellationToken: cancellationToken);
 
-    return new GetAuthorizationCodeResponse(HttpStatusCode.Redirect)
+    return new CreateAuthorizationGrantResponse(HttpStatusCode.Redirect)
     {
       Code = code,
       State = request.State
