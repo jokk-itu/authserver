@@ -39,7 +39,7 @@ public class CreateScopeHandlerTests
       ErrorDescription = string.Empty
     };
     fakeValidator
-      .Setup(x => x.IsValidAsync(It.IsAny<CreateScopeCommand>()))
+      .Setup(x => x.ValidateAsync(It.IsAny<CreateScopeCommand>(), CancellationToken.None))
       .ReturnsAsync(validationResult);
 
     var handler = new CreateScopeHandler(_identityContext, fakeValidator.Object, fakeTokenBuilder.Object);
@@ -63,7 +63,7 @@ public class CreateScopeHandlerTests
     var fakeValidator = new Mock<IValidator<CreateScopeCommand>>();
     var validationResult = new ValidationResult(HttpStatusCode.OK);
     fakeValidator
-      .Setup(x => x.IsValidAsync(It.IsAny<CreateScopeCommand>()))
+      .Setup(x => x.ValidateAsync(It.IsAny<CreateScopeCommand>(), CancellationToken.None))
       .ReturnsAsync(validationResult);
 
     var handler = new CreateScopeHandler(_identityContext, fakeValidator.Object, fakeTokenBuilder.Object);

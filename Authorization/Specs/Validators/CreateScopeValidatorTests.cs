@@ -23,7 +23,7 @@ public class CreateScopeValidatorTests
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task IsValidAsync_InvalidScopeName_ExpectErrorResult()
+  public async Task ValidateAsync_InvalidScopeName_ExpectErrorResult()
   {
     // Arrange
     await _identityContext.Set<Scope>().AddAsync(new Scope
@@ -38,7 +38,7 @@ public class CreateScopeValidatorTests
     var validator = new CreateScopeValidator(_identityContext);
 
     // Act
-    var validationResult = await validator.IsValidAsync(command);
+    var validationResult = await validator.ValidateAsync(command);
 
     // Assert
     Assert.True(validationResult.IsError());
@@ -46,7 +46,7 @@ public class CreateScopeValidatorTests
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task IsValidAsync_EmptyScopeName_ExpectErrorResult()
+  public async Task ValidateAsync_EmptyScopeName_ExpectErrorResult()
   {
     var command = new CreateScopeCommand
     {
@@ -55,7 +55,7 @@ public class CreateScopeValidatorTests
     var validator = new CreateScopeValidator(_identityContext);
 
     // Act
-    var validationResult = await validator.IsValidAsync(command);
+    var validationResult = await validator.ValidateAsync(command);
 
     // Assert
     Assert.True(validationResult.IsError());
@@ -63,7 +63,7 @@ public class CreateScopeValidatorTests
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task IsValidAsync_ExpectCreatedResult()
+  public async Task ValidateAsync_ExpectCreatedResult()
   {
     var command = new CreateScopeCommand
     {
@@ -72,7 +72,7 @@ public class CreateScopeValidatorTests
     var validator = new CreateScopeValidator(_identityContext);
 
     // Act
-    var validationResult = await validator.IsValidAsync(command);
+    var validationResult = await validator.ValidateAsync(command);
 
     // Assert
     Assert.False(validationResult.IsError());

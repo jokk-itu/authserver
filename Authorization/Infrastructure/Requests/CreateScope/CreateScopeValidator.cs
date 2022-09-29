@@ -14,7 +14,7 @@ public class CreateScopeValidator : IValidator<CreateScopeCommand>
     _identityContext = identityContext;
   }
 
-  public async Task<ValidationResult> IsValidAsync(CreateScopeCommand value)
+  public async Task<ValidationResult> ValidateAsync(CreateScopeCommand value, CancellationToken cancellationToken = default)
   {
     if (await IsScopeNameInvalid(value))
       return new ValidationResult(ErrorCode.InvalidScopeMetadata, "scope is invalid", HttpStatusCode.BadRequest);

@@ -49,7 +49,7 @@ public class DeleteClientHandlerTests
       ErrorDescription = string.Empty
     };
     fakeValidator
-      .Setup(x => x.IsValidAsync(It.IsAny<DeleteClientCommand>()))
+      .Setup(x => x.ValidateAsync(It.IsAny<DeleteClientCommand>(), CancellationToken.None))
       .ReturnsAsync(validationResult);
 
     var handler = new DeleteClientHandler(_identityContext, fakeValidator.Object, fakeTokenDecoder.Object);
@@ -105,7 +105,7 @@ public class DeleteClientHandlerTests
     var fakeValidator = new Mock<IValidator<DeleteClientCommand>>();
     var validationResult = new ValidationResult(HttpStatusCode.OK);
     fakeValidator
-      .Setup(x => x.IsValidAsync(It.IsAny<DeleteClientCommand>()))
+      .Setup(x => x.ValidateAsync(It.IsAny<DeleteClientCommand>(), CancellationToken.None))
       .ReturnsAsync(validationResult);
 
     var handler = new DeleteClientHandler(_identityContext, fakeValidator.Object, tokenDecoder);

@@ -20,7 +20,7 @@ public class CreateScopeHandler : IRequestHandler<CreateScopeCommand, CreateScop
 
   public async Task<CreateScopeResponse> Handle(CreateScopeCommand request, CancellationToken cancellationToken)
   {
-    var validationResult = await _validator.IsValidAsync(request);
+    var validationResult = await _validator.ValidateAsync(request, cancellationToken);
     if (validationResult.IsError())
       return new CreateScopeResponse(validationResult.ErrorCode, validationResult.ErrorDescription, HttpStatusCode.BadRequest);
 

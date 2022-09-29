@@ -27,7 +27,7 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
 
   public async Task<CreateClientResponse> Handle(CreateClientCommand request, CancellationToken cancellationToken)
   {
-    var validationResult = await _createClientValidator.IsValidAsync(request);
+    var validationResult = await _createClientValidator.ValidateAsync(request, cancellationToken);
     if (validationResult.IsError())
       return new CreateClientResponse(validationResult.ErrorCode, validationResult.ErrorDescription,
         validationResult.StatusCode);
@@ -39,7 +39,7 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       .ToListAsync(cancellationToken: cancellationToken);
 
     var grants = await _identityContext
-      .Set<Grant>()
+      .Set<GrantType>()
       .IgnoreAutoIncludes()
       .Where(x => request.GrantTypes.Contains(x.Name.GetDescription()))
       .ToListAsync(cancellationToken: cancellationToken);

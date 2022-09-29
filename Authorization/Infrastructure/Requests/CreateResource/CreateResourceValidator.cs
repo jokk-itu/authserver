@@ -3,7 +3,6 @@ using Application.Validation;
 using System.Net;
 using Domain;
 using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Infrastructure.Requests.CreateResource;
 public class CreateResourceValidator : IValidator<CreateResourceCommand>
@@ -15,7 +14,7 @@ public class CreateResourceValidator : IValidator<CreateResourceCommand>
     _identityContext = identityContext;
   }
 
-  public async Task<ValidationResult> IsValidAsync(CreateResourceCommand value)
+  public async Task<ValidationResult> ValidateAsync(CreateResourceCommand value, CancellationToken cancellationToken = default)
   {
     if(await IsResourceNameInvalidAsync(value))
       return GetInvalidResourceMetadataResult("resource_name is invalid");

@@ -33,7 +33,7 @@ public class DeleteClientValidatorTests
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task IsValidAsync_EmptyToken_ExpectErrorResult()
+  public async Task ValidateAsync_EmptyToken_ExpectErrorResult()
   {
     // Arrange
     var command = new DeleteClientCommand
@@ -61,7 +61,7 @@ public class DeleteClientValidatorTests
     var validator = new DeleteClientValidator(_identityContext, tokenDecoder);
 
     // Act
-    var validationResult = await validator.IsValidAsync(command);
+    var validationResult = await validator.ValidateAsync(command);
 
     //Assert
     Assert.True(validationResult.IsError());
@@ -69,7 +69,7 @@ public class DeleteClientValidatorTests
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task IsValidAsync_TokenWithoutClientIdScope_ExpectErrorResult()
+  public async Task ValidateAsync_TokenWithoutClientIdScope_ExpectErrorResult()
   {
     // Arrange
     var identityConfiguration = new IdentityConfiguration
@@ -99,7 +99,7 @@ public class DeleteClientValidatorTests
     var validator = new DeleteClientValidator(_identityContext, tokenDecoder);
 
     // Act
-    var validationResult = await validator.IsValidAsync(command);
+    var validationResult = await validator.ValidateAsync(command);
 
     // Assert
     Assert.True(validationResult.IsError());
@@ -107,7 +107,7 @@ public class DeleteClientValidatorTests
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task IsValidAsync_TokenWithInvalidClientId_ExpectErrorResult()
+  public async Task ValidateAsync_TokenWithInvalidClientId_ExpectErrorResult()
   {
     // Arrange
     var identityConfiguration = new IdentityConfiguration
@@ -137,7 +137,7 @@ public class DeleteClientValidatorTests
     var validator = new DeleteClientValidator(_identityContext, tokenDecoder);
 
     // Act
-    var validationResult = await validator.IsValidAsync(command);
+    var validationResult = await validator.ValidateAsync(command);
 
     // Assert
     Assert.True(validationResult.IsError());
@@ -145,7 +145,7 @@ public class DeleteClientValidatorTests
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task IsValidAsync_ExpectOkResult()
+  public async Task ValidateAsync_ExpectOkResult()
   {
     // Arrange
     var client = new Client
@@ -184,7 +184,7 @@ public class DeleteClientValidatorTests
     var validator = new DeleteClientValidator(_identityContext, tokenDecoder);
 
     // Act
-    var validationResult = await validator.IsValidAsync(command);
+    var validationResult = await validator.ValidateAsync(command);
 
     // Assert
     Assert.False(validationResult.IsError());

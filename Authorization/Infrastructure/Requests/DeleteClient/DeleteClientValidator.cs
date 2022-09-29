@@ -18,7 +18,7 @@ public class DeleteClientValidator : IValidator<DeleteClientCommand>
     _tokenDecoder = tokenDecoder;
   }
 
-  public async Task<ValidationResult> IsValidAsync(DeleteClientCommand value)
+  public async Task<ValidationResult> ValidateAsync(DeleteClientCommand value, CancellationToken cancellationToken = default)
   {
     if (await IsClientRegistrationTokenInvalid(value))
       return new ValidationResult(ErrorCode.InvalidClientMetadata, "token is invalid", HttpStatusCode.BadRequest);

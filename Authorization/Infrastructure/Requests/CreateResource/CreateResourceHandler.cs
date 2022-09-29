@@ -25,7 +25,7 @@ public class CreateResourceHandler : IRequestHandler<CreateResourceCommand, Crea
 
   public async Task<CreateResourceResponse> Handle(CreateResourceCommand request, CancellationToken cancellationToken)
   {
-    var validationResult = await _validator.IsValidAsync(request);
+    var validationResult = await _validator.ValidateAsync(request, cancellationToken);
     if (validationResult.IsError())
       return new CreateResourceResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
 

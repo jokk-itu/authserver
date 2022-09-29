@@ -24,7 +24,7 @@ public class CreateResourceValidatorTests
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task IsValidAsync_ExpectCreatedResult()
+  public async Task ValidateAsync_ExpectCreatedResult()
   {
     // Arrange
     var command = new CreateResourceCommand
@@ -35,7 +35,7 @@ public class CreateResourceValidatorTests
     var validator = new CreateResourceValidator(_identityContext);
 
     // Act
-    var validationResult = await validator.IsValidAsync(command);
+    var validationResult = await validator.ValidateAsync(command);
 
     //Assert
     Assert.False(validationResult.IsError());
@@ -43,7 +43,7 @@ public class CreateResourceValidatorTests
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task IsValidAsync_InvalidScopes_ExpectErrorResult()
+  public async Task ValidateAsync_InvalidScopes_ExpectErrorResult()
   {
     // Arrange
     var command = new CreateResourceCommand
@@ -54,7 +54,7 @@ public class CreateResourceValidatorTests
     var validator = new CreateResourceValidator(_identityContext);
 
     // Act
-    var validationResult = await validator.IsValidAsync(command);
+    var validationResult = await validator.ValidateAsync(command);
 
     //Assert
     Assert.True(validationResult.IsError());
@@ -62,7 +62,7 @@ public class CreateResourceValidatorTests
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task IsValidAsync_EmptyScopes_ExpectErrorResult()
+  public async Task ValidateAsync_EmptyScopes_ExpectErrorResult()
   {
     // Arrange
     var command = new CreateResourceCommand
@@ -73,7 +73,7 @@ public class CreateResourceValidatorTests
     var validator = new CreateResourceValidator(_identityContext);
 
     // Act
-    var validationResult = await validator.IsValidAsync(command);
+    var validationResult = await validator.ValidateAsync(command);
 
     //Assert
     Assert.True(validationResult.IsError());
@@ -81,7 +81,7 @@ public class CreateResourceValidatorTests
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task IsValidAsync_EmptyResourceName_ExpectErrorResult()
+  public async Task ValidateAsync_EmptyResourceName_ExpectErrorResult()
   {
     // Arrange
     var command = new CreateResourceCommand
@@ -92,7 +92,7 @@ public class CreateResourceValidatorTests
     var validator = new CreateResourceValidator(_identityContext);
 
     // Act
-    var validationResult = await validator.IsValidAsync(command);
+    var validationResult = await validator.ValidateAsync(command);
 
     //Assert
     Assert.True(validationResult.IsError());
@@ -100,7 +100,7 @@ public class CreateResourceValidatorTests
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task IsValidAsync_ExistingResourceName_ExpectErrorResult()
+  public async Task ValidateAsync_ExistingResourceName_ExpectErrorResult()
   {
     // Arrange
     await _identityContext
@@ -120,7 +120,7 @@ public class CreateResourceValidatorTests
     var validator = new CreateResourceValidator(_identityContext);
 
     // Act
-    var validationResult = await validator.IsValidAsync(command);
+    var validationResult = await validator.ValidateAsync(command);
 
     // Assert
     Assert.True(validationResult.IsError());

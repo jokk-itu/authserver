@@ -40,7 +40,7 @@ public class CreateClientHandlerTests
       ErrorDescription = string.Empty
     };
     fakeValidator
-      .Setup(x => x.IsValidAsync(It.IsAny<CreateClientCommand>()))
+      .Setup(x => x.ValidateAsync(It.IsAny<CreateClientCommand>(), CancellationToken.None))
       .ReturnsAsync(validationResult);
 
     var handler = new CreateClientHandler(fakeValidator.Object, _identityContext, fakeTokenBuilder.Object);
@@ -84,7 +84,7 @@ public class CreateClientHandlerTests
     var fakeValidator = new Mock<IValidator<CreateClientCommand>>();
     var validationResult = new ValidationResult(HttpStatusCode.OK);
     fakeValidator
-      .Setup(x => x.IsValidAsync(It.IsAny<CreateClientCommand>()))
+      .Setup(x => x.ValidateAsync(It.IsAny<CreateClientCommand>(), CancellationToken.None))
       .ReturnsAsync(validationResult);
 
     var handler = new CreateClientHandler(fakeValidator.Object, _identityContext, fakeTokenBuilder.Object);

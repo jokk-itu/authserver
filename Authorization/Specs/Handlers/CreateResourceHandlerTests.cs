@@ -39,7 +39,7 @@ public class CreateResourceHandlerTests
       ErrorDescription = string.Empty
     };
     fakeValidator
-      .Setup(x => x.IsValidAsync(It.IsAny<CreateResourceCommand>()))
+      .Setup(x => x.ValidateAsync(It.IsAny<CreateResourceCommand>(), CancellationToken.None))
       .ReturnsAsync(validationResult);
 
     var handler = new CreateResourceHandler(_identityContext, fakeValidator.Object, fakeTokenBuilder.Object);
@@ -74,7 +74,7 @@ public class CreateResourceHandlerTests
     var fakeValidator = new Mock<IValidator<CreateResourceCommand>>();
     var validationResult = new ValidationResult(HttpStatusCode.OK);
     fakeValidator
-      .Setup(x => x.IsValidAsync(It.IsAny<CreateResourceCommand>()))
+      .Setup(x => x.ValidateAsync(It.IsAny<CreateResourceCommand>(), CancellationToken.None))
       .ReturnsAsync(validationResult);
 
     var handler = new CreateResourceHandler(_identityContext, fakeValidator.Object, fakeTokenBuilder.Object);

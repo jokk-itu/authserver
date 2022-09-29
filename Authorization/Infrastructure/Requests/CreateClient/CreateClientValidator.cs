@@ -17,7 +17,7 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
     _identityContext = identityContext;
   }
 
-  public async Task<ValidationResult> IsValidAsync(CreateClientCommand value)
+  public async Task<ValidationResult> ValidateAsync(CreateClientCommand value, CancellationToken cancellationToken = default)
   {
     if (IsApplicationTypeInvalid(value))
       return GetInvalidClientMetadataResult("application_type is invalid");
@@ -93,7 +93,7 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
       return true;
 
     var grants = await _identityContext
-      .Set<Grant>()
+      .Set<GrantType>()
       .IgnoreAutoIncludes()
       .ToListAsync();
 

@@ -25,7 +25,7 @@ public class DeleteClientHandler : IRequestHandler<DeleteClientCommand, DeleteCl
 
   public async Task<DeleteClientResponse> Handle(DeleteClientCommand request, CancellationToken cancellationToken)
   {
-    var validationResult = await _validator.IsValidAsync(request);
+    var validationResult = await _validator.ValidateAsync(request, cancellationToken);
     if (validationResult.IsError())
       return new DeleteClientResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
 
