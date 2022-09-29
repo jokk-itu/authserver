@@ -3,9 +3,9 @@ using Contracts.AuthorizeCode;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Constants;
 using Application;
+using Infrastructure.Requests.CreateAuthorizationGrant;
 using WebApp.Extensions;
 using Microsoft.AspNetCore.Http.Extensions;
-using Infrastructure.Requests.GetAuthorizationCode;
 using MediatR;
 
 namespace WebApp.Controllers;
@@ -43,7 +43,7 @@ public class AuthorizeController : Controller
     [FromQuery(Name = ParameterNames.Nonce)] string nonce,
     CancellationToken cancellationToken = default)
   {
-    var query = new GetAuthorizationCodeQuery
+    var query = new CreateAuthorizationGrantCommand
     {
       Username = request.Username,
       Password = request.Password,
@@ -64,11 +64,11 @@ public class AuthorizeController : Controller
       HttpStatusCode.BadRequest when response.IsError() =>
         this.BadOAuthResult(response.ErrorCode!, response.ErrorDescription!),
       HttpStatusCode.Redirect => Redirect($"{redirectUri}{GetCodeQuery(response)}"),
-      _ => this.BadOAuthResult(ErrorCode.ServerError)
+      _ => this.BadOAuthResult(ErrorCode.ServerError, "something went wrong")
     };
   }
 
-  private QueryString GetCodeQuery(GetAuthorizationCodeResponse response)
+  private QueryString GetCodeQuery(CreateAuthorizationGrantResponse response)
   {
     return new QueryBuilder
     {
