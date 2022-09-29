@@ -39,7 +39,7 @@ public class GetClientResponse
   public ICollection<string> RedirectUris { get; init; }
 
   [JsonPropertyName(ParameterNames.GrantTypes)]
-  public ICollection<Grant> GrantTypes { get; init; }
+  public ICollection<Domain.GrantType> GrantTypes { get; init; }
 
   [JsonPropertyName(ParameterNames.Contacts)]
   public ICollection<Contact> Contacts { get; init; }
