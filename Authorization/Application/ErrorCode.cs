@@ -69,4 +69,49 @@ public static class ErrorCode
   /// Possibly several properties are invalid when registering or configuring scopes.
   /// </summary>
   public const string InvalidScopeMetadata = "invalid_scope_metadata";
+
+  /// <summary>
+  /// The End-User must perform an interaction
+  /// </summary>
+  public const string InteractionRequired = "interaction_required";
+
+  /// <summary>
+  /// The End-User must authenticate
+  /// </summary>
+  public const string LoginRequired = "login_required";
+
+  /// <summary>
+  /// The End-User must select an account
+  /// </summary>
+  public const string AccountSelectionRequired = "account_selection_required";
+
+  /// <summary>
+  /// The End-User must perform consent
+  /// </summary>
+  public const string ConsentRequired = "consent_required";
+
+  /// <summary>
+  /// The request_ur parameter returns an error or contains invalid data
+  /// </summary>
+  public const string InvalidRequestUri = "invalid_request_uri";
+
+  /// <summary>
+  /// The request contains an invalid request object
+  /// </summary>
+  public const string InvalidRequestObject = "invalid_request_object";
+
+  /// <summary>
+  /// The OP does not support the request parameter
+  /// </summary>
+  public const string RequestNotSupported = "request_not_supported";
+
+  /// <summary>
+  /// The OP does not support the request_uri parameter
+  /// </summary>
+  public const string RequestUriNotSupported = "request_uri_not_supported";
+
+  /// <summary>
+  /// The OP does not support the registration parameter
+  /// </summary>
+  public const string RegistrationNotSupported = "registration_not_supported";
 }
