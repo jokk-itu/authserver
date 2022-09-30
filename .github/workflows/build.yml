@@ -24,7 +24,7 @@ jobs:
     - name: Build
       run: dotnet build Auth.sln --no-restore
     - name: Test
-      run: dotnet test Auth.sln --no-build --verbosity normal
+      run: dotnet test Auth.sln --no-build --verbosity normal --filter Category=Unit
   
   sonarscan:
     name: SonarScan
@@ -72,5 +72,5 @@ jobs:
           dotnet clean Auth.sln
           dotnet restore Auth.sln
           dotnet build Auth.sln --no-restore
-          dotnet-coverage collect 'dotnet test Auth.sln --no-restore' -f xml  -o 'coverage.xml'
+          dotnet-coverage collect 'dotnet test Auth.sln --no-restore --filter Category=Unit' -f xml  -o 'coverage.xml'
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
