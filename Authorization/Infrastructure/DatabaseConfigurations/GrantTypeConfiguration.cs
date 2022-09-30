@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Domain.Constants;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.DatabaseConfigurations;
@@ -14,12 +15,12 @@ internal class GrantTypeConfiguration : IEntityTypeConfiguration<Domain.GrantTyp
       new Domain.GrantType 
       {
         Id = 1,
-        Name = Domain.Enums.GrantType.AuthorizationCode
+        Name = GrantTypeConstants.AuthorizationCode
       }, 
       new Domain.GrantType 
       {
         Id = 2,
-        Name = Domain.Enums.GrantType.RefreshToken
+        Name = GrantTypeConstants.RefreshToken
       });
 
     builder.ToTable("Grants");

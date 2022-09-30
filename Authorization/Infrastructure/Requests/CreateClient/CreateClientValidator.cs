@@ -97,7 +97,7 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
       .IgnoreAutoIncludes()
       .ToListAsync();
 
-    return command.GrantTypes.Any(grantType => grants.All(x => x.Name.GetDescription() != grantType));
+    return command.GrantTypes.Any(grantType => grants.All(x => x.Name != grantType));
   }
 
   private static bool IsContactsInvalid(CreateClientCommand command)
