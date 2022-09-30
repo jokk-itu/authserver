@@ -36,11 +36,15 @@ public class HasUserConsentValidator : IValidator<HasUserConsentQuery>
 
   private async Task<bool> IsUserInvalid(HasUserConsentQuery query)
   {
-    if (!string.IsNullOrWhiteSpace(query.Username))
+    if (!string.IsNullOrWhiteSpace(query.Username)
+        && !string.IsNullOrWhiteSpace(query.Password))
       return true;
 
     var user = await _userManager.FindByNameAsync(query.Username);
-    return user is null;
+    if (user is null)
+      return true;
+
+    return !await _userManager.CheckPasswordAsync(user, query.Password);
   }
 
   private async Task<bool> IsScopeInvalid(HasUserConsentQuery query)
