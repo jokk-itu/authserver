@@ -12,7 +12,6 @@ using WebApp.Constants;
 using WebApp.Contracts.GetClient;
 using WebApp.Contracts.GetResourceInitialAccessToken;
 using WebApp.Contracts.PostClient;
-using WebApp.Contracts.PutClient;
 using WebApp.Extensions;
 
 namespace WebApp.Controllers;
@@ -105,7 +104,8 @@ public class ClientController : Controller
     };
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
 
-
+    if (response.IsError())
+      return this.BadOAuthResult(response.ErrorCode, response.ErrorDescription);
 
     return NoContent();
   }

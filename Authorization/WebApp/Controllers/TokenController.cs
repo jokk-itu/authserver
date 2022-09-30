@@ -1,13 +1,9 @@
-﻿using Infrastructure;
-using Infrastructure.Repositories;
-using Contracts.PostToken;
+﻿using Contracts.PostToken;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Extensions;
 using Domain.Constants;
 using Application;
 using WebApp.Contracts.PostToken;
-using Infrastructure.Factories;
-using Infrastructure.Builders.Abstractions;
 using Infrastructure.Requests.CreateAuthorizationCodeGrant;
 using Infrastructure.Requests.CreateRefreshTokenGrant;
 using MediatR;

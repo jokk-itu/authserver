@@ -25,12 +25,8 @@ public static class ServiceCollectionExtensions
     services.AddTransient<ITokenBuilder, TokenBuilder>();
     services.AddTransient<ITokenDecoder, TokenDecoder>();
 
-    services.AddScoped<ClientManager>();
     services.AddScoped<ResourceManager>();
     services.AddScoped<ScopeManager>();
-    services.AddScoped<TokenManager>();
-    services.AddScoped<CodeManager>();
-    services.AddScoped<NonceManager>();
 
     services.AddSingleton<JwkManager>();
 
