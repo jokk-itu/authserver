@@ -1,28 +1,24 @@
-﻿using System.Security.Policy;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-
-namespace WebApp.Constants;
+﻿namespace WebApp.Constants;
 
 public static class ParameterNames
 {
-  public const string ResponseType = OpenIdConnectParameterNames.ResponseType;
-  public const string ClientId = OpenIdConnectParameterNames.ClientId;
-  public const string ClientSecret = OpenIdConnectParameterNames.ClientSecret;
-  public const string RedirectUri = OpenIdConnectParameterNames.RedirectUri;
-  public const string Scope = OpenIdConnectParameterNames.Scope;
-  public const string State = OpenIdConnectParameterNames.State;
+  public const string ResponseType = "response_type";
+  public const string ClientId = "client_id";
+  public const string ClientSecret = "client_secret";
+  public const string RedirectUri = "redirect_uri";
+  public const string Scope = "scope";
+  public const string State = "state";
   public const string CodeChallenge = "code_challenge";
   public const string CodeChallengeMethod = "code_challenge_method";
   public const string CodeVerifier = "code_verifier";
-  public const string Nonce = OpenIdConnectParameterNames.Nonce;
-  public const string Code = OpenIdConnectParameterNames.Code;
-  public const string RefreshToken = OpenIdConnectParameterNames.RefreshToken;
-  public const string AccessToken = OpenIdConnectParameterNames.AccessToken;
-  public const string IdToken = OpenIdConnectParameterNames.IdToken;
-  public const string TokenType = OpenIdConnectParameterNames.TokenType;
-  public const string ExpiresIn = OpenIdConnectParameterNames.ExpiresIn;
-  public const string GrantType = OpenIdConnectParameterNames.GrantType;
+  public const string Nonce = "nonce";
+  public const string Code = "code";
+  public const string RefreshToken = "refresh_token";
+  public const string AccessToken = "access_token";
+  public const string IdToken = "id_token";
+  public const string TokenType = "token_type";
+  public const string ExpiresIn = "expires_in";
+  public const string GrantType = "grant_type";
   public const string RedirectUris = "redirect_uris";
   public const string ResponseTypes = "response_types";
   public const string GrantTypes = "grant_types";
@@ -42,4 +38,9 @@ public static class ParameterNames
   public const string ResourceSecret = "resource_secret";
   public const string Error = "error";
   public const string ErrorDescription = "error_description";
+  public const string Prompt = "prompt";
+  public const string MaxAge = "max_age";
+  public const string IdTokenHint = "id_token_hint";
+  public const string LoginHint = "login_hint";
+  public const string AcrValues = "acr_values";
 }
