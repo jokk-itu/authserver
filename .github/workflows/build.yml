@@ -24,7 +24,7 @@ jobs:
     - name: Build
       run: dotnet build AuthorizationServer.sln --no-restore
     - name: Test
-      run: dotnet test Auth.sln --no-build --verbosity normal
+      run: dotnet test AuthorizationServer.sln --no-build --verbosity normal
   
   sonarscan:
     name: SonarScan
@@ -69,8 +69,8 @@ jobs:
         shell: powershell
         run: |
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"jokk-itu_authserver" /o:"jokk-itu" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
-          dotnet clean Auth.sln
-          dotnet restore Auth.sln
-          dotnet build Auth.sln --no-restore
-          dotnet-coverage collect 'dotnet test Auth.sln --no-restore' -f xml  -o 'coverage.xml'
+          dotnet clean AuthorizationServer.sln
+          dotnet restore AuthorizationServer.sln
+          dotnet build AuthorizationServer.sln --no-restore
+          dotnet-coverage collect 'dotnet test AuthorizationServer.sln --no-restore' -f xml  -o 'coverage.xml'
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
