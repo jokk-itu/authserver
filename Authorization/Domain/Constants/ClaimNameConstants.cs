@@ -82,4 +82,11 @@ public static class ClaimNameConstants
   /// Issuer.
   /// </summary>
   public const string Iss = "iss";
+
+  public const string Address = "address";
+  public const string GivenName = "given_name";
+  public const string FamilyName = "family_name";
+  public const string Birthdate = "birthdate";
+  public const string Name = "name";
+  public const string Email = "email";
 }
