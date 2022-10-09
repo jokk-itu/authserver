@@ -50,6 +50,9 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
 
     if (await IsUserInvalid(value))
       return new ValidationResult(ErrorCode.InvalidRequest, "user is invalid", HttpStatusCode.Redirect);
+
+    if (value.MaxAge < 0)
+      return new ValidationResult(ErrorCode.InvalidRequest, "max_age is invalid", HttpStatusCode.Redirect);
     
     return new ValidationResult(HttpStatusCode.OK);
   }
@@ -75,7 +78,7 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
   {
     var client = await _identityContext
       .Set<Client>()
-      .Include(x => x.Grants)
+      .Include(x => x.GrantTypes)
       .Include(x => x.RedirectUris)
       .Include(x => x.Scopes)
       .SingleAsync(x => x.Id == query.ClientId);
@@ -83,7 +86,7 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
     if (client.RedirectUris.All(x => x.Uri != query.RedirectUri))
       return true;
 
-    if (client.Grants.All(x => x.Name != GrantType.AuthorizationCode))
+    if (client.GrantTypes.All(x => x.Name != GrantTypeConstants.AuthorizationCode))
       return true;
 
     return query.Scopes.All(x => client.Scopes.Any(y => y.Name == x));
@@ -118,8 +121,8 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
       return true;
 
     return await _identityContext
-      .Set<Nonce>()
-      .AnyAsync(x => x.Value == query.Nonce);
+      .Set<AuthorizationCodeGrant>()
+      .AnyAsync(x => x.Nonce == query.Nonce);
   }
 
   private async Task<bool> IsScopesInvalidAsync(CreateAuthorizationGrantCommand query)

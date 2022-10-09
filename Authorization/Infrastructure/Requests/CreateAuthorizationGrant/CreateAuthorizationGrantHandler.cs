@@ -1,29 +1,29 @@
 ﻿using System.Net;
 using Application.Validation;
 using Domain;
-using Domain.Enums;
-using Infrastructure.Factories;
+using Infrastructure.Builders.Abstractions;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.CreateAuthorizationGrant;
 public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizationGrantCommand, CreateAuthorizationGrantResponse>
 {
   private readonly IdentityContext _identityContext;
   private readonly IValidator<CreateAuthorizationGrantCommand> _validator;
-  private readonly CodeFactory _codeFactory;
   private readonly UserManager<User> _userManager;
+  private readonly ICodeBuilder _codeBuilder;
 
   public CreateAuthorizationGrantHandler(
     IdentityContext identityContext, 
     IValidator<CreateAuthorizationGrantCommand> validator,
-    CodeFactory codeFactory,
-    UserManager<User> userManager)
+    UserManager<User> userManager,
+    ICodeBuilder codeBuilder)
   {
     _identityContext = identityContext;
     _validator = validator;
-    _codeFactory = codeFactory;
     _userManager = userManager;
+    _codeBuilder = codeBuilder;
   }
 
   public async Task<CreateAuthorizationGrantResponse> Handle(CreateAuthorizationGrantCommand request, CancellationToken cancellationToken)
@@ -33,32 +33,48 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
       return new CreateAuthorizationGrantResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
 
     var user = await _userManager.FindByNameAsync(request.Username);
+    var client = await _identityContext
+      .Set<Client>()
+      .SingleAsync(x => x.Id == request.ClientId, cancellationToken: cancellationToken);
 
-    var code = await _codeFactory.GenerateCodeAsync(
-      request.RedirectUri,
-      request.Scopes,
-      request.ClientId,
+    var session = await _identityContext
+      .Set<Session>()
+      .Include(x => x.Clients)
+      .SingleOrDefaultAsync(x => x.User.UserName == request.Username, cancellationToken: cancellationToken) ?? new Session
+      {
+        Created = DateTime.Now,
+        Updated = DateTime.Now,
+        User = user,
+        MaxAge = request.MaxAge,
+        Clients = new[] { client }
+      };
+
+    if(session.Clients.All(x => x.Id != request.ClientId))
+      session.Clients.Add(client);
+
+    var authorizationCodeGrant = new AuthorizationCodeGrant
+    {
+      IsRedeemed = false,
+      Client = client,
+      Nonce = request.Nonce,
+      Sessions = new[] { session }
+    };
+
+    await _identityContext
+      .Set<AuthorizationCodeGrant>()
+      .AddAsync(authorizationCodeGrant, cancellationToken: cancellationToken);
+
+    var code = await _codeBuilder.BuildAuthorizationCodeAsync(
+      authorizationCodeGrant.Id,
       request.CodeChallenge,
+      request.CodeChallengeMethod,
       user.Id,
-      request.Nonce);
+      client.Id,
+      request.Scopes);
 
-    await _identityContext
-      .Set<Code>()
-      .AddAsync(new Code
-      {
-        Value = code,
-        CodeType = CodeType.AuthorizationCode,
-        IsRedeemed = false
-      }, cancellationToken: cancellationToken);
+    authorizationCodeGrant.Code = code;
 
-    await _identityContext
-      .Set<Nonce>()
-      .AddAsync(new Nonce
-      {
-        Value = request.Nonce
-      }, cancellationToken: cancellationToken);
-
-    await _identityContext.SaveChangesAsync(cancellationToken: cancellationToken);
+    await _identityContext.SaveChangesAsync(cancellationToken);
 
     return new CreateAuthorizationGrantResponse(HttpStatusCode.Redirect)
     {
