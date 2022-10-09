@@ -1,8 +1,7 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using System.Xml.Linq;
+﻿using Infrastructure.Requests.CreateAuthorizationCodeGrant;
+using MediatR;
 
-namespace Infrastructure.Requests.CreateAuthorizationCodeGrant;
+namespace Infrastructure.Requests.RedeemAuthorizationGrant;
 
 #nullable disable
 public class RedeemAuthorizationCodeGrantCommand : IRequest<RedeemAuthorizationCodeGrantResponse>

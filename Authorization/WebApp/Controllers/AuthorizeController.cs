@@ -21,8 +21,13 @@ public class AuthorizeController : Controller
   }
 
   [HttpGet]
-  public IActionResult Index()
+  public IActionResult Index(
+    [FromQuery(Name = ParameterNames.Prompt)] string prompt)
   {
+    var prompts = prompt.Split(' ');
+    // TODO DROP None support
+    // TODO DROP select_account support
+    // TODO Enable consent and login support
     return View();
   }
 
@@ -41,6 +46,7 @@ public class AuthorizeController : Controller
     [FromQuery(Name = ParameterNames.CodeChallenge)] string codeChallenge,
     [FromQuery(Name = ParameterNames.CodeChallengeMethod)] string codeChallengeMethod,
     [FromQuery(Name = ParameterNames.Nonce)] string nonce,
+    [FromQuery(Name = ParameterNames.MaxAge)] long maxAge,
     CancellationToken cancellationToken = default)
   {
     var query = new CreateAuthorizationGrantCommand
@@ -54,7 +60,8 @@ public class AuthorizeController : Controller
       CodeChallengeMethod = codeChallengeMethod,
       Nonce = nonce,
       Scopes = scope.Split(' '),
-      State = state
+      State = state,
+      MaxAge = maxAge
     };
     var response = await _mediator.Send(query, cancellationToken: cancellationToken);
     return response.StatusCode switch
@@ -68,7 +75,7 @@ public class AuthorizeController : Controller
     };
   }
 
-  private QueryString GetCodeQuery(CreateAuthorizationGrantResponse response)
+  private static QueryString GetCodeQuery(CreateAuthorizationGrantResponse response)
   {
     return new QueryBuilder
     {

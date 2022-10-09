@@ -41,7 +41,7 @@ public class HasUserConsentHandler : IRequestHandler<HasUserConsentQuery, HasUse
     var areScopesStale = !request.Scopes.All(x => consentGrant.Scopes.Any(y => y.Name == x));
     return new HasUserConsentResponse(HttpStatusCode.Redirect)
     {
-      HasValidConsent = !areScopesStale && !consentGrant.IsMaxAgeExceeded()
+      HasValidConsent = !areScopesStale
     };
   }
 }

@@ -4,8 +4,8 @@ using WebApp.Extensions;
 using Domain.Constants;
 using Application;
 using WebApp.Contracts.PostToken;
-using Infrastructure.Requests.CreateAuthorizationCodeGrant;
 using Infrastructure.Requests.CreateRefreshTokenGrant;
+using Infrastructure.Requests.RedeemAuthorizationGrant;
 using MediatR;
 
 namespace WebApp.Controllers;

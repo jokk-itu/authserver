@@ -38,7 +38,7 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       .Where(x => request.Scopes.Contains(x.Name))
       .ToListAsync(cancellationToken: cancellationToken);
 
-    var grants = await _identityContext
+    var grantTypes = await _identityContext
       .Set<GrantType>()
       .IgnoreAutoIncludes()
       .Where(x => request.GrantTypes.Contains(x.Name))
@@ -67,7 +67,7 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       Secret = CryptographyHelper.GetRandomString(32),
       Scopes = scopes,
       RedirectUris = redirectUris,
-      Grants = grants,
+      GrantTypes = grantTypes,
       ClientProfile = ClientProfile.WebApplication,
       ClientType = ClientType.Confidential,
       ResponseTypes = responseTypes,
@@ -86,7 +86,7 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
     return new CreateClientResponse(HttpStatusCode.Created)
     {
       ApplicationType = request.ApplicationType,
-      GrantTypes = client.Grants.Select(x => x.Name).ToList(),
+      GrantTypes = client.GrantTypes.Select(x => x.Name).ToList(),
       ClientId = client.Id,
       ClientName = client.Name,
       ClientSecret = client.Secret,
