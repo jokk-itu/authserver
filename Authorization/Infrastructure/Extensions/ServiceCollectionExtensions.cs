@@ -8,7 +8,6 @@ using System.Reflection;
 using Application.Validation;
 using Infrastructure.Requests;
 using MediatR;
-using Infrastructure.Factories;
 using Infrastructure.Builders;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Decoders;
@@ -21,9 +20,10 @@ public static class ServiceCollectionExtensions
   public static IServiceCollection AddDataStore(this IServiceCollection services, IConfiguration configuration)
   {
     services.AddDataProtection();
-    services.AddTransient<CodeFactory>();
     services.AddTransient<ITokenBuilder, TokenBuilder>();
     services.AddTransient<ITokenDecoder, TokenDecoder>();
+    services.AddTransient<ICodeBuilder, CodeBuilder>();
+    services.AddTransient<ICodeDecoder, CodeDecoder>();
 
     services.AddScoped<ResourceManager>();
     services.AddScoped<ScopeManager>();
