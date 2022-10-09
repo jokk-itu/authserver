@@ -7,7 +7,6 @@ public class ConsentGrantConfiguration : IEntityTypeConfiguration<ConsentGrant>
 {
   public void Configure(EntityTypeBuilder<ConsentGrant> builder)
   {
-    builder.HasBaseType<Grant>();
     builder.HasOne(x => x.Client);
     builder.HasOne(x => x.User);
     builder

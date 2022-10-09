@@ -12,6 +12,10 @@ internal class ResourceConfiguration : IEntityTypeConfiguration<Resource>
       .WithMany(scope => scope.Resources)
       .UsingEntity(link => link.ToTable("ResourceScopes"));
 
+    builder
+      .HasMany(x => x.ResourceRegistrationTokens)
+      .WithOne(x => x.Resource);
+
     builder.ToTable("Resources");
   }
 }

@@ -16,13 +16,13 @@ internal class GrantTypeConfiguration : IEntityTypeConfiguration<Domain.GrantTyp
       {
         Id = 1,
         Name = GrantTypeConstants.AuthorizationCode
-      }, 
+      },
       new Domain.GrantType 
       {
         Id = 2,
         Name = GrantTypeConstants.RefreshToken
       });
 
-    builder.ToTable("Grants");
+    builder.ToTable("GrantTypes");
   }
 }

@@ -11,7 +11,11 @@ internal class ScopeConfiguration : IEntityTypeConfiguration<Scope>
   {
     builder
       .HasIndex(s => s.Name)
-      .IsUnique(true);
+      .IsUnique();
+
+    builder
+      .HasMany(x => x.ScopeRegistrationTokens)
+      .WithOne(x => x.Scope);
 
     builder.HasData(
       new Scope 

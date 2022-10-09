@@ -43,9 +43,9 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
       .UsingEntity(link => link.ToTable("ClientScopes"));
 
     builder
-      .HasMany(client => client.Grants)
+      .HasMany(client => client.GrantTypes)
       .WithMany(grant => grant.Clients)
-      .UsingEntity(link => link.ToTable("ClientGrants"));
+      .UsingEntity(link => link.ToTable("ClientGrantTypes"));
 
     builder
       .HasMany(client => client.Contacts)
@@ -56,6 +56,30 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
       .HasMany(client => client.ResponseTypes)
       .WithMany(contact => contact.Clients)
       .UsingEntity(link => link.ToTable("ClientResponseTypes"));
+
+    builder
+      .HasMany(x => x.AuthorizationCodeGrants)
+      .WithOne(x => x.Client);
+
+    builder
+      .HasMany(x => x.ConsentGrants)
+      .WithOne(x => x.Client);
+
+    builder
+      .HasMany(x => x.RefreshTokens)
+      .WithOne(x => x.Client);
+
+    builder
+      .HasMany(x => x.IdTokens)
+      .WithOne(x => x.Client);
+
+    builder
+      .HasMany(x => x.AccessTokens)
+      .WithOne(x => x.Client);
+
+    builder
+      .HasMany(x => x.ClientRegistrationTokens)
+      .WithOne(x => x.Client);
       
     builder.ToTable("Clients");
   }
