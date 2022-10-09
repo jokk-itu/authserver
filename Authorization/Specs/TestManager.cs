@@ -51,7 +51,7 @@ public class TestManager
       Id = Guid.NewGuid().ToString(),
       ClientProfile = ClientProfile.WebApplication,
       ClientType = ClientType.Confidential,
-      Grants = await _identityContext.Set<GrantType>().ToListAsync(),
+      GrantTypes = await _identityContext.Set<GrantType>().ToListAsync(),
       RedirectUris = await _identityContext.Set<RedirectUri>().ToListAsync(),
       Scopes = await _identityContext.Set<Scope>().ToListAsync(),
       Name = "test",
