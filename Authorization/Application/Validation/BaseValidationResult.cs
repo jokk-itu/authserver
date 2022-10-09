@@ -6,7 +6,7 @@ public class BaseValidationResult
   {
   }
 
-  public BaseValidationResult(string? errorCode, string? errorDescription)
+  public BaseValidationResult(string errorCode, string errorDescription)
   {
     ErrorCode = errorCode;
     ErrorDescription = errorDescription;

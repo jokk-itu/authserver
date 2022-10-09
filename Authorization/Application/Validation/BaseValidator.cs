@@ -1,13 +1,7 @@
 ﻿namespace Application.Validation;
 public abstract class BaseValidator<T>
 {
-  protected readonly bool IsRequired;
-
-  protected BaseValidator(bool isRequired)
-  {
-    IsRequired = isRequired;
-  }
-  public abstract Task<BaseValidationResult> IsValidAsync(T value);
+  public abstract Task<BaseValidationResult> ValidateAsync(T value, CancellationToken cancellationToken = default);
 
   protected Task<BaseValidationResult> GetValidResult()
   {
@@ -17,5 +11,10 @@ public abstract class BaseValidator<T>
   protected Task<BaseValidationResult> GetInvalidResult(string error, string errorDescription)
   {
     return new Task<BaseValidationResult>(() => new BaseValidationResult(error, errorDescription));
+  }
+
+  protected BaseValidationResult Ok()
+  {
+    return new BaseValidationResult();
   }
 }
