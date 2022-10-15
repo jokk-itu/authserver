@@ -14,6 +14,8 @@ using Moq;
 using Xunit;
 using Infrastructure.Builders;
 using Infrastructure.Decoders;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Specs.Token;
 public class TokenBuilderTests
@@ -73,11 +75,13 @@ public class TokenBuilderTests
     var fakeJwtBearerOptions = new Mock<IOptions<JwtBearerOptions>>();
     fakeJwtBearerOptions.Setup(x => x.Value).Returns(jwtBearerOptions);
     var resourceManager = new ResourceManager(_identityContext);
-    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager);
+    var userStore = new UserStore<User>(_identityContext);
+    var userManager = new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
+    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager, userManager);
     var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager);
 
     // Act
-    var token = await tokenBuilder.BuildAccessTokenAsync("test", new[] { ScopeConstants.OpenId, identityScope.Name }, "1234");
+    var token = await tokenBuilder.BuildAccessTokenAsync("test", new[] { ScopeConstants.OpenId, identityScope.Name }, "1234", "123");
     var securityToken = tokenDecoder.DecodeToken(token);
 
     // Assert
@@ -91,7 +95,7 @@ public class TokenBuilderTests
 
   [Fact]
   [Trait("Category", "Unit")]
-  public void BuildIdToken_ExpectIdToken()
+  public async Task BuildIdToken_ExpectIdToken()
   {
     // Arrange
     var identityConfiguration = new IdentityConfiguration 
@@ -114,11 +118,13 @@ public class TokenBuilderTests
     var fakeJwtBearerOptions = new Mock<IOptions<JwtBearerOptions>>();
     fakeJwtBearerOptions.Setup(x => x.Value).Returns(jwtBearerOptions);
     var resourceManager = new ResourceManager(_identityContext);
-    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager);
+    var userStore = new UserStore<User>(_identityContext);
+    var userManager = new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
+    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager, userManager);
     var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager);
 
     // Act
-    var token = tokenBuilder.BuildIdToken("test", new[] { ScopeConstants.OpenId }, "nonce", "1234");
+    var token = await tokenBuilder.BuildIdTokenAsync("test", new[] { ScopeConstants.OpenId }, "nonce", "1234", "123");
     var securityToken = tokenDecoder.DecodeToken(token);
 
     // Assert
@@ -173,11 +179,13 @@ public class TokenBuilderTests
     var fakeJwtBearerOptions = new Mock<IOptions<JwtBearerOptions>>();
     fakeJwtBearerOptions.Setup(x => x.Value).Returns(jwtBearerOptions);
     var resourceManager = new ResourceManager(_identityContext);
-    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager);
+    var userStore = new UserStore<User>(_identityContext);
+    var userManager = new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
+    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager, userManager);
     var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager);
 
     // Act
-    var token = await tokenBuilder.BuildRefreshTokenAsync("test", new[] { ScopeConstants.OpenId, identityScope.Name }, "1234");
+    var token = await tokenBuilder.BuildRefreshTokenAsync("test", new[] { ScopeConstants.OpenId, identityScope.Name }, "1234", "123");
     var securityToken = tokenDecoder.DecodeToken(token);
 
     // Assert
@@ -213,7 +221,9 @@ public class TokenBuilderTests
     var fakeJwtBearerOptions = new Mock<IOptions<JwtBearerOptions>>();
     fakeJwtBearerOptions.Setup(x => x.Value).Returns(jwtBearerOptions);
     var resourceManager = new ResourceManager(_identityContext);
-    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager);
+    var userStore = new UserStore<User>(_identityContext);
+    var userManager = new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
+    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager, userManager);
     var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager);
 
     // Act
@@ -251,7 +261,9 @@ public class TokenBuilderTests
     var fakeJwtBearerOptions = new Mock<IOptions<JwtBearerOptions>>();
     fakeJwtBearerOptions.Setup(x => x.Value).Returns(jwtBearerOptions);
     var resourceManager = new ResourceManager(_identityContext);
-    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager);
+    var userStore = new UserStore<User>(_identityContext);
+    var userManager = new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
+    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager, userManager);
     var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager);
 
     // Act
@@ -289,7 +301,9 @@ public class TokenBuilderTests
     var fakeJwtBearerOptions = new Mock<IOptions<JwtBearerOptions>>();
     fakeJwtBearerOptions.Setup(x => x.Value).Returns(jwtBearerOptions);
     var resourceManager = new ResourceManager(_identityContext);
-    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager);
+    var userStore = new UserStore<User>(_identityContext);
+    var userManager = new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
+    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager, userManager);
     var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager);
 
     // Act
@@ -327,7 +341,9 @@ public class TokenBuilderTests
     var fakeJwtBearerOptions = new Mock<IOptions<JwtBearerOptions>>();
     fakeJwtBearerOptions.Setup(x => x.Value).Returns(jwtBearerOptions);
     var resourceManager = new ResourceManager(_identityContext);
-    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager);
+    var userStore = new UserStore<User>(_identityContext);
+    var userManager = new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
+    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager, userManager);
     var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager);
 
     // Act
@@ -366,7 +382,9 @@ public class TokenBuilderTests
     var fakeJwtBearerOptions = new Mock<IOptions<JwtBearerOptions>>();
     fakeJwtBearerOptions.Setup(x => x.Value).Returns(jwtBearerOptions);
     var resourceManager = new ResourceManager(_identityContext);
-    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager);
+    var userStore = new UserStore<User>(_identityContext);
+    var userManager = new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
+    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager, userManager);
     var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager);
 
     // Act
@@ -405,7 +423,9 @@ public class TokenBuilderTests
     var fakeJwtBearerOptions = new Mock<IOptions<JwtBearerOptions>>();
     fakeJwtBearerOptions.Setup(x => x.Value).Returns(jwtBearerOptions);
     var resourceManager = new ResourceManager(_identityContext);
-    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager);
+    var userStore = new UserStore<User>(_identityContext);
+    var userManager = new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
+    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager, userManager);
     var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager);
 
     // Act

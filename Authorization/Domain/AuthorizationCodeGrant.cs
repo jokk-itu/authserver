@@ -3,7 +3,7 @@
 #nullable disable
 public class AuthorizationCodeGrant
 {
-  public long Id { get; set; }
+  public string Id { get; set; }
   public string Code { get; set; }
   public string Nonce { get; set; }
   public bool IsRedeemed { get; set; }

@@ -9,7 +9,8 @@ public class SessionConfiguration : IEntityTypeConfiguration<Session>
   {
     builder
       .HasMany(x => x.AuthorizationCodeGrants)
-      .WithOne(x => x.Session);
+      .WithOne(x => x.Session)
+      .OnDelete(DeleteBehavior.Cascade);
 
     builder
       .HasMany(x => x.Clients)
@@ -18,19 +19,24 @@ public class SessionConfiguration : IEntityTypeConfiguration<Session>
 
     builder
       .HasMany(x => x.IdTokens)
-      .WithOne(x => x.Session);
+      .WithOne(x => x.Session)
+      .OnDelete(DeleteBehavior.Cascade);
 
     builder
       .HasMany(x => x.AccessTokens)
-      .WithOne(x => x.Session);
+      .WithOne(x => x.Session)
+      .OnDelete(DeleteBehavior.Cascade);
 
     builder
       .HasMany(x => x.RefreshTokens)
-      .WithOne(x => x.Session);
+      .WithOne(x => x.Session)
+      .OnDelete(DeleteBehavior.Cascade);
 
     builder
       .HasOne(x => x.User)
-      .WithOne(x => x.Session);
+      .WithOne(x => x.Session)
+      .HasForeignKey<User>(x => x.SessionId)
+      .OnDelete(DeleteBehavior.Cascade);
 
     builder.ToTable("Sessions");
   }

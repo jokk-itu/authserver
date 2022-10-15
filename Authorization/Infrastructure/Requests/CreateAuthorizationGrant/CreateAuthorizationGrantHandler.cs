@@ -52,27 +52,29 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
     if(session.Clients.All(x => x.Id != request.ClientId))
       session.Clients.Add(client);
 
-    var authorizationCodeGrant = new AuthorizationCodeGrant
-    {
-      IsRedeemed = false,
-      Client = client,
-      Nonce = request.Nonce,
-      Sessions = new[] { session }
-    };
-
-    await _identityContext
-      .Set<AuthorizationCodeGrant>()
-      .AddAsync(authorizationCodeGrant, cancellationToken: cancellationToken);
+    var grantId = Guid.NewGuid().ToString();
 
     var code = await _codeBuilder.BuildAuthorizationCodeAsync(
-      authorizationCodeGrant.Id,
+      grantId,
       request.CodeChallenge,
       request.CodeChallengeMethod,
       user.Id,
       client.Id,
       request.Scopes);
 
-    authorizationCodeGrant.Code = code;
+    var authorizationCodeGrant = new AuthorizationCodeGrant
+    {
+      Id = grantId,
+      IsRedeemed = false,
+      Client = client,
+      Code = code,
+      Nonce = request.Nonce,
+      Session = session
+    };
+
+    await _identityContext
+      .Set<AuthorizationCodeGrant>()
+      .AddAsync(authorizationCodeGrant, cancellationToken: cancellationToken);
 
     await _identityContext.SaveChangesAsync(cancellationToken);
 

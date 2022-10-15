@@ -15,7 +15,8 @@ internal class ScopeConfiguration : IEntityTypeConfiguration<Scope>
 
     builder
       .HasMany(x => x.ScopeRegistrationTokens)
-      .WithOne(x => x.Scope);
+      .WithOne(x => x.Scope)
+      .OnDelete(DeleteBehavior.Cascade);
 
     builder.HasData(
       new Scope 

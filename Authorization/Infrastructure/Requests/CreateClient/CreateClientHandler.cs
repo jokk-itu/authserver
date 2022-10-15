@@ -34,13 +34,11 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
 
     var scopes = await _identityContext
       .Set<Scope>()
-      .IgnoreAutoIncludes()
       .Where(x => request.Scopes.Contains(x.Name))
       .ToListAsync(cancellationToken: cancellationToken);
 
     var grantTypes = await _identityContext
       .Set<GrantType>()
-      .IgnoreAutoIncludes()
       .Where(x => request.GrantTypes.Contains(x.Name))
       .ToListAsync(cancellationToken: cancellationToken);
 
@@ -50,15 +48,14 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
 
     var responseTypes = await _identityContext
       .Set<ResponseType>()
-      .IgnoreAutoIncludes()
       .Where(x => request.ResponseTypes.Contains(x.Name))
       .ToListAsync(cancellationToken: cancellationToken);
 
-    var contacts = request.Contacts
+    var contacts = request.Contacts?
       .Select(email => new Contact
       {
         Email = email
-      }).ToList();
+      }).ToList() ?? new List<Contact>();
 
     var client = new Client
     {

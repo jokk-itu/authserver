@@ -7,6 +7,8 @@ using Infrastructure.Helpers;
 using Infrastructure.Repositories;
 using Infrastructure.Requests.DeleteClient;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -91,7 +93,9 @@ public class DeleteClientValidatorTests
     var jwkManager = new JwkManager(serviceProvider);
     var resourceManager = new ResourceManager(_identityContext);
     var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager);
-    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager);
+    var userStore = new UserStore<User>(_identityContext);
+    var userManager = new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
+    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager, userManager);
     var command = new DeleteClientCommand
     {
       ClientRegistrationToken = tokenBuilder.BuildClientInitialAccessToken()
@@ -129,7 +133,9 @@ public class DeleteClientValidatorTests
     var jwkManager = new JwkManager(serviceProvider);
     var resourceManager = new ResourceManager(_identityContext);
     var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager);
-    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager);
+    var userStore = new UserStore<User>(_identityContext);
+    var userManager = new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
+    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager, userManager);
     var command = new DeleteClientCommand
     {
       ClientRegistrationToken = tokenBuilder.BuildClientRegistrationAccessToken("wrong_id")
@@ -176,7 +182,9 @@ public class DeleteClientValidatorTests
     var jwkManager = new JwkManager(serviceProvider);
     var resourceManager = new ResourceManager(_identityContext);
     var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager);
-    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager);
+    var userStore = new UserStore<User>(_identityContext);
+    var userManager = new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
+    var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager, userManager);
     var command = new DeleteClientCommand
     {
       ClientRegistrationToken = tokenBuilder.BuildClientRegistrationAccessToken(client.Id)

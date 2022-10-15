@@ -15,6 +15,8 @@ using Xunit;
 using Infrastructure.Helpers;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -96,8 +98,10 @@ public class DeleteClientHandlerTests
     fakeJwtBearerOptions.Setup(x => x.Value).Returns(jwtBearerOptions);
     var jwkManager = new JwkManager(serviceProvider);
     var resourceManager = new ResourceManager(_identityContext);
+    var userStore = new UserStore<User>(_identityContext);
+    var userManager = new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
     var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager);
-    var token = new TokenBuilder(identityConfiguration, jwkManager, resourceManager).BuildClientRegistrationAccessToken(client.Id);
+    var token = new TokenBuilder(identityConfiguration, jwkManager, resourceManager, userManager).BuildClientRegistrationAccessToken(client.Id);
     var command = new DeleteClientCommand
     {
       ClientRegistrationToken = token

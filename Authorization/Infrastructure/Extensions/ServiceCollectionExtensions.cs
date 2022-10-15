@@ -32,12 +32,26 @@ public static class ServiceCollectionExtensions
 
     services.AddDbContext<IdentityContext>(options =>
     {
-      options.UseSqlServer(configuration.GetConnectionString("SqlServer"),
-              optionsBuilder =>
-              {
-                optionsBuilder.EnableRetryOnFailure(10, TimeSpan.FromSeconds(2), null);
-                optionsBuilder.MigrationsAssembly("Infrastructure");
-              });
+      var sqliteConnection = configuration.GetConnectionString("Sqlite");
+      var sqlServerConnection = configuration.GetConnectionString("SqlServer");
+
+      if (!string.IsNullOrWhiteSpace(sqliteConnection))
+      {
+        options.UseSqlite(sqliteConnection, optionsBuilder =>
+        {
+          optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+          optionsBuilder.MigrationsAssembly(typeof(IdentityContext).Namespace);
+        });
+      }
+      else if (!string.IsNullOrWhiteSpace(sqlServerConnection))
+      {
+        options.UseSqlServer(sqlServerConnection, optionsBuilder =>
+        {
+          optionsBuilder.EnableRetryOnFailure(5, TimeSpan.FromSeconds(2), null);
+          optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+          optionsBuilder.MigrationsAssembly(typeof(IdentityContext).Namespace);
+        });
+      }
     });
     services.AddScoped<IdentityContext>();
 

@@ -127,7 +127,7 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
 
   private async Task<bool> IsScopesInvalidAsync(CreateAuthorizationGrantCommand query)
   {
-    if (query.Scopes.Any(x => x == ScopeConstants.OpenId))
+    if (query.Scopes.All(x => x != ScopeConstants.OpenId))
       return true;
 
     foreach (var scope in query.Scopes)

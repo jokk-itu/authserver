@@ -35,7 +35,8 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
 
     builder
       .HasMany(client => client.RedirectUris)
-      .WithOne(redirectUri => redirectUri.Client);
+      .WithOne(redirectUri => redirectUri.Client)
+      .OnDelete(DeleteBehavior.Cascade);
 
     builder
       .HasMany(client => client.Scopes)
@@ -59,27 +60,33 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
 
     builder
       .HasMany(x => x.AuthorizationCodeGrants)
-      .WithOne(x => x.Client);
+      .WithOne(x => x.Client)
+      .OnDelete(DeleteBehavior.Cascade);
 
     builder
       .HasMany(x => x.ConsentGrants)
-      .WithOne(x => x.Client);
+      .WithOne(x => x.Client)
+      .OnDelete(DeleteBehavior.Cascade);
 
     builder
       .HasMany(x => x.RefreshTokens)
-      .WithOne(x => x.Client);
+      .WithOne(x => x.Client)
+      .OnDelete(DeleteBehavior.Cascade);
 
     builder
       .HasMany(x => x.IdTokens)
-      .WithOne(x => x.Client);
+      .WithOne(x => x.Client)
+      .OnDelete(DeleteBehavior.Cascade);
 
     builder
       .HasMany(x => x.AccessTokens)
-      .WithOne(x => x.Client);
+      .WithOne(x => x.Client)
+      .OnDelete(DeleteBehavior.Cascade);
 
     builder
       .HasMany(x => x.ClientRegistrationTokens)
-      .WithOne(x => x.Client);
+      .WithOne(x => x.Client)
+      .OnDelete(DeleteBehavior.Cascade);
       
     builder.ToTable("Clients");
   }

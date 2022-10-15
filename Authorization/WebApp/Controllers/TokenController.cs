@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using WebApp.Extensions;
 using Domain.Constants;
 using Application;
+using Contracts;
 using WebApp.Contracts.PostToken;
 using Infrastructure.Requests.CreateRefreshTokenGrant;
 using Infrastructure.Requests.RedeemAuthorizationGrant;
@@ -24,7 +25,7 @@ public class TokenController : ControllerBase
   [HttpPost]
   [Consumes("application/x-www-form-urlencoded")]
   [ProducesResponseType(typeof(PostTokenResponse), StatusCodes.Status200OK)]
-  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> PostAsync(
     [FromForm] PostTokenRequest request,
     CancellationToken cancellationToken = default)

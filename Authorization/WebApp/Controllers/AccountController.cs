@@ -86,34 +86,34 @@ public class AccountController : Controller
 
     var claims = new Dictionary<string, string>
     {
-      { ClaimTypes.NameIdentifier, user.Id }
+      { ClaimNameConstants.Sub, user.Id }
     };
 
     if (scopes.Contains(ScopeConstants.Profile)) 
     {
-      claims.Add(ClaimTypes.Name, $"{user.FirstName} {user.LastName}");
+      claims.Add(ClaimNameConstants.Name, $"{user.FirstName} {user.LastName}");
 
-      claims.Add(ClaimTypes.Surname, user.LastName);
+      claims.Add(ClaimNameConstants.FamilyName, user.LastName);
 
-      claims.Add(ClaimTypes.GivenName, user.FirstName);
+      claims.Add(ClaimNameConstants.GivenName, user.FirstName);
 
-      claims.Add(ClaimTypes.StreetAddress, user.Address);
+      claims.Add(ClaimNameConstants.Address, user.Address);
 
       var roles = await _userManager.GetRolesAsync(user);
       foreach (var role in roles)
       {
-        claims.Add(ClaimTypes.Role, role);
+        claims.Add(ClaimNameConstants.Role, role);
       }
 
-      claims.Add(ClaimTypes.DateOfBirth, user.Birthdate.ToString(CultureInfo.InvariantCulture));
-      claims.Add(ClaimTypes.Locality, user.Locale);
+      claims.Add(ClaimNameConstants.Birthdate, user.Birthdate.ToString(CultureInfo.InvariantCulture));
+      claims.Add(ClaimNameConstants.Locale, user.Locale);
     }
 
-    if (scopes.Contains(OpenIdConnectScope.Email)) 
-      claims.Add(ClaimTypes.Email, user.Email);
+    if (scopes.Contains(ScopeConstants.Email)) 
+      claims.Add(ClaimNameConstants.Email, user.Email);
 
     if (scopes.Contains(ScopeConstants.Phone))
-      claims.Add(ClaimTypes.MobilePhone, user.PhoneNumber);
+      claims.Add(ClaimNameConstants.Phone, user.PhoneNumber);
 
     return Json(claims);
   }

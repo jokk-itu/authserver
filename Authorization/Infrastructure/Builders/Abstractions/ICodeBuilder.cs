@@ -2,7 +2,7 @@
 public interface ICodeBuilder
 {
   Task<string> BuildAuthorizationCodeAsync(
-    long authorizationGrantId,
+    string authorizationGrantId,
     string codeChallenge, 
     string codeChallengeMethod,
     string userId,

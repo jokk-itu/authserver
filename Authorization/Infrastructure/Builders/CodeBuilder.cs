@@ -17,7 +17,7 @@ public class CodeBuilder : ICodeBuilder
   }
 
   public async Task<string> BuildAuthorizationCodeAsync(
-    long authorizationGrantId,
+    string authorizationGrantId,
     string codeChallenge, 
     string codeChallengeMethod,
     string userId,
@@ -43,7 +43,7 @@ public class CodeBuilder : ICodeBuilder
 
 public class AuthorizationCode
 {
-  public long AuthorizationGrantId { get; set; }
+  public string AuthorizationGrantId { get; set; } = null!;
   public string CodeChallenge { get; set; } = null!;
   public string CodeChallengeMethod { get; set; } = null!;
   public string ClientId { get; set; } = null!;

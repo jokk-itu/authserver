@@ -31,7 +31,7 @@ public class TokenBuilder : ITokenBuilder
     {
         var expires = DateTime.UtcNow.AddSeconds(_identityConfiguration.AccessTokenExpiration);
         var resources = await _resourceManager.ReadResourcesAsync(scopes, cancellationToken);
-        var audiences = resources.Select(x => x.Id).ToArray();
+        var audiences = resources.Select(x => x.Name).ToArray();
         var claims = new Dictionary<string, object>
         {
           { ClaimNameConstants.Sub, userId },
@@ -48,7 +48,7 @@ public class TokenBuilder : ITokenBuilder
     {
         var expires = DateTime.UtcNow.AddSeconds(_identityConfiguration.RefreshTokenExpiration);
         var resources = await _resourceManager.ReadResourcesAsync(scopes, cancellationToken);
-        var audiences = resources.Select(x => x.Id).ToArray();
+        var audiences = resources.Select(x => x.Name).ToArray();
         var claims = new Dictionary<string, object>
         {
           { ClaimNameConstants.Sub, userId },
@@ -79,9 +79,10 @@ public class TokenBuilder : ITokenBuilder
           { ClaimNameConstants.Nonce, nonce }
         };
         var user = await _userManager.FindByIdAsync(userId);
-        var consentedClaims = user.ConsentGrants
+        var consentedClaims = user.ConsentGrants?
           .Single(x => x.Client.Id == clientId)
-          .ConsentedClaims.Select(x => x.Name);
+          .ConsentedClaims.Select(x => x.Name) ?? new List<string>();
+
         foreach (var claimName in consentedClaims)
         {
           switch(claimName)

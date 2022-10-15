@@ -24,7 +24,7 @@ public class AuthorizeController : Controller
   public IActionResult Index(
     [FromQuery(Name = ParameterNames.Prompt)] string prompt)
   {
-    var prompts = prompt.Split(' ');
+    //var prompts = prompt.Split(' ');
     // TODO DROP None support
     // TODO DROP select_account support
     // TODO Enable consent and login support

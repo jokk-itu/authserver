@@ -1,10 +1,8 @@
 ﻿using System.Net;
-using System.Text.RegularExpressions;
 using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
-using Domain.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.CreateClient;
@@ -75,12 +73,13 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
 
   private static bool IsRedirectUrisInvalid(CreateClientCommand command)
   {
-    return !command.RedirectUris.Any() 
+    return command.RedirectUris is null || !command.RedirectUris.Any() 
            || command.RedirectUris.Any(redirectUri => !Uri.IsWellFormedUriString(redirectUri, UriKind.Absolute));
   }
 
   private static bool IsResponseTypesInvalid(CreateClientCommand command)
   {
+    command.ResponseTypes ??= new List<string>();
     if(!command.ResponseTypes.Any())
       command.ResponseTypes.Add(ResponseTypeConstants.Code);
 
@@ -89,7 +88,7 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
 
   private async Task<bool> IsGrantTypeInvalidAsync(CreateClientCommand command)
   {
-    if (!command.GrantTypes.Any())
+    if (command.GrantTypes is null || !command.GrantTypes.Any())
       return true;
 
     var grants = await _identityContext
@@ -102,7 +101,7 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
 
   private static bool IsContactsInvalid(CreateClientCommand command)
   {
-    if (!command.Contacts.Any())
+    if (command.Contacts is null || !command.Contacts.Any())
       return false;
 
     return (

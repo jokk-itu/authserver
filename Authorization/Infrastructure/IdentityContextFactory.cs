@@ -7,7 +7,7 @@ public class IdentityContextFactory : IDesignTimeDbContextFactory<IdentityContex
   public IdentityContext CreateDbContext(string[] args)
   {
     var optionsBuilder = new DbContextOptionsBuilder<IdentityContext>();
-    optionsBuilder.UseSqlServer(args[0]);
+    optionsBuilder.UseSqlite("DataSource=:memory:");
     return new IdentityContext(optionsBuilder.Options);
   }
 }

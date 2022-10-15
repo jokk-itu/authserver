@@ -17,7 +17,7 @@ public static class AntiForgeryHelper
     if (string.IsNullOrWhiteSpace(antiForgeryCookieValue.Value))
       throw new Exception("Invalid cookie was provided");
 
-    var antiForgeryFieldMatch = Regex.Match(loginViewHtml, $@"\<input name=""AntiForgeryField"" type=""hidden"" value=""([^""]+)"" \/\>");
+    var antiForgeryFieldMatch = Regex.Match(loginViewHtml, @"\<input name=""AntiForgeryField"" type=""hidden"" value=""([^""]+)"" \/\>");
     if (!antiForgeryFieldMatch.Captures.Any() && antiForgeryFieldMatch.Groups.Count != 2)
       throw new Exception("Invalid input of anti-forgery-token was provided");
 

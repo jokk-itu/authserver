@@ -14,7 +14,8 @@ internal class ResourceConfiguration : IEntityTypeConfiguration<Resource>
 
     builder
       .HasMany(x => x.ResourceRegistrationTokens)
-      .WithOne(x => x.Resource);
+      .WithOne(x => x.Resource)
+      .OnDelete(DeleteBehavior.Cascade);
 
     builder.ToTable("Resources");
   }

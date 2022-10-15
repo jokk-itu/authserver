@@ -1,5 +1,13 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">C:\Users\joach\AppData\Local\Temp\JetBrains\ReSharperPlatformVs17\vAny_9769f0be\CoverageData\_AuthorizationServer.-561961205\Snapshot\snapshot.utdcvr</s:String>
-	
-	
-	</wpf:ResourceDictionary>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8ca5e6c5_002D5937_002D4192_002D9393_002Da53ddfadb71c/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="UserInfo_ExpectClaims" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Controllers.AccountControllerTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Controllers.AuthorizeControllerTests.Authorize_ExpectRedirectResult&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Controllers.ClientControllerTests.PostClientAsync_ExpectOk&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Controllers.ClientControllerTests.DeleteClientAsync_ExpectOk&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Controllers.ResourceControllerTests.PostResourceAsync_ExpectOk&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Controllers.TokenControllerTests.PostAuthorizationAsync_ExpectTokens&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Controllers.TokenControllerTests.PostRefreshAsync_ExpectTokens&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
