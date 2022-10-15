@@ -12,13 +12,11 @@ using WebApp.Constants;
 using Xunit;
 
 namespace Specs.Controllers;
-public class TokenControllerTests : IClassFixture<WebApplicationFactory<Program>>
+public class TokenControllerTests : BaseIntegrationTest
 {
-  private readonly WebApplicationFactory<Program> _applicationFactory;
-
   public TokenControllerTests(WebApplicationFactory<Program> applicationFactory)
+  : base(applicationFactory)
   {
-    _applicationFactory = applicationFactory;
   }
 
   [Fact]
@@ -26,44 +24,45 @@ public class TokenControllerTests : IClassFixture<WebApplicationFactory<Program>
   public async Task PostAuthorizationAsync_ExpectTokens()
   {
     // Arrange
-    var client = _applicationFactory.CreateClient(new WebApplicationFactoryClientOptions
-    {
-      AllowAutoRedirect = false
-    });
+    var password = CryptographyHelper.GetRandomString(32);
+    var user = await BuildUserAsync(password);
+    var client = await BuildClientAsync(ApplicationTypeConstants.Web, "test");
     var state = CryptographyHelper.GetRandomString(16);
     var nonce = CryptographyHelper.GetRandomString(32);
     var pkce= ProofKeyForCodeExchangeHelper.GetPkce();
     var query = new QueryBuilder
     {
       { ParameterNames.ResponseType, ResponseTypeConstants.Code },
-      { ParameterNames.ClientId, "test" },
+      { ParameterNames.ClientId, client.ClientId },
       { ParameterNames.RedirectUri, "http://localhost:5002/callback" },
-      { ParameterNames.Scope, $"{ScopeConstants.OpenId} identity-provider {ScopeConstants.Profile} api1" },
+      { ParameterNames.Scope, $"{ScopeConstants.OpenId} identityprovider:read {ScopeConstants.Profile} {ScopeConstants.Phone} {ScopeConstants.Email}" },
       { ParameterNames.State, state },
       { ParameterNames.CodeChallenge, pkce.CodeChallenge },
       { ParameterNames.CodeChallengeMethod, CodeChallengeMethodConstants.S256 },
       { ParameterNames.Nonce, nonce }
     }.ToQueryString();
 
-    var authorizeResponse = await AuthorizeEndpointHelper.GetAuthorizationCodeAsync(client, query, "jokk", "Password12!");
+    var authorizeResponse = await AuthorizeEndpointHelper.GetAuthorizationCodeAsync(Client, query, user.UserName, password);
     var queryParameters = HttpUtility.ParseQueryString(authorizeResponse.Headers.Location!.Query);
+    var code = queryParameters.Get("code");
+    Assert.NotEmpty(code);
 
     // Act
     var tokenContent = new FormUrlEncodedContent(new Dictionary<string, string>
     {
-      { ParameterNames.ClientId, "test" },
-      { ParameterNames.ClientSecret, "secret" },
-      { ParameterNames.Code, queryParameters.Get("code")! },
+      { ParameterNames.ClientId, client.ClientId },
+      { ParameterNames.ClientSecret, client.ClientSecret },
+      { ParameterNames.Code, code },
       { ParameterNames.GrantType, OpenIdConnectGrantTypes.AuthorizationCode },
       { ParameterNames.RedirectUri, "http://localhost:5002/callback" },
-      { ParameterNames.Scope, $"{ScopeConstants.OpenId} identity-provider {ScopeConstants.Profile} api1" },
+      { ParameterNames.Scope, $"{ScopeConstants.OpenId} identityprovider:read {ScopeConstants.Profile} {ScopeConstants.Phone} {ScopeConstants.Email}" },
       { ParameterNames.CodeVerifier, pkce.CodeVerifier }
     });
     var request = new HttpRequestMessage(HttpMethod.Post, "connect/v1/token")
     {
       Content = tokenContent
     };
-    var tokenResponse = await client.SendAsync(request);
+    var tokenResponse = await Client.SendAsync(request);
     var tokens = await tokenResponse.Content.ReadFromJsonAsync<PostTokenResponse>();
 
     // Assert
@@ -76,50 +75,51 @@ public class TokenControllerTests : IClassFixture<WebApplicationFactory<Program>
   public async Task PostRefreshAsync_ExpectTokens()
   {
     // Arrange
-    var client = _applicationFactory.CreateClient(new WebApplicationFactoryClientOptions
-    {
-      AllowAutoRedirect = false
-    });
+    var password = CryptographyHelper.GetRandomString(32);
+    var user = await BuildUserAsync(password);
+    var client = await BuildClientAsync(ApplicationTypeConstants.Web, "test");
     var state = CryptographyHelper.GetRandomString(16);
     var nonce = CryptographyHelper.GetRandomString(32);
     var pkce= ProofKeyForCodeExchangeHelper.GetPkce();
     var query = new QueryBuilder
     {
       { ParameterNames.ResponseType, ResponseTypeConstants.Code },
-      { ParameterNames.ClientId, "test" },
+      { ParameterNames.ClientId, client.ClientId },
       { ParameterNames.RedirectUri, "http://localhost:5002/callback" },
-      { ParameterNames.Scope, $"{ScopeConstants.OpenId} identity-provider {ScopeConstants.Profile} api1" },
+      { ParameterNames.Scope, $"{ScopeConstants.OpenId} identityprovider:read {ScopeConstants.Profile} {ScopeConstants.Phone} {ScopeConstants.Email}" },
       { ParameterNames.State, state },
       { ParameterNames.CodeChallenge, pkce.CodeChallenge },
       { ParameterNames.CodeChallengeMethod, CodeChallengeMethodConstants.S256 },
       { ParameterNames.Nonce, nonce }
     }.ToQueryString();
 
-    var authorizeResponse = await AuthorizeEndpointHelper.GetAuthorizationCodeAsync(client, query, "jokk", "Password12!");
+    var authorizeResponse = await AuthorizeEndpointHelper.GetAuthorizationCodeAsync(Client, query, user.UserName, password);
     var queryParameters = HttpUtility.ParseQueryString(authorizeResponse.Headers.Location!.Query);
+    var code = queryParameters.Get(ParameterNames.Code);
+    Assert.NotEmpty(code);
 
     var tokenContent = new FormUrlEncodedContent(new Dictionary<string, string>
     {
-      { ParameterNames.ClientId, "test" },
-      { ParameterNames.ClientSecret, "secret" },
-      { ParameterNames.Code, queryParameters.Get(ParameterNames.Code)! },
+      { ParameterNames.ClientId, client.ClientId },
+      { ParameterNames.ClientSecret, client.ClientSecret },
+      { ParameterNames.Code, code },
       { ParameterNames.GrantType, OpenIdConnectGrantTypes.AuthorizationCode },
       { ParameterNames.RedirectUri, "http://localhost:5002/callback" },
-      { ParameterNames.Scope, $"{ScopeConstants.OpenId} identity-provider {ScopeConstants.Profile} api1" },
+      { ParameterNames.Scope, $"{ScopeConstants.OpenId} identityprovider:read {ScopeConstants.Profile} {ScopeConstants.Phone} {ScopeConstants.Email}" },
       { ParameterNames.CodeVerifier, pkce.CodeVerifier }
     });
     var tokenRequest = new HttpRequestMessage(HttpMethod.Post, "connect/v1/token")
     {
       Content = tokenContent
     };
-    var tokenResponse = await client.SendAsync(tokenRequest);
+    var tokenResponse = await Client.SendAsync(tokenRequest);
     var tokens = await tokenResponse.Content.ReadFromJsonAsync<PostTokenResponse>();
 
     // Act
     var refreshTokenContent = new FormUrlEncodedContent(new Dictionary<string, string>
     {
-      { ParameterNames.ClientId, "test" },
-      { ParameterNames.ClientSecret, "secret" },
+      { ParameterNames.ClientId, client.ClientId },
+      { ParameterNames.ClientSecret, client.ClientSecret },
       { ParameterNames.GrantType, OpenIdConnectGrantTypes.RefreshToken },
       { ParameterNames.RedirectUri, "http://localhost:5002/callback" },
       { ParameterNames.RefreshToken, tokens!.RefreshToken }
@@ -128,7 +128,7 @@ public class TokenControllerTests : IClassFixture<WebApplicationFactory<Program>
     {
       Content = refreshTokenContent
     };
-    var refreshTokenResponse = await client.SendAsync(refreshTokenRequest);
+    var refreshTokenResponse = await Client.SendAsync(refreshTokenRequest);
     var refreshedTokens = await refreshTokenResponse.Content.ReadFromJsonAsync<PostTokenResponse>();
 
     // Assert

@@ -9,34 +9,30 @@ using WebApp.Constants;
 using Xunit;
 
 namespace Specs.Controllers;
-public class AuthorizeControllerTests : IClassFixture<WebApplicationFactory<Program>>
+public class AuthorizeControllerTests : BaseIntegrationTest
 {
-	private readonly WebApplicationFactory<Program> _applicationFactory;
-
-	public AuthorizeControllerTests(WebApplicationFactory<Program> applicationFactory)
+  public AuthorizeControllerTests(WebApplicationFactory<Program> applicationFactory)
+	: base(applicationFactory)
 	{
-		_applicationFactory = applicationFactory;
-	}
+  }
 
 	[Fact]
 	[Trait("Category", "Integration")]
 	public async Task Authorize_ExpectRedirectResult()
 	{
 		// Arrange
-		var client = _applicationFactory.CreateClient(new WebApplicationFactoryClientOptions 
-		{
-			 AllowAutoRedirect = false
-		});
-
+    var password = CryptographyHelper.GetRandomString(32);
+    var user = await BuildUserAsync(password);
+    var client = await BuildClientAsync(ApplicationTypeConstants.Web, "test");
     var state = CryptographyHelper.GetRandomString(16);
     var nonce = CryptographyHelper.GetRandomString(32);
-		var pkce= ProofKeyForCodeExchangeHelper.GetPkce();
+		var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
     var query = new QueryBuilder
     {
       { ParameterNames.ResponseType, ResponseTypeConstants.Code },
-      { ParameterNames.ClientId, "test" },
+      { ParameterNames.ClientId, client.ClientId },
       { ParameterNames.RedirectUri, "http://localhost:5002/callback" },
-      { ParameterNames.Scope, $"{ScopeConstants.OpenId} identity-provider {ScopeConstants.Profile} api1" },
+      { ParameterNames.Scope, $"{ScopeConstants.OpenId} identityprovider:read {ScopeConstants.Profile}" },
       { ParameterNames.State, state },
       { ParameterNames.CodeChallenge, pkce.CodeChallenge },
       { ParameterNames.CodeChallengeMethod, CodeChallengeMethodConstants.S256 },
@@ -44,7 +40,7 @@ public class AuthorizeControllerTests : IClassFixture<WebApplicationFactory<Prog
     }.ToQueryString();
 
     // Act
-    var authorizeResponse = await AuthorizeEndpointHelper.GetAuthorizationCodeAsync(client, query, "jokk", "Password12!");
+    var authorizeResponse = await AuthorizeEndpointHelper.GetAuthorizationCodeAsync(Client, query, user.UserName, password);
     var queryParameters = HttpUtility.ParseQueryString(authorizeResponse.Headers.Location!.Query);
 
 		// Assert
