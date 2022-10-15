@@ -13,4 +13,12 @@ public class Session
   public long MaxAge { get; set; }
   public DateTime Created { get; set; }
   public DateTime Updated { get; set; }
+
+  public bool IsInvalid()
+  {
+    if (MaxAge == 0)
+      return false;
+
+    return DateTime.Now >= Updated.AddSeconds(MaxAge);
+  }
 }
