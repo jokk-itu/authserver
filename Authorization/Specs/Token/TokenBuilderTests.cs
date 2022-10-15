@@ -69,7 +69,7 @@ public class TokenBuilderTests
 
     var jwtBearerOptions = new JwtBearerOptions
     {
-      Audience = identityResource.Id,
+      Audience = identityResource.Name,
       Authority = "auth-server"
     };
     var fakeJwtBearerOptions = new Mock<IOptions<JwtBearerOptions>>();
@@ -88,7 +88,7 @@ public class TokenBuilderTests
     Assert.NotEmpty(token);
     Assert.NotNull(securityToken);
     Assert.Equal("1234", securityToken!.Subject);
-    Assert.Contains(identityResource.Id, securityToken!.Audiences);
+    Assert.Contains(identityResource.Name, securityToken!.Audiences);
     Assert.Equal($"{ScopeConstants.OpenId} {identityScope.Name}", securityToken.Claims.Single(x => x.Type == ClaimNameConstants.Scope).Value);
     Assert.Equal("test", securityToken.Claims.Single(x => x.Type == ClaimNameConstants.ClientId).Value);
   }
@@ -98,6 +98,17 @@ public class TokenBuilderTests
   public async Task BuildIdToken_ExpectIdToken()
   {
     // Arrange
+    var user = new User
+    {
+      Address = "Beaker Street",
+      Birthdate = DateTime.Now,
+      Email = "Test@mail.dk",
+      FirstName = "John",
+      LastName = "Doe",
+      Locale = "en-GB",
+      PhoneNumber = "00000000",
+      UserName = "john"
+    };
     var identityConfiguration = new IdentityConfiguration 
     {
       IdTokenExpiration = 3600,
@@ -120,20 +131,20 @@ public class TokenBuilderTests
     var resourceManager = new ResourceManager(_identityContext);
     var userStore = new UserStore<User>(_identityContext);
     var userManager = new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
+    await userManager.CreateAsync(user);
     var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager, userManager);
     var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager);
 
     // Act
-    var token = await tokenBuilder.BuildIdTokenAsync("test", new[] { ScopeConstants.OpenId }, "nonce", "1234", "123");
+    var token = await tokenBuilder.BuildIdTokenAsync("test", new[] { ScopeConstants.OpenId }, "nonce", user.Id, "123");
     var securityToken = tokenDecoder.DecodeToken(token);
 
     // Assert
     Assert.NotEmpty(token);
     Assert.NotNull(securityToken);
-    Assert.Equal("1234", securityToken!.Subject);
+    Assert.Equal(user.Id, securityToken!.Subject);
     Assert.Contains("test", securityToken!.Audiences);
     Assert.Equal(ScopeConstants.OpenId, securityToken.Claims.Single(x => x.Type == ClaimNameConstants.Scope).Value);
-    Assert.Equal("test", securityToken.Claims.Single(x => x.Type == ClaimNameConstants.ClientId).Value);
     Assert.Equal("nonce", securityToken.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Nonce).Value);
   }
 
@@ -173,7 +184,7 @@ public class TokenBuilderTests
 
     var jwtBearerOptions = new JwtBearerOptions
     {
-      Audience = identityResource.Id,
+      Audience = identityResource.Name,
       Authority = "auth-server"
     };
     var fakeJwtBearerOptions = new Mock<IOptions<JwtBearerOptions>>();
@@ -192,7 +203,7 @@ public class TokenBuilderTests
     Assert.NotEmpty(token);
     Assert.NotNull(securityToken);
     Assert.Equal("1234", securityToken!.Subject);
-    Assert.Contains(identityResource.Id, securityToken!.Audiences);
+    Assert.Contains(identityResource.Name, securityToken!.Audiences);
     Assert.Equal($"{ScopeConstants.OpenId} {identityScope.Name}", securityToken.Claims.Single(x => x.Type == ClaimNameConstants.Scope).Value);
     Assert.Equal("test", securityToken.Claims.Single(x => x.Type == ClaimNameConstants.ClientId).Value);
   }
