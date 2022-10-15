@@ -89,4 +89,7 @@ public static class ClaimNameConstants
   public const string Birthdate = "birthdate";
   public const string Name = "name";
   public const string Email = "email";
+  public const string Role = "role";
+  public const string Phone = "phone";
+  public const string Locale = "locale";
 }
