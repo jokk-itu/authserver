@@ -1,14 +1,12 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using Domain.Constants;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using WebApp.Contracts.GetClientInitialAccessToken;
-using WebApp.Contracts.PostClient;
 using Xunit;
 
 namespace Specs.Controllers;
+
+[Collection("Integration")]
 public class ClientControllerTests : BaseIntegrationTest
 {
   public ClientControllerTests(WebApplicationFactory<Program> applicationFactory)

@@ -1,13 +1,9 @@
-﻿using Domain.Constants;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Net;
+﻿using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
-using Microsoft.AspNetCore.Mvc.Testing;
-using WebApp.Contracts.GetResourceInitialAccessToken;
-using WebApp.Contracts.PostResource;
 
 namespace Specs.Controllers;
+
+[Collection("Integration")]
 public class ResourceControllerTests : BaseIntegrationTest
 {
   public ResourceControllerTests(WebApplicationFactory<Program> applicationFactory)

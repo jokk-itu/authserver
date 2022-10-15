@@ -9,6 +9,8 @@ using WebApp.Constants;
 using Xunit;
 
 namespace Specs.Controllers;
+
+[Collection("Integration")]
 public class AuthorizeControllerTests : BaseIntegrationTest
 {
   public AuthorizeControllerTests(WebApplicationFactory<Program> applicationFactory)

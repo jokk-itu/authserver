@@ -13,6 +13,8 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using WebApp.Constants;
 
 namespace Specs.Controllers;
+
+[Collection("Integration")]
 public class AccountControllerTests : BaseIntegrationTest
 {
 

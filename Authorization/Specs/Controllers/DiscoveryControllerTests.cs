@@ -6,6 +6,8 @@ using System.Net.Http.Json;
 using Xunit;
 
 namespace Specs.Controllers;
+
+[Collection("Integration")]
 public class DiscoveryControllerTests : BaseIntegrationTest
 {
   public DiscoveryControllerTests(WebApplicationFactory<Program> applicationFactory)

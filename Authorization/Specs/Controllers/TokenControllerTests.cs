@@ -12,6 +12,8 @@ using WebApp.Constants;
 using Xunit;
 
 namespace Specs.Controllers;
+
+[Collection("Integration")]
 public class TokenControllerTests : BaseIntegrationTest
 {
   public TokenControllerTests(WebApplicationFactory<Program> applicationFactory)
