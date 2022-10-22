@@ -2,7 +2,6 @@ using Infrastructure;
 using Infrastructure.Extensions;
 using Microsoft.IdentityModel.Logging;
 using Serilog;
-using WebApp;
 using WebApp.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,10 +25,11 @@ builder.WebHost.ConfigureServices(services =>
   var identityConfiguration = builder.Configuration.GetSection("Identity").Get<IdentityConfiguration>();
   services.AddSingleton(identityConfiguration);
 
-  services.AddOpenIdAuthentication(identityConfiguration);
+  services.AddOpenIdAuthentication();
   services.AddOpenIdAuthorization();
 
-  services.AddDatastore(builder.Configuration);
+  services.AddDataStore(builder.Configuration);
+  services.AddRequests();
   services.AddCorsPolicy();
   services.AddCookiePolicy();
   services.AddAntiforgery(antiForgeryOptions =>
@@ -41,14 +41,13 @@ builder.WebHost.ConfigureServices(services =>
 
 var app = builder.Build();
 
-await app.UseTestData();
-
 if (!app.Environment.IsDevelopment())
   app.UseExceptionHandler("/Home/Error");
 
-
-if(app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
+{
   IdentityModelEventSource.ShowPII = true;
+}
 
 app.UseSerilogRequestLogging();
 app.UseStaticFiles();
@@ -59,4 +58,10 @@ app.MapControllers();
 
 app.Run();
 
-public partial class Program { }
+public partial class Program 
+{
+  public Program()
+  {
+
+  }
+}

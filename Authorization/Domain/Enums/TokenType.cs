@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Domain.Enums;
+﻿namespace Domain.Enums;
 public enum TokenType
 {
+  Token,
+  IdToken,
   RefreshToken,
-  AccessToken
+  AccessToken,
+  ScopeInitialToken,
+  ScopeRegistrationToken,
+  ResourceInitialToken,
+  ResourceRegistrationToken,
+  ClientInitialToken,
+  ClientRegistrationToken
 }

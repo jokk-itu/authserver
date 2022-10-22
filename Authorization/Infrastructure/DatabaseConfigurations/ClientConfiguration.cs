@@ -1,13 +1,14 @@
 ﻿using Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Reflection.Metadata.Ecma335;
 
 namespace Infrastructure.DatabaseConfigurations;
 internal class ClientConfiguration : IEntityTypeConfiguration<Client>
 {
   public void Configure(EntityTypeBuilder<Client> builder)
   {
+    builder.HasKey(client => client.Id);
+
     builder
       .Property(client => client.ClientType)
       .HasConversion<string>();
@@ -16,7 +17,26 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
       .Property(client => client.ClientProfile)
       .HasConversion<string>();
 
-    builder.HasMany(client => client.RedirectUris);
+    builder
+      .Property(client => client.SubjectType)
+      .HasConversion<string>();
+
+    builder
+      .Property(client => client.TokenEndpointAuthMethod)
+      .HasConversion<string>();
+
+    builder
+      .Property(client => client.TosUri)
+      .IsRequired(false);
+
+    builder
+      .Property(client => client.PolicyUri)
+      .IsRequired(false);
+
+    builder
+      .HasMany(client => client.RedirectUris)
+      .WithOne(redirectUri => redirectUri.Client)
+      .OnDelete(DeleteBehavior.Cascade);
 
     builder
       .HasMany(client => client.Scopes)
@@ -24,7 +44,49 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
       .UsingEntity(link => link.ToTable("ClientScopes"));
 
     builder
-      .HasMany(client => client.Grants);
+      .HasMany(client => client.GrantTypes)
+      .WithMany(grant => grant.Clients)
+      .UsingEntity(link => link.ToTable("ClientGrantTypes"));
+
+    builder
+      .HasMany(client => client.Contacts)
+      .WithMany(contact => contact.Clients)
+      .UsingEntity(link => link.ToTable("ClientContacts"));
+
+    builder
+      .HasMany(client => client.ResponseTypes)
+      .WithMany(contact => contact.Clients)
+      .UsingEntity(link => link.ToTable("ClientResponseTypes"));
+
+    builder
+      .HasMany(x => x.AuthorizationCodeGrants)
+      .WithOne(x => x.Client)
+      .OnDelete(DeleteBehavior.Cascade);
+
+    builder
+      .HasMany(x => x.ConsentGrants)
+      .WithOne(x => x.Client)
+      .OnDelete(DeleteBehavior.Cascade);
+
+    builder
+      .HasMany(x => x.RefreshTokens)
+      .WithOne(x => x.Client)
+      .OnDelete(DeleteBehavior.NoAction);
+
+    builder
+      .HasMany(x => x.IdTokens)
+      .WithOne(x => x.Client)
+      .OnDelete(DeleteBehavior.NoAction);
+
+    builder
+      .HasMany(x => x.AccessTokens)
+      .WithOne(x => x.Client)
+      .OnDelete(DeleteBehavior.NoAction);
+
+    builder
+      .HasMany(x => x.ClientRegistrationTokens)
+      .WithOne(x => x.Client)
+      .OnDelete(DeleteBehavior.NoAction);
       
     builder.ToTable("Clients");
   }

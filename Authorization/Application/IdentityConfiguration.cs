@@ -3,8 +3,6 @@ namespace Infrastructure;
 #nullable disable
 public record IdentityConfiguration
 {
-  public virtual string Audience { get; init; }
-
   public virtual string ExternalIssuer { get; init; }
 
   public virtual string InternalIssuer { get; init; }

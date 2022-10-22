@@ -1,8 +1,7 @@
-﻿using Contracts.RegisterUser;
-using Contracts.ResetPassword;
+﻿using System.Globalization;
+using Contracts.RegisterUser;
 using Domain;
 using Domain.Constants;
-using Infrastructure.Factories.TokenFactories;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -12,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text.Json;
+using Infrastructure.Decoders.Abstractions;
 
 namespace WebApp.Controllers;
 
@@ -20,14 +19,14 @@ namespace WebApp.Controllers;
 public class AccountController : Controller
 {
   private readonly UserManager<User> _userManager;
-  private readonly AccessTokenFactory _accessTokenFactory;
+  private readonly ITokenDecoder _tokenDecoder;
 
   public AccountController(
-    UserManager<User> userManager, 
-    AccessTokenFactory accessTokenFactory)
+    UserManager<User> userManager,
+    ITokenDecoder tokenDecoder)
   {
     _userManager = userManager;
-    _accessTokenFactory = accessTokenFactory;
+    _tokenDecoder = tokenDecoder;
   }
 
   [HttpGet]
@@ -47,20 +46,16 @@ public class AccountController : Controller
   {
     var identityResult = await _userManager.CreateAsync(new User
     {
-      GivenName = request.GivenName,
-      FamilyName = request.FamilyName,
-      MiddleName = request.MiddleName,
-      Name = $"{request.GivenName}{(string.IsNullOrWhiteSpace(request.MiddleName) ? string.Empty : request.MiddleName)}{request.FamilyName}",
+      FirstName = request.GivenName,
+      LastName = request.FamilyName,
       Address = request.Address,
-      NickName = request.NickName,
       Locale = request.Locale,
-      Gender = request.Gender,
       Birthdate = request.BirthDate,
       UserName = request.Username,
       Email = request.Email,
       PhoneNumber = request.PhoneNumber,
-      NormalizedEmail = request.Email.ToUpper(),
-      NormalizedUserName = request.Username.ToUpper()
+      NormalizedEmail = _userManager.NormalizeEmail(request.Email),
+      NormalizedUserName = _userManager.NormalizeName(request.Username)
     }, request.Password);
 
     if (identityResult.Succeeded)
@@ -79,7 +74,7 @@ public class AccountController : Controller
     if (string.IsNullOrWhiteSpace(accessToken))
       return Forbid(OpenIdConnectDefaults.AuthenticationScheme);
 
-    var decodedAccessToken = await _accessTokenFactory.DecodeTokenAsync(accessToken);
+    var decodedAccessToken = _tokenDecoder.DecodeToken(accessToken);
     if (decodedAccessToken is null)
       return Forbid(OpenIdConnectDefaults.AuthenticationScheme);
 
@@ -91,44 +86,34 @@ public class AccountController : Controller
 
     var claims = new Dictionary<string, string>
     {
-      { JwtRegisteredClaimNames.Sub, user.Id }
+      { ClaimNameConstants.Sub, user.Id }
     };
 
     if (scopes.Contains(ScopeConstants.Profile)) 
     {
-      claims.Add(ClaimTypes.Name, user.Name);
-      claims.Add(JwtRegisteredClaimNames.Name, user.Name);
+      claims.Add(ClaimNameConstants.Name, $"{user.FirstName} {user.LastName}");
 
-      claims.Add(ClaimTypes.Surname, user.FamilyName);
-      claims.Add(JwtRegisteredClaimNames.FamilyName, user.FamilyName);
+      claims.Add(ClaimNameConstants.FamilyName, user.LastName);
 
-      claims.Add(ClaimTypes.GivenName, user.GivenName);
-      claims.Add(JwtRegisteredClaimNames.GivenName, user.GivenName);
+      claims.Add(ClaimNameConstants.GivenName, user.FirstName);
 
-      claims.Add(ClaimTypes.StreetAddress, user.Address);
+      claims.Add(ClaimNameConstants.Address, user.Address);
 
       var roles = await _userManager.GetRolesAsync(user);
-      if (roles.Any())
-        claims.Add(ClaimTypes.Role, JsonSerializer.Serialize(roles));
+      foreach (var role in roles)
+      {
+        claims.Add(ClaimNameConstants.Role, role);
+      }
 
-      if (user.MiddleName is not null)
-        claims.Add(ClaimNameConstants.MiddleName, user.MiddleName);
-
-      if (user.NickName is not null)
-        claims.Add(ClaimNameConstants.Nickname, user.NickName);
-
-      if(user.Gender is not null)
-        claims.Add(ClaimTypes.Gender, user.Gender);
-
-      claims.Add(JwtRegisteredClaimNames.Birthdate, user.Birthdate.ToString());
-      claims.Add(ClaimTypes.Locality, user.Locale);
+      claims.Add(ClaimNameConstants.Birthdate, user.Birthdate.ToString(CultureInfo.InvariantCulture));
+      claims.Add(ClaimNameConstants.Locale, user.Locale);
     }
 
-    if (scopes.Contains(OpenIdConnectScope.Email)) 
-      claims.Add(ClaimTypes.Email, user.Email);
+    if (scopes.Contains(ScopeConstants.Email)) 
+      claims.Add(ClaimNameConstants.Email, user.Email);
 
     if (scopes.Contains(ScopeConstants.Phone))
-      claims.Add(ClaimTypes.MobilePhone, user.PhoneNumber);
+      claims.Add(ClaimNameConstants.Phone, user.PhoneNumber);
 
     return Json(claims);
   }

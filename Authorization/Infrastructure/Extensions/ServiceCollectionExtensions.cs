@@ -1,43 +1,61 @@
 using Infrastructure.Repositories;
-using Infrastructure.TokenFactories;
 using Domain;
-using Infrastructure.Factories.TokenFactories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using Application.Validation;
+using Infrastructure.Requests;
+using MediatR;
+using Infrastructure.Builders;
+using Infrastructure.Builders.Abstractions;
+using Infrastructure.Decoders;
+using Infrastructure.Decoders.Abstractions;
 
 namespace Infrastructure.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-  public static IServiceCollection AddDatastore(this IServiceCollection services, IConfiguration configuration)
+  public static IServiceCollection AddDataStore(this IServiceCollection services, IConfiguration configuration)
   {
     services.AddDataProtection();
-    services.AddTransient<CodeFactory>();
-    services.AddTransient<AccessTokenFactory>();
-    services.AddTransient<IdTokenFactory>();
-    services.AddTransient<RefreshTokenFactory>();
+    services.AddTransient<ITokenBuilder, TokenBuilder>();
+    services.AddTransient<ITokenDecoder, TokenDecoder>();
+    services.AddTransient<ICodeBuilder, CodeBuilder>();
+    services.AddTransient<ICodeDecoder, CodeDecoder>();
 
-    services.AddScoped<ClientManager>();
     services.AddScoped<ResourceManager>();
     services.AddScoped<ScopeManager>();
-    services.AddScoped<TokenManager>();
-    services.AddScoped<CodeManager>();
-    services.AddScoped<NonceManager>();
-    services.AddScoped<TestManager>();
 
     services.AddSingleton<JwkManager>();
 
     services.AddDbContext<IdentityContext>(options =>
     {
-      options.UseSqlServer(configuration.GetConnectionString("SqlServer"),
-              optionsBuilder =>
-              {
-                optionsBuilder.EnableRetryOnFailure(10, TimeSpan.FromSeconds(2), null);
-                optionsBuilder.MigrationsAssembly("Infrastructure");
-              });
+      var sqliteConnection = configuration.GetConnectionString("SQLite");
+      var sqlServerConnection = configuration.GetConnectionString("SqlServer");
+
+      if (!string.IsNullOrWhiteSpace(sqliteConnection))
+      {
+        options.UseSqlite(sqliteConnection, optionsBuilder =>
+        {
+          optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+          optionsBuilder.MigrationsAssembly(typeof(IdentityContext).Namespace);
+        });
+      }
+      else if (!string.IsNullOrWhiteSpace(sqlServerConnection))
+      {
+        options.UseSqlServer(sqlServerConnection, optionsBuilder =>
+        {
+          optionsBuilder.EnableRetryOnFailure(5, TimeSpan.FromSeconds(2), null);
+          optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+          optionsBuilder.MigrationsAssembly(typeof(IdentityContext).Namespace);
+        });
+      }
+      else
+      {
+        throw new Exception("ConnectionString is not provided");
+      }
     });
     services.AddScoped<IdentityContext>();
 
@@ -46,6 +64,24 @@ public static class ServiceCollectionExtensions
         .AddDefaultTokenProviders()
         .AddEntityFrameworkStores<IdentityContext>();
 
+    return services;
+  }
+
+  public static IServiceCollection AddRequests(this IServiceCollection services)
+  {
+    var validators = Assembly
+      .GetExecutingAssembly()
+      .GetTypes()
+      .Where(x => x.IsClass
+                  && x.GetInterface(typeof(IValidator<>).Name) is not null 
+                  && x.Namespace!.Contains(typeof(Response).Namespace!)).ToList();
+    foreach (var validator in validators)
+    {
+      var serviceType = validator.GetInterface(typeof(IValidator<>).Name)!;
+      services.AddScoped(serviceType, validator);
+    }
+
+    services.AddMediatR(Assembly.GetExecutingAssembly());
     return services;
   }
 }

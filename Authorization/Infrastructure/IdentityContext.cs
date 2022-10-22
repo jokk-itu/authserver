@@ -8,7 +8,6 @@ namespace Infrastructure;
 
 public class IdentityContext : IdentityDbContext<User, IdentityRole, string>
 {
-
   public IdentityContext(DbContextOptions<IdentityContext> options) : base(options)
   { }
 

@@ -1,46 +1,37 @@
 ﻿using Contracts;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using WebApp.Constants;
 
 namespace WebApp.Extensions;
 
 public static class ControllerExtensions
 {
-  public static IActionResult BadOAuthResult(this ControllerBase controller, string error, string errorDescription)
+  public static IActionResult BadOAuthResult(this ControllerBase controller, string? error, string? errorDescription)
   {
-    return controller.BadRequest(new ErrorResponse 
-    {
-      Error = error,
-      ErrorDescription = errorDescription
-    });
+    var response = new ErrorResponse();
+
+    if (!string.IsNullOrWhiteSpace(error))
+      response.Error = error;
+
+    if (!string.IsNullOrWhiteSpace(errorDescription))
+      response.ErrorDescription = errorDescription;
+
+    return controller.BadRequest(response);
   }
 
-  public static IActionResult BadOAuthResult(this ControllerBase controller, string error)
+  public static IActionResult RedirectOAuthResult(this ControllerBase controller, string redirectUri, string state, string? error, string? errorDescription)
   {
-    return controller.BadRequest(new ErrorResponse
+    var queryBuilder = new QueryBuilder
     {
-      Error = error
-    });
-  }
+      { ParameterNames.State, state },
+    };
+    if(!string.IsNullOrWhiteSpace(error))
+      queryBuilder.Add(ParameterNames.Error, error);
 
-  public static IActionResult RedirectOAuthResult(this ControllerBase controller, string redirectUri, string state, string error, string errorDescription)
-  {
-    var query = new QueryBuilder
-    {
-      { "state", state },
-      { "error", error },
-      { "error_description", errorDescription }
-    }.ToQueryString();
-    return controller.Redirect($"{redirectUri}{query}");
-  }
+    if(!string.IsNullOrWhiteSpace(errorDescription))
+      queryBuilder.Add(ParameterNames.ErrorDescription, errorDescription);
 
-  public static IActionResult RedirectOAuthResult(this ControllerBase controller, string redirectUri, string state, string error)
-  {
-    var query = new QueryBuilder
-    {
-      { "state", state },
-      { "error", error }
-    }.ToQueryString();
-    return controller.Redirect($"{redirectUri}{query}");
+    return controller.Redirect($"{redirectUri}{queryBuilder.ToQueryString()}");
   }
 }

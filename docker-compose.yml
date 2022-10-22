@@ -8,31 +8,31 @@ services:
       dockerfile: Authorization/WebApp/Dockerfile
 
   mssql:
-    image: mcr.microsoft.com/mssql/server:2019-latest
+    image: mcr.microsoft.com/mssql/server:2022-latest
 
   weatherservice:
     image: ${DOCKER_REGISTRY-}weatherservice
     build:
       context: .
-      dockerfile: TestSystem/ProtectedResources/WeatherService/Api/Dockerfile
+      dockerfile: ProtectedResources/WeatherService/Api/Dockerfile
 
   webapp:
     image: ${DOCKER_REGISTRY-}webapp
     build:
       context: .
-      dockerfile: TestSystem/Web/Dockerfile
+      dockerfile: Clients/WebApp/Dockerfile
 
   blazor.bff:
     image: ${DOCKER_REGISTRY-}blazor.bff
     build:
       context: .
-      dockerfile: TestSystem/SinglePage/Server/Dockerfile
+      dockerfile: Clients/Blazor.BFF/Server/Dockerfile
 
   svelte.bff:
     image: ${DOCKER_REGISTRY-}svelte.bff
     build:
       context: .
-      dockerfile: TestSystem/Svelte.BFF/Api/Dockerfile
+      dockerfile: Clients/Svelte.BFF/Api/Dockerfile
 
   logger:
     image: datalust/seq:latest

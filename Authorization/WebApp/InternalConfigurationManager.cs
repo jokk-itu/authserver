@@ -26,12 +26,11 @@ public class InternalConfigurationManager : IConfigurationManager<OpenIdConnectC
 
   public async Task<OpenIdConnectConfiguration> GetConfigurationAsync(CancellationToken cancel)
   {
-    if(_openIdConnectConfiguration is null)
-    {
-      await RefreshAsync();
-      return _openIdConnectConfiguration ?? throw new Exception("Configuration is not available");
-    }
-    return _openIdConnectConfiguration;
+    if (_openIdConnectConfiguration is not null) 
+      return _openIdConnectConfiguration;
+
+    await RefreshAsync();
+    return _openIdConnectConfiguration ?? throw new Exception("Configuration is not available");
   }
 
   public void RequestRefresh()

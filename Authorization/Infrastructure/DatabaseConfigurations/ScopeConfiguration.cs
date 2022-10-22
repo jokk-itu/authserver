@@ -1,7 +1,5 @@
 ﻿using Domain;
 using Domain.Constants;
-using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -13,7 +11,12 @@ internal class ScopeConfiguration : IEntityTypeConfiguration<Scope>
   {
     builder
       .HasIndex(s => s.Name)
-      .IsUnique(true);
+      .IsUnique();
+
+    builder
+      .HasMany(x => x.ScopeRegistrationTokens)
+      .WithOne(x => x.Scope)
+      .OnDelete(DeleteBehavior.Cascade);
 
     builder.HasData(
       new Scope 

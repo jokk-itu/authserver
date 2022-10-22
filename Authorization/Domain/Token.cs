@@ -2,15 +2,12 @@
 
 namespace Domain;
 
-public class Token
+#nullable disable
+public abstract class Token
 {
-  public long KeyId { get; set; }
-
+  public long Id { get; set; }
+  public DateTime Created { get; set; }
+  public bool IsRevoked { get; set; }
+  public string Value { get; set; }
   public TokenType TokenType { get; set; }
-
-  public string Value { get; set; } = null!;
-
-  public DateTime? RevokedAt { get; set; }
-
-  public User? RevokedBy { get; set; }
 }
