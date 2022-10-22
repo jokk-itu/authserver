@@ -3,6 +3,7 @@ using Contracts.AuthorizeCode;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Constants;
 using Application;
+using Domain.Constants;
 using Infrastructure.Requests.CreateAuthorizationGrant;
 using WebApp.Extensions;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -10,7 +11,7 @@ using MediatR;
 
 namespace WebApp.Controllers;
 
-[Route("connect/v1/[controller]")]
+[Route("connect/[controller]")]
 public class AuthorizeController : Controller
 {
   private readonly IMediator _mediator;
@@ -24,11 +25,23 @@ public class AuthorizeController : Controller
   public IActionResult Index(
     [FromQuery(Name = ParameterNames.Prompt)] string prompt)
   {
-    //var prompts = prompt.Split(' ');
-    // TODO DROP None support
-    // TODO DROP select_account support
-    // TODO Enable consent and login support
-    return View();
+    if (PromptConstants.Prompts.Any(x => x == prompt))
+    {
+      return this.BadOAuthResult(ErrorCode.InvalidRequest, "prompt is invalid");
+    }
+
+    var prompts = prompt.Split(' ');
+    if (prompts.Contains(PromptConstants.Create))
+    {
+      return RedirectToRoute($"connect/register?{HttpContext.Request.QueryString}");
+    }
+
+    if (prompts.Contains(PromptConstants.Login))
+    {
+      return RedirectToRoute($"connect/login?{HttpContext.Request.QueryString}");
+    }
+
+    return this.BadOAuthResult(ErrorCode.InvalidRequest, "prompt is invalid");
   }
 
   [ValidateAntiForgeryToken]
