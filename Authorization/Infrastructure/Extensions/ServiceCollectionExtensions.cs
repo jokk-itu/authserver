@@ -32,7 +32,7 @@ public static class ServiceCollectionExtensions
 
     services.AddDbContext<IdentityContext>(options =>
     {
-      var sqliteConnection = configuration.GetConnectionString("Sqlite");
+      var sqliteConnection = configuration.GetConnectionString("SQLite");
       var sqlServerConnection = configuration.GetConnectionString("SqlServer");
 
       if (!string.IsNullOrWhiteSpace(sqliteConnection))
@@ -51,6 +51,10 @@ public static class ServiceCollectionExtensions
           optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
           optionsBuilder.MigrationsAssembly(typeof(IdentityContext).Namespace);
         });
+      }
+      else
+      {
+        throw new Exception("ConnectionString is not provided");
       }
     });
     services.AddScoped<IdentityContext>();

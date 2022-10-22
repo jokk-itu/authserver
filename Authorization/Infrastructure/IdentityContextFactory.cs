@@ -7,7 +7,23 @@ public class IdentityContextFactory : IDesignTimeDbContextFactory<IdentityContex
   public IdentityContext CreateDbContext(string[] args)
   {
     var optionsBuilder = new DbContextOptionsBuilder<IdentityContext>();
-    optionsBuilder.UseSqlite("DataSource=:memory:");
+    if (args.Length != 2)
+    {
+      throw new Exception("Arguments datastore provider and connectionstring are missing");
+    }
+
+    switch (args[0])
+    {
+      case "SQLite":
+        optionsBuilder.UseSqlite(args[1]);
+        break;
+      case "SqlServer":
+        optionsBuilder.UseSqlServer(args[1]);
+        break;
+      default:
+        throw new Exception($"DataStore provider is unknown {args[0]}");
+    }
+
     return new IdentityContext(optionsBuilder.Options);
   }
 }
