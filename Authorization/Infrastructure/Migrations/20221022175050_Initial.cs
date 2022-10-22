@@ -13,10 +13,10 @@ namespace Infrastructure.Migrations
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    NormalizedName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -27,9 +27,9 @@ namespace Infrastructure.Migrations
                 name: "Claims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -40,15 +40,15 @@ namespace Infrastructure.Migrations
                 name: "Clients",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: true),
-                    Secret = table.Column<string>(type: "TEXT", nullable: true),
-                    TosUri = table.Column<string>(type: "TEXT", nullable: true),
-                    PolicyUri = table.Column<string>(type: "TEXT", nullable: true),
-                    TokenEndpointAuthMethod = table.Column<string>(type: "TEXT", nullable: false),
-                    SubjectType = table.Column<string>(type: "TEXT", nullable: false),
-                    ClientType = table.Column<string>(type: "TEXT", nullable: false),
-                    ClientProfile = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Secret = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TosUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PolicyUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TokenEndpointAuthMethod = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SubjectType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ClientType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ClientProfile = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -59,9 +59,9 @@ namespace Infrastructure.Migrations
                 name: "Contacts",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Email = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -72,9 +72,9 @@ namespace Infrastructure.Migrations
                 name: "GrantTypes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -85,12 +85,12 @@ namespace Infrastructure.Migrations
                 name: "Jwks",
                 columns: table => new
                 {
-                    KeyId = table.Column<long>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    CreatedTimestamp = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    PrivateKey = table.Column<byte[]>(type: "BLOB", nullable: true),
-                    Modulus = table.Column<byte[]>(type: "BLOB", nullable: true),
-                    Exponent = table.Column<byte[]>(type: "BLOB", nullable: true)
+                    KeyId = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CreatedTimestamp = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PrivateKey = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    Modulus = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    Exponent = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -101,9 +101,9 @@ namespace Infrastructure.Migrations
                 name: "Resources",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: true),
-                    Secret = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Secret = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -114,9 +114,9 @@ namespace Infrastructure.Migrations
                 name: "ResponseTypes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -127,11 +127,11 @@ namespace Infrastructure.Migrations
                 name: "Sessions",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    MaxAge = table.Column<long>(type: "INTEGER", nullable: false),
-                    Created = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Updated = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    MaxAge = table.Column<long>(type: "bigint", nullable: false),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Updated = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -142,11 +142,11 @@ namespace Infrastructure.Migrations
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    RoleId = table.Column<string>(type: "TEXT", nullable: false),
-                    ClaimType = table.Column<string>(type: "TEXT", nullable: true),
-                    ClaimValue = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -163,10 +163,10 @@ namespace Infrastructure.Migrations
                 name: "RedirectUris",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Uri = table.Column<string>(type: "TEXT", nullable: true),
-                    ClientId = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Uri = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -183,8 +183,8 @@ namespace Infrastructure.Migrations
                 name: "ClientContacts",
                 columns: table => new
                 {
-                    ClientsId = table.Column<string>(type: "TEXT", nullable: false),
-                    ContactsId = table.Column<int>(type: "INTEGER", nullable: false)
+                    ClientsId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ContactsId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -207,8 +207,8 @@ namespace Infrastructure.Migrations
                 name: "ClientGrantTypes",
                 columns: table => new
                 {
-                    ClientsId = table.Column<string>(type: "TEXT", nullable: false),
-                    GrantTypesId = table.Column<int>(type: "INTEGER", nullable: false)
+                    ClientsId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    GrantTypesId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -231,8 +231,8 @@ namespace Infrastructure.Migrations
                 name: "ClientResponseTypes",
                 columns: table => new
                 {
-                    ClientsId = table.Column<string>(type: "TEXT", nullable: false),
-                    ResponseTypesId = table.Column<int>(type: "INTEGER", nullable: false)
+                    ClientsId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ResponseTypesId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -255,27 +255,27 @@ namespace Infrastructure.Migrations
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    Address = table.Column<string>(type: "TEXT", nullable: false),
-                    LastName = table.Column<string>(type: "TEXT", nullable: false),
-                    FirstName = table.Column<string>(type: "TEXT", nullable: false),
-                    Birthdate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Locale = table.Column<string>(type: "TEXT", nullable: false),
-                    SessionId = table.Column<long>(type: "INTEGER", nullable: true),
-                    UserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
-                    PasswordHash = table.Column<string>(type: "TEXT", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "TEXT", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "TEXT", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Birthdate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Locale = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SessionId = table.Column<long>(type: "bigint", nullable: true),
+                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -284,20 +284,19 @@ namespace Infrastructure.Migrations
                         name: "FK_AspNetUsers_Sessions_SessionId",
                         column: x => x.SessionId,
                         principalTable: "Sessions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
                 name: "AuthorizationCodeGrants",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    Code = table.Column<string>(type: "TEXT", nullable: true),
-                    Nonce = table.Column<string>(type: "TEXT", nullable: true),
-                    IsRedeemed = table.Column<bool>(type: "INTEGER", nullable: false),
-                    SessionId = table.Column<long>(type: "INTEGER", nullable: true),
-                    ClientId = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Nonce = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsRedeemed = table.Column<bool>(type: "bit", nullable: false),
+                    SessionId = table.Column<long>(type: "bigint", nullable: true),
+                    ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -320,8 +319,8 @@ namespace Infrastructure.Migrations
                 name: "SessionClients",
                 columns: table => new
                 {
-                    ClientsId = table.Column<string>(type: "TEXT", nullable: false),
-                    SessionsId = table.Column<long>(type: "INTEGER", nullable: false)
+                    ClientsId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    SessionsId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -344,11 +343,11 @@ namespace Infrastructure.Migrations
                 name: "AspNetUserClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    ClaimType = table.Column<string>(type: "TEXT", nullable: true),
-                    ClaimValue = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -365,10 +364,10 @@ namespace Infrastructure.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "TEXT", nullable: false),
-                    ProviderKey = table.Column<string>(type: "TEXT", nullable: false),
-                    ProviderDisplayName = table.Column<string>(type: "TEXT", nullable: true),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false)
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -385,8 +384,8 @@ namespace Infrastructure.Migrations
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    RoleId = table.Column<string>(type: "TEXT", nullable: false)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -409,10 +408,10 @@ namespace Infrastructure.Migrations
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    LoginProvider = table.Column<string>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Value = table.Column<string>(type: "TEXT", nullable: true)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -429,13 +428,13 @@ namespace Infrastructure.Migrations
                 name: "ConsentGrants",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    IssuedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Updated = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    IsRevoked = table.Column<bool>(type: "INTEGER", nullable: false),
-                    ClientId = table.Column<string>(type: "TEXT", nullable: true),
-                    UserId = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IssuedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Updated = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsRevoked = table.Column<bool>(type: "bit", nullable: false),
+                    ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -457,8 +456,8 @@ namespace Infrastructure.Migrations
                 name: "ConsentedGrantClaims",
                 columns: table => new
                 {
-                    ConsentGrantsId = table.Column<long>(type: "INTEGER", nullable: false),
-                    ConsentedClaimsId = table.Column<int>(type: "INTEGER", nullable: false)
+                    ConsentGrantsId = table.Column<long>(type: "bigint", nullable: false),
+                    ConsentedClaimsId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -481,10 +480,10 @@ namespace Infrastructure.Migrations
                 name: "Scopes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: true),
-                    ConsentGrantId = table.Column<long>(type: "INTEGER", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ConsentGrantId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -500,8 +499,8 @@ namespace Infrastructure.Migrations
                 name: "ClientScopes",
                 columns: table => new
                 {
-                    ClientsId = table.Column<string>(type: "TEXT", nullable: false),
-                    ScopesId = table.Column<int>(type: "INTEGER", nullable: false)
+                    ClientsId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ScopesId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -524,8 +523,8 @@ namespace Infrastructure.Migrations
                 name: "ResourceScopes",
                 columns: table => new
                 {
-                    ResourcesId = table.Column<string>(type: "TEXT", nullable: false),
-                    ScopesId = table.Column<int>(type: "INTEGER", nullable: false)
+                    ResourcesId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ScopesId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -548,67 +547,47 @@ namespace Infrastructure.Migrations
                 name: "Tokens",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Created = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    IsRevoked = table.Column<bool>(type: "INTEGER", nullable: false),
-                    Value = table.Column<string>(type: "TEXT", nullable: true),
-                    TokenType = table.Column<int>(type: "INTEGER", nullable: false),
-                    AccessToken_SessionId = table.Column<long>(type: "INTEGER", nullable: true),
-                    AccessToken_ClientId = table.Column<string>(type: "TEXT", nullable: true),
-                    AccessToken_UserId = table.Column<string>(type: "TEXT", nullable: true),
-                    ClientRegistrationToken_ClientId = table.Column<string>(type: "TEXT", nullable: true),
-                    IdToken_SessionId = table.Column<long>(type: "INTEGER", nullable: true),
-                    IdToken_ClientId = table.Column<string>(type: "TEXT", nullable: true),
-                    IdToken_UserId = table.Column<string>(type: "TEXT", nullable: true),
-                    SessionId = table.Column<long>(type: "INTEGER", nullable: true),
-                    ClientId = table.Column<string>(type: "TEXT", nullable: true),
-                    UserId = table.Column<string>(type: "TEXT", nullable: true),
-                    ResourceId = table.Column<string>(type: "TEXT", nullable: true),
-                    ScopeId = table.Column<int>(type: "INTEGER", nullable: true)
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsRevoked = table.Column<bool>(type: "bit", nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TokenType = table.Column<int>(type: "int", nullable: false),
+                    AccessToken_SessionId = table.Column<long>(type: "bigint", nullable: true),
+                    AccessToken_ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ClientRegistrationToken_ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    IdToken_SessionId = table.Column<long>(type: "bigint", nullable: true),
+                    IdToken_ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    SessionId = table.Column<long>(type: "bigint", nullable: true),
+                    ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ResourceId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ScopeId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Tokens", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Tokens_AspNetUsers_AccessToken_UserId",
-                        column: x => x.AccessToken_UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Tokens_AspNetUsers_IdToken_UserId",
-                        column: x => x.IdToken_UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Tokens_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                    table.ForeignKey(
                         name: "FK_Tokens_Clients_AccessToken_ClientId",
                         column: x => x.AccessToken_ClientId,
                         principalTable: "Clients",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Tokens_Clients_ClientId",
                         column: x => x.ClientId,
                         principalTable: "Clients",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Tokens_Clients_ClientRegistrationToken_ClientId",
                         column: x => x.ClientRegistrationToken_ClientId,
                         principalTable: "Clients",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Tokens_Clients_IdToken_ClientId",
                         column: x => x.IdToken_ClientId,
                         principalTable: "Clients",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Tokens_Resources_ResourceId",
                         column: x => x.ResourceId,
@@ -625,31 +604,27 @@ namespace Infrastructure.Migrations
                         name: "FK_Tokens_Sessions_AccessToken_SessionId",
                         column: x => x.AccessToken_SessionId,
                         principalTable: "Sessions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Tokens_Sessions_IdToken_SessionId",
                         column: x => x.IdToken_SessionId,
                         principalTable: "Sessions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Tokens_Sessions_SessionId",
                         column: x => x.SessionId,
                         principalTable: "Sessions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.InsertData(
                 table: "GrantTypes",
                 columns: new[] { "Id", "Name" },
-                values: new object[] { 1, "authorization_code" });
-
-            migrationBuilder.InsertData(
-                table: "GrantTypes",
-                columns: new[] { "Id", "Name" },
-                values: new object[] { 2, "refresh_token" });
+                values: new object[,]
+                {
+                    { 1, "authorization_code" },
+                    { 2, "refresh_token" }
+                });
 
             migrationBuilder.InsertData(
                 table: "ResponseTypes",
@@ -659,27 +634,14 @@ namespace Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "Scopes",
                 columns: new[] { "Id", "ConsentGrantId", "Name" },
-                values: new object[] { 1, null, "openid" });
-
-            migrationBuilder.InsertData(
-                table: "Scopes",
-                columns: new[] { "Id", "ConsentGrantId", "Name" },
-                values: new object[] { 2, null, "email" });
-
-            migrationBuilder.InsertData(
-                table: "Scopes",
-                columns: new[] { "Id", "ConsentGrantId", "Name" },
-                values: new object[] { 3, null, "profile" });
-
-            migrationBuilder.InsertData(
-                table: "Scopes",
-                columns: new[] { "Id", "ConsentGrantId", "Name" },
-                values: new object[] { 4, null, "offline_access" });
-
-            migrationBuilder.InsertData(
-                table: "Scopes",
-                columns: new[] { "Id", "ConsentGrantId", "Name" },
-                values: new object[] { 5, null, "phone" });
+                values: new object[,]
+                {
+                    { 1, null, "openid" },
+                    { 2, null, "email" },
+                    { 3, null, "profile" },
+                    { 4, null, "offline_access" },
+                    { 5, null, "phone" }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -690,7 +652,8 @@ namespace Infrastructure.Migrations
                 name: "RoleNameIndex",
                 table: "AspNetRoles",
                 column: "NormalizedName",
-                unique: true);
+                unique: true,
+                filter: "[NormalizedName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
@@ -716,13 +679,15 @@ namespace Infrastructure.Migrations
                 name: "IX_AspNetUsers_SessionId",
                 table: "AspNetUsers",
                 column: "SessionId",
-                unique: true);
+                unique: true,
+                filter: "[SessionId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
-                unique: true);
+                unique: true,
+                filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AuthorizationCodeGrants_ClientId",
@@ -788,7 +753,8 @@ namespace Infrastructure.Migrations
                 name: "IX_Scopes_Name",
                 table: "Scopes",
                 column: "Name",
-                unique: true);
+                unique: true,
+                filter: "[Name] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SessionClients_SessionsId",
@@ -804,11 +770,6 @@ namespace Infrastructure.Migrations
                 name: "IX_Tokens_AccessToken_SessionId",
                 table: "Tokens",
                 column: "AccessToken_SessionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tokens_AccessToken_UserId",
-                table: "Tokens",
-                column: "AccessToken_UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tokens_ClientId",
@@ -831,11 +792,6 @@ namespace Infrastructure.Migrations
                 column: "IdToken_SessionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tokens_IdToken_UserId",
-                table: "Tokens",
-                column: "IdToken_UserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Tokens_ResourceId",
                 table: "Tokens",
                 column: "ResourceId");
@@ -849,11 +805,6 @@ namespace Infrastructure.Migrations
                 name: "IX_Tokens_SessionId",
                 table: "Tokens",
                 column: "SessionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tokens_UserId",
-                table: "Tokens",
-                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

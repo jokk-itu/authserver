@@ -71,22 +71,22 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
     builder
       .HasMany(x => x.RefreshTokens)
       .WithOne(x => x.Client)
-      .OnDelete(DeleteBehavior.Cascade);
+      .OnDelete(DeleteBehavior.NoAction);
 
     builder
       .HasMany(x => x.IdTokens)
       .WithOne(x => x.Client)
-      .OnDelete(DeleteBehavior.Cascade);
+      .OnDelete(DeleteBehavior.NoAction);
 
     builder
       .HasMany(x => x.AccessTokens)
       .WithOne(x => x.Client)
-      .OnDelete(DeleteBehavior.Cascade);
+      .OnDelete(DeleteBehavior.NoAction);
 
     builder
       .HasMany(x => x.ClientRegistrationTokens)
       .WithOne(x => x.Client)
-      .OnDelete(DeleteBehavior.Cascade);
+      .OnDelete(DeleteBehavior.NoAction);
       
     builder.ToTable("Clients");
   }

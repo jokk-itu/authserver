@@ -20,23 +20,23 @@ public class SessionConfiguration : IEntityTypeConfiguration<Session>
     builder
       .HasMany(x => x.IdTokens)
       .WithOne(x => x.Session)
-      .OnDelete(DeleteBehavior.Cascade);
+      .OnDelete(DeleteBehavior.NoAction);
 
     builder
       .HasMany(x => x.AccessTokens)
       .WithOne(x => x.Session)
-      .OnDelete(DeleteBehavior.Cascade);
+      .OnDelete(DeleteBehavior.NoAction);
 
     builder
       .HasMany(x => x.RefreshTokens)
       .WithOne(x => x.Session)
-      .OnDelete(DeleteBehavior.Cascade);
+      .OnDelete(DeleteBehavior.NoAction);
 
     builder
       .HasOne(x => x.User)
       .WithOne(x => x.Session)
       .HasForeignKey<User>(x => x.SessionId)
-      .OnDelete(DeleteBehavior.Cascade);
+      .OnDelete(DeleteBehavior.NoAction);
 
     builder.ToTable("Sessions");
   }
