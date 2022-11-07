@@ -93,6 +93,7 @@ builder.WebHost.ConfigureServices(services =>
     configureOptions.ResponseType = OpenIdConnectResponseType.Code;
     configureOptions.UsePkce = true;
     configureOptions.SaveTokens = true;
+    configureOptions.Prompt = "login";
     configureOptions.Scope.Add("profile");
     configureOptions.Scope.Add("email");
     configureOptions.Scope.Add("phone");
@@ -105,7 +106,7 @@ builder.WebHost.ConfigureServices(services =>
     {
       OnTokenValidated = context => 
       {
-        Log.Information("IdToken Validated");
+        Log.Information("Token Validated");
         return Task.CompletedTask;
       },
       OnTokenResponseReceived = context => 

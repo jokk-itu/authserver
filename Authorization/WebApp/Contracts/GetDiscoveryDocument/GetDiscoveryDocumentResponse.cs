@@ -1,7 +1,6 @@
-﻿using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
-namespace Contracts.GetDiscovery;
+namespace WebApp.Contracts.GetDiscoveryDocument;
 
 #nullable disable
 public record GetDiscoveryDocumentResponse

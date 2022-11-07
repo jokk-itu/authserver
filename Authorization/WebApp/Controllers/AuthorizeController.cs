@@ -11,6 +11,7 @@ using MediatR;
 
 namespace WebApp.Controllers;
 
+[ApiController]
 [Route("connect/[controller]")]
 public class AuthorizeController : Controller
 {
@@ -22,23 +23,28 @@ public class AuthorizeController : Controller
   }
 
   [HttpGet]
-  public IActionResult Index(
+  public IActionResult Get(
     [FromQuery(Name = ParameterNames.Prompt)] string prompt)
   {
-    if (PromptConstants.Prompts.Any(x => x == prompt))
+    if (PromptConstants.Prompts.All(x => x != prompt))
     {
       return this.BadOAuthResult(ErrorCode.InvalidRequest, "prompt is invalid");
     }
 
     var prompts = prompt.Split(' ');
+    var routeValues = new RouteValueDictionary();
+    foreach (var (key, value) in HttpContext.Request.Query)
+    {
+      routeValues.Add(key, value);
+    }
     if (prompts.Contains(PromptConstants.Create))
     {
-      return RedirectToRoute($"connect/register?{HttpContext.Request.QueryString}");
+      return RedirectToAction(controllerName: "Register", actionName: "Index", routeValues: routeValues);
     }
 
     if (prompts.Contains(PromptConstants.Login))
     {
-      return RedirectToRoute($"connect/login?{HttpContext.Request.QueryString}");
+      return RedirectToAction(controllerName: "Login", actionName: "Index", routeValues: routeValues);
     }
 
     return this.BadOAuthResult(ErrorCode.InvalidRequest, "prompt is invalid");
@@ -49,7 +55,7 @@ public class AuthorizeController : Controller
   [Consumes("application/x-www-form-urlencoded")]
   [ProducesResponseType(StatusCodes.Status302Found)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
-  public async Task<IActionResult> PostAuthorizeAsync(
+  public async Task<IActionResult> PostAsync(
     [FromForm] PostAuthorizeCodeRequest request,
     [FromQuery(Name = ParameterNames.ResponseType)] string responseType,
     [FromQuery(Name = ParameterNames.ClientId)] string clientId,

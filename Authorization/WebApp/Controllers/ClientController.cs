@@ -3,6 +3,7 @@ using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Requests.CreateClient;
 using Infrastructure.Requests.DeleteClient;
+using Infrastructure.Requests.ReadClient;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

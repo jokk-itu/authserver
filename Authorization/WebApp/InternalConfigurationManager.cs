@@ -1,11 +1,11 @@
-﻿using Contracts.GetDiscovery;
-using Contracts.GetJwksDocument;
+﻿using Contracts.GetJwksDocument;
 using Infrastructure;
 using Infrastructure.Repositories;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.Json;
+using WebApp.Contracts.GetDiscoveryDocument;
 
 namespace WebApp;
 
@@ -43,9 +43,9 @@ public class InternalConfigurationManager : IConfigurationManager<OpenIdConnectC
     var discoveryDocument = new GetDiscoveryDocumentResponse
     {
       Issuer = _identityConfiguration.InternalIssuer,
-      AuthorizationEndpoint = $"{_identityConfiguration.ExternalIssuer}/connect/v1/authorize",
-      TokenEndpoint = $"{_identityConfiguration.InternalIssuer}/connect/v1/token",
-      UserInfoEndpoint = $"{_identityConfiguration.InternalIssuer}/connect/v1/account/userinfo",
+      AuthorizationEndpoint = $"{_identityConfiguration.ExternalIssuer}/connect/authorize",
+      TokenEndpoint = $"{_identityConfiguration.InternalIssuer}/connect/token",
+      UserInfoEndpoint = $"{_identityConfiguration.InternalIssuer}/connect/userinfo",
       JwksUri = $"{_identityConfiguration.InternalIssuer}/.well-known/jwks",
       Scopes = (await _scopeManager.ReadScopesAsync()).Select(scope => scope.Name)
     };

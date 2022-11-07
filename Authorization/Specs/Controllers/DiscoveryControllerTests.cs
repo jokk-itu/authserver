@@ -1,8 +1,8 @@
-﻿using Contracts.GetDiscovery;
-using Contracts.GetJwksDocument;
+﻿using Contracts.GetJwksDocument;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
 using System.Net.Http.Json;
+using WebApp.Contracts.GetDiscoveryDocument;
 using Xunit;
 
 namespace Specs.Controllers;
