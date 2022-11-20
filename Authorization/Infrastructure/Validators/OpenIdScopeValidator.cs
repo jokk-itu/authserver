@@ -5,7 +5,7 @@ using Domain.Constants;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Validators;
-public class OpenIdScopeValidator : BaseValidator<ICollection<string>>
+public class OpenIdScopeValidator : IBaseValidator<ICollection<string>>
 {
   private readonly IdentityContext _identityContext;
 
@@ -14,7 +14,7 @@ public class OpenIdScopeValidator : BaseValidator<ICollection<string>>
     _identityContext = identityContext;
   }
 
-  public override async Task<BaseValidationResult> ValidateAsync(ICollection<string> value, CancellationToken cancellationToken = default)
+  public async Task<BaseValidationResult> ValidateAsync(ICollection<string> value, CancellationToken cancellationToken = default)
   {
     if (!value.Contains(ScopeConstants.OpenId))
       return new BaseValidationResult(ErrorCode.InvalidScope, $"{ScopeConstants.OpenId} is required");
@@ -25,6 +25,6 @@ public class OpenIdScopeValidator : BaseValidator<ICollection<string>>
         return new BaseValidationResult(ErrorCode.InvalidScope, $"{scope} is invalid");
     }
 
-    return Ok();
+    return new BaseValidationResult();
   }
 }

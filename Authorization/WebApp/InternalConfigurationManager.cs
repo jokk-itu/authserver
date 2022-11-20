@@ -1,10 +1,10 @@
 ﻿using Contracts.GetJwksDocument;
-using Infrastructure;
 using Infrastructure.Repositories;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.Json;
+using Application;
 using WebApp.Contracts.GetDiscoveryDocument;
 
 namespace WebApp;

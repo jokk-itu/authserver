@@ -1,4 +1,4 @@
-﻿<form name="register" asp-action="connect/register" method="post">
+﻿<form class="d-flex flex-column justify-content-center align-items-center" name="register" asp-action="connect/register" method="post">
     <div class="form-group">
         <label class="form-label" for="firstname">FirstName</label>
         <input class="form-control form-control-lg" id="firstname" type="text" name="firstname"/>
@@ -25,15 +25,15 @@
     </div>
     <div class="form-group">
         <label for="password" class="form-label">Password</label>
-        <input class="form-control form-control-lg" id="password" type="password" name="Password"/>
+        <input class="form-control form-control-lg" id="password" type="password" name="password"/>
     </div>
     <div class="form-group">
         <label class="form-label" for="email">Email</label>
-        <input class="form-control form-control-lg" type="email" name="Email"/>
+        <input class="form-control form-control-lg" type="email" id="email" name="email"/>
     </div>
     <div class="form-group">
         <label class="form-label" for="phonenumber">Phonenumber</label>
-        <input class="form-control form-control-lg" type="tel" name="Phonenumber"/>
+        <input class="form-control form-control-lg" type="tel" id="phonenumber" name="phonenumber"/>
     </div>
     <input class="btn btn-primary" type="submit" value="Register" />
 </form>

@@ -1,4 +1,5 @@
-﻿using Domain;
+﻿using Application;
+using Domain;
 using Domain.Constants;
 using Infrastructure;
 using Infrastructure.Builders;
@@ -59,7 +60,7 @@ public class DeleteClientValidatorTests
     var fakeJwtBearerOptions = new Mock<IOptions<JwtBearerOptions>>();
     fakeJwtBearerOptions.Setup(x => x.Value).Returns(jwtBearerOptions);
     var jwkManager = new JwkManager(serviceProvider);
-    var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager);
+    var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager, identityConfiguration);
     var validator = new DeleteClientValidator(_identityContext, tokenDecoder);
 
     // Act
@@ -92,7 +93,7 @@ public class DeleteClientValidatorTests
     fakeJwtBearerOptions.Setup(x => x.Value).Returns(jwtBearerOptions);
     var jwkManager = new JwkManager(serviceProvider);
     var resourceManager = new ResourceManager(_identityContext);
-    var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager);
+    var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager, identityConfiguration);
     var userStore = new UserStore<User>(_identityContext);
     var userManager = new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
     var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager, userManager);
@@ -132,7 +133,7 @@ public class DeleteClientValidatorTests
     fakeJwtBearerOptions.Setup(x => x.Value).Returns(jwtBearerOptions);
     var jwkManager = new JwkManager(serviceProvider);
     var resourceManager = new ResourceManager(_identityContext);
-    var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager);
+    var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager, identityConfiguration);
     var userStore = new UserStore<User>(_identityContext);
     var userManager = new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
     var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager, userManager);
@@ -181,7 +182,7 @@ public class DeleteClientValidatorTests
     fakeJwtBearerOptions.Setup(x => x.Value).Returns(jwtBearerOptions);
     var jwkManager = new JwkManager(serviceProvider);
     var resourceManager = new ResourceManager(_identityContext);
-    var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager);
+    var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager, identityConfiguration);
     var userStore = new UserStore<User>(_identityContext);
     var userManager = new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
     var tokenBuilder = new TokenBuilder(identityConfiguration, jwkManager, resourceManager, userManager);

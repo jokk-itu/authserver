@@ -1,38 +1,39 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
+using WebApp.Constants;
 
-namespace Contracts.RegisterUser;
+namespace WebApp.Contracts.PostRegisterUser;
 
 public record PostRegisterUserRequest
 {
-  [JsonPropertyName("username")]
+  [FromForm(Name = ParameterNames.Username)]
   public string Username { get; init; } = null!;
 
-  [JsonPropertyName("password")]
+  [FromForm(Name = ParameterNames.Password)]
   [PasswordPropertyText]
   public string Password { get; init; } = null!;
 
-  [JsonPropertyName("email")]
+  [FromForm(Name = ParameterNames.Email)]
   [EmailAddress]
   public string Email { get; init; } = null!;
 
-  [JsonPropertyName("phonenumber")]
+  [FromForm(Name = ParameterNames.Phonenumber)]
   [Phone]
   public string PhoneNumber { get; init; } = null!;
 
-  [JsonPropertyName("address")]
+  [FromForm(Name = ParameterNames.Address)]
   public string Address { get; init; } = null!;
 
-  [JsonPropertyName("last_name")]
+  [FromForm(Name = ParameterNames.Lastname)]
   public string FamilyName { get; init; } = null!;
 
-  [JsonPropertyName("first_name")]
+  [FromForm(Name = ParameterNames.Firstname)]
   public string GivenName { get; init; } = null!;
 
-  [JsonPropertyName("birthdate")]
+  [FromForm(Name = ParameterNames.Birthdate)]
   public DateTime BirthDate { get; init; }
 
-  [JsonPropertyName("locale")]
+  [FromForm(Name = ParameterNames.Locale)]
   public string Locale { get; init; } = null!;
 }

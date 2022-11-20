@@ -48,11 +48,10 @@ public class CreateConsentGrantHandler : IRequestHandler<CreateConsentGrantComma
     {
       Client = client,
       ConsentedClaims = consentedClaims,
-      Scopes = scopes,
+      ConsentedScopes = scopes,
       User = user,
-      IsRevoked = false,
-      IssuedAt = DateTime.Now,
-      Updated = DateTime.Now
+      IssuedAt = DateTime.UtcNow,
+      Updated = DateTime.UtcNow
     };
     await _identityContext
       .Set<ConsentGrant>()

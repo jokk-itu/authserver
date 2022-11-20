@@ -31,7 +31,7 @@ public class DeleteClientValidator : IValidator<DeleteClientCommand>
     if (string.IsNullOrWhiteSpace(command.ClientRegistrationToken))
       return true;
 
-    var clientId = _tokenDecoder.DecodeToken(command.ClientRegistrationToken)?.Claims?
+    var clientId = _tokenDecoder.DecodeSignedToken(command.ClientRegistrationToken)?.Claims?
       .SingleOrDefault(x => x.Type == ClaimNameConstants.ClientId)?.Value;
     if (clientId is null)
       return true;

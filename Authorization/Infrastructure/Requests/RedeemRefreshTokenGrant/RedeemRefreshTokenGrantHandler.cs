@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Net;
+using Application;
 using Application.Validation;
 using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
@@ -33,7 +34,7 @@ public class RedeemRefreshTokenGrantHandler : IRequestHandler<RedeemRefreshToken
     if (validationResult.IsError())
       return new RedeemRefreshTokenGrantResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
 
-    var token = _tokenDecoder.DecodeToken(request.RefreshToken);
+    var token = _tokenDecoder.DecodeSignedToken(request.RefreshToken);
     if (token is null)
       throw new SecurityTokenException("Decode must not fail after successful validation");
 

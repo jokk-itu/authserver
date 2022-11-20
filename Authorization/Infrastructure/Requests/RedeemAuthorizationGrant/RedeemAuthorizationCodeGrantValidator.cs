@@ -118,8 +118,8 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
       return true;
 
     if (string.IsNullOrWhiteSpace(command.Scope))
-      return true;
-
+      return false;
+    
     var requestScopes = command.Scope.Split(' ');
     return !requestScopes.All(x => code.Scopes.Any(y => y == x));
   }

@@ -1,7 +1,10 @@
 ﻿using System.Net;
+using System.Security;
 using Application.Validation;
 using Domain;
+using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
+using Infrastructure.Decoders.Abstractions;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,17 +16,20 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
   private readonly IValidator<CreateAuthorizationGrantCommand> _validator;
   private readonly UserManager<User> _userManager;
   private readonly ICodeBuilder _codeBuilder;
+  private readonly ITokenDecoder _tokenDecoder;
 
   public CreateAuthorizationGrantHandler(
     IdentityContext identityContext, 
     IValidator<CreateAuthorizationGrantCommand> validator,
     UserManager<User> userManager,
-    ICodeBuilder codeBuilder)
+    ICodeBuilder codeBuilder,
+    ITokenDecoder tokenDecoder)
   {
     _identityContext = identityContext;
     _validator = validator;
     _userManager = userManager;
     _codeBuilder = codeBuilder;
+    _tokenDecoder = tokenDecoder;
   }
 
   public async Task<CreateAuthorizationGrantResponse> Handle(CreateAuthorizationGrantCommand request, CancellationToken cancellationToken)
@@ -32,7 +38,16 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
     if (validationResult.IsError())
       return new CreateAuthorizationGrantResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
 
-    var user = await _userManager.FindByNameAsync(request.Username);
+    var decryptedToken = _tokenDecoder.DecodeEncryptedToken(request.LoginToken);
+    if (decryptedToken is null)
+      throw new SecurityException("token should be decryptable");
+
+    var userId = decryptedToken.Claims
+      .Where(x => x.Type == ClaimNameConstants.Sub)
+      .Select(x => x.Value)
+      .Single();
+
+    var user = await _userManager.FindByIdAsync(userId);
     var client = await _identityContext
       .Set<Client>()
       .SingleAsync(x => x.Id == request.ClientId, cancellationToken: cancellationToken);
@@ -40,7 +55,7 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
     var session = await _identityContext
       .Set<Session>()
       .Include(x => x.Clients)
-      .SingleOrDefaultAsync(x => x.User.UserName == request.Username, cancellationToken: cancellationToken) ?? new Session
+      .SingleOrDefaultAsync(x => x.User.Id == userId, cancellationToken: cancellationToken) ?? new Session
       {
         Created = DateTime.Now,
         Updated = DateTime.Now,

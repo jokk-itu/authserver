@@ -7,6 +7,7 @@ using System.Globalization;
 using Domain;
 using Infrastructure.Decoders.Abstractions;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 
 namespace WebApp.Controllers;
@@ -28,13 +29,14 @@ public class UserInfoController : Controller
   }
 
   [HttpGet]
+  [Authorize]
   public async Task<IActionResult> GetAsync()
   {
     var accessToken = await HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, TokenTypeConstants.AccessToken);
     if (string.IsNullOrWhiteSpace(accessToken))
       return Forbid(OpenIdConnectDefaults.AuthenticationScheme);
 
-    var decodedAccessToken = _tokenDecoder.DecodeToken(accessToken);
+    var decodedAccessToken = _tokenDecoder.DecodeSignedToken(accessToken);
     if (decodedAccessToken is null)
       return Forbid(OpenIdConnectDefaults.AuthenticationScheme);
 
@@ -69,7 +71,7 @@ public class UserInfoController : Controller
       claims.Add(ClaimNameConstants.Locale, user.Locale);
     }
 
-    if (scopes.Contains(ScopeConstants.Email)) 
+    if (scopes.Contains(ScopeConstants.Email))
       claims.Add(ClaimNameConstants.Email, user.Email);
 
     if (scopes.Contains(ScopeConstants.Phone))

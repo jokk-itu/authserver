@@ -1,11 +1,13 @@
 ﻿namespace WebApp.ViewModels;
 
-#nullable disable
+#nullable enable
 public class ConsentViewModel
 {
-  public string ClientName { get; init; }
-  public ICollection<string> Scopes { get; init; }
-  public ICollection<string> Claims { get; init; }
-  public string Query { get; init; }
-  public string AccessToken { get; init; }
+  public string ClientName { get; init; } = null!;
+  public string GivenName { get; init; } = null!;
+  public IEnumerable<string> Scopes { get; init; } = new List<string>();
+  public IEnumerable<string> Claims { get; init; } = new List<string>();
+  public string LoginToken { get; init; } = null!;
+  public string? TosUri { get; init; }
+  public string? PolicyUri { get; init; }
 }

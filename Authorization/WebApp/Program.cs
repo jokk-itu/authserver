@@ -1,4 +1,4 @@
-using Infrastructure;
+using Application;
 using Infrastructure.Extensions;
 using Microsoft.IdentityModel.Logging;
 using Serilog;

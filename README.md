@@ -1,6 +1,6 @@
 # Authserver
 
-Supporting the Authorization Code flow for OAuth 2.0 and OpenId Connect v1.
+Supporting the Authorization Code flow for OAuth 2.1 and OpenId Connect 1.0
 
 ## Pipeline runs
 
@@ -12,22 +12,9 @@ Take a look in the Wiki section of the repository.
 
 ## How to run
 
-The repository contains a testsystem, consisting of a webapp using OpenId Connect and a protected resource (API).
-The repository is setup to use docker-compose for all programs, therefore to run all programs run the compose file.
-```
-docker-compose up -d
-```
+The project relies on a database. It can either be SQL Server or SQLite.
+This can be configured using the appsettings.json file.
 
-Now proceed to the [WebApp](http://localhost:5002/home/secret)
-This will try to fetch data from a secured enpoint in the protected resource.
-Since a user has not been authenticated, a challenge is received instead.
-You will then be redirected to the authorize endpoint of the OP.
-Use the following user:
-```
-Username: jokk
-Password: Password12!
-```
+If using SQL Server, then a docker-compose.yml file can be used.
 
-If you would like to register your own user, then proceed to the [Register endpoint](http://localhost:5000/connect/v1/account/register).
-
-If the credentials are correct, you will be redirected back to the secret page, and the secret endpoint of the protected resource will return a secret.
+All projects use Kestrel as server, and can be started using <code>dotnet run</code>.

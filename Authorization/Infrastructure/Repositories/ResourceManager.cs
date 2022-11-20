@@ -12,7 +12,7 @@ public class ResourceManager
     _identityContext = context;
   }
 
-  public async Task<ICollection<Resource>> ReadResourcesAsync(ICollection<string> scopes, CancellationToken cancellationToken = default)
+  public async Task<ICollection<Resource>> ReadResourcesAsync(IEnumerable<string> scopes, CancellationToken cancellationToken = default)
   {
     return await _identityContext
       .Set<Resource>()

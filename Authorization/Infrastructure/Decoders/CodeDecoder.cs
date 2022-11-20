@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using Application;
 using Infrastructure.Builders;
 using Infrastructure.Decoders.Abstractions;
 using Microsoft.AspNetCore.DataProtection;

@@ -31,7 +31,7 @@ public class ReadClientHandler : IRequestHandler<ReadClientQuery, ReadClientResp
       return new ReadClientResponse(validationResult.ErrorCode, validationResult.ErrorDescription,
         validationResult.StatusCode);
 
-    var configurationToken = _tokenDecoder.DecodeToken(request.Token);
+    var configurationToken = _tokenDecoder.DecodeSignedToken(request.Token);
     if (configurationToken is null)
       throw new SecurityException("configuration token is invalid after validation");
 

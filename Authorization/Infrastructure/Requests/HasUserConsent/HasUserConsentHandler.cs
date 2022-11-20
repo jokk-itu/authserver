@@ -26,8 +26,7 @@ public class HasUserConsentHandler : IRequestHandler<HasUserConsentQuery, HasUse
 
     var consentGrant = await _identityContext
       .Set<ConsentGrant>()
-      .Include(x => x.Scopes)
-      .AsSplitQuery()
+      .Include(x => x.ConsentedScopes)
       .SingleOrDefaultAsync(x => 
         x.Client.Id == request.ClientId 
         && x.User.UserName == request.Username, cancellationToken: cancellationToken);
@@ -38,7 +37,7 @@ public class HasUserConsentHandler : IRequestHandler<HasUserConsentQuery, HasUse
         HasValidConsent = false
       };
 
-    var areScopesStale = !request.Scopes.All(x => consentGrant.Scopes.Any(y => y.Name == x));
+    var areScopesStale = !request.Scopes.All(x => consentGrant.ConsentedScopes.Any(y => y.Name == x));
     return new HasUserConsentResponse(HttpStatusCode.Redirect)
     {
       HasValidConsent = !areScopesStale

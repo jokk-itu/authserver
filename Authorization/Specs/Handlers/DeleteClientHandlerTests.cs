@@ -20,7 +20,6 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
 namespace Specs.Handlers;
 
 public class DeleteClientHandlerTests
@@ -100,7 +99,7 @@ public class DeleteClientHandlerTests
     var resourceManager = new ResourceManager(_identityContext);
     var userStore = new UserStore<User>(_identityContext);
     var userManager = new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
-    var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager);
+    var tokenDecoder = new TokenDecoder(Mock.Of<ILogger<TokenDecoder>>(), fakeJwtBearerOptions.Object, jwkManager, identityConfiguration);
     var token = new TokenBuilder(identityConfiguration, jwkManager, resourceManager, userManager).BuildClientRegistrationAccessToken(client.Id);
     var command = new DeleteClientCommand
     {

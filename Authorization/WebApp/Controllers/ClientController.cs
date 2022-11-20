@@ -17,7 +17,6 @@ using GetClientResponse = WebApp.Contracts.GetClient.GetClientResponse;
 
 namespace WebApp.Controllers;
 
-
 [Route("/connect/[controller]")]
 public class ClientController : Controller
 {

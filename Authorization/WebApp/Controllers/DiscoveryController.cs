@@ -1,4 +1,5 @@
-﻿using Infrastructure;
+﻿using Application;
+using Infrastructure;
 using Contracts.GetJwksDocument;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;

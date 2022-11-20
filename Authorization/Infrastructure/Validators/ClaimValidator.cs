@@ -4,7 +4,7 @@ using Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Validators;
-public class ClaimValidator : BaseValidator<ICollection<string>>
+public class ClaimValidator : IBaseValidator<ICollection<string>>
 {
   private readonly IdentityContext _identityContext;
 
@@ -13,7 +13,7 @@ public class ClaimValidator : BaseValidator<ICollection<string>>
     _identityContext = identityContext;
   }
 
-  public override async Task<BaseValidationResult> ValidateAsync(ICollection<string> value, CancellationToken cancellationToken = default)
+  public async Task<BaseValidationResult> ValidateAsync(ICollection<string> value, CancellationToken cancellationToken = default)
   {
     foreach (var claim in value)
     {
@@ -21,6 +21,6 @@ public class ClaimValidator : BaseValidator<ICollection<string>>
         return new BaseValidationResult(ErrorCode.InvalidRequest, "claim is invalid");
     }
 
-    return Ok();
+    return new BaseValidationResult();
   }
 }

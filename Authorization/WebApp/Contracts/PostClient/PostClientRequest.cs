@@ -38,5 +38,4 @@ public class PostClientRequest
 
   [JsonPropertyName(ParameterNames.Scope)]
   public string Scope { get; init; }
-
 }

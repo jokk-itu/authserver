@@ -1,7 +1,9 @@
-﻿using Contracts.RegisterUser;
+﻿using Application;
 using Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using WebApp.Contracts.PostRegisterUser;
+using WebApp.Extensions;
 
 namespace WebApp.Controllers;
 
@@ -22,9 +24,9 @@ public class RegisterController : Controller
     return View();
   }
 
-  [ValidateAntiForgeryToken]
   [HttpPost]
-  [Route("register")]
+  [ValidateAntiForgeryToken]
+  [Consumes("application/x-www-form-urlencoded")]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status200OK)]
   public async Task<IActionResult> PostAsync(PostRegisterUserRequest request)
@@ -46,6 +48,6 @@ public class RegisterController : Controller
     if (identityResult.Succeeded)
       return Ok();
 
-    return BadRequest();
+    return this.BadOAuthResult(ErrorCode.ServerError, "user cannot be created");
   }
 }

@@ -6,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using Application.Validation;
-using Infrastructure.Requests;
 using MediatR;
 using Infrastructure.Builders;
 using Infrastructure.Builders.Abstractions;
@@ -69,19 +68,41 @@ public static class ServiceCollectionExtensions
 
   public static IServiceCollection AddRequests(this IServiceCollection services)
   {
+    AddBaseValidators(services);
+    AddValidators(services);
+    services.AddMediatR(Assembly.GetExecutingAssembly());
+    return services;
+  }
+
+  private static void AddValidators(IServiceCollection services)
+  {
     var validators = Assembly
       .GetExecutingAssembly()
       .GetTypes()
       .Where(x => x.IsClass
-                  && x.GetInterface(typeof(IValidator<>).Name) is not null 
-                  && x.Namespace!.Contains(typeof(Response).Namespace!)).ToList();
+                  && x.GetInterface(typeof(IValidator<>).Name) is not null)
+      .ToList();
+
     foreach (var validator in validators)
     {
       var serviceType = validator.GetInterface(typeof(IValidator<>).Name)!;
       services.AddScoped(serviceType, validator);
     }
+  }
 
-    services.AddMediatR(Assembly.GetExecutingAssembly());
-    return services;
+  private static void AddBaseValidators(IServiceCollection services)
+  {
+    var validators = Assembly
+      .GetExecutingAssembly()
+      .GetTypes()
+      .Where(x => x.IsClass
+                  && x.GetInterface(typeof(IBaseValidator<>).Name) is not null)
+      .ToList();
+
+    foreach (var validator in validators)
+    {
+      var serviceType = validator.GetInterface(typeof(IBaseValidator<>).Name)!;
+      services.AddScoped(serviceType, validator);
+    }
   }
 }
