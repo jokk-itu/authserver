@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20221022175050_Initial")]
-    partial class Initial
+    [Migration("20221119232742_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -114,6 +114,21 @@ namespace Infrastructure.Migrations
                     b.ToTable("SessionClients", (string)null);
                 });
 
+            modelBuilder.Entity("ConsentGrantScope", b =>
+                {
+                    b.Property<long>("ConsentGrantsId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("ConsentedScopesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ConsentGrantsId", "ConsentedScopesId");
+
+                    b.HasIndex("ConsentedScopesId");
+
+                    b.ToTable("ConsentedGrantScopes", (string)null);
+                });
+
             modelBuilder.Entity("Domain.AuthorizationCodeGrant", b =>
                 {
                     b.Property<string>("Id")
@@ -157,6 +172,53 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Claims", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "name"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "given_name"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "family_name"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "phone"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "email"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "address"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "birthdate"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "locale"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Name = "role"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Client", b =>
@@ -207,9 +269,6 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("ClientId")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool>("IsRevoked")
-                        .HasColumnType("bit");
 
                     b.Property<DateTime>("IssuedAt")
                         .HasColumnType("datetime2");
@@ -366,15 +425,10 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<long?>("ConsentGrantId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ConsentGrantId");
 
                     b.HasIndex("Name")
                         .IsUnique()
@@ -880,6 +934,21 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ConsentGrantScope", b =>
+                {
+                    b.HasOne("Domain.ConsentGrant", null)
+                        .WithMany()
+                        .HasForeignKey("ConsentGrantsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Scope", null)
+                        .WithMany()
+                        .HasForeignKey("ConsentedScopesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Domain.AuthorizationCodeGrant", b =>
                 {
                     b.HasOne("Domain.Client", "Client")
@@ -921,13 +990,6 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Client");
-                });
-
-            modelBuilder.Entity("Domain.Scope", b =>
-                {
-                    b.HasOne("Domain.ConsentGrant", null)
-                        .WithMany("Scopes")
-                        .HasForeignKey("ConsentGrantId");
                 });
 
             modelBuilder.Entity("Domain.User", b =>
@@ -1102,11 +1164,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("RedirectUris");
 
                     b.Navigation("RefreshTokens");
-                });
-
-            modelBuilder.Entity("Domain.ConsentGrant", b =>
-                {
-                    b.Navigation("Scopes");
                 });
 
             modelBuilder.Entity("Domain.Resource", b =>

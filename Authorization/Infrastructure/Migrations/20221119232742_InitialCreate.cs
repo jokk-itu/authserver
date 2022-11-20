@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Infrastructure.Migrations
 {
-    public partial class Initial : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -121,6 +121,19 @@ namespace Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ResponseTypes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Scopes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Scopes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -252,6 +265,54 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ClientScopes",
+                columns: table => new
+                {
+                    ClientsId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ScopesId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientScopes", x => new { x.ClientsId, x.ScopesId });
+                    table.ForeignKey(
+                        name: "FK_ClientScopes_Clients_ClientsId",
+                        column: x => x.ClientsId,
+                        principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ClientScopes_Scopes_ScopesId",
+                        column: x => x.ScopesId,
+                        principalTable: "Scopes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ResourceScopes",
+                columns: table => new
+                {
+                    ResourcesId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ScopesId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ResourceScopes", x => new { x.ResourcesId, x.ScopesId });
+                    table.ForeignKey(
+                        name: "FK_ResourceScopes_Resources_ResourcesId",
+                        column: x => x.ResourcesId,
+                        principalTable: "Resources",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ResourceScopes_Scopes_ScopesId",
+                        column: x => x.ScopesId,
+                        principalTable: "Scopes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetUsers",
                 columns: table => new
                 {
@@ -337,6 +398,80 @@ namespace Infrastructure.Migrations
                         principalTable: "Sessions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Tokens",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsRevoked = table.Column<bool>(type: "bit", nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TokenType = table.Column<int>(type: "int", nullable: false),
+                    AccessToken_SessionId = table.Column<long>(type: "bigint", nullable: true),
+                    AccessToken_ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ClientRegistrationToken_ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    IdToken_SessionId = table.Column<long>(type: "bigint", nullable: true),
+                    IdToken_ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    SessionId = table.Column<long>(type: "bigint", nullable: true),
+                    ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ResourceId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ScopeId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tokens", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Tokens_Clients_AccessToken_ClientId",
+                        column: x => x.AccessToken_ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Tokens_Clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Tokens_Clients_ClientRegistrationToken_ClientId",
+                        column: x => x.ClientRegistrationToken_ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Tokens_Clients_IdToken_ClientId",
+                        column: x => x.IdToken_ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Tokens_Resources_ResourceId",
+                        column: x => x.ResourceId,
+                        principalTable: "Resources",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Tokens_Scopes_ScopeId",
+                        column: x => x.ScopeId,
+                        principalTable: "Scopes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Tokens_Sessions_AccessToken_SessionId",
+                        column: x => x.AccessToken_SessionId,
+                        principalTable: "Sessions",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Tokens_Sessions_IdToken_SessionId",
+                        column: x => x.IdToken_SessionId,
+                        principalTable: "Sessions",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Tokens_Sessions_SessionId",
+                        column: x => x.SessionId,
+                        principalTable: "Sessions",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -432,7 +567,6 @@ namespace Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     IssuedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Updated = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsRevoked = table.Column<bool>(type: "bit", nullable: false),
                     ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
@@ -477,144 +611,43 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Scopes",
+                name: "ConsentedGrantScopes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    ConsentGrantId = table.Column<long>(type: "bigint", nullable: true)
+                    ConsentGrantsId = table.Column<long>(type: "bigint", nullable: false),
+                    ConsentedScopesId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Scopes", x => x.Id);
+                    table.PrimaryKey("PK_ConsentedGrantScopes", x => new { x.ConsentGrantsId, x.ConsentedScopesId });
                     table.ForeignKey(
-                        name: "FK_Scopes_ConsentGrants_ConsentGrantId",
-                        column: x => x.ConsentGrantId,
+                        name: "FK_ConsentedGrantScopes_ConsentGrants_ConsentGrantsId",
+                        column: x => x.ConsentGrantsId,
                         principalTable: "ConsentGrants",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ClientScopes",
-                columns: table => new
-                {
-                    ClientsId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ScopesId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ClientScopes", x => new { x.ClientsId, x.ScopesId });
-                    table.ForeignKey(
-                        name: "FK_ClientScopes_Clients_ClientsId",
-                        column: x => x.ClientsId,
-                        principalTable: "Clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ClientScopes_Scopes_ScopesId",
-                        column: x => x.ScopesId,
+                        name: "FK_ConsentedGrantScopes_Scopes_ConsentedScopesId",
+                        column: x => x.ConsentedScopesId,
                         principalTable: "Scopes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "ResourceScopes",
-                columns: table => new
+            migrationBuilder.InsertData(
+                table: "Claims",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
                 {
-                    ResourcesId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ScopesId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ResourceScopes", x => new { x.ResourcesId, x.ScopesId });
-                    table.ForeignKey(
-                        name: "FK_ResourceScopes_Resources_ResourcesId",
-                        column: x => x.ResourcesId,
-                        principalTable: "Resources",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ResourceScopes_Scopes_ScopesId",
-                        column: x => x.ScopesId,
-                        principalTable: "Scopes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Tokens",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsRevoked = table.Column<bool>(type: "bit", nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TokenType = table.Column<int>(type: "int", nullable: false),
-                    AccessToken_SessionId = table.Column<long>(type: "bigint", nullable: true),
-                    AccessToken_ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    ClientRegistrationToken_ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    IdToken_SessionId = table.Column<long>(type: "bigint", nullable: true),
-                    IdToken_ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    SessionId = table.Column<long>(type: "bigint", nullable: true),
-                    ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    ResourceId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    ScopeId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Tokens", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Tokens_Clients_AccessToken_ClientId",
-                        column: x => x.AccessToken_ClientId,
-                        principalTable: "Clients",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Tokens_Clients_ClientId",
-                        column: x => x.ClientId,
-                        principalTable: "Clients",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Tokens_Clients_ClientRegistrationToken_ClientId",
-                        column: x => x.ClientRegistrationToken_ClientId,
-                        principalTable: "Clients",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Tokens_Clients_IdToken_ClientId",
-                        column: x => x.IdToken_ClientId,
-                        principalTable: "Clients",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Tokens_Resources_ResourceId",
-                        column: x => x.ResourceId,
-                        principalTable: "Resources",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Tokens_Scopes_ScopeId",
-                        column: x => x.ScopeId,
-                        principalTable: "Scopes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Tokens_Sessions_AccessToken_SessionId",
-                        column: x => x.AccessToken_SessionId,
-                        principalTable: "Sessions",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Tokens_Sessions_IdToken_SessionId",
-                        column: x => x.IdToken_SessionId,
-                        principalTable: "Sessions",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Tokens_Sessions_SessionId",
-                        column: x => x.SessionId,
-                        principalTable: "Sessions",
-                        principalColumn: "Id");
+                    { 1, "name" },
+                    { 2, "given_name" },
+                    { 3, "family_name" },
+                    { 4, "phone" },
+                    { 5, "email" },
+                    { 6, "address" },
+                    { 7, "birthdate" },
+                    { 8, "locale" },
+                    { 9, "role" }
                 });
 
             migrationBuilder.InsertData(
@@ -633,14 +666,14 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "Scopes",
-                columns: new[] { "Id", "ConsentGrantId", "Name" },
+                columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { 1, null, "openid" },
-                    { 2, null, "email" },
-                    { 3, null, "profile" },
-                    { 4, null, "offline_access" },
-                    { 5, null, "phone" }
+                    { 1, "openid" },
+                    { 2, "email" },
+                    { 3, "profile" },
+                    { 4, "offline_access" },
+                    { 5, "phone" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -725,6 +758,11 @@ namespace Infrastructure.Migrations
                 column: "ConsentedClaimsId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ConsentedGrantScopes_ConsentedScopesId",
+                table: "ConsentedGrantScopes",
+                column: "ConsentedScopesId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ConsentGrants_ClientId",
                 table: "ConsentGrants",
                 column: "ClientId");
@@ -743,11 +781,6 @@ namespace Infrastructure.Migrations
                 name: "IX_ResourceScopes_ScopesId",
                 table: "ResourceScopes",
                 column: "ScopesId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Scopes_ConsentGrantId",
-                table: "Scopes",
-                column: "ConsentGrantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Scopes_Name",
@@ -843,6 +876,9 @@ namespace Infrastructure.Migrations
                 name: "ConsentedGrantClaims");
 
             migrationBuilder.DropTable(
+                name: "ConsentedGrantScopes");
+
+            migrationBuilder.DropTable(
                 name: "Jwks");
 
             migrationBuilder.DropTable(
@@ -873,13 +909,13 @@ namespace Infrastructure.Migrations
                 name: "Claims");
 
             migrationBuilder.DropTable(
+                name: "ConsentGrants");
+
+            migrationBuilder.DropTable(
                 name: "Resources");
 
             migrationBuilder.DropTable(
                 name: "Scopes");
-
-            migrationBuilder.DropTable(
-                name: "ConsentGrants");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
