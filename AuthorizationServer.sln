@@ -42,11 +42,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project", "Project", "{18393FEE-3CFC-4D7E-A7FB-6A6482DF492B}"
 	ProjectSection(SolutionItems) = preProject
 		CODE_OF_CONDUCT.md = CODE_OF_CONDUCT.md
-		CreateMigration.ps1 = CreateMigration.ps1
 		README.md = README.md
-		RemoveMigration.ps1 = RemoveMigration.ps1
-		RunMigrationLocal.ps1 = RunMigrationLocal.ps1
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{CE704ECE-BE3C-4646-854A-B3460ED44F22}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -98,10 +97,6 @@ Global
 		{D7C79E0C-0F15-4B49-B245-0C16C2F289D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7C79E0C-0F15-4B49-B245-0C16C2F289D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7C79E0C-0F15-4B49-B245-0C16C2F289D8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F1D5AE91-FDA0-4F73-8DDD-4315361D494C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F1D5AE91-FDA0-4F73-8DDD-4315361D494C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F1D5AE91-FDA0-4F73-8DDD-4315361D494C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F1D5AE91-FDA0-4F73-8DDD-4315361D494C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
