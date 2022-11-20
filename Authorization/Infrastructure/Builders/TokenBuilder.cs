@@ -3,6 +3,8 @@ using Infrastructure.Builders.Abstractions;
 using Infrastructure.Repositories;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using Application;
 using Domain;
 using Microsoft.AspNetCore.Identity;
 
@@ -105,9 +107,29 @@ public class TokenBuilder : ITokenBuilder
             case ClaimNameConstants.Address:
               claims.Add(claimName, user.Address);
               break;
+            case ClaimNameConstants.Locale:
+              claims.Add(claimName, user.Locale);
+              break;
+            case ClaimNameConstants.Phone:
+              claims.Add(claimName, user.PhoneNumber);
+              break;
           }
         }
         return GetSignedToken(claims, expires);
+    }
+
+    public string BuildLoginToken(string userId, CancellationToken cancellationToken = default)
+    {
+      var expires = DateTime.UtcNow.AddSeconds(300);
+      var audiences = new[] { AudienceConstants.IdentityProvider };
+      var scopes = new[] { ScopeConstants.Prompt };
+      var claims = new Dictionary<string, object>
+      {
+        { ClaimNameConstants.Sub, userId},
+        { ClaimNameConstants.Aud, audiences },
+        { ClaimNameConstants.Scope, string.Join(' ', scopes) }
+      };
+      return GetEncryptedToken(claims, expires);
     }
 
     public string BuildResourceInitialAccessToken()
@@ -179,7 +201,7 @@ public class TokenBuilder : ITokenBuilder
       return GetSignedToken(claims, expires);
     }
 
-    protected string GetSignedToken(
+    private string GetSignedToken(
       IDictionary<string, object> claims,
       DateTime expires)
     {
@@ -201,5 +223,33 @@ public class TokenBuilder : ITokenBuilder
         var token = tokenHandler.CreateToken(tokenDescriptor);
         
         return tokenHandler.WriteToken(token);
+    }
+
+    private string GetEncryptedToken(
+      IDictionary<string, object> claims,
+      DateTime expires)
+    {
+      var signingKey = new RsaSecurityKey(_jwkManager.RsaCryptoServiceProvider)
+      {
+        KeyId = _jwkManager.KeyId
+      };
+      var signingCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.RsaSha256);
+
+      var encryptingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_identityConfiguration.EncryptingKeySecret));
+      var encryptingCredentials = new EncryptingCredentials(encryptingKey, SecurityAlgorithms.Aes128KW, SecurityAlgorithms.Aes128CbcHmacSha256);
+
+      var tokenDescriptor = new SecurityTokenDescriptor
+      {
+        IssuedAt = DateTime.UtcNow,
+        Expires = expires,
+        NotBefore = DateTime.UtcNow,
+        Issuer = _identityConfiguration.InternalIssuer,
+        SigningCredentials = signingCredentials,
+        EncryptingCredentials = encryptingCredentials,
+        Claims = claims
+      };
+      var tokenHandler = new JwtSecurityTokenHandler();
+      var token = tokenHandler.CreateToken(tokenDescriptor);
+      return tokenHandler.WriteToken(token);
     }
 }
