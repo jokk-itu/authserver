@@ -9,16 +9,16 @@ namespace Infrastructure.Requests.GetLoginToken;
 public class GetLoginTokenHandler : IRequestHandler<GetLoginTokenQuery, GetLoginTokenResponse>
 {
   private readonly UserManager<User> _userManager;
-  private readonly ITokenBuilder _tokenBuilder;
+  private readonly ICodeBuilder _codeBuilder;
   private readonly IValidator<GetLoginTokenQuery> _validator;
 
   public GetLoginTokenHandler(
     UserManager<User> userManager,
-    ITokenBuilder tokenBuilder,
+    ICodeBuilder codeBuilder,
     IValidator<GetLoginTokenQuery> validator)
   {
     _userManager = userManager;
-    _tokenBuilder = tokenBuilder;
+    _codeBuilder = codeBuilder;
     _validator = validator;
   }
 
@@ -30,10 +30,10 @@ public class GetLoginTokenHandler : IRequestHandler<GetLoginTokenQuery, GetLogin
         validationResult.StatusCode);
 
     var user = await _userManager.FindByNameAsync(request.Username);
-    var loginToken = _tokenBuilder.BuildLoginToken(user.Id, cancellationToken: cancellationToken);
+    var loginCode = await _codeBuilder.BuildLoginCodeAsync(user.Id);
     return new GetLoginTokenResponse(HttpStatusCode.OK)
     {
-      LoginToken = loginToken
+      LoginCode = loginCode
     };
   }
 }

@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.Extensions.Options;
-using System.Net;
 using System.Net.Http.Headers;
 
 namespace WebApp;

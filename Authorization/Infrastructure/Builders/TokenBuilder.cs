@@ -118,20 +118,6 @@ public class TokenBuilder : ITokenBuilder
         return GetSignedToken(claims, expires);
     }
 
-    public string BuildLoginToken(string userId, CancellationToken cancellationToken = default)
-    {
-      var expires = DateTime.UtcNow.AddSeconds(300);
-      var audiences = new[] { AudienceConstants.IdentityProvider };
-      var scopes = new[] { ScopeConstants.Prompt };
-      var claims = new Dictionary<string, object>
-      {
-        { ClaimNameConstants.Sub, userId},
-        { ClaimNameConstants.Aud, audiences },
-        { ClaimNameConstants.Scope, string.Join(' ', scopes) }
-      };
-      return GetEncryptedToken(claims, expires);
-    }
-
     public string BuildResourceInitialAccessToken()
     {
         var expires = DateTime.UtcNow.AddSeconds(300);

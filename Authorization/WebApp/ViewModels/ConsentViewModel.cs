@@ -7,7 +7,7 @@ public class ConsentViewModel
   public string GivenName { get; init; } = null!;
   public IEnumerable<string> Scopes { get; init; } = new List<string>();
   public IEnumerable<string> Claims { get; init; } = new List<string>();
-  public string LoginToken { get; init; } = null!;
+  public string LoginCode { get; init; } = null!;
   public string? TosUri { get; init; }
   public string? PolicyUri { get; init; }
 }

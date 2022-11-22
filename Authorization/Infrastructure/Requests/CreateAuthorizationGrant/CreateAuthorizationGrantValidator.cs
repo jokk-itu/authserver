@@ -11,12 +11,12 @@ namespace Infrastructure.Requests.CreateAuthorizationGrant;
 public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationGrantCommand>
 {
   private readonly IdentityContext _identityContext;
-  private readonly ITokenDecoder _tokenDecoder;
+  private readonly ICodeDecoder _codeDecoder;
 
-  public CreateAuthorizationGrantValidator(IdentityContext identityContext, ITokenDecoder tokenDecoder)
+  public CreateAuthorizationGrantValidator(IdentityContext identityContext, ICodeDecoder codeDecoder)
   {
     _identityContext = identityContext;
-    _tokenDecoder = tokenDecoder;
+    _codeDecoder = codeDecoder;
   }
 
   public async Task<ValidationResult> ValidateAsync(CreateAuthorizationGrantCommand value, CancellationToken cancellationToken = default)
@@ -48,7 +48,7 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
     if (await IsScopesInvalidAsync(value))
       return new ValidationResult(ErrorCode.InvalidRequest, "scope is invalid", HttpStatusCode.Redirect);
 
-    var decryptedToken = _tokenDecoder.DecodeEncryptedToken(value.LoginToken);
+    var decryptedToken = _codeDecoder.DecodeLoginCode(value.LoginCode);
     if (decryptedToken is null)
       return new ValidationResult(ErrorCode.InvalidRequest, "login_token is invalid", HttpStatusCode.Redirect);
 
@@ -145,12 +145,8 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
 
   private async Task<bool> IsConsentGrantInvalid(CreateAuthorizationGrantCommand command)
   {
-    var decryptedToken = _tokenDecoder.DecodeEncryptedToken(command.LoginToken);
-    if (decryptedToken is null)
-      return true;
-
-    var userId = decryptedToken.Claims.Single(x => x.Type == ClaimNameConstants.Sub).Value;
-
+    var code = _codeDecoder.DecodeLoginCode(command.LoginCode);
+    var userId = code.UserId;
     var consentGrant = await _identityContext
       .Set<ConsentGrant>()
       .Include(x => x.ConsentedScopes)

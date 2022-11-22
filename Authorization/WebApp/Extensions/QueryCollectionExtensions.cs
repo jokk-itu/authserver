@@ -1,5 +1,4 @@
 ﻿using Infrastructure.Requests.CreateAuthorizationGrant;
-using Infrastructure.Requests.GetLoginToken;
 using WebApp.Constants;
 
 namespace WebApp.Extensions;
@@ -17,12 +16,12 @@ public static class QueryCollectionExtensions
     return routeValues;
   }
 
-  public static CreateAuthorizationGrantCommand ToAuthorizationGrantCommand(this IQueryCollection query, string loginToken)
+  public static CreateAuthorizationGrantCommand ToAuthorizationGrantCommand(this IQueryCollection query, string loginCode)
   {
     var isMaxAgeParsed = long.TryParse(query[ParameterNames.MaxAge], out var maxAge);
     return new CreateAuthorizationGrantCommand
     {
-      LoginToken = loginToken,
+      LoginCode = loginCode,
       ClientId = query[ParameterNames.ClientId],
       CodeChallenge = query[ParameterNames.CodeChallenge],
       CodeChallengeMethod = query[ParameterNames.CodeChallengeMethod],

@@ -53,5 +53,5 @@ public static class ParameterNames
   public const string Birthdate = "birthdate";
   public const string Locale = "locale";
   public const string ScopeName = "scope_name";
-  public const string LoginToken = "login_token";
+  public const string LoginCode = "login_code";
 }

@@ -20,18 +20,18 @@ namespace WebApp.Controllers;
 [Route("connect/[controller]")]
 public class ConsentController : Controller
 {
-  private readonly ITokenDecoder _tokenDecoder;
+  private readonly ICodeDecoder _codeDecoder;
   private readonly IdentityContext _identityContext;
   private readonly UserManager<User> _userManager;
   private readonly IMediator _mediator;
 
   public ConsentController(
-    ITokenDecoder tokenDecoder,
+    ICodeDecoder codeDecoder,
     IdentityContext identityContext,
     UserManager<User> userManager,
     IMediator mediator)
   {
-    _tokenDecoder = tokenDecoder;
+    _codeDecoder = codeDecoder;
     _identityContext = identityContext;
     _userManager = userManager;
     _mediator = mediator;
@@ -39,12 +39,12 @@ public class ConsentController : Controller
 
   [HttpGet]
   public async Task<IActionResult> Index(
-    [FromQuery(Name = ParameterNames.LoginToken)] string loginToken,
+    [FromQuery(Name = ParameterNames.LoginCode)] string loginCode,
     CancellationToken cancellationToken = default)
   {
-    var decryptedToken = _tokenDecoder.DecodeEncryptedToken(loginToken);
+    var code = _codeDecoder.DecodeLoginCode(loginCode);
     var scopes = HttpContext.Request.Query[ParameterNames.Scope].ToString().Split(' ');
-    var userId = decryptedToken!.Claims.Single(x => x.Type == ClaimNameConstants.Sub).Value;
+    var userId = code.UserId;
     var claims = ClaimsHelper.MapToClaims(scopes);
     var clientId = HttpContext.Request.Query[ParameterNames.ClientId].ToString();
     var client = await _identityContext
@@ -55,7 +55,7 @@ public class ConsentController : Controller
     return View(new ConsentViewModel
     {
       Claims = claims,
-      LoginToken = loginToken,
+      LoginCode = loginCode,
       ClientName = client.Name,
       GivenName = user.FirstName,
       TosUri = client.TosUri,
@@ -67,12 +67,12 @@ public class ConsentController : Controller
   [Consumes("application/x-www-form-urlencoded")]
   [ValidateAntiForgeryToken]
   public async Task<IActionResult> Post(
-    [FromQuery(Name = ParameterNames.LoginToken)] string loginToken,
+    [FromQuery(Name = ParameterNames.LoginCode)] string loginCode,
     CancellationToken cancellationToken = default)
   {
-    var command = HttpContext.Request.Query.ToAuthorizationGrantCommand(loginToken);
-    var decryptedToken = _tokenDecoder.DecodeEncryptedToken(loginToken);
-    var userId = decryptedToken!.Claims.Single(x => x.Type == ClaimNameConstants.Sub).Value;
+    var command = HttpContext.Request.Query.ToAuthorizationGrantCommand(loginCode);
+    var code = _codeDecoder.DecodeLoginCode(loginCode);
+    var userId = code.UserId;
     var consentGrant = await _identityContext
       .Set<ConsentGrant>()
       .Include(x => x.ConsentedClaims)

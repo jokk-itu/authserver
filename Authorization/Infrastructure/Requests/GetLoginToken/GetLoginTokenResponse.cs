@@ -13,5 +13,5 @@ public class GetLoginTokenResponse : Response
   {
   }
 
-  public string LoginToken { get; init; }
+  public string LoginCode { get; init; }
 }

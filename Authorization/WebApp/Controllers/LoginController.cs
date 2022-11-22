@@ -43,23 +43,23 @@ public class LoginController : Controller
       Username = request.Username,
       Password = request.Password
     };
-    var loginTokenResponse = await _mediator.Send(query, cancellationToken: cancellationToken);
+    var loginCodeResponse = await _mediator.Send(query, cancellationToken: cancellationToken);
 
-    if (loginTokenResponse.IsError())
-      return this.BadOAuthResult(loginTokenResponse.ErrorCode, loginTokenResponse.ErrorDescription);
+    if (loginCodeResponse.IsError())
+      return this.BadOAuthResult(loginCodeResponse.ErrorCode, loginCodeResponse.ErrorDescription);
 
     var routeValues = HttpContext.Request.Query.ToRouteValueDictionary();
-    routeValues.Add("login_token", loginTokenResponse.LoginToken);
+    routeValues.Add(ParameterNames.LoginCode, loginCodeResponse.LoginCode);
     var prompts = prompt.Split(' ');
     if (prompts.Contains(PromptConstants.Consent))
       return RedirectToAction(controllerName: "Consent", actionName: "Index", routeValues: routeValues);
 
-    return await GetAuthorizationCode(loginTokenResponse.LoginToken, cancellationToken: cancellationToken);
+    return await GetAuthorizationCode(loginCodeResponse.LoginCode, cancellationToken: cancellationToken);
   }
 
-  private async Task<IActionResult> GetAuthorizationCode(string loginToken, CancellationToken cancellationToken = default)
+  private async Task<IActionResult> GetAuthorizationCode(string loginCode, CancellationToken cancellationToken = default)
   {
-    var command = HttpContext.Request.Query.ToAuthorizationGrantCommand(loginToken);
+    var command = HttpContext.Request.Query.ToAuthorizationGrantCommand(loginCode);
     var authorizationGrantResponse = await _mediator.Send(command, cancellationToken: cancellationToken);
     return authorizationGrantResponse.StatusCode switch
     {

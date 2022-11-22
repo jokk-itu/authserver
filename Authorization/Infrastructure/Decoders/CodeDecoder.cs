@@ -30,4 +30,17 @@ public class CodeDecoder : ICodeDecoder
 
     return deserializedCode;
   }
+
+  public LoginCode DecodeLoginCode(string code)
+  {
+    var decoded = Base64UrlEncoder.DecodeBytes(code);
+    var unProtectedBytes = _dataProtector.Unprotect(decoded);
+    var ms = new MemoryStream(unProtectedBytes);
+    using var reader = new BinaryReader(ms, Encoding.UTF8, false);
+    var deserializedCode = JsonSerializer.Deserialize<LoginCode>(reader.ReadString());
+    if (deserializedCode is null)
+      throw new InvalidOperationException();
+
+    return deserializedCode;
+  }
 }

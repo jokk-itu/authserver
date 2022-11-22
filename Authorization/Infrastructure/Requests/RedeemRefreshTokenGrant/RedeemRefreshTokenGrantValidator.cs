@@ -61,8 +61,9 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
     var sessionId = long.Parse(sessionClaim.Value);
     var session = await _identityContext
       .Set<Session>()
+      .Where(Session.IsValid)
       .SingleOrDefaultAsync(x => x.Id == sessionId);
 
-    return session is null || session.IsInvalid();
+    return session is null;
   }
 }

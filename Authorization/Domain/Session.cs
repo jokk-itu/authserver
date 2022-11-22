@@ -1,4 +1,6 @@
-﻿namespace Domain;
+﻿using System.Linq.Expressions;
+
+namespace Domain;
 
 #nullable disable
 public class Session
@@ -14,11 +16,6 @@ public class Session
   public DateTime Created { get; set; }
   public DateTime Updated { get; set; }
 
-  public bool IsInvalid()
-  {
-    if (MaxAge == 0)
-      return false;
-
-    return DateTime.Now >= Updated.AddSeconds(MaxAge);
-  }
+  public static readonly Expression<Func<Session, bool>> IsValid = s =>
+    s.MaxAge != 0 && DateTime.UtcNow >= s.Updated.AddSeconds(s.MaxAge);
 }
