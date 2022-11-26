@@ -17,5 +17,5 @@ public class Session
   public DateTime Updated { get; set; }
 
   public static readonly Expression<Func<Session, bool>> IsValid = s =>
-    s.MaxAge != 0 && DateTime.UtcNow >= s.Updated.AddSeconds(s.MaxAge);
+    (s.MaxAge == 0) || DateTime.UtcNow < s.Updated.AddSeconds(s.MaxAge);
 }

@@ -1,5 +1,4 @@
 ﻿using Application;
-using Infrastructure;
 using Contracts.GetJwksDocument;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -13,22 +12,19 @@ namespace WebApp.Controllers;
 public class DiscoveryController : ControllerBase
 {
   private readonly IdentityConfiguration _identityConfiguration;
-  private readonly ScopeManager _scopeManager;
   private readonly JwkManager _jwkManager;
 
   public DiscoveryController(
     IdentityConfiguration identityConfiguration,
-    ScopeManager scopeManager,
     JwkManager jwkManager)
   {
     _identityConfiguration = identityConfiguration;
-    _scopeManager = scopeManager;
     _jwkManager = jwkManager;
   }
 
   [HttpGet]
   [Route("openid-configuration")]
-  public async Task<IActionResult> GetDiscoveryDocumentAsync()
+  public IActionResult GetDiscoveryDocumentAsync()
   {
     var discoveryDocumentResponse = new GetDiscoveryDocumentResponse
     {
@@ -37,7 +33,7 @@ public class DiscoveryController : ControllerBase
       TokenEndpoint = $"{_identityConfiguration.InternalIssuer}/connect/token",
       UserInfoEndpoint = $"{_identityConfiguration.InternalIssuer}/connect/userinfo",
       JwksUri = $"{_identityConfiguration.InternalIssuer}/.well-known/jwks",
-      Scopes = (await _scopeManager.ReadScopesAsync()).Select(scope => scope.Name)
+      Scopes = new List<string>()
     };
     
     return Ok(discoveryDocumentResponse);

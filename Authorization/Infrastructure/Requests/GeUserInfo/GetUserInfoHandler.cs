@@ -5,6 +5,7 @@ using Application.Validation;
 using Domain;
 using Domain.Constants;
 using Infrastructure.Decoders.Abstractions;
+using Infrastructure.Services.Abstract;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,17 +17,20 @@ public class GetUserInfoHandler : IRequestHandler<GetUserInfoQuery, GetUserInfoR
   private readonly UserManager<User> _userManager;
   private readonly IValidator<GetUserInfoQuery> _validator;
   private readonly ITokenDecoder _tokenDecoder;
+  private readonly IClaimService _claimService;
 
   public GetUserInfoHandler(
     IdentityContext identityContext,
     UserManager<User> userManager,
     IValidator<GetUserInfoQuery> validator,
-    ITokenDecoder tokenDecoder)
+    ITokenDecoder tokenDecoder,
+    IClaimService claimService)
   {
     _identityContext = identityContext;
     _userManager = userManager;
     _validator = validator;
     _tokenDecoder = tokenDecoder;
+    _claimService = claimService;
   }
 
   public async Task<GetUserInfoResponse> Handle(GetUserInfoQuery request, CancellationToken cancellationToken)
@@ -41,45 +45,7 @@ public class GetUserInfoHandler : IRequestHandler<GetUserInfoQuery, GetUserInfoR
 
     var userId = token.Claims.Single(x => x.Type == ClaimNameConstants.Sub).Value;
     var clientId = token.Claims.Single(x => x.Type == ClaimNameConstants.ClientId).Value;
-    var consentGrant = await _identityContext
-      .Set<ConsentGrant>()
-      .Where(cg => cg.User.Id == userId)
-      .Where(cg => cg.Client.Id == clientId)
-      .Include(cg => cg.ConsentedClaims)
-      .SingleAsync(cancellationToken: cancellationToken);
-
-    var userInfo = new List<(string, string)>();
-    foreach (var claim in consentGrant.ConsentedClaims)
-    {
-      switch (claim.Name)
-      {
-        case ClaimNameConstants.Name:
-          userInfo.Add((claim.Name, consentGrant.User.GetName()));
-          break;
-        case ClaimNameConstants.GivenName:
-          userInfo.Add((claim.Name, consentGrant.User.FirstName));
-          break;
-        case ClaimNameConstants.FamilyName:
-          userInfo.Add((claim.Name, consentGrant.User.LastName));
-          break;
-        case ClaimNameConstants.Address:
-          var roles = await _userManager.GetRolesAsync(consentGrant.User);
-          userInfo.AddRange(roles.Select(role => (claim.Name, role)));
-          break;
-        case ClaimNameConstants.Birthdate:
-          userInfo.Add((claim.Name, consentGrant.User.Birthdate.ToString(CultureInfo.InvariantCulture)));
-          break;
-        case ClaimNameConstants.Locale:
-          userInfo.Add((claim.Name, consentGrant.User.Locale));
-          break;
-        case ClaimNameConstants.Phone:
-          userInfo.Add((claim.Name, consentGrant.User.PhoneNumber));
-          break;
-        case ClaimNameConstants.Email:
-          userInfo.Add((claim.Name, consentGrant.User.Email));
-          break;
-      }
-    }
+    var userInfo = await _claimService.GetClaimsFromConsentGrant(userId, clientId, cancellationToken: cancellationToken);
     return new GetUserInfoResponse(HttpStatusCode.OK)
     {
       UserInfo = userInfo

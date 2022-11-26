@@ -2,31 +2,15 @@
 using Application;
 using Application.Validation;
 using Domain.Constants;
-using Infrastructure;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Requests.CreateClient;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Moq;
 using Xunit;
 
 namespace Specs.Handlers;
-public class CreateClientHandlerTests
+public class CreateClientHandlerTests : BaseUnitTest
 {
-  private readonly IdentityContext _identityContext;
-
-  public CreateClientHandlerTests()
-  {
-    var connection = new SqliteConnection("DataSource=:memory:");
-    connection.Open();
-    var options = new DbContextOptionsBuilder<IdentityContext>()
-      .UseSqlite(connection)
-      .Options;
-    _identityContext = new IdentityContext(options);
-    _identityContext.Database.EnsureCreated();
-  }
-
   [Fact]
   [Trait("Category", "Unit")]
   public async Task Handle_ValidateFalse_ExpectErrorResult()
@@ -43,7 +27,7 @@ public class CreateClientHandlerTests
       .Setup(x => x.ValidateAsync(It.IsAny<CreateClientCommand>(), CancellationToken.None))
       .ReturnsAsync(validationResult);
 
-    var handler = new CreateClientHandler(fakeValidator.Object, _identityContext, fakeTokenBuilder.Object);
+    var handler = new CreateClientHandler(fakeValidator.Object, IdentityContext, fakeTokenBuilder.Object);
     var command = new CreateClientCommand();
 
     // Act
@@ -87,7 +71,7 @@ public class CreateClientHandlerTests
       .Setup(x => x.ValidateAsync(It.IsAny<CreateClientCommand>(), CancellationToken.None))
       .ReturnsAsync(validationResult);
 
-    var handler = new CreateClientHandler(fakeValidator.Object, _identityContext, fakeTokenBuilder.Object);
+    var handler = new CreateClientHandler(fakeValidator.Object, IdentityContext, fakeTokenBuilder.Object);
 
     // Act
     var response = await handler.Handle(command, CancellationToken.None);

@@ -1,8 +1,5 @@
 ﻿using Application;
-using Infrastructure;
 using Infrastructure.Builders.Abstractions;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 using System.Net;
 using Application.Validation;
@@ -11,21 +8,8 @@ using Xunit;
 using Domain.Constants;
 
 namespace Specs.Handlers;
-public class CreateResourceHandlerTests
+public class CreateResourceHandlerTests : BaseUnitTest
 {
-  private readonly IdentityContext _identityContext;
-
-  public CreateResourceHandlerTests()
-  {
-    var connection = new SqliteConnection("DataSource=:memory:");
-    connection.Open();
-    var options = new DbContextOptionsBuilder<IdentityContext>()
-      .UseSqlite(connection)
-      .Options;
-    _identityContext = new IdentityContext(options);
-    _identityContext.Database.EnsureCreated();
-  }
-
   [Fact]
   [Trait("Category", "Unit")]
   public async Task Handle_ValidateFalse_ExpectErrorResult()
@@ -42,7 +26,7 @@ public class CreateResourceHandlerTests
       .Setup(x => x.ValidateAsync(It.IsAny<CreateResourceCommand>(), CancellationToken.None))
       .ReturnsAsync(validationResult);
 
-    var handler = new CreateResourceHandler(_identityContext, fakeValidator.Object, fakeTokenBuilder.Object);
+    var handler = new CreateResourceHandler(IdentityContext, fakeValidator.Object, fakeTokenBuilder.Object);
     var command = new CreateResourceCommand();
 
     // Act
@@ -77,7 +61,7 @@ public class CreateResourceHandlerTests
       .Setup(x => x.ValidateAsync(It.IsAny<CreateResourceCommand>(), CancellationToken.None))
       .ReturnsAsync(validationResult);
 
-    var handler = new CreateResourceHandler(_identityContext, fakeValidator.Object, fakeTokenBuilder.Object);
+    var handler = new CreateResourceHandler(IdentityContext, fakeValidator.Object, fakeTokenBuilder.Object);
 
     // Act
     var response = await handler.Handle(command, CancellationToken.None);

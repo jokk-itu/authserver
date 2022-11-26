@@ -5,8 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Application;
-using Domain;
-using Microsoft.AspNetCore.Identity;
+using Infrastructure.Services.Abstract;
 
 namespace Infrastructure.Builders;
 public class TokenBuilder : ITokenBuilder
@@ -14,18 +13,18 @@ public class TokenBuilder : ITokenBuilder
     private readonly IdentityConfiguration _identityConfiguration;
     private readonly JwkManager _jwkManager;
     private readonly ResourceManager _resourceManager;
-    private readonly UserManager<User> _userManager;
+    private readonly IClaimService _claimService;
 
     public TokenBuilder(
       IdentityConfiguration identityConfiguration,
       JwkManager jwkManager,
       ResourceManager resourceManager,
-      UserManager<User> userManager)
+      IClaimService claimService)
     { 
       _identityConfiguration = identityConfiguration;
       _jwkManager = jwkManager;
       _resourceManager = resourceManager;
-      _userManager = userManager;
+      _claimService = claimService;
     }
 
     public async Task<string> BuildAccessTokenAsync(string clientId, ICollection<string> scopes, string userId, string sessionId,
@@ -74,47 +73,19 @@ public class TokenBuilder : ITokenBuilder
         var audiences = new[] { clientId };
         var claims = new Dictionary<string, object>
         {
-          { ClaimNameConstants.Sub, userId},
           { ClaimNameConstants.Aud, audiences },
           { ClaimNameConstants.Scope, string.Join(' ', scopes) },
           { ClaimNameConstants.Sid, sessionId },
           { ClaimNameConstants.Nonce, nonce }
         };
-        var user = await _userManager.FindByIdAsync(userId);
-        var consentedClaims = user.ConsentGrants?
-          .Single(x => x.Client.Id == clientId)
-          .ConsentedClaims.Select(x => x.Name) ?? new List<string>();
+        var userInfo = await _claimService
+          .GetClaimsFromConsentGrant(userId, clientId, cancellationToken: cancellationToken);
 
-        foreach (var claimName in consentedClaims)
+        foreach (var (key, value) in userInfo)
         {
-          switch(claimName)
-          {
-            case ClaimNameConstants.Name:
-              claims.Add(claimName, $"{user.FirstName} {user.LastName}");
-              break;
-            case ClaimNameConstants.GivenName:
-              claims.Add(claimName, user.FirstName);
-              break;
-            case ClaimNameConstants.FamilyName:
-              claims.Add(claimName, user.LastName);
-              break;
-            case ClaimNameConstants.Birthdate:
-              claims.Add(claimName, user.Birthdate);
-              break;
-            case ClaimNameConstants.Email:
-              claims.Add(claimName, user.Email);
-              break;
-            case ClaimNameConstants.Address:
-              claims.Add(claimName, user.Address);
-              break;
-            case ClaimNameConstants.Locale:
-              claims.Add(claimName, user.Locale);
-              break;
-            case ClaimNameConstants.Phone:
-              claims.Add(claimName, user.PhoneNumber);
-              break;
-          }
+          claims.Add(key, value);
         }
+
         return GetSignedToken(claims, expires);
     }
 

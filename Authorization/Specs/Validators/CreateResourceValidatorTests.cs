@@ -1,27 +1,11 @@
 ﻿using Domain;
 using Domain.Constants;
-using Infrastructure;
 using Infrastructure.Requests.CreateResource;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace Specs.Validators;
-public class CreateResourceValidatorTests
+public class CreateResourceValidatorTests : BaseUnitTest
 {
-  private readonly IdentityContext _identityContext;
-
-  public CreateResourceValidatorTests()
-  {
-    var connection = new SqliteConnection("DataSource=:memory:");
-    connection.Open();
-    var options = new DbContextOptionsBuilder<IdentityContext>()
-      .UseSqlite(connection)
-      .Options;
-    _identityContext = new IdentityContext(options);
-    _identityContext.Database.EnsureCreated();
-  }
-
   [Fact]
   [Trait("Category", "Unit")]
   public async Task ValidateAsync_ExpectCreatedResult()
@@ -32,7 +16,7 @@ public class CreateResourceValidatorTests
       Scopes = new[] { ScopeConstants.OpenId },
       ResourceName = "test"
     };
-    var validator = new CreateResourceValidator(_identityContext);
+    var validator = new CreateResourceValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -51,7 +35,7 @@ public class CreateResourceValidatorTests
       Scopes = new [] { "invalid_scopes" },
       ResourceName = "test"
     };
-    var validator = new CreateResourceValidator(_identityContext);
+    var validator = new CreateResourceValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -70,7 +54,7 @@ public class CreateResourceValidatorTests
       Scopes = new List<string>(),
       ResourceName = "test"
     };
-    var validator = new CreateResourceValidator(_identityContext);
+    var validator = new CreateResourceValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -89,7 +73,7 @@ public class CreateResourceValidatorTests
       Scopes = new[] { ScopeConstants.OpenId },
       ResourceName = string.Empty
     };
-    var validator = new CreateResourceValidator(_identityContext);
+    var validator = new CreateResourceValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -103,21 +87,21 @@ public class CreateResourceValidatorTests
   public async Task ValidateAsync_ExistingResourceName_ExpectErrorResult()
   {
     // Arrange
-    await _identityContext
+    await IdentityContext
       .Set<Resource>()
       .AddAsync(new Resource
       {
         Id = Guid.NewGuid().ToString(),
         Name = "test"
       });
-    await _identityContext.SaveChangesAsync();
+    await IdentityContext.SaveChangesAsync();
 
     var command = new CreateResourceCommand
     {
       ResourceName = "test",
       Scopes = new[] { ScopeConstants.OpenId }
     };
-    var validator = new CreateResourceValidator(_identityContext);
+    var validator = new CreateResourceValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);

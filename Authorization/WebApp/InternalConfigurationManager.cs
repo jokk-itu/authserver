@@ -5,6 +5,9 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.Json;
 using Application;
+using Domain;
+using Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using WebApp.Contracts.GetDiscoveryDocument;
 
 namespace WebApp;
@@ -12,15 +15,15 @@ namespace WebApp;
 public class InternalConfigurationManager : IConfigurationManager<OpenIdConnectConfiguration>
 {
   private readonly JwkManager _jwkManager;
-  private readonly ScopeManager _scopeManager;
   private readonly IdentityConfiguration _identityConfiguration;
   private OpenIdConnectConfiguration? _openIdConnectConfiguration;
+  private readonly IdentityContext _identityContext;
 
   public InternalConfigurationManager(JwkManager jwkManager, IdentityConfiguration identityConfiguration, IServiceProvider serviceProvider)
   {
     var scope = serviceProvider.CreateScope();
     _jwkManager = jwkManager;
-    _scopeManager = scope.ServiceProvider.GetRequiredService<ScopeManager>();
+    _identityContext = scope.ServiceProvider.GetRequiredService<IdentityContext>();
     _identityConfiguration = identityConfiguration;
   }
 
@@ -47,7 +50,7 @@ public class InternalConfigurationManager : IConfigurationManager<OpenIdConnectC
       TokenEndpoint = $"{_identityConfiguration.InternalIssuer}/connect/token",
       UserInfoEndpoint = $"{_identityConfiguration.InternalIssuer}/connect/userinfo",
       JwksUri = $"{_identityConfiguration.InternalIssuer}/.well-known/jwks",
-      Scopes = (await _scopeManager.ReadScopesAsync()).Select(scope => scope.Name)
+      Scopes = await _identityContext.Set<Scope>().Select(x => x.Name).ToListAsync()
     };
     _openIdConnectConfiguration = OpenIdConnectConfiguration.Create(JsonSerializer.Serialize(discoveryDocument));
 

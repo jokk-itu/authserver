@@ -11,6 +11,8 @@ using Infrastructure.Builders;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Decoders;
 using Infrastructure.Decoders.Abstractions;
+using Infrastructure.Services;
+using Infrastructure.Services.Abstract;
 
 namespace Infrastructure.Extensions;
 
@@ -19,15 +21,6 @@ public static class ServiceCollectionExtensions
   public static IServiceCollection AddDataStore(this IServiceCollection services, IConfiguration configuration)
   {
     services.AddDataProtection();
-    services.AddTransient<ITokenBuilder, TokenBuilder>();
-    services.AddTransient<ITokenDecoder, TokenDecoder>();
-    services.AddTransient<ICodeBuilder, CodeBuilder>();
-    services.AddTransient<ICodeDecoder, CodeDecoder>();
-
-    services.AddScoped<ResourceManager>();
-    services.AddScoped<ScopeManager>();
-
-    services.AddSingleton<JwkManager>();
 
     services.AddDbContext<IdentityContext>(options =>
     {
@@ -63,6 +56,33 @@ public static class ServiceCollectionExtensions
         .AddDefaultTokenProviders()
         .AddEntityFrameworkStores<IdentityContext>();
 
+    return services;
+  }
+
+  public static IServiceCollection AddDataServices(this IServiceCollection services)
+  {
+    services.AddTransient<IClaimService, ClaimService>();
+    return services;
+  }
+
+  public static IServiceCollection AddBuilders(this IServiceCollection services)
+  {
+    services.AddTransient<ITokenBuilder, TokenBuilder>();
+    services.AddTransient<ICodeBuilder, CodeBuilder>();
+    return services;
+  }
+
+  public static IServiceCollection AddDecoders(this IServiceCollection services)
+  {
+    services.AddTransient<ITokenDecoder, TokenDecoder>();
+    services.AddTransient<ICodeDecoder, CodeDecoder>();
+    return services;
+  }
+
+  public static IServiceCollection AddManagers(this IServiceCollection services)
+  {
+    services.AddScoped<ResourceManager>();
+    services.AddSingleton<JwkManager>();
     return services;
   }
 

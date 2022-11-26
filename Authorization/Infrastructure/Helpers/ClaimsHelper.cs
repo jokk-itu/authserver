@@ -14,7 +14,6 @@ public static class ClaimsHelper
           yield return ClaimNameConstants.FamilyName;
           yield return ClaimNameConstants.GivenName;
           yield return ClaimNameConstants.Address;
-          yield return ClaimNameConstants.Role;
           yield return ClaimNameConstants.Birthdate;
           yield return ClaimNameConstants.Locale;
           break;

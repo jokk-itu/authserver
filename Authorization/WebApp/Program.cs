@@ -28,8 +28,14 @@ builder.WebHost.ConfigureServices(services =>
   services.AddOpenIdAuthentication();
   services.AddOpenIdAuthorization();
 
-  services.AddDataStore(builder.Configuration);
-  services.AddRequests();
+  services
+    .AddDataStore(builder.Configuration)
+    .AddBuilders()
+    .AddDataServices()
+    .AddDecoders()
+    .AddManagers()
+    .AddRequests();
+  
   services.AddCorsPolicy();
   services.AddCookiePolicy();
   services.AddAntiforgery(antiForgeryOptions =>

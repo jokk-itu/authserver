@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Domain;
 using Domain.Constants;
 using Infrastructure;
@@ -8,6 +9,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Net.Http.Headers;
+using Specs.Helpers;
 using WebApp.Contracts.GetClientInitialAccessToken;
 using WebApp.Contracts.GetScopeInitialAccessToken;
 using WebApp.Contracts.PostClient;
@@ -21,6 +24,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
   private readonly WebApplicationFactory<Program> _factory;
 
   public HttpClient Client { get; set; }
+  private string Cookie { get; set; }
 
   protected BaseIntegrationTest(WebApplicationFactory<Program> factory)
   {
@@ -131,5 +135,36 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
       return user;
 
     throw new Exception($"User creation failed: {result}");
+  }
+
+  protected async Task<AntiForgeryToken> GetAntiForgeryToken(string path)
+  {
+    var response = await Client.GetAsync(path);
+    var html = await response.Content.ReadAsStringAsync();
+
+    if (string.IsNullOrWhiteSpace(Cookie))
+    {
+      var antiForgeryCookie = response.Headers
+        .GetValues("Set-Cookie")
+        .FirstOrDefault(x => x.Contains("AntiForgeryCookie"));
+
+      var antiForgeryCookieValue = SetCookieHeaderValue.Parse(antiForgeryCookie).Value;
+      if (string.IsNullOrWhiteSpace(antiForgeryCookieValue.Value))
+        throw new Exception("Invalid cookie was provided");
+
+      Cookie = antiForgeryCookieValue.Value;
+    }
+
+    var antiForgeryFieldMatch = Regex.Match(html, @"\<input name=""AntiForgeryField"" type=""hidden"" value=""([^""]+)"" \/\>");
+    if (!antiForgeryFieldMatch.Captures.Any() && antiForgeryFieldMatch.Groups.Count != 2)
+      throw new Exception("Invalid input of anti-forgery-token was provided");
+
+    var antiForgeryField = antiForgeryFieldMatch.Groups[1].Captures[0].Value;
+
+    return new AntiForgeryToken
+    {
+      Cookie = Cookie,
+      Field = antiForgeryField
+    };
   }
 }

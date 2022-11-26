@@ -119,7 +119,7 @@ public class ConsentController : Controller
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
     return response.StatusCode switch
     {
-      HttpStatusCode.Redirect when response.IsError() => 
+      HttpStatusCode.Redirect when response.IsError() =>
         this.RedirectOAuthResult(command.RedirectUri, command.State, response.ErrorCode!, response.ErrorDescription!),
       HttpStatusCode.BadRequest when response.IsError() =>
         this.BadOAuthResult(response.ErrorCode!, response.ErrorDescription!),

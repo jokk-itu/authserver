@@ -11,13 +11,6 @@ namespace WebApp.Controllers;
 [Route("connect/[controller]")]
 public class AuthorizeController : Controller
 {
-  private readonly IMediator _mediator;
-
-  public AuthorizeController(IMediator mediator)
-  {
-    _mediator = mediator;
-  }
-
   [HttpGet]
   public IActionResult Get(
     [FromQuery(Name = ParameterNames.Prompt)] string prompt)

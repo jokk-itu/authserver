@@ -12,5 +12,5 @@ public class GetUserInfoResponse : Response
   {
   }
 
-  public IEnumerable<(string, string)> UserInfo { get; init; } = new List<(string, string)>();
+  public IDictionary<string, string> UserInfo { get; init; } = new Dictionary<string, string>();
 }
