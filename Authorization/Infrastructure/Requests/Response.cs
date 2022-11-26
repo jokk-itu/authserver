@@ -1,6 +1,7 @@
 ﻿using System.Net;
 
 namespace Infrastructure.Requests;
+
 public abstract class Response
 {
   protected Response(HttpStatusCode statusCode)

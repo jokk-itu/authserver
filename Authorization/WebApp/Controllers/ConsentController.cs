@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using Infrastructure.Requests.CreateOrUpdateConsentGrant;
 using WebApp.Constants;
 using WebApp.Extensions;
 using WebApp.ViewModels;
@@ -72,49 +73,16 @@ public class ConsentController : Controller
   {
     var command = HttpContext.Request.Query.ToAuthorizationGrantCommand(loginCode);
     var code = _codeDecoder.DecodeLoginCode(loginCode);
-    var userId = code.UserId;
-    var consentGrant = await _identityContext
-      .Set<ConsentGrant>()
-      .Include(x => x.ConsentedClaims)
-      .Include(x => x.ConsentedScopes)
-      .Where(x => x.Client.Id == command.ClientId)
-      .Where(x => x.User.Id == userId)
-      .SingleOrDefaultAsync(cancellationToken: cancellationToken);
-
-    var claims = await _identityContext
-      .Set<Claim>()
-      .Where(x => HttpContext.Request.Form.Keys.Any(y => y == x.Name))
-      .ToListAsync(cancellationToken: cancellationToken);
-
-    var scopes = await _identityContext
-      .Set<Scope>()
-      .Where(x => command.Scopes.Any(y => y == x.Name))
-      .ToListAsync(cancellationToken: cancellationToken);
-
-    if (consentGrant is not null)
+    var consentResponse = await _mediator.Send(new CreateOrUpdateConsentGrantCommand
     {
-      consentGrant.Updated = DateTime.UtcNow;
-      consentGrant.ConsentedClaims = claims;
-      consentGrant.ConsentedScopes = scopes;
-    }
-    else
-    {
-      consentGrant = new ConsentGrant
-      {
-        Client = await _identityContext
-          .Set<Client>()
-          .SingleAsync(cancellationToken: cancellationToken),
-        User = await _userManager.FindByIdAsync(userId),
-        ConsentedClaims = claims,
-        ConsentedScopes = scopes,
-        IssuedAt = DateTime.UtcNow,
-        Updated = DateTime.UtcNow
-      };
-      await _identityContext
-        .Set<ConsentGrant>()
-        .AddAsync(consentGrant, cancellationToken);
-    }
-    await _identityContext.SaveChangesAsync(cancellationToken);
+      UserId = code.UserId,
+      ClientId = command.ClientId,
+      ConsentedClaims = HttpContext.Request.Form.Keys.Where(x => x != "AntiForgeryField").ToList(),
+      ConsentedScopes = command.Scopes
+    }, cancellationToken: cancellationToken);
+
+    if (consentResponse.IsError())
+      return this.BadOAuthResult(consentResponse.ErrorCode, consentResponse.ErrorDescription);
 
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
     return response.StatusCode switch

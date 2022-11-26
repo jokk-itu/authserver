@@ -27,7 +27,7 @@ public class AuthorizationRefreshTests : BaseIntegrationTest
   {
     var password = CryptographyHelper.GetRandomString(32);
     var user = await BuildUserAsync(password);
-    var client = await BuildClientAsync(ApplicationTypeConstants.Web, "test");
+    var client = await BuildClient(ApplicationTypeConstants.Web, "test");
     var state = CryptographyHelper.GetRandomString(16);
     var nonce = CryptographyHelper.GetRandomString(32);
     var pkce= ProofKeyForCodeExchangeHelper.GetPkce();

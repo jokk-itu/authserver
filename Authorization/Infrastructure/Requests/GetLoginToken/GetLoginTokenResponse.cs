@@ -2,7 +2,6 @@
 
 namespace Infrastructure.Requests.GetLoginToken;
 
-#nullable disable
 public class GetLoginTokenResponse : Response
 {
   public GetLoginTokenResponse(HttpStatusCode statusCode) : base(statusCode)
@@ -13,5 +12,5 @@ public class GetLoginTokenResponse : Response
   {
   }
 
-  public string LoginCode { get; init; }
+  public string LoginCode { get; init; } = null!;
 }

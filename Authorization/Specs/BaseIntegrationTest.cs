@@ -40,11 +40,11 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
         AllowAutoRedirect = false
       });
 
-      BuildScopeAsync("identityprovider:read").GetAwaiter().GetResult();
-      BuildResourceAsync("identityprovider:read", "identityprovider").GetAwaiter().GetResult();
+      BuildScope("identityprovider:read").GetAwaiter().GetResult();
+      BuildResource("identityprovider:read", "identityprovider").GetAwaiter().GetResult();
   }
 
-  protected async Task<PostScopeResponse> BuildScopeAsync(string scope)
+  protected async Task<PostScopeResponse> BuildScope(string scope)
   {
     var getInitialToken = await Client.GetFromJsonAsync<GetScopeInitialAccessToken>("connect/scope/initial-token");
     if (getInitialToken is null)
@@ -68,7 +68,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     return postScopeResponse;
   }
 
-  protected async Task<PostResourceResponse> BuildResourceAsync(string scope, string name)
+  protected async Task<PostResourceResponse> BuildResource(string scope, string name)
   {
     var getInitialToken = await Client.GetFromJsonAsync<GetClientInitialAccessTokenResponse>("connect/resource/initial-token");
     if (getInitialToken is null)
@@ -93,7 +93,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     return postResourceResponse;
   }
 
-  protected async Task<PostClientResponse> BuildClientAsync(string applicationType, string name)
+  protected async Task<PostClientResponse> BuildClient(string applicationType, string name)
   {
     var getInitialToken = await Client.GetFromJsonAsync<GetClientInitialAccessTokenResponse>("connect/client/initial-token");
     if (getInitialToken is null)
