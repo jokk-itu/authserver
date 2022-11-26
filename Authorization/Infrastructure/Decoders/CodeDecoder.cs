@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using Application;
 using Infrastructure.Builders;
 using Infrastructure.Decoders.Abstractions;
 using Microsoft.AspNetCore.DataProtection;
@@ -24,6 +25,19 @@ public class CodeDecoder : ICodeDecoder
     var ms = new MemoryStream(unProtectedBytes);
     using var reader = new BinaryReader(ms, Encoding.UTF8, false);
     var deserializedCode = JsonSerializer.Deserialize<AuthorizationCode>(reader.ReadString());
+    if (deserializedCode is null)
+      throw new InvalidOperationException();
+
+    return deserializedCode;
+  }
+
+  public LoginCode DecodeLoginCode(string code)
+  {
+    var decoded = Base64UrlEncoder.DecodeBytes(code);
+    var unProtectedBytes = _dataProtector.Unprotect(decoded);
+    var ms = new MemoryStream(unProtectedBytes);
+    using var reader = new BinaryReader(ms, Encoding.UTF8, false);
+    var deserializedCode = JsonSerializer.Deserialize<LoginCode>(reader.ReadString());
     if (deserializedCode is null)
       throw new InvalidOperationException();
 

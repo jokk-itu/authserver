@@ -1,41 +1,25 @@
 ﻿using Domain;
-using Infrastructure;
 using Infrastructure.Requests.CreateScope;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace Specs.Validators;
-public class CreateScopeValidatorTests
+public class CreateScopeValidatorTests : BaseUnitTest
 {
-  private readonly IdentityContext _identityContext;
-
-  public CreateScopeValidatorTests()
-  {
-    var connection = new SqliteConnection("DataSource=:memory:");
-    connection.Open();
-    var options = new DbContextOptionsBuilder<IdentityContext>()
-      .UseSqlite(connection)
-      .Options;
-    _identityContext = new IdentityContext(options);
-    _identityContext.Database.EnsureCreated();
-  }
-
   [Fact]
   [Trait("Category", "Unit")]
   public async Task ValidateAsync_InvalidScopeName_ExpectErrorResult()
   {
     // Arrange
-    await _identityContext.Set<Scope>().AddAsync(new Scope
+    await IdentityContext.Set<Scope>().AddAsync(new Scope
     {
       Name = "test"
     });
-    await _identityContext.SaveChangesAsync();
+    await IdentityContext.SaveChangesAsync();
     var command = new CreateScopeCommand
     {
       ScopeName = "test"
     };
-    var validator = new CreateScopeValidator(_identityContext);
+    var validator = new CreateScopeValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -52,7 +36,7 @@ public class CreateScopeValidatorTests
     {
       ScopeName = string.Empty
     };
-    var validator = new CreateScopeValidator(_identityContext);
+    var validator = new CreateScopeValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -69,7 +53,7 @@ public class CreateScopeValidatorTests
     {
       ScopeName = "test"
     };
-    var validator = new CreateScopeValidator(_identityContext);
+    var validator = new CreateScopeValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);

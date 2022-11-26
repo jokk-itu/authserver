@@ -91,7 +91,7 @@ public static class ErrorCode
   public const string ConsentRequired = "consent_required";
 
   /// <summary>
-  /// The request_ur parameter returns an error or contains invalid data
+  /// The request_uri parameter returns an error or contains invalid data
   /// </summary>
   public const string InvalidRequestUri = "invalid_request_uri";
 

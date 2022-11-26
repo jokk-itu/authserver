@@ -93,19 +93,20 @@ builder.WebHost.ConfigureServices(services =>
     configureOptions.ResponseType = OpenIdConnectResponseType.Code;
     configureOptions.UsePkce = true;
     configureOptions.SaveTokens = true;
+    configureOptions.Prompt = "login consent";
     configureOptions.Scope.Add("profile");
     configureOptions.Scope.Add("email");
     configureOptions.Scope.Add("phone");
     configureOptions.Scope.Add("openid");
-    configureOptions.Scope.Add("api1");
-    configureOptions.Scope.Add("identityprovider");
+    configureOptions.Scope.Add("weather:read");
+    configureOptions.Scope.Add("identityprovider:read");
     configureOptions.MapInboundClaims = true;
     configureOptions.GetClaimsFromUserInfoEndpoint = true;
     configureOptions.Events = new OpenIdConnectEvents
     {
       OnTokenValidated = context => 
       {
-        Log.Information("IdToken Validated");
+        Log.Information("Token Validated");
         return Task.CompletedTask;
       },
       OnTokenResponseReceived = context => 

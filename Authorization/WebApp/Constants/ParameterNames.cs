@@ -43,4 +43,15 @@ public static class ParameterNames
   public const string IdTokenHint = "id_token_hint";
   public const string LoginHint = "login_hint";
   public const string AcrValues = "acr_values";
+  public const string Username = "username";
+  public const string Password = "password";
+  public const string Email = "email";
+  public const string Phonenumber = "phonenumber";
+  public const string Address = "address";
+  public const string Lastname = "lastname";
+  public const string Firstname = "firstname";
+  public const string Birthdate = "birthdate";
+  public const string Locale = "locale";
+  public const string ScopeName = "scope_name";
+  public const string LoginCode = "login_code";
 }

@@ -4,7 +4,7 @@ using Domain;
 using Microsoft.AspNetCore.Identity;
 
 namespace Infrastructure.Validators;
-public class UserValidator : BaseValidator<UserToValidate>
+public class UserValidator : IBaseValidator<UserToValidate>
 {
   private readonly UserManager<User> _userManager;
 
@@ -13,7 +13,7 @@ public class UserValidator : BaseValidator<UserToValidate>
     _userManager = userManager;
   }
 
-  public override async Task<BaseValidationResult> ValidateAsync(UserToValidate value, CancellationToken cancellationToken = default)
+  public async Task<BaseValidationResult> ValidateAsync(UserToValidate value, CancellationToken cancellationToken = default)
   {
     if (string.IsNullOrWhiteSpace(value.Username) ||
         string.IsNullOrWhiteSpace(value.Password))
@@ -26,7 +26,7 @@ public class UserValidator : BaseValidator<UserToValidate>
     if(!await _userManager.CheckPasswordAsync(user, value.Password))
       return new BaseValidationResult(ErrorCode.InvalidRequest, "user is invalid");
 
-    return Ok();
+    return new BaseValidationResult();
   }
 }
 

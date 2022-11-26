@@ -12,6 +12,11 @@ public class ConsentGrantConfiguration : IEntityTypeConfiguration<ConsentGrant>
       .WithMany(x => x.ConsentGrants)
       .UsingEntity(x => x.ToTable("ConsentedGrantClaims"));
 
+    builder
+      .HasMany(x => x.ConsentedScopes)
+      .WithMany(x => x.ConsentGrants)
+      .UsingEntity(x => x.ToTable("ConsentedGrantScopes"));
+
     builder.ToTable("ConsentGrants");
   }
 }

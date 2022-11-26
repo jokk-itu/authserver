@@ -1,4 +1,4 @@
-namespace Infrastructure;
+namespace Application;
 
 #nullable disable
 public record IdentityConfiguration
@@ -10,6 +10,8 @@ public record IdentityConfiguration
   public virtual string PrivateKeySecret { get; init; }
 
   public virtual string CodeSecret { get; init; }
+
+  public virtual string EncryptingKeySecret { get; init; }
 
   /// <summary>
   /// Defined in seconds
@@ -25,9 +27,4 @@ public record IdentityConfiguration
   /// Defined in seconds
   /// </summary>
   public virtual int IdTokenExpiration { get; init; }
-
-  /// <summary>
-  /// Defined in seconds
-  /// </summary>
-  public virtual int CodeExpiration { get; init; }
 }

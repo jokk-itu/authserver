@@ -14,16 +14,16 @@ public class Client
   public SubjectType SubjectType { get; set; }
   public ClientType ClientType { get; set; }
   public ClientProfile ClientProfile { get; set; }
-  public ICollection<RedirectUri> RedirectUris { get; set; }
-  public ICollection<GrantType> GrantTypes { get; set; }
-  public ICollection<ConsentGrant> ConsentGrants { get; set; }
-  public ICollection<Scope> Scopes { get; set; }
-  public ICollection<Contact> Contacts { get; set; }
-  public ICollection<ResponseType> ResponseTypes { get; set; }
-  public ICollection<Session> Sessions { get; set; }
-  public ICollection<AuthorizationCodeGrant> AuthorizationCodeGrants { get; set; }
-  public ICollection<IdToken> IdTokens { get; set; }
-  public ICollection<AccessToken> AccessTokens { get; set; }
-  public ICollection<RefreshToken> RefreshTokens { get; set; }
-  public ICollection<ClientRegistrationToken> ClientRegistrationTokens { get; set; }
+  public ICollection<RedirectUri> RedirectUris { get; set; } = new List<RedirectUri>();
+  public ICollection<GrantType> GrantTypes { get; set; } = new List<GrantType>();
+  public ICollection<ConsentGrant> ConsentGrants { get; set; } = new List<ConsentGrant>();
+  public ICollection<Scope> Scopes { get; set; } = new List<Scope>();
+  public ICollection<Contact> Contacts { get; set; } = new List<Contact>();
+  public ICollection<ResponseType> ResponseTypes { get; set; } = new List<ResponseType>();
+  public ICollection<Session> Sessions { get; set; } = new List<Session>();
+  public ICollection<AuthorizationCodeGrant> AuthorizationCodeGrants { get; set; } = new List<AuthorizationCodeGrant>();
+  public ICollection<IdToken> IdTokens { get; set; } = new List<IdToken>();
+  public ICollection<AccessToken> AccessTokens { get; set; } = new List<AccessToken>();
+  public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+  public ICollection<ClientRegistrationToken> ClientRegistrationTokens { get; set; } = new List<ClientRegistrationToken>();
 }

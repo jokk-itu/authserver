@@ -47,13 +47,13 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
     if (string.IsNullOrWhiteSpace(command.RefreshToken))
       return true;
 
-    var refreshToken = _tokenDecoder.DecodeToken(command.RefreshToken);
+    var refreshToken = _tokenDecoder.DecodeSignedToken(command.RefreshToken);
     return refreshToken is null;
   }
 
   private async Task<bool> IsSessionInvalidAsync(RedeemRefreshTokenGrantCommand command)
   {
-    var refreshToken = _tokenDecoder.DecodeToken(command.RefreshToken);
+    var refreshToken = _tokenDecoder.DecodeSignedToken(command.RefreshToken);
     if(refreshToken is null)
       return true;
 
@@ -61,8 +61,9 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
     var sessionId = long.Parse(sessionClaim.Value);
     var session = await _identityContext
       .Set<Session>()
+      .Where(Session.IsValid)
       .SingleOrDefaultAsync(x => x.Id == sessionId);
 
-    return session is null || session.IsInvalid();
+    return session is null;
   }
 }

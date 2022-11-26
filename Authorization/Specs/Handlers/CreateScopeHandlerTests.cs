@@ -1,31 +1,14 @@
 ﻿using System.Net;
 using Application;
 using Application.Validation;
-using Infrastructure;
 using Infrastructure.Builders.Abstractions;
-using Infrastructure.Requests.CreateClient;
 using Infrastructure.Requests.CreateScope;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
 
 namespace Specs.Handlers;
-public class CreateScopeHandlerTests
+public class CreateScopeHandlerTests : BaseUnitTest
 {
-  private readonly IdentityContext _identityContext;
-
-  public CreateScopeHandlerTests()
-  {
-    var connection = new SqliteConnection("DataSource=:memory:");
-    connection.Open();
-    var options = new DbContextOptionsBuilder<IdentityContext>()
-      .UseSqlite(connection)
-      .Options;
-    _identityContext = new IdentityContext(options);
-    _identityContext.Database.EnsureCreated();
-  }
-
   [Fact]
   [Trait("Category", "Unit")]
   public async Task HandleAsync_ValidateFalse_ExpectErrorResult()
@@ -42,7 +25,7 @@ public class CreateScopeHandlerTests
       .Setup(x => x.ValidateAsync(It.IsAny<CreateScopeCommand>(), CancellationToken.None))
       .ReturnsAsync(validationResult);
 
-    var handler = new CreateScopeHandler(_identityContext, fakeValidator.Object, fakeTokenBuilder.Object);
+    var handler = new CreateScopeHandler(IdentityContext, fakeValidator.Object, fakeTokenBuilder.Object);
     var command = new CreateScopeCommand();
 
     // Act
@@ -66,7 +49,7 @@ public class CreateScopeHandlerTests
       .Setup(x => x.ValidateAsync(It.IsAny<CreateScopeCommand>(), CancellationToken.None))
       .ReturnsAsync(validationResult);
 
-    var handler = new CreateScopeHandler(_identityContext, fakeValidator.Object, fakeTokenBuilder.Object);
+    var handler = new CreateScopeHandler(IdentityContext, fakeValidator.Object, fakeTokenBuilder.Object);
     var command = new CreateScopeCommand
     {
       ScopeName = "test"

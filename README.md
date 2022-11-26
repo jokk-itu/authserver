@@ -1,6 +1,6 @@
 # Authserver
 
-Supporting the Authorization Code flow for OAuth 2.0 and OpenId Connect v1.
+Supporting the Authorization Code flow for OAuth 2.1 and OpenId Connect 1.0
 
 ## Pipeline runs
 
@@ -12,22 +12,43 @@ Take a look in the Wiki section of the repository.
 
 ## How to run
 
-The repository contains a testsystem, consisting of a webapp using OpenId Connect and a protected resource (API).
-The repository is setup to use docker-compose for all programs, therefore to run all programs run the compose file.
-```
-docker-compose up -d
-```
+The project relies on a database. It can either be SQL Server or SQLite.
+This can be configured using the appsettings.json file.
 
-Now proceed to the [WebApp](http://localhost:5002/home/secret)
-This will try to fetch data from a secured enpoint in the protected resource.
-Since a user has not been authenticated, a challenge is received instead.
-You will then be redirected to the authorize endpoint of the OP.
-Use the following user:
-```
-Username: jokk
-Password: Password12!
-```
+If using SQL Server, then a docker-compose.yml file can be used.
 
-If you would like to register your own user, then proceed to the [Register endpoint](http://localhost:5000/connect/v1/account/register).
+All projects use Kestrel as server, and can be started using <code>dotnet run</code>.
 
-If the credentials are correct, you will be redirected back to the secret page, and the secret endpoint of the protected resource will return a secret.
+## How to add data
+
+There exist three scripts to create entities for scopes, resources and clients in Tools folder.
+<b>Beware that the scopes script must be run first.</b>
+<b>Remember to set the new clientid and clientsecret for each client.</b>
+
+Create users by directing to the register endpoint, which is <b>connect/register</b>
+
+## Clients
+
+There exist multiple clients, each support different scenarios.
+
+### WebApp
+
+Supporting the authorization code grant type and the refresh token grant type on a confidential web app.
+
+### Svelte.BFF
+
+Supporting the authorization code grant type and the refresh token grant type on a confidential api,
+which supports the backend for frontend pattern on the frontend app created using svelte.
+
+### Blazor.BFF
+
+Supporting the authorization code grant type and the refresh token grant type on a confidential api,
+which supports the backend for frontend pattern on the frontend app created using blazor webassembly.
+
+## Resources
+
+There exist multiple resources.
+
+### Weather
+
+Represents weather data.

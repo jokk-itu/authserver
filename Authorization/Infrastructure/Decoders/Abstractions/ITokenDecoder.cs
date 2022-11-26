@@ -3,5 +3,6 @@
 namespace Infrastructure.Decoders.Abstractions;
 public interface ITokenDecoder
 {
-  JwtSecurityToken? DecodeToken(string token);
+  JwtSecurityToken? DecodeSignedToken(string token);
+  JwtSecurityToken? DecodeEncryptedToken(string token);
 }

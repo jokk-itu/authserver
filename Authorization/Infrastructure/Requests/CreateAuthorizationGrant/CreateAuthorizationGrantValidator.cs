@@ -4,19 +4,19 @@ using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
-using Microsoft.AspNetCore.Identity;
+using Infrastructure.Decoders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.CreateAuthorizationGrant;
 public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationGrantCommand>
 {
   private readonly IdentityContext _identityContext;
-  private readonly UserManager<User> _userManager;
+  private readonly ICodeDecoder _codeDecoder;
 
-  public CreateAuthorizationGrantValidator(IdentityContext identityContext, UserManager<User> userManager)
+  public CreateAuthorizationGrantValidator(IdentityContext identityContext, ICodeDecoder codeDecoder)
   {
     _identityContext = identityContext;
-    _userManager = userManager;
+    _codeDecoder = codeDecoder;
   }
 
   public async Task<ValidationResult> ValidateAsync(CreateAuthorizationGrantCommand value, CancellationToken cancellationToken = default)
@@ -30,7 +30,7 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
     if (IsStateInvalid(value))
       return new ValidationResult(ErrorCode.InvalidRequest, "state is invalid", HttpStatusCode.BadRequest);
 
-    if(await IsClientUnauthorized(value))
+    if (await IsClientUnauthorized(value))
       return new ValidationResult(ErrorCode.UnauthorizedClient, "client is unauthorized", HttpStatusCode.Redirect);
 
     if (IsResponseTypeInvalid(value))
@@ -39,98 +39,102 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
     if (IsCodeChallengeInvalid(value))
       return new ValidationResult(ErrorCode.InvalidRequest, "code_challenge is invalid", HttpStatusCode.Redirect);
 
-    if(IsCodeChallengeMethodInvalid(value))
+    if (IsCodeChallengeMethodInvalid(value))
       return new ValidationResult(ErrorCode.InvalidRequest, "code_challenge_method is invalid", HttpStatusCode.Redirect);
 
-    if(await IsNonceInvalidAsync(value))
+    if (await IsNonceInvalidAsync(value))
       return new ValidationResult(ErrorCode.InvalidRequest, "nonce is invalid", HttpStatusCode.Redirect);
 
-    if(await IsScopesInvalidAsync(value))
+    if (await IsScopesInvalidAsync(value))
       return new ValidationResult(ErrorCode.InvalidRequest, "scope is invalid", HttpStatusCode.Redirect);
 
-    if (await IsUserInvalid(value))
-      return new ValidationResult(ErrorCode.InvalidRequest, "user is invalid", HttpStatusCode.Redirect);
+    var decryptedToken = _codeDecoder.DecodeLoginCode(value.LoginCode);
+    if (decryptedToken is null)
+      return new ValidationResult(ErrorCode.InvalidRequest, "login_token is invalid", HttpStatusCode.Redirect);
 
     if (value.MaxAge < 0)
       return new ValidationResult(ErrorCode.InvalidRequest, "max_age is invalid", HttpStatusCode.Redirect);
+
+    if (await IsConsentGrantInvalid(value))
+      return new ValidationResult(ErrorCode.ConsentRequired, "consent is required", HttpStatusCode.Redirect);
     
     return new ValidationResult(HttpStatusCode.OK);
   }
 
-  private async Task<bool> IsClientIdInvalidAsync(CreateAuthorizationGrantCommand query)
+  private async Task<bool> IsClientIdInvalidAsync(CreateAuthorizationGrantCommand command)
   {
-    if (string.IsNullOrWhiteSpace(query.ClientId))
+    if (string.IsNullOrWhiteSpace(command.ClientId))
       return true;
 
     var client = await _identityContext
       .Set<Client>()
-      .SingleOrDefaultAsync(x => x.Id == query.ClientId);
+      .SingleOrDefaultAsync(x => x.Id == command.ClientId);
 
     return client is null;
   }
 
-  private static bool IsRedirectUriInvalid(CreateAuthorizationGrantCommand query)
+  private static bool IsRedirectUriInvalid(CreateAuthorizationGrantCommand command)
   {
-    return string.IsNullOrWhiteSpace(query.RedirectUri);
+    return string.IsNullOrWhiteSpace(command.RedirectUri);
   }
 
-  private async Task<bool> IsClientUnauthorized(CreateAuthorizationGrantCommand query)
+  private async Task<bool> IsClientUnauthorized(CreateAuthorizationGrantCommand command)
   {
     var client = await _identityContext
       .Set<Client>()
       .Include(x => x.GrantTypes)
       .Include(x => x.RedirectUris)
       .Include(x => x.Scopes)
-      .SingleAsync(x => x.Id == query.ClientId);
+      .SingleAsync(x => x.Id == command.ClientId);
 
-    if (client.RedirectUris.All(x => x.Uri != query.RedirectUri))
+    if (client.RedirectUris.All(x => x.Uri != command.RedirectUri))
       return true;
 
     if (client.GrantTypes.All(x => x.Name != GrantTypeConstants.AuthorizationCode))
       return true;
 
-    return query.Scopes.All(x => client.Scopes.Any(y => y.Name == x));
+    return command.Scopes.All(x => client.Scopes.All(y => y.Name != x));
   }
 
-  private static bool IsResponseTypeInvalid(CreateAuthorizationGrantCommand query)
+  private static bool IsResponseTypeInvalid(CreateAuthorizationGrantCommand command)
   {
-    return query.ResponseType != ResponseTypeConstants.Code;
+    return command.ResponseType != ResponseTypeConstants.Code;
   }
 
-  private static bool IsCodeChallengeInvalid(CreateAuthorizationGrantCommand query)
+  private static bool IsCodeChallengeInvalid(CreateAuthorizationGrantCommand command)
   {
-    if (string.IsNullOrWhiteSpace(query.CodeChallenge))
+    if (string.IsNullOrWhiteSpace(command.CodeChallenge))
       return true;
 
-    return !Regex.IsMatch(query.CodeChallenge, "^[0-9a-zA-Z-_~.]{43,128}$");
+    return !Regex.IsMatch(command.CodeChallenge, "^[0-9a-zA-Z-_~.]{43,128}$");
   }
 
-  private static bool IsCodeChallengeMethodInvalid(CreateAuthorizationGrantCommand query)
+  private static bool IsCodeChallengeMethodInvalid(CreateAuthorizationGrantCommand command)
   {
-    return query.CodeChallengeMethod != CodeChallengeMethodConstants.S256;
+    return command.CodeChallengeMethod != CodeChallengeMethodConstants.S256;
   }
 
-  private static bool IsStateInvalid(CreateAuthorizationGrantCommand query)
+  private static bool IsStateInvalid(CreateAuthorizationGrantCommand command)
   {
-    return string.IsNullOrWhiteSpace(query.State);
+    return string.IsNullOrWhiteSpace(command.State);
   }
 
-  private async Task<bool> IsNonceInvalidAsync(CreateAuthorizationGrantCommand query)
+  private async Task<bool> IsNonceInvalidAsync(CreateAuthorizationGrantCommand command)
   {
-    if (string.IsNullOrWhiteSpace(query.Nonce))
+    if (string.IsNullOrWhiteSpace(command.Nonce))
       return true;
 
     return await _identityContext
       .Set<AuthorizationCodeGrant>()
-      .AnyAsync(x => x.Nonce == query.Nonce);
+      .AnyAsync(x => x.Nonce == command.Nonce);
   }
 
-  private async Task<bool> IsScopesInvalidAsync(CreateAuthorizationGrantCommand query)
+  private async Task<bool> IsScopesInvalidAsync(CreateAuthorizationGrantCommand command)
   {
-    if (query.Scopes.All(x => x != ScopeConstants.OpenId))
+    if (command.Scopes.All(x => x != ScopeConstants.OpenId))
       return true;
 
-    foreach (var scope in query.Scopes)
+    foreach (var scope in command.Scopes)
     {
       if (!await _identityContext.Set<Scope>().AnyAsync(x => x.Name == scope))
         return true;
@@ -139,15 +143,22 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
     return false;
   }
 
-  private async Task<bool> IsUserInvalid(CreateAuthorizationGrantCommand query)
+  private async Task<bool> IsConsentGrantInvalid(CreateAuthorizationGrantCommand command)
   {
-    if (string.IsNullOrWhiteSpace(query.Username) || string.IsNullOrWhiteSpace(query.Password))
+    var code = _codeDecoder.DecodeLoginCode(command.LoginCode);
+    var userId = code.UserId;
+    var consentGrant = await _identityContext
+      .Set<ConsentGrant>()
+      .Include(x => x.ConsentedScopes)
+      .Where(x => x.Client.Id == command.ClientId && x.User.Id == userId)
+      .SingleOrDefaultAsync();
+
+    if (consentGrant is null)
       return true;
 
-    var user = await _userManager.FindByNameAsync(query.Username);
-    if (user is null)
+    if (consentGrant.ConsentedScopes.Count != command.Scopes.Count)
       return true;
 
-    return !await _userManager.CheckPasswordAsync(user, query.Password);
+    return consentGrant.ConsentedScopes.Any(scope => !command.Scopes.Contains(scope.Name));
   }
 }

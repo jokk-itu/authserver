@@ -29,7 +29,7 @@ public class DeleteClientHandler : IRequestHandler<DeleteClientCommand, DeleteCl
     if (validationResult.IsError())
       return new DeleteClientResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
 
-    var clientId = _tokenDecoder.DecodeToken(request.ClientRegistrationToken)!.Claims
+    var clientId = _tokenDecoder.DecodeSignedToken(request.ClientRegistrationToken)!.Claims
       .Single(x => x.Type == ClaimNameConstants.ClientId).Value;
 
     var client = await _identityContext.Set<Client>().FindAsync(new object?[] { clientId }, cancellationToken: cancellationToken);

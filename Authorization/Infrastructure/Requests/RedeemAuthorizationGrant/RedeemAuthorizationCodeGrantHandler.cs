@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Application;
 using Application.Validation;
 using Domain;
 using Infrastructure.Builders.Abstractions;
@@ -36,21 +37,19 @@ public class RedeemAuthorizationCodeGrantHandler : IRequestHandler<RedeemAuthori
     if (validationResult.IsError())
       return new RedeemAuthorizationCodeGrantResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
 
-    var scopes = request.Scope.Split(' ');
     var code = _codeDecoder.DecodeAuthorizationCode(request.Code);
 
     var authorizationCodeGrant = await _identityContext
       .Set<AuthorizationCodeGrant>()
       .Include(x => x.Session)
-      .AsSplitQuery()
       .SingleAsync(x => x.Id == code.AuthorizationGrantId, cancellationToken: cancellationToken);
 
     authorizationCodeGrant.IsRedeemed = true;
     var sessionId = authorizationCodeGrant.Session.Id.ToString();
 
-    var accessToken = await _tokenBuilder.BuildAccessTokenAsync(request.ClientId, scopes, code.UserId, sessionId, cancellationToken: cancellationToken);
-    var refreshToken = await _tokenBuilder.BuildRefreshTokenAsync(request.ClientId, scopes, code.UserId, sessionId, cancellationToken: cancellationToken);
-    var idToken = await _tokenBuilder.BuildIdTokenAsync(request.ClientId, scopes, authorizationCodeGrant.Nonce, code.UserId, sessionId, cancellationToken: cancellationToken);
+    var accessToken = await _tokenBuilder.BuildAccessTokenAsync(request.ClientId, code.Scopes, code.UserId, sessionId, cancellationToken: cancellationToken);
+    var refreshToken = await _tokenBuilder.BuildRefreshTokenAsync(request.ClientId, code.Scopes, code.UserId, sessionId, cancellationToken: cancellationToken);
+    var idToken = await _tokenBuilder.BuildIdTokenAsync(request.ClientId, code.Scopes, authorizationCodeGrant.Nonce, code.UserId, sessionId, cancellationToken: cancellationToken);
 
     await _identityContext.SaveChangesAsync(cancellationToken: cancellationToken);
     return new RedeemAuthorizationCodeGrantResponse(HttpStatusCode.OK)

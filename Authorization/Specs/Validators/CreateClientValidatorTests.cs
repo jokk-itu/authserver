@@ -1,28 +1,12 @@
 ﻿using Domain;
 using Domain.Constants;
-using Infrastructure;
 using Infrastructure.Requests.CreateClient;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Xunit;
 
 namespace Specs.Validators;
-public class CreateClientValidatorTests
+public class CreateClientValidatorTests : BaseUnitTest
 {
-  private readonly IdentityContext _identityContext;
-
-  public CreateClientValidatorTests()
-  {
-    var connection = new SqliteConnection("DataSource=:memory:");
-    connection.Open();
-    var options = new DbContextOptionsBuilder<IdentityContext>()
-      .UseSqlite(connection)
-      .Options;
-    _identityContext = new IdentityContext(options);
-    _identityContext.Database.EnsureCreated();
-  }
-
   [Fact]
   [Trait("Category", "Unit")]
   public async Task ValidateAsync_ForceDefaultValues_ExpectCreatedResult()
@@ -42,7 +26,7 @@ public class CreateClientValidatorTests
       TosUri = string.Empty,
       ClientName = "test"
     };
-    var validator = new CreateClientValidator(_identityContext);
+    var validator = new CreateClientValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -70,7 +54,7 @@ public class CreateClientValidatorTests
       TosUri = "https://localhost:5002/tos",
       ClientName = "test"
     };
-    var validator = new CreateClientValidator(_identityContext);
+    var validator = new CreateClientValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -98,7 +82,7 @@ public class CreateClientValidatorTests
       TosUri = "https://localhost:5002/tos",
       ClientName = "test"
     };
-    var validator = new CreateClientValidator(_identityContext);
+    var validator = new CreateClientValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -126,7 +110,7 @@ public class CreateClientValidatorTests
       TosUri = "https://localhost:5002/tos",
       ClientName = string.Empty
     };
-    var validator = new CreateClientValidator(_identityContext);
+    var validator = new CreateClientValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -140,14 +124,14 @@ public class CreateClientValidatorTests
   public async Task ValidateAsync_ExistingClientName_ExpectErrorResult()
   {
     // Arrange
-    await _identityContext
+    await IdentityContext
       .Set<Client>()
       .AddAsync(new Client
       {
         Id = Guid.NewGuid().ToString(),
         Name = "test"
       });
-    await _identityContext.SaveChangesAsync();
+    await IdentityContext.SaveChangesAsync();
 
     var command = new CreateClientCommand
     {
@@ -163,7 +147,7 @@ public class CreateClientValidatorTests
       TosUri = "https://localhost:5002/tos",
       ClientName = "test"
     };
-    var validator = new CreateClientValidator(_identityContext);
+    var validator = new CreateClientValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -190,7 +174,7 @@ public class CreateClientValidatorTests
       TosUri = "https://localhost:5002/tos",
       ClientName = "test"
     };
-    var validator = new CreateClientValidator(_identityContext);
+    var validator = new CreateClientValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -217,7 +201,7 @@ public class CreateClientValidatorTests
       TosUri = "https://localhost:5002/tos",
       ClientName = "test"
     };
-    var validator = new CreateClientValidator(_identityContext);
+    var validator = new CreateClientValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -245,7 +229,7 @@ public class CreateClientValidatorTests
       TosUri = "https://localhost:5002/tos",
       ClientName = "test"
     };
-    var validator = new CreateClientValidator(_identityContext);
+    var validator = new CreateClientValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -273,7 +257,7 @@ public class CreateClientValidatorTests
       TosUri = "https://localhost:5002/tos",
       ClientName = "test"
     };
-    var validator = new CreateClientValidator(_identityContext);
+    var validator = new CreateClientValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -301,7 +285,7 @@ public class CreateClientValidatorTests
       TosUri = "https://localhost:5002/tos",
       ClientName = "test"
     };
-    var validator = new CreateClientValidator(_identityContext);
+    var validator = new CreateClientValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -329,7 +313,7 @@ public class CreateClientValidatorTests
       TosUri = "https://localhost:5002/tos",
       ClientName = "test"
     };
-    var validator = new CreateClientValidator(_identityContext);
+    var validator = new CreateClientValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -357,7 +341,7 @@ public class CreateClientValidatorTests
       TosUri = "https://localhost:5002/tos",
       ClientName = "test"
     };
-    var validator = new CreateClientValidator(_identityContext);
+    var validator = new CreateClientValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -385,7 +369,7 @@ public class CreateClientValidatorTests
       TosUri = "https://localhost:5002/tos",
       ClientName = "test"
     };
-    var validator = new CreateClientValidator(_identityContext);
+    var validator = new CreateClientValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -413,7 +397,7 @@ public class CreateClientValidatorTests
       TosUri = "https://localhost:5002/tos",
       ClientName = "test"
     };
-    var validator = new CreateClientValidator(_identityContext);
+    var validator = new CreateClientValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -441,7 +425,7 @@ public class CreateClientValidatorTests
       TosUri = "invalid_tos",
       ClientName = "test"
     };
-    var validator = new CreateClientValidator(_identityContext);
+    var validator = new CreateClientValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -469,7 +453,7 @@ public class CreateClientValidatorTests
       TosUri = "http://localhost:5002/tos",
       ClientName = "test"
     };
-    var validator = new CreateClientValidator(_identityContext);
+    var validator = new CreateClientValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -497,7 +481,7 @@ public class CreateClientValidatorTests
       TosUri = "http://localhost:5002/tos",
       ClientName = "test"
     };
-    var validator = new CreateClientValidator(_identityContext);
+    var validator = new CreateClientValidator(IdentityContext);
 
     // Act
     var validationResult = await validator.ValidateAsync(command);

@@ -3,19 +3,19 @@ using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Requests.CreateClient;
 using Infrastructure.Requests.DeleteClient;
+using Infrastructure.Requests.ReadClient;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Constants;
-using WebApp.Contracts.GetClient;
 using WebApp.Contracts.GetResourceInitialAccessToken;
 using WebApp.Contracts.PostClient;
 using WebApp.Extensions;
+using GetClientResponse = WebApp.Contracts.GetClient.GetClientResponse;
 
 namespace WebApp.Controllers;
-
 
 [Route("/connect/[controller]")]
 public class ClientController : Controller
@@ -116,6 +116,27 @@ public class ClientController : Controller
   [ProducesResponseType(typeof(GetClientResponse), StatusCodes.Status200OK)]
   public async Task<IActionResult> GetClientAsync(CancellationToken cancellationToken = default)
   {
-    return Ok();
+    var token = await HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, TokenTypeConstants.AccessToken);
+    var response = await _mediator.Send(new ReadClientQuery(token), cancellationToken);
+
+    if (response.IsError())
+      return this.BadOAuthResult(response.ErrorCode, response.ErrorDescription);
+
+    return Ok(new GetClientResponse
+    {
+      ApplicationType = response.ApplicationType,
+      ResponseTypes = response.ResponseTypes,
+      Scope = response.Scope,
+      TokenEndpointAuthMethod = response.TokenEndpointAuthMethod,
+      RedirectUris = response.RedirectUris,
+      SubjectType = response.SubjectType,
+      Contacts = response.Contacts,
+      PolicyUri = response.PolicyUri,
+      ClientId = response.ClientId,
+      GrantTypes = response.GrantTypes,
+      ClientName = response.ClientName,
+      ClientSecret = response.ClientSecret,
+      TosUri = response.TosUri
+    });
   }
 }

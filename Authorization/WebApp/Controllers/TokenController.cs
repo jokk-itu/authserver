@@ -12,7 +12,7 @@ using MediatR;
 namespace WebApp.Controllers;
 
 [ApiController]
-[Route("connect/v1/[controller]")]
+[Route("connect/[controller]")]
 public class TokenController : ControllerBase
 {
   private readonly IMediator _mediator;

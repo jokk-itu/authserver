@@ -13,4 +13,9 @@ public class User : IdentityUser
   public ICollection<ConsentGrant>? ConsentGrants { get; set; }
   public Session? Session { get; set; }
   public long? SessionId { get; set; }
+
+  public string GetName()
+  {
+    return $"{FirstName} {LastName}";
+  }
 }

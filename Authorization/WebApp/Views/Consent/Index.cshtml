@@ -1,0 +1,21 @@
+﻿@using WebApp.ViewModels
+@model ConsentViewModel
+
+<div class="d-flex flex-column justify-content-center align-items-center">
+    <h2>@Model.ClientName</h2>
+    <p>wants to access your account <b>@Model.GivenName</b></p>
+    <p>The following personal information is requested by the above app.</p>
+    <br/>
+    <form name="consent" asp-action="connect/consent" method="post">
+        @foreach (var claim in Model.Claims)
+        {
+            <div class="form-check my-2">
+                <input class="form-check-input" id="@claim" type="checkbox" name="@claim" checked/>
+                <label class="form-check-label mb-1" for="@claim">@claim</label>
+            </div>
+        }
+        <div class="form-group my-2">
+            <input type="submit" value="Consent" class="mx-auto btn btn-primary btn-lg btn-block" />
+        </div>
+    </form>
+</div>

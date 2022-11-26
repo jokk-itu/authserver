@@ -12,5 +12,5 @@ public static class ScopeConstants
   public const string ResourceConfiguration = "identityprovider:resourceconfiguration";
   public const string ScopeRegistration = "identityprovider:scoperegistration";
   public const string ScopeConfiguration = "identityprovider:scopeconfiguration";
-  public const string Consent = "identityprovider:consent";
+  public const string Prompt = "identityprovider:prompt";
 }

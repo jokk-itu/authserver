@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
+using Application;
 using Domain.Constants;
-using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 
