@@ -21,6 +21,11 @@ internal class GrantTypeConfiguration : IEntityTypeConfiguration<Domain.GrantTyp
       {
         Id = 2,
         Name = GrantTypeConstants.RefreshToken
+      },
+      new Domain.GrantType
+      {
+        Id = 3,
+        Name = GrantTypeConstants.ClientCredentials
       });
 
     builder.ToTable("GrantTypes");

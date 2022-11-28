@@ -1,6 +1,5 @@
 ﻿using Application;
 using Domain;
-using Domain.Constants;
 using Infrastructure;
 using Infrastructure.Decoders.Abstractions;
 using Infrastructure.Helpers;
