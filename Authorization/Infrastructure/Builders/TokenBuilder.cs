@@ -27,6 +27,20 @@ public class TokenBuilder : ITokenBuilder
       _claimService = claimService;
     }
 
+    public async Task<string> BuildClientAccessToken(string clientId, ICollection<string> scopes, CancellationToken cancellationToken = default)
+    {
+      var expires = DateTime.UtcNow.AddSeconds(_identityConfiguration.AccessTokenExpiration);
+      var resources = await _resourceManager.ReadResourcesAsync(scopes, cancellationToken);
+      var audiences = resources.Select(x => x.Name).ToArray();
+      var claims = new Dictionary<string, object>
+      {
+        { ClaimNameConstants.Aud, audiences },
+        { ClaimNameConstants.Scope, string.Join(' ', scopes) },
+        { ClaimNameConstants.ClientId, clientId }
+      };
+      return GetSignedToken(claims, expires);
+    }
+
     public async Task<string> BuildAccessTokenAsync(string clientId, ICollection<string> scopes, string userId, string sessionId,
       CancellationToken cancellationToken = default)
     {
