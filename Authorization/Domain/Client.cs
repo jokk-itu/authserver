@@ -1,3 +1,4 @@
+using Domain.Constants;
 using Domain.Enums;
 
 namespace Domain;
@@ -10,10 +11,9 @@ public class Client
   public string Secret { get; set; }
   public string TosUri { get; set; }
   public string PolicyUri { get; set; }
+  public ApplicationType ApplicationType { get; set; }
   public TokenEndpointAuthMethod TokenEndpointAuthMethod { get; set; }
   public SubjectType SubjectType { get; set; }
-  public ClientType ClientType { get; set; }
-  public ClientProfile ClientProfile { get; set; }
   public ICollection<RedirectUri> RedirectUris { get; set; } = new List<RedirectUri>();
   public ICollection<GrantType> GrantTypes { get; set; } = new List<GrantType>();
   public ICollection<ConsentGrant> ConsentGrants { get; set; } = new List<ConsentGrant>();

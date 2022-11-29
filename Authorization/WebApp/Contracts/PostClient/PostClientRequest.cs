@@ -7,10 +7,10 @@ namespace WebApp.Contracts.PostClient;
 public class PostClientRequest
 {
   [JsonPropertyName(ParameterNames.RedirectUris)]
-  public ICollection<string> RedirectUris { get; init; }
+  public ICollection<string> RedirectUris { get; set; } = new List<string>();
 
   [JsonPropertyName(ParameterNames.ResponseTypes)]
-  public ICollection<string> ResponseTypes { get; init; }
+  public ICollection<string> ResponseTypes { get; init; } = new List<string>();
 
   [JsonPropertyName(ParameterNames.GrantTypes)]
   public ICollection<string> GrantTypes { get; init; }
@@ -19,7 +19,7 @@ public class PostClientRequest
   public string ApplicationType { get; init; }
 
   [JsonPropertyName(ParameterNames.Contacts)]
-  public ICollection<string> Contacts { get; init; }
+  public ICollection<string> Contacts { get; init; } = new List<string>();
 
   [JsonPropertyName(ParameterNames.ClientName)]
   public string ClientName { get; init; }
