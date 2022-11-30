@@ -9,6 +9,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.CreateClient;
+
 public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateClientResponse>
 {
   private readonly IValidator<CreateClientCommand> _createClientValidator;
@@ -62,11 +63,10 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       Id = Guid.NewGuid().ToString(),
       Name = request.ClientName,
       Secret = CryptographyHelper.GetRandomString(32),
+      ApplicationType = request.ApplicationType.GetEnum<ApplicationType>(),
       Scopes = scopes,
       RedirectUris = redirectUris,
       GrantTypes = grantTypes,
-      ClientProfile = ClientProfile.WebApplication,
-      ClientType = ClientType.Confidential,
       ResponseTypes = responseTypes,
       TokenEndpointAuthMethod = request.TokenEndpointAuthMethod.GetEnum<TokenEndpointAuthMethod>(),
       PolicyUri = request.PolicyUri,

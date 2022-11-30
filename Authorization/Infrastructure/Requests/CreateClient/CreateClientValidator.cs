@@ -73,12 +73,18 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
 
   private static bool IsRedirectUrisInvalid(CreateClientCommand command)
   {
+    if (!command.GrantTypes.Contains(GrantTypeConstants.AuthorizationCode))
+      return false;
+
     return command.RedirectUris is null || !command.RedirectUris.Any() 
            || command.RedirectUris.Any(redirectUri => !Uri.IsWellFormedUriString(redirectUri, UriKind.Absolute));
   }
 
   private static bool IsResponseTypesInvalid(CreateClientCommand command)
   {
+    if (!command.GrantTypes.Contains(GrantTypeConstants.AuthorizationCode))
+      return false;
+
     command.ResponseTypes ??= new List<string>();
     if(!command.ResponseTypes.Any())
       command.ResponseTypes.Add(ResponseTypeConstants.Code);
@@ -93,7 +99,6 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
 
     var grants = await _identityContext
       .Set<GrantType>()
-      .IgnoreAutoIncludes()
       .ToListAsync();
 
     return command.GrantTypes.Any(grantType => grants.All(x => x.Name != grantType));
@@ -105,8 +110,8 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
       return false;
 
     return (
-      from contact in command.Contacts 
-      let ampersandPosition = contact.LastIndexOf('@') 
+      from contact in command.Contacts
+      let ampersandPosition = contact.LastIndexOf('@')
       select ampersandPosition > 0 
              && (contact.LastIndexOf(".", StringComparison.Ordinal) > ampersandPosition) 
              && (contact.Length - ampersandPosition > 4)).Any(isValidContact => !isValidContact);
@@ -114,7 +119,7 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
 
   private async Task<bool> IsScopeInvalidAsync(CreateClientCommand command)
   {
-    if (!command.Scopes.Contains(ScopeConstants.OpenId))
+    if (command.GrantTypes.Contains(GrantTypeConstants.AuthorizationCode) && !command.Scopes.Contains(ScopeConstants.OpenId))
       return true;
 
     foreach (var scope in command.Scopes)

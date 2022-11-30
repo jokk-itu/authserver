@@ -10,11 +10,7 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
     builder.HasKey(client => client.Id);
 
     builder
-      .Property(client => client.ClientType)
-      .HasConversion<string>();
-
-    builder
-      .Property(client => client.ClientProfile)
+      .Property(client => client.ApplicationType)
       .HasConversion<string>();
 
     builder

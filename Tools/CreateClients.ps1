@@ -4,8 +4,16 @@ function GetInitialToken([Parameter(Mandatory)][string]$Uri) {
     return $token
 }
 
-function PostClient([Parameter()][string]$Uri, [Parameter(Mandatory)][string]$Token) {
-    $body = @{
+function PostClient([Parameter()][string]$Uri, [Parameter(Mandatory)][string]$Token, [Parameter(Mandatory)]$Body) {
+    $headers = @{
+        'Authorization' = "Bearer $($Token)"
+    }
+    $response = Invoke-WebRequest -Uri $Uri -Method 'POST' -Headers $headers -Body ($body | ConvertTo-Json) -ContentType 'application/json'
+    return $response.Content
+}
+$webappToken = GetInitialToken 'http://localhost:5000/connect/client/initial-token'
+
+$webappBody = @{
         'redirect_uris' = @('http://localhost:5002/callback')
         'response_types' = @('code')
         'grant_types' = @('authorization_code', 'refresh_token')
@@ -18,12 +26,13 @@ function PostClient([Parameter()][string]$Uri, [Parameter(Mandatory)][string]$To
         'token_endpoint_auth_method' = 'client_secret_post'
         'scope' = 'openid profile email phone offline_access weather:read identityprovider:read'
     }
-    $headers = @{
-        'Authorization' = "Bearer $($Token)"
-    }
-    $response = Invoke-WebRequest -Uri $Uri -Method 'POST' -Headers $headers -Body ($body | ConvertTo-Json) -ContentType 'application/json'
-    return $response.Content
-}
-$token = GetInitialToken 'http://localhost:5000/connect/client/initial-token'
+##PostClient 'http://localhost:5000/connect/client/register' $webappToken $webappBody
 
-PostClient 'http://localhost:5000/connect/client/register' $token
+$workerToken = GetInitialToken 'http://localhost:5000/connect/client/initial-token'
+$workerBody = @{
+    'grant_types' = @('client_credentials')
+    'client_name' = 'worker'
+    'token_endpoint_auth_method' = 'client_secret_post'
+    'scope' = 'weather:read'
+}
+PostClient 'http://localhost:5000/connect/client/register' $workerToken $workerBody
