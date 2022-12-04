@@ -32,7 +32,7 @@ public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions
         options.IncludeErrorDetails = true; //DEVELOP READY
         options.RequireHttpsMetadata = false; //DEVELOP READY
         options.Audience = AudienceConstants.IdentityProvider;
-        options.Authority = _identityConfiguration.InternalIssuer;
+        options.Authority = _identityConfiguration.Issuer;
         options.ConfigurationManager = _internalConfigurationManager;
         options.SaveToken = true;
         options.Events = new JwtBearerEvents

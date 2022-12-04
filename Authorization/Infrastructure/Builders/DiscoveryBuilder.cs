@@ -1,0 +1,109 @@
+﻿using Application;
+using Domain;
+using Domain.Constants;
+using Infrastructure.Builders.Abstractions;
+using Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+
+namespace Infrastructure.Builders;
+
+#nullable disable
+public class DiscoveryBuilder : IDiscoveryBuilder
+{
+  private readonly IdentityConfiguration _identityConfiguration;
+  private readonly IdentityContext _identityContext;
+  private readonly JwkManager _jwkManager;
+
+  public DiscoveryBuilder(
+    IdentityConfiguration identityConfiguration,
+    IdentityContext identityContext,
+    JwkManager jwkManager)
+  {
+    _identityConfiguration = identityConfiguration;
+    _identityContext = identityContext;
+    _jwkManager = jwkManager;
+  }
+
+  public async Task<DiscoveryDocument> BuildDiscoveryDocument()
+  {
+    var issuer = _identityConfiguration.Issuer;
+    var scopes = await _identityContext
+      .Set<Scope>()
+      .Select(x => x.Name)
+      .ToListAsync();
+
+    return new DiscoveryDocument
+    {
+      Issuer = issuer,
+      AuthorizationEndpoint = $"{issuer}/connect/authorize",
+      TokenEndpoint = $"{issuer}/connect/token",
+      UserInfoEndpoint = $"{issuer}/connect/userinfo",
+      JwksUri = $"{issuer}/.well-known/jwks",
+      Scopes = scopes,
+      GrantTypes = GrantTypeConstants.GrantTypes,
+      ResponseTypes = ResponseTypeConstants.ResponseTypes,
+      TokenEndpointAuthMethods = TokenEndpointAuthMethodConstants.TokenEndpointAuthMethods,
+      TokenEndpointAuthSigningAlgValues = new[] { "RS256" },
+      CodeChallengeMethods = CodeChallengeMethodConstants.CodeChallengeMethods,
+      ResponseModes = new[] { "post_form" },
+      SubjectTypes = SubjectTypeConstants.SubjectTypes,
+      AuthorizationResponseIssParameterSupported = true,
+      IdTokenSigningAlgValues = new[] { "RS256" }
+    };
+  }
+
+  public Task<JwksDocument> BuildJwkDocument()
+  {
+    var keys = _jwkManager.Jwks
+      .Select(jwk => new Jwk
+      {
+        KeyType = "RSA",
+        Use = "sig",
+        Alg = "RSA",
+        KeyId = jwk.KeyId,
+        Modulus = Base64UrlEncoder.Encode(jwk.Modulus),
+        Exponent = Base64UrlEncoder.Encode(jwk.Exponent)
+      })
+      .ToList();
+
+    return Task.FromResult(new JwksDocument
+    {
+      Keys = keys
+    });
+  }
+}
+
+public class DiscoveryDocument
+{
+  public string Issuer { get; init; }
+  public string AuthorizationEndpoint { get; init; }
+  public string TokenEndpoint { get; init; }
+  public string UserInfoEndpoint { get; init; }
+  public string JwksUri { get; init; }
+  public IEnumerable<string> Scopes { get; init; }
+  public IEnumerable<string> ResponseTypes { get; init; }
+  public IEnumerable<string> GrantTypes { get; init; }
+  public IEnumerable<string> TokenEndpointAuthMethods { get; init; }
+  public IEnumerable<string> TokenEndpointAuthSigningAlgValues { get; init; }
+  public IEnumerable<string> CodeChallengeMethods { get; init; }
+  public IEnumerable<string> SubjectTypes { get; init; }
+  public IEnumerable<string> IdTokenSigningAlgValues { get; init; }
+  public IEnumerable<string> ResponseModes { get; init; }
+  public bool AuthorizationResponseIssParameterSupported { get; init; }
+}
+
+public class JwksDocument
+{
+  public IEnumerable<Jwk> Keys { get; set; } = new List<Jwk>();
+}
+
+public class Jwk
+{
+  public string KeyType { get; init; }
+  public string Use { get; init; }
+  public long KeyId { get; init; }
+  public string Alg { get; init; }
+  public string Modulus { get; init; }
+  public string Exponent { get; init; }
+}

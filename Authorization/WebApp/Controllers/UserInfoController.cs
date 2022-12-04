@@ -35,7 +35,9 @@ public class UserInfoController : Controller
     };
     var response = await _mediator.Send(query, cancellationToken: cancellationToken);
     if (response.IsError())
+    {
       return this.BadOAuthResult(response.ErrorCode, response.ErrorDescription);
+    }
 
     return Json(response.UserInfo);
   }

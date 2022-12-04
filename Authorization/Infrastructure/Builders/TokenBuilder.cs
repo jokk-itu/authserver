@@ -186,7 +186,7 @@ public class TokenBuilder : ITokenBuilder
             IssuedAt = DateTime.UtcNow,
             Expires = expires,
             NotBefore = DateTime.UtcNow,
-            Issuer = _identityConfiguration.InternalIssuer,
+            Issuer = _identityConfiguration.Issuer,
             SigningCredentials = signingCredentials,
             Claims = claims
         };
@@ -214,7 +214,7 @@ public class TokenBuilder : ITokenBuilder
         IssuedAt = DateTime.UtcNow,
         Expires = expires,
         NotBefore = DateTime.UtcNow,
-        Issuer = _identityConfiguration.InternalIssuer,
+        Issuer = _identityConfiguration.Issuer,
         SigningCredentials = signingCredentials,
         EncryptingCredentials = encryptingCredentials,
         Claims = claims

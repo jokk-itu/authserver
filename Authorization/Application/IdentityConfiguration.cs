@@ -3,9 +3,7 @@ namespace Application;
 #nullable disable
 public record IdentityConfiguration
 {
-  public virtual string ExternalIssuer { get; init; }
-
-  public virtual string InternalIssuer { get; init; }
+  public virtual string Issuer { get; init; }
 
   public virtual string PrivateKeySecret { get; init; }
 

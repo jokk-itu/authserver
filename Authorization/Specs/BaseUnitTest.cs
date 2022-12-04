@@ -36,8 +36,7 @@ public abstract class BaseUnitTest
         EncryptingKeySecret = "WnZr4u7w!z%C*F-J",
         CodeSecret = CryptographyHelper.GetRandomString(32),
         PrivateKeySecret = CryptographyHelper.GetRandomString(32),
-        InternalIssuer = "auth-server",
-        ExternalIssuer = "auth-server"
+        Issuer = "auth-server",
       })
       .AddScoped(_ => IdentityContext)
       .AddLogging()

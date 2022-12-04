@@ -3,7 +3,6 @@ using WebApp.Constants;
 using Application;
 using Domain.Constants;
 using WebApp.Extensions;
-using MediatR;
 using WebApp.Attributes;
 
 namespace WebApp.Controllers;

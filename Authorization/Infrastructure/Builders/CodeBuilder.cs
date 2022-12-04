@@ -70,5 +70,4 @@ public class AuthorizationCode
   public string ClientId { get; set; } = null!;
   public string UserId { get; set; } = null!;
   public ICollection<string> Scopes { get; set; } = new List<string>();
-
 }

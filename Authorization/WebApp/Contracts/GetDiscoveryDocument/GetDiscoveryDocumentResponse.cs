@@ -24,26 +24,29 @@ public record GetDiscoveryDocumentResponse
   public IEnumerable<string> Scopes { get; init; }
 
   [JsonPropertyName("response_types_supported")]
-  public IEnumerable<string> ResponseTypes { get; } = new[] { "code" };
+  public IEnumerable<string> ResponseTypes { get; init; }
 
   [JsonPropertyName("grant_types_supported")]
-  public IEnumerable<string> GrantTypes { get; } = new[] { "authorization_code", "refresh_token" };
+  public IEnumerable<string> GrantTypes { get; init; }
 
   [JsonPropertyName("token_endpoint_auth_methods_supported")]
-  public IEnumerable<string> TokenEndpointAuthMethods { get; } = new[] { "client_secret_basic" };
+  public IEnumerable<string> TokenEndpointAuthMethods { get; init; }
 
   [JsonPropertyName("token_endpoint_auth_signing_alg_values_supported")]
-  public IEnumerable<string> TokenEndpointAuthSigningAlgValues { get; } = new[] { "RS256" };
+  public IEnumerable<string> TokenEndpointAuthSigningAlgValues { get; init; }
 
   [JsonPropertyName("code_challenge_methods_supported")]
-  public IEnumerable<string> CodeChallengeMethods { get; } = new[] { "S256" };
+  public IEnumerable<string> CodeChallengeMethods { get; init; }
 
   [JsonPropertyName("subject_types_supported")]
-  public IEnumerable<string> SubjectTypes { get; } = new[] { "public" };
+  public IEnumerable<string> SubjectTypes { get; init; }
 
   [JsonPropertyName("id_token_signing_alg_values_supported")]
-  public IEnumerable<string> IdTokenSigningAlgValues { get; } = new[] { "RS256" };
+  public IEnumerable<string> IdTokenSigningAlgValues { get; init; }
 
   [JsonPropertyName("response_modes_supported")]
-  public IEnumerable<string> ResponseModes { get; } = new[] { "query" };
+  public IEnumerable<string> ResponseModes { get; init; }
+
+  [JsonPropertyName("authorization_response_iss_parameter_supported")]
+  public bool AuthorizationResponseIssParameterSupported { get; init; }
 }

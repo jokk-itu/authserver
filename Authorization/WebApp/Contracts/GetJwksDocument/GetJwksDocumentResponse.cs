@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Contracts.GetJwksDocument;
+namespace WebApp.Contracts.GetJwksDocument;
 public class GetJwksDocumentResponse
 {
   [JsonPropertyName("keys")]
