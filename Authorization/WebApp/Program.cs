@@ -2,6 +2,7 @@ using Application;
 using Infrastructure.Extensions;
 using Microsoft.IdentityModel.Logging;
 using Serilog;
+using WebApp.Constants;
 using WebApp.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -40,21 +41,24 @@ builder.WebHost.ConfigureServices(services =>
   services.AddCookiePolicy();
   services.AddAntiforgery(antiForgeryOptions =>
   {
-    antiForgeryOptions.FormFieldName = "AntiForgeryField";
-    antiForgeryOptions.Cookie.Name = "AntiForgeryCookie";
+    antiForgeryOptions.FormFieldName = AntiForgeryConstants.AntiForgeryField;
+    antiForgeryOptions.Cookie.Name = AntiForgeryConstants.AntiForgeryCookie;
   });
 });
 
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
+{
   app.UseExceptionHandler("/Home/Error");
+}
 
 if (app.Environment.IsDevelopment())
 {
   IdentityModelEventSource.ShowPII = true;
 }
 
+app.UseHsts();
 app.UseSerilogRequestLogging();
 app.UseStaticFiles();
 app.UseCors();

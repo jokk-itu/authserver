@@ -178,7 +178,7 @@ public class TokenBuilder : ITokenBuilder
     {
         var key = new RsaSecurityKey(_jwkManager.RsaCryptoServiceProvider)
         {
-            KeyId = _jwkManager.KeyId
+          KeyId = _jwkManager.KeyId
         };
         var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256);
         var tokenDescriptor = new SecurityTokenDescriptor
