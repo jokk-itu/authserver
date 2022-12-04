@@ -48,7 +48,7 @@ public class ClientController : Controller
   [Route("register")]
   [ProducesResponseType(typeof(PostClientResponse), StatusCodes.Status201Created)]
   [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-  public async Task<IActionResult> PostClientAsync([FromBody] PostClientRequest request, CancellationToken cancellationToken = default)
+  public async Task<IActionResult> Post([FromBody] PostClientRequest request, CancellationToken cancellationToken = default)
   {
     var scopes = request.Scope.Split(' ');
     var response = await _mediator.Send(new CreateClientCommand
@@ -95,7 +95,7 @@ public class ClientController : Controller
   [Authorize(Policy = AuthorizationConstants.ClientConfiguration)]
   [Route("configuration")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
-  public async Task<IActionResult> DeleteClientAsync(CancellationToken cancellationToken = default)
+  public async Task<IActionResult> Delete(CancellationToken cancellationToken = default)
   {
     var token = await HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, TokenTypeConstants.AccessToken);
     var command = new DeleteClientCommand
@@ -114,7 +114,7 @@ public class ClientController : Controller
   [Authorize(Policy = AuthorizationConstants.ClientConfiguration)]
   [Route("configuration")]
   [ProducesResponseType(typeof(GetClientResponse), StatusCodes.Status200OK)]
-  public async Task<IActionResult> GetClientAsync(CancellationToken cancellationToken = default)
+  public async Task<IActionResult> Get(CancellationToken cancellationToken = default)
   {
     var token = await HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, TokenTypeConstants.AccessToken);
     var response = await _mediator.Send(new ReadClientQuery(token), cancellationToken);

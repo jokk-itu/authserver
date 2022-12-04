@@ -2,6 +2,7 @@
 using Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using WebApp.Attributes;
 using WebApp.Contracts.PostRegisterUser;
 using WebApp.Extensions;
 
@@ -19,6 +20,7 @@ public class RegisterController : Controller
   }
 
   [HttpGet]
+  [SecurityHeader]
   public IActionResult Index()
   {
     return View();
@@ -26,10 +28,11 @@ public class RegisterController : Controller
 
   [HttpPost]
   [ValidateAntiForgeryToken]
+  [SecurityHeader]
   [Consumes("application/x-www-form-urlencoded")]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status200OK)]
-  public async Task<IActionResult> PostAsync(PostRegisterUserRequest request)
+  public async Task<IActionResult> Post(PostRegisterUserRequest request)
   {
     var identityResult = await _userManager.CreateAsync(new User
     {

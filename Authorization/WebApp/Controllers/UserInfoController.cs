@@ -6,6 +6,7 @@ using Infrastructure.Requests.GeUserInfo;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using WebApp.Extensions;
+using WebApp.Attributes;
 
 namespace WebApp.Controllers;
 
@@ -23,8 +24,9 @@ public class UserInfoController : Controller
 
   [HttpGet]
   [Authorize]
+  [SecurityHeader]
   [ProducesResponseType(StatusCodes.Status200OK)]
-  public async Task<IActionResult> GetAsync(CancellationToken cancellationToken = default)
+  public async Task<IActionResult> Get(CancellationToken cancellationToken = default)
   {
     var accessToken = await HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, TokenTypeConstants.AccessToken);
     var query = new GetUserInfoQuery

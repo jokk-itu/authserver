@@ -6,6 +6,7 @@ using Infrastructure.Requests.GetLoginToken;
 using MediatR;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using WebApp.Attributes;
 using WebApp.Constants;
 using WebApp.Contracts.PostLogin;
 using WebApp.Extensions;
@@ -23,6 +24,7 @@ public class LoginController : Controller
   }
 
   [HttpGet]
+  [SecurityHeader]
   public IActionResult Index()
   {
     return View();
@@ -30,6 +32,7 @@ public class LoginController : Controller
 
   [HttpPost]
   [ValidateAntiForgeryToken]
+  [SecurityHeader]
   [Consumes("application/x-www-form-urlencoded")]
   [ProducesResponseType(StatusCodes.Status302Found)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]

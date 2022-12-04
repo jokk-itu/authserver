@@ -4,6 +4,7 @@ using Application;
 using Domain.Constants;
 using WebApp.Extensions;
 using MediatR;
+using WebApp.Attributes;
 
 namespace WebApp.Controllers;
 
@@ -12,6 +13,7 @@ namespace WebApp.Controllers;
 public class AuthorizeController : Controller
 {
   [HttpGet]
+  [SecurityHeader]
   public IActionResult Get(
     [FromQuery(Name = ParameterNames.Prompt)] string prompt)
   {

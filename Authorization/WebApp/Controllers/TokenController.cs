@@ -9,6 +9,7 @@ using Infrastructure.Requests.CreateRefreshTokenGrant;
 using Infrastructure.Requests.RedeemAuthorizationGrant;
 using Infrastructure.Requests.RedeemClientCredentialsGrant;
 using MediatR;
+using WebApp.Attributes;
 
 namespace WebApp.Controllers;
 
@@ -24,10 +25,11 @@ public class TokenController : ControllerBase
   }
 
   [HttpPost]
+  [SecurityHeader]
   [Consumes("application/x-www-form-urlencoded")]
   [ProducesResponseType(typeof(PostTokenResponse), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-  public async Task<IActionResult> PostAsync(
+  public async Task<IActionResult> Post(
     [FromForm] PostTokenRequest request,
     CancellationToken cancellationToken = default)
   {

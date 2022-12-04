@@ -24,7 +24,7 @@ public class DiscoveryController : ControllerBase
 
   [HttpGet]
   [Route("openid-configuration")]
-  public IActionResult GetDiscoveryDocumentAsync()
+  public IActionResult GetDiscoveryDocument()
   {
     var discoveryDocumentResponse = new GetDiscoveryDocumentResponse
     {

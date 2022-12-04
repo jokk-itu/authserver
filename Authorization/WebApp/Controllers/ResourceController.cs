@@ -44,7 +44,7 @@ public class ResourceController : Controller
   [Authorize(Policy = AuthorizationConstants.ResourceRegistration)]
   [ProducesResponseType(typeof(PostResourceRequest), StatusCodes.Status201Created)]
   [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-  public async Task<IActionResult> PostResourceAsync([FromBody] PostResourceRequest request, CancellationToken cancellationToken = default)
+  public async Task<IActionResult> Post([FromBody] PostResourceRequest request, CancellationToken cancellationToken = default)
   {
     var response = await _mediator.Send(new CreateResourceCommand
     {
@@ -70,7 +70,7 @@ public class ResourceController : Controller
   [Authorize(Policy = AuthorizationConstants.ResourceConfiguration)]
   [Route("configuration")]
   [ProducesResponseType(typeof(PutResourceRequest), StatusCodes.Status200OK)]
-  public async Task<IActionResult> PutResourceAsync([FromBody] PutResourceRequest request, CancellationToken cancellationToken = default)
+  public async Task<IActionResult> Put([FromBody] PutResourceRequest request, CancellationToken cancellationToken = default)
   {
     return Ok();
   }
@@ -79,7 +79,7 @@ public class ResourceController : Controller
   [Authorize(Policy = AuthorizationConstants.ResourceConfiguration)]
   [Route("configuration")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
-  public async Task<IActionResult> DeleteResourceAsync(CancellationToken cancellationToken = default)
+  public async Task<IActionResult> Delete(CancellationToken cancellationToken = default)
   {
     return NoContent();
   }
@@ -88,7 +88,7 @@ public class ResourceController : Controller
   [Authorize(Policy = AuthorizationConstants.ResourceConfiguration)]
   [Route("configuration")]
   [ProducesResponseType(typeof(GetClientResponse), StatusCodes.Status200OK)]
-  public async Task<IActionResult> GetResourceAsync(CancellationToken cancellationToken = default)
+  public async Task<IActionResult> Get(CancellationToken cancellationToken = default)
   {
     return Ok();
   }

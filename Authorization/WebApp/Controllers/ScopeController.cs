@@ -39,7 +39,7 @@ public class ScopeController : Controller
   [Route("register")]
   [Authorize(Policy = AuthorizationConstants.ScopeRegistration)]
   [ProducesResponseType(typeof(PostScopeResponse), StatusCodes.Status201Created)]
-  public async Task<IActionResult> PostAsync([FromBody] PostScopeRequest request,
+  public async Task<IActionResult> Post([FromBody] PostScopeRequest request,
     CancellationToken cancellationToken = default)
   {
     var command = new CreateScopeCommand

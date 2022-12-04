@@ -14,6 +14,7 @@ using Infrastructure.Requests.CreateOrUpdateConsentGrant;
 using WebApp.Constants;
 using WebApp.Extensions;
 using WebApp.ViewModels;
+using WebApp.Attributes;
 
 namespace WebApp.Controllers;
 
@@ -38,6 +39,7 @@ public class ConsentController : Controller
   }
 
   [HttpGet]
+  [SecurityHeader]
   public async Task<IActionResult> Index(
     [FromQuery(Name = ParameterNames.LoginCode)] string loginCode,
     CancellationToken cancellationToken = default)
@@ -66,6 +68,7 @@ public class ConsentController : Controller
   [HttpPost]
   [Consumes("application/x-www-form-urlencoded")]
   [ValidateAntiForgeryToken]
+  [SecurityHeader]
   public async Task<IActionResult> Post(
     [FromQuery(Name = ParameterNames.LoginCode)] string loginCode,
     CancellationToken cancellationToken = default)
