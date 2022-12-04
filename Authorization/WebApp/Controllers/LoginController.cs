@@ -55,7 +55,9 @@ public class LoginController : Controller
     routeValues.Add(ParameterNames.LoginCode, loginCodeResponse.LoginCode);
     var prompts = prompt.Split(' ');
     if (prompts.Contains(PromptConstants.Consent))
+    {
       return RedirectToAction(controllerName: "Consent", actionName: "Index", routeValues: routeValues);
+    }
 
     return await GetAuthorizationCode(loginCodeResponse.LoginCode, cancellationToken: cancellationToken);
   }
