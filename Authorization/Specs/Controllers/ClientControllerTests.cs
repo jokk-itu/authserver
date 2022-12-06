@@ -19,7 +19,7 @@ public class ClientControllerTests : BaseIntegrationTest
   public async Task DeleteClientAsync_ExpectOk()
   {
     // Arrange
-    var client = await BuildClient(ApplicationTypeConstants.Web, "test");
+    var client = await BuildAuthorizationGrantClient(ApplicationTypeConstants.Web, "test");
     var deleteClientRequest = new HttpRequestMessage(HttpMethod.Delete, "connect/client/configuration");
     deleteClientRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", client!.RegistrationAccessToken);
 

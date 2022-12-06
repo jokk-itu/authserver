@@ -11,6 +11,7 @@ using System.Text.Json;
 using System.Web;
 using WebApp.Constants;
 using Xunit;
+using System.Text.RegularExpressions;
 
 namespace Specs.Integrations;
 
@@ -27,7 +28,7 @@ public class AuthorizationRefreshTests : BaseIntegrationTest
   {
     var password = CryptographyHelper.GetRandomString(32);
     var user = await BuildUserAsync(password);
-    var client = await BuildClient(ApplicationTypeConstants.Web, "test");
+    var client = await BuildAuthorizationGrantClient(ApplicationTypeConstants.Web, "test");
     var state = CryptographyHelper.GetRandomString(16);
     var nonce = CryptographyHelper.GetRandomString(32);
     var pkce= ProofKeyForCodeExchangeHelper.GetPkce();
@@ -54,8 +55,10 @@ public class AuthorizationRefreshTests : BaseIntegrationTest
     Assert.NotEmpty(loginCode);
     query.Add(ParameterNames.LoginCode, loginCode);
     var consentResponse = await ConsentEndpointHelper.GetConsent(Client, query.ToQueryString(), await GetAntiForgeryToken($"connect/consent{query}"));
-    var code = HttpUtility.ParseQueryString(consentResponse.Headers.Location!.Query).Get(ParameterNames.Code);
-    Assert.NotEmpty(code);
+    var html = await consentResponse.Content.ReadAsStringAsync();
+    var authorizationCodeInput = Regex.Match(html, @"\<input name=""code"" type=""hidden"" value=""([^""]+)"" \/\>");
+    Assert.Equal(2, authorizationCodeInput.Groups.Count);
+    var code = authorizationCodeInput.Groups[1].Captures[0].Value;
 
     var tokenContent = new FormUrlEncodedContent(new Dictionary<string, string>
     {

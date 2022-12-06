@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Domain;
 using Domain.Constants;
+using Domain.Enums;
 using Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -48,7 +49,9 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
   {
     var getInitialToken = await Client.GetFromJsonAsync<GetScopeInitialAccessToken>("connect/scope/initial-token");
     if (getInitialToken is null)
+    {
       throw new Exception("scope initial-token failed");
+    }
 
     var postScopeRequest = new PostScopeRequest
     {
@@ -63,7 +66,9 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     response.EnsureSuccessStatusCode();
     var postScopeResponse = await response.Content.ReadFromJsonAsync<PostScopeResponse>();
     if (postScopeResponse is null)
+    {
       throw new Exception();
+    }
 
     return postScopeResponse;
   }
@@ -72,7 +77,9 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
   {
     var getInitialToken = await Client.GetFromJsonAsync<GetClientInitialAccessTokenResponse>("connect/resource/initial-token");
     if (getInitialToken is null)
+    {
       throw new Exception("resource initial-token failed");
+    }
 
     var postResourceRequest = new PostResourceRequest
     {
@@ -88,17 +95,15 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     response.EnsureSuccessStatusCode();
     var postResourceResponse = await response.Content.ReadFromJsonAsync<PostResourceResponse>();
     if (postResourceResponse is null)
+    {
       throw new Exception();
+    }
 
     return postResourceResponse;
   }
 
-  protected async Task<PostClientResponse> BuildClient(string applicationType, string name)
+  protected async Task<PostClientResponse> BuildAuthorizationGrantClient(string applicationType, string name)
   {
-    var getInitialToken = await Client.GetFromJsonAsync<GetClientInitialAccessTokenResponse>("connect/client/initial-token");
-    if (getInitialToken is null)
-      throw new Exception("client initial-token failed");
-
     var postClientRequest = new PostClientRequest
     {
       ApplicationType = applicationType,
@@ -110,16 +115,45 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
       SubjectType = SubjectTypeConstants.Public,
       ResponseTypes = new[] { ResponseTypeConstants.Code }
     };
-    var request = new HttpRequestMessage(HttpMethod.Post, "connect/client/register")
+    return await BuildClient(postClientRequest);
+  }
+
+  protected async Task<PostClientResponse> BuildClientCredentialsWebClient(string name)
+  {
+    var postClientRequest = new PostClientRequest
     {
-      Content = JsonContent.Create(postClientRequest)
+      ApplicationType = ApplicationTypeConstants.Web,
+      TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
+      Scope = "identityprovider:read",
+      ClientName = name,
+      GrantTypes = new[] { GrantTypeConstants.ClientCredentials },
+      RedirectUris = new[] { "http://localhost:5002/callback" },
+      SubjectType = SubjectTypeConstants.Public,
+      ResponseTypes = new[] { ResponseTypeConstants.Code }
     };
-    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", getInitialToken.AccessToken);
-    var response = await Client.SendAsync(request);
+    return await BuildClient(postClientRequest);
+  }
+
+  private async Task<PostClientResponse> BuildClient(PostClientRequest request)
+  {
+    var getInitialToken = await Client.GetFromJsonAsync<GetClientInitialAccessTokenResponse>("connect/client/initial-token");
+    if (getInitialToken is null)
+    {
+      throw new Exception("client initial-token failed");
+    }
+
+    var requestMessage = new HttpRequestMessage(HttpMethod.Post, "connect/client/register")
+    {
+      Content = JsonContent.Create(request)
+    };
+    requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", getInitialToken.AccessToken);
+    var response = await Client.SendAsync(requestMessage);
     response.EnsureSuccessStatusCode();
     var postClientResponse = await response.Content.ReadFromJsonAsync<PostClientResponse>();
     if (postClientResponse is null)
+    {
       throw new JsonException();
+    }
 
     return postClientResponse;
   }
@@ -131,8 +165,10 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     user.NormalizedEmail = userManager.NormalizeEmail(user.Email);
     user.NormalizedUserName = userManager.NormalizeName(user.UserName);
     var result = await userManager.CreateAsync(user, password);
-    if(result.Succeeded)
+    if (result.Succeeded)
+    {
       return user;
+    }
 
     throw new Exception($"User creation failed: {result}");
   }
@@ -150,7 +186,9 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 
       var antiForgeryCookieValue = SetCookieHeaderValue.Parse(antiForgeryCookie).Value;
       if (string.IsNullOrWhiteSpace(antiForgeryCookieValue.Value))
+      {
         throw new Exception("Invalid cookie was provided");
+      }
 
       Cookie = antiForgeryCookieValue.Value;
     }
