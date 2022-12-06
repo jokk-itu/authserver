@@ -1,10 +1,8 @@
 ﻿using System.Net;
 using Application;
 using Domain.Constants;
-using Infrastructure.Requests.CreateAuthorizationGrant;
 using Infrastructure.Requests.GetLoginToken;
 using MediatR;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Attributes;
 using WebApp.Constants;

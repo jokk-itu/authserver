@@ -49,7 +49,7 @@ public class RedeemAuthorizationCodeGrantHandler : IRequestHandler<RedeemAuthori
 
     var accessToken = await _tokenBuilder.BuildAccessTokenAsync(request.ClientId, code.Scopes, code.UserId, sessionId, cancellationToken: cancellationToken);
     var refreshToken = await _tokenBuilder.BuildRefreshTokenAsync(request.ClientId, code.Scopes, code.UserId, sessionId, cancellationToken: cancellationToken);
-    var idToken = await _tokenBuilder.BuildIdTokenAsync(request.ClientId, code.Scopes, authorizationCodeGrant.Nonce, code.UserId, sessionId, cancellationToken: cancellationToken);
+    var idToken = await _tokenBuilder.BuildIdTokenAsync(request.ClientId, code.Scopes, authorizationCodeGrant.Nonce, code.UserId, sessionId, authorizationCodeGrant.AuthTime, cancellationToken: cancellationToken);
 
     await _identityContext.SaveChangesAsync(cancellationToken: cancellationToken);
     return new RedeemAuthorizationCodeGrantResponse(HttpStatusCode.OK)

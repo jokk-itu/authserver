@@ -70,7 +70,7 @@ public class TokenBuilderTests : BaseUnitTest
     var tokenDecoder = ServiceProvider.GetRequiredService<ITokenDecoder>();
 
     // Act
-    var token = await tokenBuilder.BuildIdTokenAsync("test", new[] { ScopeConstants.OpenId }, "nonce", user.Id, "123");
+    var token = await tokenBuilder.BuildIdTokenAsync("test", new[] { ScopeConstants.OpenId }, "nonce", user.Id, "123", DateTime.UtcNow);
     var securityToken = tokenDecoder.DecodeSignedToken(token);
 
     // Assert

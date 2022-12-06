@@ -62,6 +62,7 @@ public class TokenController : OAuthControllerBase
     {
       AccessToken = response.AccessToken,
       RefreshToken = response.RefreshToken,
+      IdToken = response.IdToken,
       ExpiresIn = response.ExpiresIn
     });
   }

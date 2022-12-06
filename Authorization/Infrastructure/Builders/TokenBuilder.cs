@@ -80,7 +80,8 @@ public class TokenBuilder : ITokenBuilder
       ICollection<string> scopes, 
       string nonce, 
       string userId, 
-      string sessionId, 
+      string sessionId,
+      DateTime authTime,
       CancellationToken cancellationToken = default)
     {
         var expires = DateTime.UtcNow.AddSeconds(_identityConfiguration.IdTokenExpiration);
@@ -90,7 +91,8 @@ public class TokenBuilder : ITokenBuilder
           { ClaimNameConstants.Aud, audiences },
           { ClaimNameConstants.Scope, string.Join(' ', scopes) },
           { ClaimNameConstants.Sid, sessionId },
-          { ClaimNameConstants.Nonce, nonce }
+          { ClaimNameConstants.Nonce, nonce },
+          { ClaimNameConstants.AuthTime, authTime }
         };
         var userInfo = await _claimService
           .GetClaimsFromConsentGrant(userId, clientId, cancellationToken: cancellationToken);

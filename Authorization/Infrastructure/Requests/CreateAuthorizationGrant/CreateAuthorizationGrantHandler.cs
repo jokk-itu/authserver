@@ -64,6 +64,7 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
     }
 
     var grantId = Guid.NewGuid().ToString();
+    var authTime = DateTime.UtcNow;
 
     var code = await _codeBuilder.BuildAuthorizationCodeAsync(
       grantId,
@@ -79,6 +80,7 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
       IsRedeemed = false,
       Client = client,
       Code = code,
+      AuthTime = authTime,
       Nonce = request.Nonce,
       Session = session
     };

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Attributes;
 using WebApp.Contracts.PostRegisterUser;
-using WebApp.Extensions;
 
 namespace WebApp.Controllers;
 
