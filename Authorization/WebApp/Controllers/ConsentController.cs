@@ -3,14 +3,11 @@ using Domain;
 using Infrastructure;
 using Infrastructure.Decoders.Abstractions;
 using Infrastructure.Helpers;
-using Infrastructure.Requests.CreateAuthorizationGrant;
 using MediatR;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
-using Infrastructure.Builders.Abstractions;
 using Infrastructure.Requests.CreateOrUpdateConsentGrant;
 using WebApp.Constants;
 using WebApp.Extensions;
@@ -20,29 +17,25 @@ using WebApp.Attributes;
 namespace WebApp.Controllers;
 
 [Route("connect/[controller]")]
-public class ConsentController : Controller
+public class ConsentController : OAuthControllerBase
 {
   private readonly ICodeDecoder _codeDecoder;
   private readonly IdentityContext _identityContext;
   private readonly UserManager<User> _userManager;
   private readonly IMediator _mediator;
-  private readonly IFormPostBuilder _formPostBuilder;
-  private readonly IdentityConfiguration _identityConfiguration;
 
   public ConsentController(
     ICodeDecoder codeDecoder,
     IdentityContext identityContext,
     UserManager<User> userManager,
     IMediator mediator,
-    IFormPostBuilder formPostBuilder,
     IdentityConfiguration identityConfiguration)
+  : base (identityConfiguration)
   {
     _codeDecoder = codeDecoder;
     _identityContext = identityContext;
     _userManager = userManager;
     _mediator = mediator;
-    _formPostBuilder = formPostBuilder;
-    _identityConfiguration = identityConfiguration;
   }
 
   [HttpGet]
@@ -91,31 +84,19 @@ public class ConsentController : Controller
     }, cancellationToken: cancellationToken);
 
     if (consentResponse.IsError())
-      return this.BadOAuthResult(consentResponse.ErrorCode, consentResponse.ErrorDescription);
+    {
+      return BadOAuthResult(consentResponse.ErrorCode, consentResponse.ErrorDescription);
+    }
 
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
     return response.StatusCode switch
     {
       HttpStatusCode.Redirect when response.IsError() =>
-        this.RedirectOAuthResult(command.RedirectUri, command.State, response.ErrorCode!, response.ErrorDescription!),
+        RedirectOAuthResult(command.RedirectUri, command.State, response.ErrorCode!, response.ErrorDescription!),
       HttpStatusCode.BadRequest when response.IsError() =>
-        this.BadOAuthResult(response.ErrorCode!, response.ErrorDescription!),
-      HttpStatusCode.Redirect => new ContentResult
-      {
-        ContentType = "text/html",
-        Content = _formPostBuilder.BuildAuthorizationCodeResponse(command.RedirectUri, response.State, response.Code, _identityConfiguration.Issuer)
-      },
-      _ => this.BadOAuthResult(ErrorCode.ServerError, "something went wrong")
+        BadOAuthResult(response.ErrorCode!, response.ErrorDescription!),
+      HttpStatusCode.OK => OkFormPostResult(command.RedirectUri, response.State, response.Code),
+      _ => BadOAuthResult(ErrorCode.ServerError, "something went wrong")
     };
-  }
-
-
-  private static QueryString GetCodeQuery(CreateAuthorizationGrantResponse response)
-  {
-    return new QueryBuilder
-    {
-      {ParameterNames.State, response.State},
-      {ParameterNames.Code, response.Code}
-    }.ToQueryString();
   }
 }

@@ -9,12 +9,13 @@ using WebApp.Extensions;
 namespace WebApp.Controllers;
 
 [Route("connect/[controller]")]
-public class RegisterController : Controller
+public class RegisterController : OAuthControllerBase
 {
   private readonly UserManager<User> _userManager;
 
   public RegisterController(
-    UserManager<User> userManager)
+    UserManager<User> userManager,
+    IdentityConfiguration identityConfiguration) : base(identityConfiguration)
   {
     _userManager = userManager;
   }
@@ -49,8 +50,10 @@ public class RegisterController : Controller
     }, request.Password);
 
     if (identityResult.Succeeded)
+    {
       return Ok();
+    }
 
-    return this.BadOAuthResult(ErrorCode.ServerError, "user cannot be created");
+    return BadOAuthResult(ErrorCode.ServerError, "user cannot be created");
   }
 }

@@ -14,11 +14,11 @@ using WebApp.Extensions;
 namespace WebApp.Controllers;
 
 [Route("connect/[controller]")]
-public class LoginController : Controller
+public class LoginController : OAuthControllerBase
 {
   private readonly IMediator _mediator;
 
-  public LoginController(IMediator mediator)
+  public LoginController(IMediator mediator, IdentityConfiguration identityConfiguration) : base(identityConfiguration)
   {
     _mediator = mediator;
   }
@@ -49,7 +49,9 @@ public class LoginController : Controller
     var loginCodeResponse = await _mediator.Send(query, cancellationToken: cancellationToken);
 
     if (loginCodeResponse.IsError())
-      return this.BadOAuthResult(loginCodeResponse.ErrorCode, loginCodeResponse.ErrorDescription);
+    {
+      return BadOAuthResult(loginCodeResponse.ErrorCode, loginCodeResponse.ErrorDescription);
+    }
 
     var routeValues = HttpContext.Request.Query.ToRouteValueDictionary();
     routeValues.Add(ParameterNames.LoginCode, loginCodeResponse.LoginCode);
@@ -69,20 +71,11 @@ public class LoginController : Controller
     return authorizationGrantResponse.StatusCode switch
     {
       HttpStatusCode.Redirect when authorizationGrantResponse.IsError() => 
-        this.RedirectOAuthResult(command.RedirectUri, command.State, authorizationGrantResponse.ErrorCode!, authorizationGrantResponse.ErrorDescription!),
+        RedirectOAuthResult(command.RedirectUri, command.State, authorizationGrantResponse.ErrorCode!, authorizationGrantResponse.ErrorDescription!),
       HttpStatusCode.BadRequest when authorizationGrantResponse.IsError() =>
-        this.BadOAuthResult(authorizationGrantResponse.ErrorCode!, authorizationGrantResponse.ErrorDescription!),
-      HttpStatusCode.Redirect => Redirect($"{command.RedirectUri}{GetCodeQuery(authorizationGrantResponse)}"),
-      _ => this.BadOAuthResult(ErrorCode.ServerError, "something went wrong")
+        BadOAuthResult(authorizationGrantResponse.ErrorCode!, authorizationGrantResponse.ErrorDescription!),
+      HttpStatusCode.OK => OkFormPostResult(command.RedirectUri, authorizationGrantResponse.State, authorizationGrantResponse.Code),
+      _ => BadOAuthResult(ErrorCode.ServerError, "something went wrong")
     };
-  }
-
-  private static QueryString GetCodeQuery(CreateAuthorizationGrantResponse response)
-  {
-    return new QueryBuilder
-    {
-      {ParameterNames.State, response.State},
-      {ParameterNames.Code, response.Code}
-    }.ToQueryString();
   }
 }

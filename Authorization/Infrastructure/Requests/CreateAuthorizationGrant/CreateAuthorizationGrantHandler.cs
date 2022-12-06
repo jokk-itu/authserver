@@ -34,7 +34,9 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
   {
     var validationResult = await _validator.ValidateAsync(request, cancellationToken);
     if (validationResult.IsError())
+    {
       return new CreateAuthorizationGrantResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
+    }
 
     var loginCode = _codeDecoder.DecodeLoginCode(request.LoginCode);
     var userId = loginCode.UserId;
@@ -56,8 +58,10 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
         Clients = new[] { client }
       };
 
-    if(session.Clients.All(x => x.Id != request.ClientId))
+    if (session.Clients.All(x => x.Id != request.ClientId))
+    {
       session.Clients.Add(client);
+    }
 
     var grantId = Guid.NewGuid().ToString();
 
@@ -85,7 +89,7 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
 
     await _identityContext.SaveChangesAsync(cancellationToken);
 
-    return new CreateAuthorizationGrantResponse(HttpStatusCode.Redirect)
+    return new CreateAuthorizationGrantResponse(HttpStatusCode.OK)
     {
       Code = code,
       State = request.State

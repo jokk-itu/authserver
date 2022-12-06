@@ -54,4 +54,5 @@ public static class ParameterNames
   public const string Locale = "locale";
   public const string ScopeName = "scope_name";
   public const string LoginCode = "login_code";
+  public const string Issuer = "iss";
 }

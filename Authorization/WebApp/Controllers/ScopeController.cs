@@ -1,4 +1,5 @@
-﻿using Infrastructure.Builders.Abstractions;
+﻿using Application;
+using Infrastructure.Builders.Abstractions;
 using Infrastructure.Requests.CreateScope;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -11,12 +12,12 @@ using WebApp.Extensions;
 namespace WebApp.Controllers;
 
 [Route("connect/[controller]")]
-public class ScopeController : Controller
+public class ScopeController : OAuthControllerBase
 {
   private readonly IMediator _mediator;
   private readonly ITokenBuilder _tokenBuilder;
 
-  public ScopeController(IMediator mediator, ITokenBuilder tokenBuilder)
+  public ScopeController(IMediator mediator, ITokenBuilder tokenBuilder, IdentityConfiguration identityConfiguration) : base(identityConfiguration)
   {
     _mediator = mediator;
     _tokenBuilder = tokenBuilder;
@@ -47,9 +48,11 @@ public class ScopeController : Controller
       ScopeName = request.ScopeName
     };
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
-    
+
     if (response.IsError())
-      return this.BadOAuthResult(response.ErrorCode!, response.ErrorDescription!);
+    {
+      return BadOAuthResult(response.ErrorCode!, response.ErrorDescription!);
+    }
 
     var uri = $"{Request.Scheme}://{Request.Host}/connect/scope/configuration";
     return Created(new Uri(uri), new PostScopeResponse

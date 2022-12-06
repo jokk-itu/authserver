@@ -1,25 +1,24 @@
 ﻿using Contracts.PostToken;
 using Microsoft.AspNetCore.Mvc;
-using WebApp.Extensions;
 using Domain.Constants;
 using Application;
-using Contracts;
 using WebApp.Contracts.PostToken;
 using Infrastructure.Requests.CreateRefreshTokenGrant;
 using Infrastructure.Requests.RedeemAuthorizationGrant;
 using Infrastructure.Requests.RedeemClientCredentialsGrant;
 using MediatR;
 using WebApp.Attributes;
+using WebApp.Contracts;
 
 namespace WebApp.Controllers;
 
 [ApiController]
 [Route("connect/[controller]")]
-public class TokenController : ControllerBase
+public class TokenController : OAuthControllerBase
 {
   private readonly IMediator _mediator;
 
-  public TokenController(IMediator mediator)
+  public TokenController(IMediator mediator, IdentityConfiguration identityConfiguration) : base(identityConfiguration)
   {
     _mediator = mediator;
   }
@@ -38,7 +37,7 @@ public class TokenController : ControllerBase
       GrantTypeConstants.AuthorizationCode => await PostAuthorize(request, cancellationToken: cancellationToken),
       GrantTypeConstants.RefreshToken => await PostRefresh(request, cancellationToken: cancellationToken),
       GrantTypeConstants.ClientCredentials => await PostClientCredentials(request, cancellationToken: cancellationToken),
-      _ => this.BadOAuthResult(ErrorCode.UnsupportedGrantType, "grant_type is unsupported")
+      _ => BadOAuthResult(ErrorCode.UnsupportedGrantType, "grant_type is unsupported")
     };
   }
 
@@ -55,7 +54,9 @@ public class TokenController : ControllerBase
     };
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
     if (response.IsError())
-      return this.BadOAuthResult(response.ErrorCode!, response.ErrorDescription!);
+    {
+      return BadOAuthResult(response.ErrorCode!, response.ErrorDescription!);
+    }
 
     return Ok(new PostTokenResponse
     {
@@ -81,8 +82,10 @@ public class TokenController : ControllerBase
     };
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
     if (response.IsError())
-      return this.BadOAuthResult(response.ErrorCode, response.ErrorDescription);
-    
+    {
+      return BadOAuthResult(response.ErrorCode, response.ErrorDescription);
+    }
+
     return Ok(new PostTokenResponse
     {
       AccessToken = response.AccessToken,
@@ -105,7 +108,9 @@ public class TokenController : ControllerBase
     };
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
     if (response.IsError())
-      return this.BadOAuthResult(response.ErrorCode, response.ErrorDescription);
+    {
+      return BadOAuthResult(response.ErrorCode, response.ErrorDescription);
+    }
 
     return Ok(new PostTokenResponse
     {

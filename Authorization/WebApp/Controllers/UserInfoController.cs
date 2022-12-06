@@ -1,4 +1,5 @@
-﻿using Domain.Constants;
+﻿using Application;
+using Domain.Constants;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
@@ -12,12 +13,13 @@ namespace WebApp.Controllers;
 
 [ApiController]
 [Route("connect/[controller]")]
-public class UserInfoController : Controller
+public class UserInfoController : OAuthControllerBase
 {
   private readonly IMediator _mediator;
 
   public UserInfoController(
-    IMediator mediator)
+    IMediator mediator,
+    IdentityConfiguration identityConfiguration) : base(identityConfiguration)
   {
     _mediator = mediator;
   }
@@ -36,7 +38,7 @@ public class UserInfoController : Controller
     var response = await _mediator.Send(query, cancellationToken: cancellationToken);
     if (response.IsError())
     {
-      return this.BadOAuthResult(response.ErrorCode, response.ErrorDescription);
+      return BadOAuthResult(response.ErrorCode, response.ErrorDescription);
     }
 
     return Json(response.UserInfo);

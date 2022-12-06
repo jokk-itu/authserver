@@ -2,6 +2,7 @@
 
 namespace WebApp.Attributes;
 
+[AttributeUsage(AttributeTargets.Method)]
 public class SecurityHeaderAttribute : Attribute, IAsyncActionFilter
 {
   public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -13,6 +14,6 @@ public class SecurityHeaderAttribute : Attribute, IAsyncActionFilter
     headers.Pragma = "no-cache";
     headers.XContentTypeOptions = "DENY";
     headers.XFrameOptions = "SAMEORIGIN";
-    //headers.ContentSecurityPolicy = "default-src 'self'";
+    headers.ContentSecurityPolicy = "default-src 'self'; script-src 'unsafe-inline'";
   }
 }

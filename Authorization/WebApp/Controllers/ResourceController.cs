@@ -1,25 +1,25 @@
-﻿using Contracts;
+﻿using Application;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Requests.CreateResource;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Constants;
+using WebApp.Contracts;
 using WebApp.Contracts.GetClient;
 using WebApp.Contracts.GetResourceInitialAccessToken;
 using WebApp.Contracts.PostResource;
 using WebApp.Contracts.PutResource;
-using WebApp.Extensions;
 
 namespace WebApp.Controllers;
 
 [Route("/connect/[controller]")]
-public class ResourceController : Controller
+public class ResourceController : OAuthControllerBase
 {
   private readonly IMediator _mediator;
   private readonly ITokenBuilder _tokenBuilder;
 
-  public ResourceController(IMediator mediator, ITokenBuilder tokenBuilder)
+  public ResourceController(IMediator mediator, ITokenBuilder tokenBuilder, IdentityConfiguration identityConfiguration) : base(identityConfiguration)
   {
     _mediator = mediator;
     _tokenBuilder = tokenBuilder;
@@ -53,7 +53,9 @@ public class ResourceController : Controller
     }, cancellationToken: cancellationToken);
 
     if (response.IsError())
-      return this.BadOAuthResult(response.ErrorCode!, response.ErrorDescription!);
+    {
+      return BadOAuthResult(response.ErrorCode!, response.ErrorDescription!);
+    }
 
     var uri = $"{Request.Scheme}://{Request.Host}/connect/resource/configuration";
     return Created(new Uri(uri), new PostResourceResponse
