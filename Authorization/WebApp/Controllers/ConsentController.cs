@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using Infrastructure.Builders.Abstractions;
 using Infrastructure.Requests.CreateOrUpdateConsentGrant;
 using WebApp.Constants;
 using WebApp.Extensions;
@@ -25,17 +26,23 @@ public class ConsentController : Controller
   private readonly IdentityContext _identityContext;
   private readonly UserManager<User> _userManager;
   private readonly IMediator _mediator;
+  private readonly IFormPostBuilder _formPostBuilder;
+  private readonly IdentityConfiguration _identityConfiguration;
 
   public ConsentController(
     ICodeDecoder codeDecoder,
     IdentityContext identityContext,
     UserManager<User> userManager,
-    IMediator mediator)
+    IMediator mediator,
+    IFormPostBuilder formPostBuilder,
+    IdentityConfiguration identityConfiguration)
   {
     _codeDecoder = codeDecoder;
     _identityContext = identityContext;
     _userManager = userManager;
     _mediator = mediator;
+    _formPostBuilder = formPostBuilder;
+    _identityConfiguration = identityConfiguration;
   }
 
   [HttpGet]
@@ -79,7 +86,7 @@ public class ConsentController : Controller
     {
       UserId = code.UserId,
       ClientId = command.ClientId,
-      ConsentedClaims = HttpContext.Request.Form.Keys.Where(x => x != "AntiForgeryField").ToList(),
+      ConsentedClaims = HttpContext.Request.Form.Keys.Where(x => x != AntiForgeryConstants.AntiForgeryField).ToList(),
       ConsentedScopes = command.Scopes
     }, cancellationToken: cancellationToken);
 
@@ -93,10 +100,15 @@ public class ConsentController : Controller
         this.RedirectOAuthResult(command.RedirectUri, command.State, response.ErrorCode!, response.ErrorDescription!),
       HttpStatusCode.BadRequest when response.IsError() =>
         this.BadOAuthResult(response.ErrorCode!, response.ErrorDescription!),
-      HttpStatusCode.Redirect => Redirect($"{command.RedirectUri}{GetCodeQuery(response)}"),
+      HttpStatusCode.Redirect => new ContentResult
+      {
+        ContentType = "text/html",
+        Content = _formPostBuilder.BuildAuthorizationCodeResponse(command.RedirectUri, response.State, response.Code, _identityConfiguration.Issuer)
+      },
       _ => this.BadOAuthResult(ErrorCode.ServerError, "something went wrong")
     };
   }
+
 
   private static QueryString GetCodeQuery(CreateAuthorizationGrantResponse response)
   {

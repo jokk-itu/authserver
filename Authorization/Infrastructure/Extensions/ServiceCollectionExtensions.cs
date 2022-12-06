@@ -70,6 +70,7 @@ public static class ServiceCollectionExtensions
     services.AddTransient<ITokenBuilder, TokenBuilder>();
     services.AddTransient<ICodeBuilder, CodeBuilder>();
     services.AddTransient<IDiscoveryBuilder, DiscoveryBuilder>();
+    services.AddTransient<IFormPostBuilder, FormPostBuilder>();
     return services;
   }
 

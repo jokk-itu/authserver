@@ -46,7 +46,7 @@ public class DiscoveryBuilder : IDiscoveryBuilder
       TokenEndpointAuthMethods = TokenEndpointAuthMethodConstants.TokenEndpointAuthMethods,
       TokenEndpointAuthSigningAlgValues = new[] { "RS256" },
       CodeChallengeMethods = CodeChallengeMethodConstants.CodeChallengeMethods,
-      ResponseModes = new[] { "post_form" },
+      ResponseModes = ResponseModeConstants.ResponseModes,
       SubjectTypes = SubjectTypeConstants.SubjectTypes,
       AuthorizationResponseIssParameterSupported = true,
       IdTokenSigningAlgValues = new[] { "RS256" }

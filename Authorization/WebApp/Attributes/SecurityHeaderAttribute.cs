@@ -13,6 +13,6 @@ public class SecurityHeaderAttribute : Attribute, IAsyncActionFilter
     headers.Pragma = "no-cache";
     headers.XContentTypeOptions = "DENY";
     headers.XFrameOptions = "SAMEORIGIN";
-    headers.ContentSecurityPolicy = "default-src 'self'";
+    //headers.ContentSecurityPolicy = "default-src 'self'";
   }
 }
