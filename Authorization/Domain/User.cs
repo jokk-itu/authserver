@@ -10,7 +10,7 @@ public class User : IdentityUser
   public string FirstName { get; set; } = null!;
   public DateTime Birthdate { get; set; }
   public string Locale { get; set; } = null!;
-  public ICollection<ConsentGrant>? ConsentGrants { get; set; }
+  public ICollection<ConsentGrant> ConsentGrants { get; set; } = new List<ConsentGrant>();
   public Session? Session { get; set; }
   public long? SessionId { get; set; }
 
