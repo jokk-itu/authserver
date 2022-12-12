@@ -2,6 +2,7 @@
 using System.Text.Json;
 using Application;
 using Infrastructure.Builders.Abstractions;
+using Infrastructure.Helpers;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 
@@ -48,7 +49,7 @@ public class CodeBuilder : ICodeBuilder
     var loginCode = new LoginCode
     {
       UserId = userId,
-      Expires = DateTime.UtcNow
+      Random = CryptographyHelper.GetRandomString(16)
     };
     writer.Write(JsonSerializer.Serialize(loginCode));
     var protectedBytes = _dataProtector.Protect(ms.ToArray());
@@ -59,7 +60,7 @@ public class CodeBuilder : ICodeBuilder
 public class LoginCode
 {
   public string UserId { get; set; } = null!;
-  public DateTime Expires { get; set; }
+  public string Random { get; set; } = null!;
 }
 
 public class AuthorizationCode
