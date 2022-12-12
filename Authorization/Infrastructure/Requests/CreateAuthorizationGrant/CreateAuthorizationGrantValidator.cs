@@ -13,7 +13,9 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
   private readonly IdentityContext _identityContext;
   private readonly ICodeDecoder _codeDecoder;
 
-  public CreateAuthorizationGrantValidator(IdentityContext identityContext, ICodeDecoder codeDecoder)
+  public CreateAuthorizationGrantValidator(
+    IdentityContext identityContext,
+    ICodeDecoder codeDecoder)
   {
     _identityContext = identityContext;
     _codeDecoder = codeDecoder;
@@ -31,32 +33,40 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
       return new ValidationResult(ErrorCode.InvalidRequest, "state is invalid", HttpStatusCode.BadRequest);
 
     if (await IsClientUnauthorized(value))
-      return new ValidationResult(ErrorCode.UnauthorizedClient, "client is unauthorized", HttpStatusCode.Redirect);
+      return new ValidationResult(ErrorCode.UnauthorizedClient, "client is unauthorized", HttpStatusCode.OK);
 
     if (IsResponseTypeInvalid(value))
-      return new ValidationResult(ErrorCode.UnsupportedResponseType, "response_type must be code", HttpStatusCode.Redirect);
+      return new ValidationResult(ErrorCode.UnsupportedResponseType, "response_type must be code", HttpStatusCode.OK);
 
     if (IsCodeChallengeInvalid(value))
-      return new ValidationResult(ErrorCode.InvalidRequest, "code_challenge is invalid", HttpStatusCode.Redirect);
+      return new ValidationResult(ErrorCode.InvalidRequest, "code_challenge is invalid", HttpStatusCode.OK);
 
     if (IsCodeChallengeMethodInvalid(value))
-      return new ValidationResult(ErrorCode.InvalidRequest, "code_challenge_method is invalid", HttpStatusCode.Redirect);
+      return new ValidationResult(ErrorCode.InvalidRequest, "code_challenge_method is invalid", HttpStatusCode.OK);
 
     if (await IsNonceInvalidAsync(value))
-      return new ValidationResult(ErrorCode.InvalidRequest, "nonce is invalid", HttpStatusCode.Redirect);
+      return new ValidationResult(ErrorCode.InvalidRequest, "nonce is invalid", HttpStatusCode.OK);
 
     if (await IsScopesInvalidAsync(value))
-      return new ValidationResult(ErrorCode.InvalidRequest, "scope is invalid", HttpStatusCode.Redirect);
+      return new ValidationResult(ErrorCode.InvalidRequest, "scope is invalid", HttpStatusCode.OK);
 
-    var decryptedToken = _codeDecoder.DecodeLoginCode(value.LoginCode);
-    if (decryptedToken is null)
-      return new ValidationResult(ErrorCode.InvalidRequest, "login_token is invalid", HttpStatusCode.Redirect);
+    var loginCode = _codeDecoder.DecodeLoginCode(value.LoginCode);
+    var isLoginCodeValid = await _identityContext
+      .Set<UserToken>()
+      .Where(x => x.User.Id == loginCode.UserId)
+      .Where(UserToken.IsActive)
+      .AnyAsync(cancellationToken: cancellationToken);
+
+    if (!isLoginCodeValid)
+    {
+      return new ValidationResult(ErrorCode.LoginRequired, "login is required", HttpStatusCode.OK);
+    }
 
     if (value.MaxAge < 0)
-      return new ValidationResult(ErrorCode.InvalidRequest, "max_age is invalid", HttpStatusCode.Redirect);
+      return new ValidationResult(ErrorCode.InvalidRequest, "max_age is invalid", HttpStatusCode.OK);
 
     if (await IsConsentGrantInvalid(value))
-      return new ValidationResult(ErrorCode.ConsentRequired, "consent is required", HttpStatusCode.Redirect);
+      return new ValidationResult(ErrorCode.ConsentRequired, "consent is required", HttpStatusCode.OK);
     
     return new ValidationResult(HttpStatusCode.OK);
   }

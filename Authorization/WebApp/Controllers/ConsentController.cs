@@ -4,7 +4,6 @@ using Infrastructure;
 using Infrastructure.Decoders.Abstractions;
 using Infrastructure.Helpers;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
@@ -13,6 +12,7 @@ using WebApp.Constants;
 using WebApp.Extensions;
 using WebApp.ViewModels;
 using WebApp.Attributes;
+using WebApp.Contracts;
 
 namespace WebApp.Controllers;
 
@@ -21,20 +21,17 @@ public class ConsentController : OAuthControllerBase
 {
   private readonly ICodeDecoder _codeDecoder;
   private readonly IdentityContext _identityContext;
-  private readonly UserManager<User> _userManager;
   private readonly IMediator _mediator;
 
   public ConsentController(
     ICodeDecoder codeDecoder,
     IdentityContext identityContext,
-    UserManager<User> userManager,
     IMediator mediator,
     IdentityConfiguration identityConfiguration)
   : base (identityConfiguration)
   {
     _codeDecoder = codeDecoder;
     _identityContext = identityContext;
-    _userManager = userManager;
     _mediator = mediator;
   }
 
@@ -45,6 +42,14 @@ public class ConsentController : OAuthControllerBase
     CancellationToken cancellationToken = default)
   {
     var code = _codeDecoder.DecodeLoginCode(loginCode);
+    var userToken = await _identityContext
+      .Set<UserToken>()
+      .SingleAsync(x => x.User.Id == code.UserId && x.Value == loginCode, cancellationToken: cancellationToken);
+
+    if (userToken.ExpiresAt < DateTime.UtcNow)
+    {
+      return Unauthorized(new ErrorResponse(ErrorCode.LoginRequired, "login is required"));
+    }
     var scopes = HttpContext.Request.Query[ParameterNames.Scope].ToString().Split(' ');
     var userId = code.UserId;
     var claims = ClaimsHelper.MapToClaims(scopes);
@@ -53,7 +58,7 @@ public class ConsentController : OAuthControllerBase
       .Set<Client>()
       .SingleAsync(x => x.Id == clientId, cancellationToken: cancellationToken);
 
-    var user = await _userManager.FindByIdAsync(userId);
+    var user = await _identityContext.Set<User>().SingleAsync(x => x.Id == userId, cancellationToken: cancellationToken);
     return View(new ConsentViewModel
     {
       Claims = claims,
@@ -74,10 +79,9 @@ public class ConsentController : OAuthControllerBase
     CancellationToken cancellationToken = default)
   {
     var command = HttpContext.Request.Query.ToAuthorizationGrantCommand(loginCode);
-    var code = _codeDecoder.DecodeLoginCode(loginCode);
     var consentResponse = await _mediator.Send(new CreateOrUpdateConsentGrantCommand
     {
-      UserId = code.UserId,
+      LoginCode = loginCode,
       ClientId = command.ClientId,
       ConsentedClaims = HttpContext.Request.Form.Keys.Where(x => x != AntiForgeryConstants.AntiForgeryField).ToList(),
       ConsentedScopes = command.Scopes
@@ -91,11 +95,11 @@ public class ConsentController : OAuthControllerBase
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
     return response.StatusCode switch
     {
-      HttpStatusCode.Redirect when response.IsError() =>
-        RedirectOAuthResult(command.RedirectUri, command.State, response.ErrorCode!, response.ErrorDescription!),
+      HttpStatusCode.OK when response.IsError() =>
+        ErrorFormPostResult(command.RedirectUri, command.State, response.ErrorCode, response.ErrorDescription),
       HttpStatusCode.BadRequest when response.IsError() =>
         BadOAuthResult(response.ErrorCode!, response.ErrorDescription!),
-      HttpStatusCode.OK => OkFormPostResult(command.RedirectUri, response.State, response.Code),
+      HttpStatusCode.OK => AuthorizationCodeFormPostResult(command.RedirectUri, response.State, response.Code),
       _ => BadOAuthResult(ErrorCode.ServerError, "something went wrong")
     };
   }

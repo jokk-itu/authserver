@@ -8,6 +8,7 @@ using Infrastructure.Decoders.Abstractions;
 using Infrastructure.Requests.DeleteClient;
 using Xunit;
 using Microsoft.Extensions.DependencyInjection;
+using Specs.Helpers.Builders;
 
 namespace Specs.Handlers;
 
@@ -46,11 +47,7 @@ public class DeleteClientHandlerTests : BaseUnitTest
   public async Task Handle_CreateClient_ExpectCreatedResult()
   {
     // Arrange
-    var client = new Client
-    {
-      Id = Guid.NewGuid().ToString(),
-      Name = "test"
-    };
+    var client = ClientBuilder.Instance().Build();
     await IdentityContext
       .Set<Client>()
       .AddAsync(client);

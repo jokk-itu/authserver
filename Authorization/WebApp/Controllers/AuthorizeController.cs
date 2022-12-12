@@ -12,7 +12,6 @@ public class AuthorizeController : OAuthControllerBase
 {
   public AuthorizeController(IdentityConfiguration identityConfiguration) : base(identityConfiguration)
   {
-    
   }
 
   [HttpGet]

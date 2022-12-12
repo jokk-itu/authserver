@@ -30,8 +30,10 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
   {
     var validationResult = await _createClientValidator.ValidateAsync(request, cancellationToken);
     if (validationResult.IsError())
+    {
       return new CreateClientResponse(validationResult.ErrorCode, validationResult.ErrorDescription,
         validationResult.StatusCode);
+    }
 
     var scopes = await _identityContext
       .Set<Scope>()

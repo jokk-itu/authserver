@@ -6,12 +6,15 @@ using Domain;
 using Domain.Constants;
 using Domain.Enums;
 using Infrastructure;
+using Infrastructure.Helpers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using Specs.Helpers;
+using Specs.Helpers.Builders;
+using WebApp.Constants;
 using WebApp.Contracts.GetClientInitialAccessToken;
 using WebApp.Contracts.GetScopeInitialAccessToken;
 using WebApp.Contracts.PostClient;
@@ -23,9 +26,10 @@ namespace Specs;
 public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<Program>>
 {
   private readonly WebApplicationFactory<Program> _factory;
+  protected const string IdentityProviderScope = "identityprovider:read";
 
   public HttpClient Client { get; set; }
-  private string Cookie { get; set; }
+  private string? Cookie { get; set; }
 
   protected BaseIntegrationTest(WebApplicationFactory<Program> factory)
   {
@@ -41,8 +45,8 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
         AllowAutoRedirect = false
       });
 
-      BuildScope("identityprovider:read").GetAwaiter().GetResult();
-      BuildResource("identityprovider:read", "identityprovider").GetAwaiter().GetResult();
+      BuildScope(IdentityProviderScope).GetAwaiter().GetResult();
+      BuildResource(IdentityProviderScope, "identityprovider").GetAwaiter().GetResult();
   }
 
   protected async Task<PostScopeResponse> BuildScope(string scope)
@@ -102,13 +106,13 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     return postResourceResponse;
   }
 
-  protected async Task<PostClientResponse> BuildAuthorizationGrantClient(string applicationType, string name)
+  protected async Task<PostClientResponse> BuildAuthorizationGrantClient(string applicationType, string name, string scope)
   {
     var postClientRequest = new PostClientRequest
     {
       ApplicationType = applicationType,
       TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
-      Scope = $"{ScopeConstants.OpenId} {ScopeConstants.Profile}",
+      Scope = scope,
       ClientName = name,
       GrantTypes = new[] { GrantTypeConstants.AuthorizationCode, GrantTypeConstants.RefreshToken },
       RedirectUris = new[] { "http://localhost:5002/callback" },
@@ -118,13 +122,13 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     return await BuildClient(postClientRequest);
   }
 
-  protected async Task<PostClientResponse> BuildClientCredentialsWebClient(string name)
+  protected async Task<PostClientResponse> BuildClientCredentialsWebClient(string name, string scope)
   {
     var postClientRequest = new PostClientRequest
     {
       ApplicationType = ApplicationTypeConstants.Web,
       TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
-      Scope = "identityprovider:read",
+      Scope = scope,
       ClientName = name,
       GrantTypes = new[] { GrantTypeConstants.ClientCredentials },
       RedirectUris = new[] { "http://localhost:5002/callback" },
@@ -160,17 +164,14 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 
   protected async Task<User> BuildUserAsync(string password)
   {
-    var userManager = _factory.Services.GetRequiredService<UserManager<User>>();
-    var user = FakeBuilder.UserFaker.Generate();
-    user.NormalizedEmail = userManager.NormalizeEmail(user.Email);
-    user.NormalizedUserName = userManager.NormalizeName(user.UserName);
-    var result = await userManager.CreateAsync(user, password);
-    if (result.Succeeded)
-    {
-      return user;
-    }
-
-    throw new Exception($"User creation failed: {result}");
+    var identityContext = _factory.Services.GetRequiredService<IdentityContext>();
+    var user = UserBuilder
+      .Instance()
+      .AddPassword(password)
+      .Build();
+    await identityContext.Set<User>().AddAsync(user);
+    await identityContext.SaveChangesAsync();
+    return user;
   }
 
   protected async Task<AntiForgeryToken> GetAntiForgeryToken(string path)
@@ -182,7 +183,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     {
       var antiForgeryCookie = response.Headers
         .GetValues("Set-Cookie")
-        .FirstOrDefault(x => x.Contains("AntiForgeryCookie"));
+        .FirstOrDefault(x => x.Contains(AntiForgeryConstants.AntiForgeryCookie));
 
       var antiForgeryCookieValue = SetCookieHeaderValue.Parse(antiForgeryCookie).Value;
       if (string.IsNullOrWhiteSpace(antiForgeryCookieValue.Value))
@@ -193,9 +194,11 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
       Cookie = antiForgeryCookieValue.Value;
     }
 
-    var antiForgeryFieldMatch = Regex.Match(html, @"\<input name=""AntiForgeryField"" type=""hidden"" value=""([^""]+)"" \/\>");
+    var antiForgeryFieldMatch = Regex.Match(html, $@"\<input name=""{AntiForgeryConstants.AntiForgeryField}"" type=""hidden"" value=""([^""]+)"" \/\>");
     if (!antiForgeryFieldMatch.Captures.Any() && antiForgeryFieldMatch.Groups.Count != 2)
+    {
       throw new Exception("Invalid input of anti-forgery-token was provided");
+    }
 
     var antiForgeryField = antiForgeryFieldMatch.Groups[1].Captures[0].Value;
 

@@ -1,11 +1,8 @@
 ﻿using Application;
-using Domain;
 using Infrastructure;
 using Infrastructure.Extensions;
 using Infrastructure.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Specs;
 public abstract class BaseUnitTest
 {
-
   protected readonly IdentityContext IdentityContext;
   protected readonly IServiceProvider ServiceProvider;
 
@@ -43,12 +39,7 @@ public abstract class BaseUnitTest
       .AddBuilders()
       .AddDataServices()
       .AddDecoders()
-      .AddManagers()
-      .AddTransient(x =>
-      {
-        var userStore = new UserStore<User>(x.GetRequiredService<IdentityContext>());
-        return new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
-      });
+      .AddManagers();
     services.Configure<JwtBearerOptions>(config =>
     {
       config.Audience = "api";

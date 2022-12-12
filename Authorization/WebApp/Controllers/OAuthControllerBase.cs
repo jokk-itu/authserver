@@ -48,12 +48,21 @@ public abstract class OAuthControllerBase : Controller
         return Redirect($"{redirectUri}{queryBuilder.ToQueryString()}");
     }
 
-    protected IActionResult OkFormPostResult(string redirectUri, string state, string code)
+    protected IActionResult AuthorizationCodeFormPostResult(string redirectUri, string state, string code)
     {
         return new ContentResult
         {
             ContentType = "text/html",
             Content = FormPostBuilder.BuildAuthorizationCodeResponse(redirectUri, state, code, _identityConfiguration.Issuer)
         };
+    }
+
+    protected IActionResult ErrorFormPostResult(string redirectUri, string state, string? error, string? errorDescription)
+    {
+      return new ContentResult
+      {
+        ContentType = "text/html",
+        Content = FormPostBuilder.BuildErrorResponse(redirectUri, state, error, errorDescription, _identityConfiguration.Issuer)
+      };
     }
 }

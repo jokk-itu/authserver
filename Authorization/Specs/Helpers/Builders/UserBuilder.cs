@@ -1,5 +1,6 @@
 ﻿using Bogus;
 using Domain;
+using Infrastructure.Helpers;
 
 namespace Specs.Helpers.Builders;
 public class UserBuilder
@@ -31,6 +32,14 @@ public class UserBuilder
   public User Build()
   {
     return _user;
+  }
+
+  public UserBuilder AddPassword(string password)
+  {
+    var salt = BCrypt.GenerateSalt();
+    var hashedPassword = BCrypt.HashPassword(password, salt);
+    _user.Password = hashedPassword;
+    return this;
   }
 
   public UserBuilder AddSession(Session session)

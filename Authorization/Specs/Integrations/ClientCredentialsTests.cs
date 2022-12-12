@@ -18,14 +18,18 @@ public class ClientCredentialsTests : BaseIntegrationTest
   [Trait("Category", "Integration")]
   public async Task ClientCredentials()
   {
-    var client = await BuildClientCredentialsWebClient("test");
+    const string scope = "weather:read";
+    await BuildScope(scope);
+    await BuildResource(scope, "weatherservice");
+
+    var client = await BuildClientCredentialsWebClient("test", scope);
     var tokenContent = new FormUrlEncodedContent(new Dictionary<string, string>
     {
       { ParameterNames.ClientId, client.ClientId },
       { ParameterNames.ClientSecret, client.ClientSecret },
       { ParameterNames.GrantType, OpenIdConnectGrantTypes.ClientCredentials },
       { ParameterNames.RedirectUri, "http://localhost:5002/callback" },
-      { ParameterNames.Scope, "identityprovider:read" }
+      { ParameterNames.Scope, scope }
     });
     var request = new HttpRequestMessage(HttpMethod.Post, "connect/token")
     {

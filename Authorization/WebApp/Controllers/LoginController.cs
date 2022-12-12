@@ -68,11 +68,11 @@ public class LoginController : OAuthControllerBase
     var authorizationGrantResponse = await _mediator.Send(command, cancellationToken: cancellationToken);
     return authorizationGrantResponse.StatusCode switch
     {
-      HttpStatusCode.Redirect when authorizationGrantResponse.IsError() => 
-        RedirectOAuthResult(command.RedirectUri, command.State, authorizationGrantResponse.ErrorCode!, authorizationGrantResponse.ErrorDescription!),
+      HttpStatusCode.OK when authorizationGrantResponse.IsError() => 
+        ErrorFormPostResult(command.RedirectUri, command.State, authorizationGrantResponse.ErrorCode, authorizationGrantResponse.ErrorDescription),
       HttpStatusCode.BadRequest when authorizationGrantResponse.IsError() =>
-        BadOAuthResult(authorizationGrantResponse.ErrorCode!, authorizationGrantResponse.ErrorDescription!),
-      HttpStatusCode.OK => OkFormPostResult(command.RedirectUri, authorizationGrantResponse.State, authorizationGrantResponse.Code),
+        BadOAuthResult(authorizationGrantResponse.ErrorCode, authorizationGrantResponse.ErrorDescription),
+      HttpStatusCode.OK => AuthorizationCodeFormPostResult(command.RedirectUri, authorizationGrantResponse.State, authorizationGrantResponse.Code),
       _ => BadOAuthResult(ErrorCode.ServerError, "something went wrong")
     };
   }

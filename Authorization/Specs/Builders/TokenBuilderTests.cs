@@ -6,6 +6,7 @@ using Infrastructure.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Specs.Helpers.Builders;
 using Xunit;
 
 namespace Specs.Builders;
@@ -52,19 +53,13 @@ public class TokenBuilderTests : BaseUnitTest
   public async Task BuildIdToken_ExpectIdToken()
   {
     // Arrange
-    var user = new User
-    {
-      Address = "Beaker Street",
-      Birthdate = DateTime.Now,
-      Email = "Test@mail.dk",
-      FirstName = "John",
-      LastName = "Doe",
-      Locale = "en-GB",
-      PhoneNumber = "00000000",
-      UserName = "john"
-    };
-    var userManager = ServiceProvider.GetRequiredService<UserManager<User>>();
-    await userManager.CreateAsync(user);
+    var user = UserBuilder
+      .Instance()
+      .AddPassword(CryptographyHelper.GetRandomString(32))
+      .Build();
+
+    await IdentityContext.AddAsync(user);
+    await IdentityContext.SaveChangesAsync();
 
     var tokenBuilder = ServiceProvider.GetRequiredService<ITokenBuilder>();
     var tokenDecoder = ServiceProvider.GetRequiredService<ITokenDecoder>();

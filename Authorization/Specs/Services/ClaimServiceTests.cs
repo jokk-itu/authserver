@@ -1,4 +1,5 @@
 ﻿using Domain;
+using Infrastructure.Helpers;
 using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Specs.Helpers.Builders;
@@ -38,6 +39,7 @@ public class ClaimServiceTests : BaseUnitTest
 
     var user = UserBuilder
       .Instance()
+      .AddPassword(CryptographyHelper.GetRandomString(32))
       .AddConsentGrant(consentGrant)
       .Build();
 

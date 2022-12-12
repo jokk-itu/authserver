@@ -26,9 +26,10 @@ public class AuthorizationRefreshTests : BaseIntegrationTest
   [Trait("Category", "Integration")]
   public async Task AuthorizationGrantWithConsentWithRefreshWithUserInfo()
   {
+    const string scope = $"{ScopeConstants.OpenId} {ScopeConstants.Profile} {ScopeConstants.Email} {ScopeConstants.Phone} {IdentityProviderScope}";
     var password = CryptographyHelper.GetRandomString(32);
     var user = await BuildUserAsync(password);
-    var client = await BuildAuthorizationGrantClient(ApplicationTypeConstants.Web, "test");
+    var client = await BuildAuthorizationGrantClient(ApplicationTypeConstants.Web, "test", scope);
     var state = CryptographyHelper.GetRandomString(16);
     var nonce = CryptographyHelper.GetRandomString(32);
     var pkce= ProofKeyForCodeExchangeHelper.GetPkce();
@@ -37,21 +38,19 @@ public class AuthorizationRefreshTests : BaseIntegrationTest
       { ParameterNames.ResponseType, ResponseTypeConstants.Code },
       { ParameterNames.ClientId, client.ClientId },
       { ParameterNames.RedirectUri, "http://localhost:5002/callback" },
-      {
-        ParameterNames.Scope,
-        $"{ScopeConstants.OpenId} identityprovider:read {ScopeConstants.Profile} {ScopeConstants.Phone} {ScopeConstants.Email}"
-      },
+      { ParameterNames.Scope, scope },
       { ParameterNames.State, state },
       { ParameterNames.CodeChallenge, pkce.CodeChallenge },
       { ParameterNames.CodeChallengeMethod, CodeChallengeMethodConstants.S256 },
       { ParameterNames.Nonce, nonce },
       { ParameterNames.MaxAge, "120" },
-      { ParameterNames.Prompt, "login consent" }
+      { ParameterNames.Prompt, $"{PromptConstants.Login} {PromptConstants.Consent}" }
     };
 
     var loginResponse = await LoginEndpointHelper.GetLoginCode(Client, query.ToQueryString(), user.UserName, password, await GetAntiForgeryToken($"connect/login{query}"));
-    var locationHeader = new Uri(Client.BaseAddress, loginResponse.Headers.Location);
+    var locationHeader = new Uri(Client.BaseAddress!, loginResponse.Headers.Location!);
     var loginCode = HttpUtility.ParseQueryString(locationHeader.Query).Get(ParameterNames.LoginCode);
+    Assert.NotNull(loginCode);
     Assert.NotEmpty(loginCode);
     query.Add(ParameterNames.LoginCode, loginCode);
     var consentResponse = await ConsentEndpointHelper.GetConsent(Client, query.ToQueryString(), await GetAntiForgeryToken($"connect/consent{query}"));
@@ -67,7 +66,7 @@ public class AuthorizationRefreshTests : BaseIntegrationTest
       { ParameterNames.Code, code },
       { ParameterNames.GrantType, OpenIdConnectGrantTypes.AuthorizationCode },
       { ParameterNames.RedirectUri, "http://localhost:5002/callback" },
-      { ParameterNames.Scope, $"{ScopeConstants.OpenId} identityprovider:read {ScopeConstants.Profile} {ScopeConstants.Phone} {ScopeConstants.Email}" },
+      { ParameterNames.Scope, scope },
       { ParameterNames.CodeVerifier, pkce.CodeVerifier }
     });
     var request = new HttpRequestMessage(HttpMethod.Post, "connect/token")
@@ -104,6 +103,7 @@ public class AuthorizationRefreshTests : BaseIntegrationTest
 
     // Assert
     Assert.NotNull(refreshedTokens);
+    Assert.NotNull(userInfoClaims);
     Assert.NotEmpty(userInfoClaims);
   }
 }

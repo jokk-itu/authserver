@@ -1,6 +1,7 @@
 ﻿using Application;
 using Domain;
-using Microsoft.AspNetCore.Identity;
+using Infrastructure;
+using Infrastructure.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Attributes;
 using WebApp.Contracts.PostRegisterUser;
@@ -10,13 +11,13 @@ namespace WebApp.Controllers;
 [Route("connect/[controller]")]
 public class RegisterController : OAuthControllerBase
 {
-  private readonly UserManager<User> _userManager;
+  private readonly IdentityContext _identityContext;
 
   public RegisterController(
-    UserManager<User> userManager,
+    IdentityContext identityContext,
     IdentityConfiguration identityConfiguration) : base(identityConfiguration)
   {
-    _userManager = userManager;
+    _identityContext = identityContext;
   }
 
   [HttpGet]
@@ -34,8 +35,9 @@ public class RegisterController : OAuthControllerBase
   [ProducesResponseType(StatusCodes.Status200OK)]
   public async Task<IActionResult> Post(PostRegisterUserRequest request)
   {
-    var identityResult = await _userManager.CreateAsync(new User
+    var user = new User
     {
+      Id = Guid.NewGuid().ToString(),
       FirstName = request.GivenName,
       LastName = request.FamilyName,
       Address = request.Address,
@@ -43,16 +45,13 @@ public class RegisterController : OAuthControllerBase
       Birthdate = request.BirthDate,
       UserName = request.Username,
       Email = request.Email,
-      PhoneNumber = request.PhoneNumber,
-      NormalizedEmail = _userManager.NormalizeEmail(request.Email),
-      NormalizedUserName = _userManager.NormalizeName(request.Username)
-    }, request.Password);
-
-    if (identityResult.Succeeded)
-    {
-      return Ok();
-    }
-
-    return BadOAuthResult(ErrorCode.ServerError, "user cannot be created");
+      PhoneNumber = request.PhoneNumber
+    };
+    var salt = BCrypt.GenerateSalt();
+    var hashedPassword = BCrypt.HashPassword(request.Password, salt);
+    user.Password = hashedPassword;
+    await _identityContext.Set<User>().AddAsync(user);
+    await _identityContext.SaveChangesAsync();
+    return Ok();
   }
 }

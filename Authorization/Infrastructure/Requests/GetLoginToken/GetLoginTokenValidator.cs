@@ -17,7 +17,9 @@ public class GetLoginTokenValidator : IValidator<GetLoginTokenQuery>
   {
     var userValidation = await _userValidator.ValidateAsync(new UserToValidate(value.Username, value.Password), cancellationToken: cancellationToken);
     if (userValidation.IsError())
+    {
       return new ValidationResult(userValidation.ErrorCode, userValidation.ErrorDescription, HttpStatusCode.BadRequest);
+    }
 
     return new ValidationResult(HttpStatusCode.OK);
   }

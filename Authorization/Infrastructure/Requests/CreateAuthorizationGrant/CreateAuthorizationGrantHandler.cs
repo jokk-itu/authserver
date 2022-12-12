@@ -4,7 +4,6 @@ using Domain;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Decoders.Abstractions;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.CreateAuthorizationGrant;
@@ -12,20 +11,17 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
 {
   private readonly IdentityContext _identityContext;
   private readonly IValidator<CreateAuthorizationGrantCommand> _validator;
-  private readonly UserManager<User> _userManager;
   private readonly ICodeBuilder _codeBuilder;
   private readonly ICodeDecoder _codeDecoder;
 
   public CreateAuthorizationGrantHandler(
     IdentityContext identityContext, 
     IValidator<CreateAuthorizationGrantCommand> validator,
-    UserManager<User> userManager,
     ICodeBuilder codeBuilder,
     ICodeDecoder codeDecoder)
   {
     _identityContext = identityContext;
     _validator = validator;
-    _userManager = userManager;
     _codeBuilder = codeBuilder;
     _codeDecoder = codeDecoder;
   }
@@ -40,8 +36,15 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
 
     var loginCode = _codeDecoder.DecodeLoginCode(request.LoginCode);
     var userId = loginCode.UserId;
+    var userToken = await _identityContext
+      .Set<UserToken>()
+      .Where(x => x.User.Id == userId)
+      .Where(UserToken.IsActive)
+      .Where(x => x.Value == request.LoginCode)
+      .SingleAsync(cancellationToken: cancellationToken);
+    userToken.IsRedeemed = true;
 
-    var user = await _userManager.FindByIdAsync(userId);
+    var user = await _identityContext.Set<User>().SingleAsync(x => x.Id == userId, cancellationToken: cancellationToken);
     var client = await _identityContext
       .Set<Client>()
       .SingleAsync(x => x.Id == request.ClientId, cancellationToken: cancellationToken);
