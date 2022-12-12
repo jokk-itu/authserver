@@ -26,7 +26,7 @@ $webappBody = @{
         'token_endpoint_auth_method' = 'client_secret_post'
         'scope' = 'openid profile email phone offline_access weather:read identityprovider:read'
     }
-##PostClient 'http://localhost:5000/connect/client/register' $webappToken $webappBody
+PostClient 'http://localhost:5000/connect/client/register' $webappToken $webappBody
 
 $workerToken = GetInitialToken 'http://localhost:5000/connect/client/initial-token'
 $workerBody = @{
