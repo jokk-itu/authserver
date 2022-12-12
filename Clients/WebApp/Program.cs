@@ -1,3 +1,4 @@
+using App;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -16,7 +17,6 @@ builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggingConfigurati
   loggingConfiguration
     .Enrich.FromLogContext()
     .Enrich.WithProperty("Application", "WebApp")
-    .WriteTo.Seq(builder.Configuration.GetSection("Log")["SeqUrl"])
     .WriteTo.Console();
 });
 
@@ -84,10 +84,10 @@ builder.WebHost.ConfigureServices(services =>
   .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, configureOptions =>
   {
     var identity = builder.Configuration.GetSection("Identity");
-    configureOptions.Authority = identity["InternalAuthority"];
+    configureOptions.Authority = identity["Authority"];
     configureOptions.ClientId = identity["ClientId"];
     configureOptions.ClientSecret = identity["ClientSecret"];
-    configureOptions.MetadataAddress = $"{identity["InternalAuthority"]}{identity["MetaPath"]}";
+    configureOptions.MetadataAddress = $"{identity["Authority"]}{identity["MetaPath"]}";
     configureOptions.CallbackPath = identity["CallbackPath"];
     configureOptions.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     configureOptions.ResponseType = OpenIdConnectResponseType.Code;

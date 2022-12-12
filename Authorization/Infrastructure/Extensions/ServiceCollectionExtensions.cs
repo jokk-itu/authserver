@@ -1,6 +1,4 @@
 using Infrastructure.Repositories;
-using Domain;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,18 +48,13 @@ public static class ServiceCollectionExtensions
       }
     });
     services.AddScoped<IdentityContext>();
-
-    services.AddIdentityCore<User>()
-        .AddRoles<IdentityRole>()
-        .AddDefaultTokenProviders()
-        .AddEntityFrameworkStores<IdentityContext>();
-
     return services;
   }
 
   public static IServiceCollection AddDataServices(this IServiceCollection services)
   {
     services.AddTransient<IClaimService, ClaimService>();
+    services.AddTransient<IUserService, UserService>();
     return services;
   }
 

@@ -10,7 +10,6 @@ builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggerConfiguratio
   loggerConfiguration
     .Enrich.FromLogContext()
     .Enrich.WithProperty("Application", "WeatherService")
-    .WriteTo.Seq(builder.Configuration.GetSection("Log")["SeqUrl"])
     .WriteTo.Console();
 });
 
@@ -30,7 +29,6 @@ builder.WebHost.ConfigureServices(services =>
     var identity = builder.Configuration.GetSection("Identity");
     jwtBearerOptions.Authority = identity["Authority"];
     jwtBearerOptions.Audience = identity["Audience"];
-    jwtBearerOptions.RequireHttpsMetadata = false;
     jwtBearerOptions.Challenge = OpenIdConnectDefaults.AuthenticationScheme;
     jwtBearerOptions.MetadataAddress = $"{jwtBearerOptions.Authority}/.well-known/openid-configuration";
     jwtBearerOptions.Events = new JwtBearerEvents

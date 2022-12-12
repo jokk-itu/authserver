@@ -29,9 +29,7 @@ public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions
 
     public void Configure(JwtBearerOptions options)
     {
-        options.IncludeErrorDetails = true; //DEVELOP READY
-        options.RequireHttpsMetadata = false; //DEVELOP READY
-        options.Audience = AudienceConstants.IdentityProvider;
+      options.Audience = AudienceConstants.IdentityProvider;
         options.Authority = _identityConfiguration.Issuer;
         options.ConfigurationManager = _internalConfigurationManager;
         options.SaveToken = true;
@@ -45,8 +43,7 @@ public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions
             OnForbidden = context =>
             {
               var scopes = context.Principal?.Claims.Where(x => x.Type == ClaimNameConstants.Scope);
-              var roles = context.Principal?.Claims.Where(x => x.Type == ClaimTypes.Role);
-              _logger.LogInformation("User is not Authorized, with scopes {@Scopes}, in roles {@Roles}", scopes, roles);
+              _logger.LogInformation("User is not Authorized, with scopes {@Scopes}", scopes);
                 return Task.CompletedTask;
             },
             OnTokenValidated = context =>
