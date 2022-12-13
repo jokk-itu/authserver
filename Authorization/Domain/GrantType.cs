@@ -7,5 +7,5 @@ public class GrantType
 
   public string Name { get; set; }
 
-  public ICollection<Client> Clients { get; set; }
+  public ICollection<Client> Clients { get; set; } = new List<Client>();
 }

@@ -39,5 +39,9 @@ public class ClientBuilder
     return this;
   }
 
-
+  public ClientBuilder AddAuthorizationCodeGrant(AuthorizationCodeGrant authorizationCodeGrant)
+  {
+    _client.AuthorizationCodeGrants.Add(authorizationCodeGrant);
+    return this;
+  }
 }
