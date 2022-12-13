@@ -3,7 +3,6 @@ using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Decoders.Abstractions;
 using Infrastructure.Helpers;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Specs.Helpers.Builders;
@@ -18,6 +17,7 @@ public class TokenBuilderTests : BaseUnitTest
   public async Task BuildAccessTokenAsync_ExpectAccessToken()
   {
     // Arrange
+    var serviceProvider = BuildServiceProvider();
     var identityScope = new Scope
     {
       Name = "identityprovider:read"
@@ -33,8 +33,8 @@ public class TokenBuilderTests : BaseUnitTest
     await IdentityContext.Set<Resource>().AddAsync(identityResource);
     await IdentityContext.SaveChangesAsync();
 
-    var tokenBuilder = ServiceProvider.GetRequiredService<ITokenBuilder>();
-    var tokenDecoder = ServiceProvider.GetRequiredService<ITokenDecoder>();
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
+    var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
     // Act
     var token = await tokenBuilder.BuildAccessTokenAsync("test", new[] { ScopeConstants.OpenId, identityScope.Name }, "1234", "123");
     var securityToken = tokenDecoder.DecodeSignedToken(token);
@@ -53,6 +53,8 @@ public class TokenBuilderTests : BaseUnitTest
   public async Task BuildIdToken_ExpectIdToken()
   {
     // Arrange
+    var serviceProvider = BuildServiceProvider();
+
     var user = UserBuilder
       .Instance()
       .AddPassword(CryptographyHelper.GetRandomString(32))
@@ -61,8 +63,8 @@ public class TokenBuilderTests : BaseUnitTest
     await IdentityContext.AddAsync(user);
     await IdentityContext.SaveChangesAsync();
 
-    var tokenBuilder = ServiceProvider.GetRequiredService<ITokenBuilder>();
-    var tokenDecoder = ServiceProvider.GetRequiredService<ITokenDecoder>();
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
+    var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
 
     // Act
     var token = await tokenBuilder.BuildIdTokenAsync("test", new[] { ScopeConstants.OpenId }, "nonce", user.Id, "123", DateTime.UtcNow);
@@ -82,33 +84,25 @@ public class TokenBuilderTests : BaseUnitTest
   public async Task BuildRefreshToken_ExpectRefreshToken()
   {
     // Arrange
-    var identityScope = new Scope
-    {
-      Name = "identityprovider:read"
-    };
-    var identityResource = new Resource
-    {
-      Id = Guid.NewGuid().ToString(),
-      Name = "api",
-      Secret = CryptographyHelper.GetRandomString(32),
-      Scopes = new[] { identityScope }
-    };
-    await IdentityContext.Set<Resource>().AddAsync(identityResource);
+    var serviceProvider = BuildServiceProvider();
+    var scope = ScopeBuilder.Instance().Build();
+    var resource = ResourceBuilder.Instance().AddScope(scope).Build();
+    await IdentityContext.Set<Resource>().AddAsync(resource);
     await IdentityContext.SaveChangesAsync();
 
-    var tokenBuilder = ServiceProvider.GetRequiredService<ITokenBuilder>();
-    var tokenDecoder = ServiceProvider.GetRequiredService<ITokenDecoder>();
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
+    var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
    
     // Act
-    var token = await tokenBuilder.BuildRefreshTokenAsync("test", new[] { ScopeConstants.OpenId, identityScope.Name }, "1234", "123");
+    var token = await tokenBuilder.BuildRefreshTokenAsync("test", new[] { ScopeConstants.OpenId, scope.Name }, "1234", "123");
     var securityToken = tokenDecoder.DecodeSignedToken(token);
 
     // Assert
     Assert.NotEmpty(token);
     Assert.NotNull(securityToken);
-    Assert.Equal("1234", securityToken!.Subject);
-    Assert.Contains(identityResource.Name, securityToken!.Audiences);
-    Assert.Equal($"{ScopeConstants.OpenId} {identityScope.Name}", securityToken.Claims.Single(x => x.Type == ClaimNameConstants.Scope).Value);
+    Assert.Equal("1234", securityToken.Subject);
+    Assert.Contains(resource.Name, securityToken.Audiences);
+    Assert.Equal($"{ScopeConstants.OpenId} {scope.Name}", securityToken.Claims.Single(x => x.Type == ClaimNameConstants.Scope).Value);
     Assert.Equal("test", securityToken.Claims.Single(x => x.Type == ClaimNameConstants.ClientId).Value);
   }
 
@@ -116,9 +110,10 @@ public class TokenBuilderTests : BaseUnitTest
   [Trait("Category", "Unit")]
   public void BuildClientInitialAccessToken_ExpectInitialAccessToken()
   {
-    //Arrange 
-    var tokenBuilder = ServiceProvider.GetRequiredService<ITokenBuilder>();
-    var tokenDecoder = ServiceProvider.GetRequiredService<ITokenDecoder>();
+    //Arrange
+    var serviceProvider = BuildServiceProvider();
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
+    var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
 
     // Act
     var token = tokenBuilder.BuildClientInitialAccessToken();
@@ -135,9 +130,10 @@ public class TokenBuilderTests : BaseUnitTest
   [Trait("Category", "Unit")]
   public void BuildScopeInitialAccessToken_ExpectInitialAccessToken()
   {
-    //Arrange 
-    var tokenBuilder = ServiceProvider.GetRequiredService<ITokenBuilder>();
-    var tokenDecoder = ServiceProvider.GetRequiredService<ITokenDecoder>();
+    //Arrange
+    var serviceProvider = BuildServiceProvider();
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
+    var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
 
     // Act
     var token = tokenBuilder.BuildScopeInitialAccessToken();
@@ -154,9 +150,10 @@ public class TokenBuilderTests : BaseUnitTest
   [Trait("Category", "Unit")]
   public void BuildResourceInitialAccessToken_ExpectInitialAccessToken()
   {
-    //Arrange 
-    var tokenBuilder = ServiceProvider.GetRequiredService<ITokenBuilder>();
-    var tokenDecoder = ServiceProvider.GetRequiredService<ITokenDecoder>();
+    //Arrange
+    var serviceProvider = BuildServiceProvider();
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
+    var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
    
     // Act
     var token = tokenBuilder.BuildResourceInitialAccessToken();
@@ -174,8 +171,9 @@ public class TokenBuilderTests : BaseUnitTest
   public void BuildResourceConfigurationAccessToken_ExpectConfigurationToken()
   {
     //Arrange
-    var tokenBuilder = ServiceProvider.GetRequiredService<ITokenBuilder>();
-    var tokenDecoder = ServiceProvider.GetRequiredService<ITokenDecoder>();
+    var serviceProvider = BuildServiceProvider();
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
+    var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
 
     // Act
     var token = tokenBuilder.BuildResourceRegistrationAccessToken("test");
@@ -194,8 +192,9 @@ public class TokenBuilderTests : BaseUnitTest
   public void BuildClientConfigurationAccessToken_ExpectConfigurationToken()
   {
     //Arrange
-    var tokenBuilder = ServiceProvider.GetRequiredService<ITokenBuilder>();
-    var tokenDecoder = ServiceProvider.GetRequiredService<ITokenDecoder>();
+    var serviceProvider = BuildServiceProvider();
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
+    var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
 
     // Act
     var token = tokenBuilder.BuildClientRegistrationAccessToken("test");
@@ -214,8 +213,9 @@ public class TokenBuilderTests : BaseUnitTest
   public void BuildScopeConfigurationAccessToken_ExpectConfigurationToken()
   {
     //Arrange
-    var tokenBuilder = ServiceProvider.GetRequiredService<ITokenBuilder>();
-    var tokenDecoder = ServiceProvider.GetRequiredService<ITokenDecoder>();
+    var serviceProvider = BuildServiceProvider();
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
+    var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
 
     // Act
     var token = tokenBuilder.BuildScopeRegistrationAccessToken("test");

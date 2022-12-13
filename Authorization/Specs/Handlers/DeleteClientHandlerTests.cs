@@ -47,13 +47,15 @@ public class DeleteClientHandlerTests : BaseUnitTest
   public async Task Handle_CreateClient_ExpectCreatedResult()
   {
     // Arrange
+    var serviceProvider = BuildServiceProvider();
     var client = ClientBuilder.Instance().Build();
     await IdentityContext
       .Set<Client>()
       .AddAsync(client);
     await IdentityContext.SaveChangesAsync();
-    var tokenBuilder = ServiceProvider.GetRequiredService<ITokenBuilder>();
-    var tokenDecoder = ServiceProvider.GetRequiredService<ITokenDecoder>();
+
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
+    var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
 
     var token = tokenBuilder.BuildClientRegistrationAccessToken(client.Id);
     var command = new DeleteClientCommand

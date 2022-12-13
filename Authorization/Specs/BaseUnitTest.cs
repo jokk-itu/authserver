@@ -11,7 +11,6 @@ namespace Specs;
 public abstract class BaseUnitTest
 {
   protected readonly IdentityContext IdentityContext;
-  protected readonly IServiceProvider ServiceProvider;
 
   protected BaseUnitTest()
   {
@@ -20,10 +19,21 @@ public abstract class BaseUnitTest
     var options = new DbContextOptionsBuilder<IdentityContext>()
       .UseSqlite(connection)
       .Options;
+
     IdentityContext = new IdentityContext(options);
     IdentityContext.Database.EnsureCreated();
+  }
 
-    var services = new ServiceCollection()
+  private IServiceCollection ConfigureServices()
+  {
+    var services = new ServiceCollection();
+    services.Configure<JwtBearerOptions>(config =>
+    {
+      config.Audience = "api";
+      config.Authority = "auth-server";
+    });
+
+    services
       .AddSingleton(_ => new IdentityConfiguration
       {
         AccessTokenExpiration = 3600,
@@ -39,13 +49,16 @@ public abstract class BaseUnitTest
       .AddBuilders()
       .AddDataServices()
       .AddDecoders()
+      .AddRequests()
       .AddManagers();
-    services.Configure<JwtBearerOptions>(config =>
-    {
-      config.Audience = "api";
-      config.Authority = "auth-server";
-    });
-    var rootServiceProvider = services.BuildServiceProvider();
-    ServiceProvider = rootServiceProvider.CreateScope().ServiceProvider;
+
+    return services;
+  }
+
+  protected IServiceProvider BuildServiceProvider(Action<IServiceCollection>? configure = null)
+  {
+    var services = ConfigureServices();
+    configure?.Invoke(services);
+    return services.BuildServiceProvider();
   }
 }

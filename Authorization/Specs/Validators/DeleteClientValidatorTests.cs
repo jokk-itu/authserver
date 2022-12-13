@@ -13,11 +13,12 @@ public class DeleteClientValidatorTests : BaseUnitTest
   public async Task ValidateAsync_EmptyToken_ExpectErrorResult()
   {
     // Arrange
+    var serviceProvider = BuildServiceProvider();
     var command = new DeleteClientCommand
     {
       ClientRegistrationToken = string.Empty
     };
-    var tokenDecoder = ServiceProvider.GetRequiredService<ITokenDecoder>();
+    var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
     var validator = new DeleteClientValidator(IdentityContext, tokenDecoder);
 
     // Act
@@ -32,8 +33,9 @@ public class DeleteClientValidatorTests : BaseUnitTest
   public async Task ValidateAsync_TokenWithoutClientIdScope_ExpectErrorResult()
   {
     // Arrange
-    var tokenBuilder = ServiceProvider.GetRequiredService<ITokenBuilder>();
-    var tokenDecoder = ServiceProvider.GetRequiredService<ITokenDecoder>();
+    var serviceProvider = BuildServiceProvider();
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
+    var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
     var command = new DeleteClientCommand
     {
       ClientRegistrationToken = tokenBuilder.BuildClientInitialAccessToken()
@@ -52,8 +54,9 @@ public class DeleteClientValidatorTests : BaseUnitTest
   public async Task ValidateAsync_TokenWithInvalidClientId_ExpectErrorResult()
   {
     // Arrange
-    var tokenBuilder = ServiceProvider.GetRequiredService<ITokenBuilder>();
-    var tokenDecoder = ServiceProvider.GetRequiredService<ITokenDecoder>();
+    var serviceProvider = BuildServiceProvider();
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
+    var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
     var command = new DeleteClientCommand
     {
       ClientRegistrationToken = tokenBuilder.BuildClientRegistrationAccessToken("wrong_id")
@@ -72,6 +75,7 @@ public class DeleteClientValidatorTests : BaseUnitTest
   public async Task ValidateAsync_ExpectOkResult()
   {
     // Arrange
+    var serviceProvider = BuildServiceProvider();
     var client = new Client
     {
       Id = Guid.NewGuid().ToString(),
@@ -81,8 +85,8 @@ public class DeleteClientValidatorTests : BaseUnitTest
       .Set<Client>()
       .AddAsync(client);
     await IdentityContext.SaveChangesAsync();
-    var tokenBuilder = ServiceProvider.GetRequiredService<ITokenBuilder>();
-    var tokenDecoder = ServiceProvider.GetRequiredService<ITokenDecoder>();
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
+    var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
     var command = new DeleteClientCommand
     {
       ClientRegistrationToken = tokenBuilder.BuildClientRegistrationAccessToken(client.Id)

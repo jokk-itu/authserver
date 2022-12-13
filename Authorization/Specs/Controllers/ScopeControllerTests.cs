@@ -3,11 +3,6 @@ using Xunit;
 
 namespace Specs.Controllers;
 
-[Collection("Integration")]
-public class ScopeControllerTests : BaseIntegrationTest
+public class ScopeControllerTests : BaseUnitTest
 {
-  public ScopeControllerTests(WebApplicationFactory<Program> applicationFactory)
-  : base(applicationFactory)
-  {
-  }
 }
