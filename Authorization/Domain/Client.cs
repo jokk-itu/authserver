@@ -20,7 +20,6 @@ public class Client
   public ICollection<Scope> Scopes { get; set; } = new List<Scope>();
   public ICollection<Contact> Contacts { get; set; } = new List<Contact>();
   public ICollection<ResponseType> ResponseTypes { get; set; } = new List<ResponseType>();
-  public ICollection<Session> Sessions { get; set; } = new List<Session>();
   public ICollection<AuthorizationCodeGrant> AuthorizationCodeGrants { get; set; } = new List<AuthorizationCodeGrant>();
   public ICollection<IdToken> IdTokens { get; set; } = new List<IdToken>();
   public ICollection<AccessToken> AccessTokens { get; set; } = new List<AccessToken>();

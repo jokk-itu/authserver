@@ -51,20 +51,13 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
 
     var session = await _identityContext
       .Set<Session>()
-      .Include(x => x.Clients)
       .SingleOrDefaultAsync(x => x.User.Id == userId, cancellationToken: cancellationToken) ?? new Session
       {
         Created = DateTime.Now,
         Updated = DateTime.Now,
         User = user,
-        MaxAge = request.MaxAge,
-        Clients = new[] { client }
+        MaxAge = request.MaxAge
       };
-
-    if (session.Clients.All(x => x.Id != request.ClientId))
-    {
-      session.Clients.Add(client);
-    }
 
     var grantId = Guid.NewGuid().ToString();
     var authTime = DateTime.UtcNow;
