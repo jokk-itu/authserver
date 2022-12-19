@@ -45,4 +45,10 @@ public class ClientBuilder
     _client.GrantTypes.Add(grantType);
     return this;
   }
+
+  public ClientBuilder AddScope(Scope scope)
+  {
+    _client.Scopes.Add(scope);
+    return this;
+  }
 }

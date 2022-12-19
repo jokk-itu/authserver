@@ -3,7 +3,6 @@ using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
-using Infrastructure.Validators;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.RedeemClientCredentialsGrant;
@@ -26,20 +25,23 @@ public class RedeemClientCredentialsGrantValidator : IValidator<RedeemClientCred
       .SingleOrDefaultAsync(x => x.Id == value.ClientId && x.Secret == value.ClientSecret, cancellationToken: cancellationToken);
 
     if (client is null)
+    {
       return new ValidationResult(ErrorCode.InvalidClient, "client is invalid", HttpStatusCode.BadRequest);
+    }
 
     if (value.GrantType != GrantTypeConstants.ClientCredentials)
-      return new ValidationResult(ErrorCode.UnsupportedGrantType, "grant_type must be client_credentials", HttpStatusCode.BadRequest);
-
-    var isGrantTypeAuthorized = client.GrantTypes.Any(x => x.Name == value.GrantType);
-    if (!isGrantTypeAuthorized)
-      return new ValidationResult(ErrorCode.UnauthorizedClient, "client is unauthorized for client_credentials", HttpStatusCode.BadRequest);
-
-    var scopes = value.Scope.Split(' ');
-    foreach (var scope in scopes)
     {
-      if (client.Scopes.All(x => x.Name != scope))
-        return new ValidationResult(ErrorCode.UnauthorizedClient, "client is unauthorized for scope", HttpStatusCode.BadRequest);
+      return new ValidationResult(ErrorCode.UnsupportedGrantType, "grant_type must be client_credentials", HttpStatusCode.BadRequest);
+    }
+
+    if (client.GrantTypes.All(x => x.Name != value.GrantType))
+    {
+      return new ValidationResult(ErrorCode.UnauthorizedClient, "client is unauthorized for client_credentials", HttpStatusCode.BadRequest);
+    }
+
+    if (!value.Scope.Split(' ').All(x => client.Scopes.Any(y => y.Name == x)))
+    {
+      return new ValidationResult(ErrorCode.UnauthorizedClient, "client is unauthorized for scope", HttpStatusCode.BadRequest);
     }
 
     return new ValidationResult(HttpStatusCode.OK);
