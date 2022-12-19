@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Domain.Constants;
 using Application;
 using WebApp.Contracts.PostToken;
-using Infrastructure.Requests.CreateRefreshTokenGrant;
 using Infrastructure.Requests.RedeemAuthorizationGrant;
 using Infrastructure.Requests.RedeemClientCredentialsGrant;
+using Infrastructure.Requests.RedeemRefreshTokenGrant;
 using MediatR;
 using WebApp.Attributes;
 using WebApp.Contracts;
@@ -73,9 +73,9 @@ public class TokenController : OAuthControllerBase
   {
     var command = new RedeemAuthorizationCodeGrantCommand
     {
+      GrantType = request.GrantType,
       ClientId = request.ClientId,
       ClientSecret = request.ClientSecret,
-      GrantType = request.GrantType,
       RedirectUri = request.RedirectUri,
       Scope = request.Scope,
       CodeVerifier = request.CodeVerifier,
@@ -102,10 +102,10 @@ public class TokenController : OAuthControllerBase
   {
     var command = new RedeemClientCredentialsGrantCommand
     {
+      GrantType = request.GrantType,
       ClientId = request.ClientId,
       ClientSecret = request.ClientSecret,
-      Scope = request.Scope,
-      GrantType = request.GrantType
+      Scope = request.Scope
     };
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
     if (response.IsError())

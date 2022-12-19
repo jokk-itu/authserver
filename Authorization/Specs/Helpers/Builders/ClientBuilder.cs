@@ -2,6 +2,7 @@
 using Domain;
 using Domain.Enums;
 using Infrastructure.Helpers;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Specs.Helpers.Builders;
 public class ClientBuilder
@@ -39,9 +40,9 @@ public class ClientBuilder
     return this;
   }
 
-  public ClientBuilder AddAuthorizationCodeGrant(AuthorizationCodeGrant authorizationCodeGrant)
+  public ClientBuilder AddGrantType(GrantType grantType)
   {
-    _client.AuthorizationCodeGrants.Add(authorizationCodeGrant);
+    _client.GrantTypes.Add(grantType);
     return this;
   }
 }
