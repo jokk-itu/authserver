@@ -78,6 +78,7 @@ public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
     var client = ClientBuilder
       .Instance()
       .AddConsentGrant(consentGrant)
+      .AddGrantType(await IdentityContext.Set<GrantType>().SingleAsync(x => x.Name == GrantTypeConstants.RefreshToken))
       .Build();
 
     var authorizationCodeGrant = AuthorizationCodeGrantBuilder
