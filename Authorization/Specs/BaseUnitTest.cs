@@ -32,6 +32,7 @@ public abstract class BaseUnitTest
       config.Audience = "api";
       config.Authority = "auth-server";
     });
+    services.AddDataProtection();
 
     services
       .AddSingleton(_ => new IdentityConfiguration

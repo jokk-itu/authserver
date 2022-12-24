@@ -51,4 +51,10 @@ public class ClientBuilder
     _client.Scopes.Add(scope);
     return this;
   }
+
+  public ClientBuilder AddRedirect(RedirectUri redirectUri)
+  {
+    _client.RedirectUris.Add(redirectUri);
+    return this;
+  }
 }

@@ -35,7 +35,9 @@ public class RedeemAuthorizationCodeGrantHandler : IRequestHandler<RedeemAuthori
   {
     var validationResult = await _validator.ValidateAsync(request, cancellationToken);
     if (validationResult.IsError())
+    {
       return new RedeemAuthorizationCodeGrantResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
+    }
 
     var code = _codeDecoder.DecodeAuthorizationCode(request.Code);
 

@@ -83,7 +83,7 @@ public class ConsentController : OAuthControllerBase
     {
       LoginCode = loginCode,
       ClientId = command.ClientId,
-      ConsentedClaims = HttpContext.Request.Form.Keys.Where(x => x != AntiForgeryConstants.AntiForgeryField).ToList(),
+      ConsentedClaims = ConsentHelper.GetConsentedClaims(HttpContext.Request.Form).ToList(),
       ConsentedScopes = command.Scopes
     }, cancellationToken: cancellationToken);
 
