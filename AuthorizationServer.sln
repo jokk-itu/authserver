@@ -43,11 +43,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project", "Project", "{1839
 	ProjectSection(SolutionItems) = preProject
 		CODE_OF_CONDUCT.md = CODE_OF_CONDUCT.md
 		README.md = README.md
+		stylecop.json = stylecop.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Worker", "Worker", "{3B2F9A07-D144-4854-B32D-72D32CC29F3F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerService", "Clients\WorkerService\WorkerService.csproj", "{B04DA1CA-F9D2-40C2-9EFF-34FDDCAFB05F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkerService", "Clients\WorkerService\WorkerService.csproj", "{B04DA1CA-F9D2-40C2-9EFF-34FDDCAFB05F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
