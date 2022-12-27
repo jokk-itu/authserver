@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using System.Net;
+﻿using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -52,7 +51,8 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
       .Select(x => new
       {
         IsClientValid = x.Client.Id == value.ClientId && x.Client.Secret == value.ClientSecret,
-        IsClientAuthorized = x.Client.RedirectUris.Any(y => y.Uri == value.RedirectUri) && x.Client.GrantTypes.Any(y => y.Name == GrantTypeConstants.AuthorizationCode),
+        IsClientAuthorized = x.Client.RedirectUris.Any(y => y.Uri == value.RedirectUri)
+                             && x.Client.GrantTypes.Any(y => y.Name == GrantTypeConstants.AuthorizationCode),
         IsSessionValid = Session.IsValid.Compile().Invoke(x.Session)
       })
       .SingleOrDefaultAsync(cancellationToken: cancellationToken);
