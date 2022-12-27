@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Linq.Expressions;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -25,115 +26,74 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
   }
 
   public async Task<ValidationResult> ValidateAsync(RedeemAuthorizationCodeGrantCommand value, CancellationToken cancellationToken = default)
-  {
-    if (await IsClientInvalidAsync(value))
+  { 
+    var code = _codeDecoder.DecodeAuthorizationCode(value.Code);
+
+    if (IsCodeVerifierInvalid(value, code.CodeChallenge))
+    {
+      return new ValidationResult(ErrorCode.InvalidRequest, "code_verifier is invalid", HttpStatusCode.BadRequest);
+    }
+
+    if (value.Scope.Split(' ').Except(code.Scopes).Any())
+    { 
+      return new ValidationResult(ErrorCode.InvalidScope, "scope is not equal to grant", HttpStatusCode.BadRequest);
+    }
+
+    if (value.GrantType != GrantTypeConstants.AuthorizationCode)
+    {
+      return new ValidationResult(ErrorCode.InvalidRequest, "grant_type must be authorization_code",
+          HttpStatusCode.BadRequest);
+    }
+
+    var query = await _identityContext
+      .Set<AuthorizationCodeGrant>()
+      .Where(x => x.Id == code.AuthorizationGrantId)
+      .Where(AuthorizationCodeGrant.IsValid)
+      .Select(x => new
+      {
+        IsClientValid = x.Client.Id == value.ClientId && x.Client.Secret == value.ClientSecret,
+        IsClientAuthorized = x.Client.RedirectUris.Any(y => y.Uri == value.RedirectUri) && x.Client.GrantTypes.Any(y => y.Name == GrantTypeConstants.AuthorizationCode),
+        IsSessionValid = Session.IsValid.Compile().Invoke(x.Session)
+      })
+      .SingleOrDefaultAsync(cancellationToken: cancellationToken);
+
+    if (query is null)
+    {
+      return new ValidationResult(ErrorCode.InvalidGrant, "grant is invalid", HttpStatusCode.BadRequest);
+    }
+
+    if (!query.IsClientValid)
+    {
       return new ValidationResult(ErrorCode.InvalidClient, "client is invalid", HttpStatusCode.BadRequest);
+    }
 
-    if (await IsClientUnauthorizedAsync(value))
-      return new ValidationResult(ErrorCode.UnauthorizedClient, "client is unauthorized", HttpStatusCode.Unauthorized);
+    if (!query.IsClientAuthorized)
+    {
+      return new ValidationResult(ErrorCode.UnauthorizedClient, "client is unauthorized", HttpStatusCode.BadRequest);
+    }
 
-    if (IsCodeVerifierInvalid(value))
-      return new ValidationResult(ErrorCode.InvalidRequest, "invalid code_verifier", HttpStatusCode.BadRequest);
-
-    if (await IsCodeInvalidAsync(value))
-      return new ValidationResult(ErrorCode.InvalidRequest, "code is invalid", HttpStatusCode.BadRequest);
-
-    if (await IsScopeInvalidAsync(value))
-      return new ValidationResult(ErrorCode.InvalidScope, "scope is invalid", HttpStatusCode.BadRequest);
-
-    if (await IsSessionInvalidAsync(value))
-      return new ValidationResult(ErrorCode.AccessDenied, "session is invalid", HttpStatusCode.Unauthorized);
+    if (!query.IsSessionValid)
+    {
+      return new ValidationResult(ErrorCode.InvalidGrant, "grant is invalid", HttpStatusCode.BadRequest);
+    }
 
     return new ValidationResult(HttpStatusCode.OK);
   }
 
-  private async Task<bool> IsClientInvalidAsync(RedeemAuthorizationCodeGrantCommand command)
+  private static bool IsCodeVerifierInvalid(RedeemAuthorizationCodeGrantCommand command, string codeChallenge)
   {
-    if (string.IsNullOrWhiteSpace(command.ClientId)
-        || string.IsNullOrWhiteSpace(command.ClientSecret))
+    var isCodeVerifierValid = string.IsNullOrWhiteSpace(command.CodeVerifier) ||
+                              !Regex.IsMatch(command.CodeVerifier, "^[0-9a-zA-Z-_~.]{43,128}$");
+
+    if (!isCodeVerifierValid)
+    {
       return true;
-
-    var client = await _identityContext
-      .Set<Client>()
-      .SingleOrDefaultAsync(x => x.Id == command.ClientId && x.Secret == command.ClientSecret);
-
-    return client is null;
-  }
-
-  private async Task<bool> IsClientUnauthorizedAsync(RedeemAuthorizationCodeGrantCommand command)
-  {
-    if (string.IsNullOrWhiteSpace(command.ClientId)
-        || string.IsNullOrWhiteSpace(command.ClientSecret)
-        || string.IsNullOrWhiteSpace(command.RedirectUri))
-      return true;
-
-    var client = await _identityContext
-      .Set<Client>()
-      .SingleOrDefaultAsync(x => x.Id == command.ClientId 
-                                 && x.Secret == command.ClientSecret 
-                                 && x.RedirectUris.Any(y => y.Uri == command.RedirectUri)
-                                 && x.GrantTypes.Any(y => y.Name == GrantTypeConstants.AuthorizationCode));
-    return client is null;
-  }
-
-  private static bool IsCodeVerifierInvalid(RedeemAuthorizationCodeGrantCommand command)
-  {
-    return string.IsNullOrWhiteSpace(command.CodeVerifier) ||
-        !Regex.IsMatch(command.CodeVerifier, "^[0-9a-zA-Z-_~.]{43,128}$");
-  }
-
-  private async Task<bool> IsCodeInvalidAsync(RedeemAuthorizationCodeGrantCommand command)
-  {
-    if (string.IsNullOrWhiteSpace(command.Code))
-      return true;
-
-    var code = _codeDecoder.DecodeAuthorizationCode(command.Code);
-    var authorizationGrant = await _identityContext
-      .Set<AuthorizationCodeGrant>()
-      .SingleOrDefaultAsync(x => x.Id == code.AuthorizationGrantId);
-
-    if (authorizationGrant is null)
-      return true;
-
-    if (authorizationGrant.IsRedeemed)
-      return true;
+    }
 
     using var sha256 = SHA256.Create();
-    var hashed = sha256.ComputeHash(Encoding.UTF8.GetBytes(command.CodeVerifier));
+    var bytes = Encoding.UTF8.GetBytes(command.CodeVerifier);
+    var hashed = sha256.ComputeHash(bytes);
     var encoded = Base64UrlEncoder.Encode(hashed);
-    if (code.CodeChallenge != encoded)
-      return true;
-
-    return false;
-  }
-
-  private async Task<bool> IsScopeInvalidAsync(RedeemAuthorizationCodeGrantCommand command)
-  {
-    var code = _codeDecoder.DecodeAuthorizationCode(command.Code);
-    var authorizationGrant = await _identityContext
-      .Set<AuthorizationCodeGrant>()
-      .SingleOrDefaultAsync(x => x.Id == code.AuthorizationGrantId);
-
-    if (authorizationGrant is null)
-      return true;
-
-    if (string.IsNullOrWhiteSpace(command.Scope))
-      return false;
-    
-    var requestScopes = command.Scope.Split(' ');
-    return !requestScopes.All(x => code.Scopes.Any(y => y == x));
-  }
-
-  private async Task<bool> IsSessionInvalidAsync(RedeemAuthorizationCodeGrantCommand command)
-  {
-    var code = _codeDecoder.DecodeAuthorizationCode(command.Code);
-    var session = await _identityContext
-      .Set<AuthorizationCodeGrant>()
-      .Where(x => x.Id == code.AuthorizationGrantId)
-      .Select(x => x.Session)
-      .Where(Session.IsValid)
-      .SingleOrDefaultAsync();
-
-    return session is null;
+    return encoded != codeChallenge;
   }
 }
