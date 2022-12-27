@@ -44,14 +44,16 @@ public class RedeemAuthorizationCodeGrantHandler : IRequestHandler<RedeemAuthori
     var authorizationCodeGrant = await _identityContext
       .Set<AuthorizationCodeGrant>()
       .Include(x => x.Session)
+      .ThenInclude(x => x.User)
       .SingleAsync(x => x.Id == code.AuthorizationGrantId, cancellationToken: cancellationToken);
 
     authorizationCodeGrant.IsRedeemed = true;
     var sessionId = authorizationCodeGrant.Session.Id.ToString();
+    var userId = authorizationCodeGrant.Session.User.Id;
 
-    var accessToken = await _tokenBuilder.BuildAccessTokenAsync(request.ClientId, code.Scopes, code.UserId, sessionId, cancellationToken: cancellationToken);
-    var refreshToken = await _tokenBuilder.BuildRefreshTokenAsync(request.ClientId, code.Scopes, code.UserId, sessionId, cancellationToken: cancellationToken);
-    var idToken = await _tokenBuilder.BuildIdTokenAsync(request.ClientId, code.Scopes, authorizationCodeGrant.Nonce, code.UserId, sessionId, authorizationCodeGrant.AuthTime, cancellationToken: cancellationToken);
+    var accessToken = await _tokenBuilder.BuildAccessTokenAsync(request.ClientId, code.Scopes, userId, sessionId, cancellationToken: cancellationToken);
+    var refreshToken = await _tokenBuilder.BuildRefreshTokenAsync(request.ClientId, code.Scopes, userId, sessionId, cancellationToken: cancellationToken);
+    var idToken = await _tokenBuilder.BuildIdTokenAsync(request.ClientId, code.Scopes, authorizationCodeGrant.Nonce, userId, sessionId, authorizationCodeGrant.AuthTime, cancellationToken: cancellationToken);
 
     await _identityContext.SaveChangesAsync(cancellationToken: cancellationToken);
     return new RedeemAuthorizationCodeGrantResponse(HttpStatusCode.OK)

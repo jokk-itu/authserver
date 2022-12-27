@@ -66,8 +66,6 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
       grantId,
       request.CodeChallenge,
       request.CodeChallengeMethod,
-      user.Id,
-      client.Id,
       request.Scopes);
 
     var authorizationCodeGrant = new AuthorizationCodeGrant

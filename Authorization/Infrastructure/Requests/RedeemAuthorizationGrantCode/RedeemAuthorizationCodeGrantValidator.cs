@@ -128,8 +128,11 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
   {
     var code = _codeDecoder.DecodeAuthorizationCode(command.Code);
     var session = await _identityContext
-      .Set<Session>()
-      .SingleOrDefaultAsync(x => x.User.Id == code.UserId);
+      .Set<AuthorizationCodeGrant>()
+      .Where(x => x.Id == code.AuthorizationGrantId)
+      .Select(x => x.Session)
+      .Where(Session.IsValid)
+      .SingleOrDefaultAsync();
 
     return session is null;
   }

@@ -22,8 +22,6 @@ public class CodeBuilder : ICodeBuilder
     string authorizationGrantId,
     string codeChallenge, 
     string codeChallengeMethod,
-    string userId,
-    string clientId,
     ICollection<string> scopes)
   {
     var ms = new MemoryStream();
@@ -33,8 +31,6 @@ public class CodeBuilder : ICodeBuilder
       CodeChallenge = codeChallenge,
       CodeChallengeMethod = codeChallengeMethod,
       AuthorizationGrantId = authorizationGrantId,
-      ClientId = clientId,
-      UserId = userId,
       Scopes = scopes
     };
     writer.Write(JsonSerializer.Serialize(authorizationCode));
@@ -68,7 +64,5 @@ public class AuthorizationCode
   public string AuthorizationGrantId { get; set; } = null!;
   public string CodeChallenge { get; set; } = null!;
   public string CodeChallengeMethod { get; set; } = null!;
-  public string ClientId { get; set; } = null!;
-  public string UserId { get; set; } = null!;
   public ICollection<string> Scopes { get; set; } = new List<string>();
 }

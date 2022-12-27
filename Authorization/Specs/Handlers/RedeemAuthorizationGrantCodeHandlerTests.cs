@@ -4,11 +4,13 @@ using Application.Validation;
 using Domain;
 using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
+using Infrastructure.Helpers;
 using Infrastructure.Requests.CreateAuthorizationCodeGrant;
 using Infrastructure.Requests.RedeemAuthorizationGrant;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using Specs.Helpers;
 using Specs.Helpers.Builders;
 using Xunit;
 
@@ -20,7 +22,7 @@ public class RedeemAuthorizationGrantCodeHandlerTests : BaseUnitTest
   {
     // Arrange
     var validator = new Mock<IValidator<RedeemAuthorizationCodeGrantCommand>>();
-    var result = new ValidationResult(ErrorCode.InvalidRequest,"error",HttpStatusCode.BadRequest);
+    var result = new ValidationResult(ErrorCode.InvalidRequest,"error", HttpStatusCode.BadRequest);
     validator
       .Setup(x => x.ValidateAsync(It.IsAny<RedeemAuthorizationCodeGrantCommand>(), CancellationToken.None))
       .ReturnsAsync(result);
@@ -49,6 +51,10 @@ public class RedeemAuthorizationGrantCodeHandlerTests : BaseUnitTest
   {
     // Arrange
     var validator = new Mock<IValidator<RedeemAuthorizationCodeGrantCommand>>();
+    var result = new ValidationResult(HttpStatusCode.OK);
+    validator.Setup(x => x.ValidateAsync(It.IsAny<RedeemAuthorizationCodeGrantCommand>(), CancellationToken.None))
+        .ReturnsAsync(result);
+
     var serviceProvider = BuildServiceProvider(services =>
     {
       services.AddTransient(_ => validator.Object);
@@ -63,19 +69,33 @@ public class RedeemAuthorizationGrantCodeHandlerTests : BaseUnitTest
       .AddRedirect(new RedirectUri{Uri = uri})
       .Build();
 
-    var code = await serviceProvider
-      .GetRequiredService<ICodeBuilder>()
-      .BuildAuthorizationCodeAsync();
-
     var authorizationCodeGrant = AuthorizationCodeGrantBuilder
       .Instance()
       .AddClient(client)
-      .AddCode(code)
       .Build();
 
+    var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
+    var code = await serviceProvider
+        .GetRequiredService<ICodeBuilder>()
+        .BuildAuthorizationCodeAsync(authorizationCodeGrant.Id, pkce.CodeChallenge, CodeChallengeMethodConstants.S256, new[] { ScopeConstants.OpenId });
+
+    authorizationCodeGrant.Code = code;
+
+    var session = SessionBuilder
+        .Instance()
+        .AddAuthorizationCodeGrant(authorizationCodeGrant)
+        .Build();
+
+    var user = UserBuilder
+        .Instance()
+        .AddPassword(CryptographyHelper.GetRandomString(16))
+        .AddSession(session)
+        .Build();
+
     await IdentityContext
-      .Set<AuthorizationCodeGrant>()
-      .AddAsync(authorizationCodeGrant);
+      .Set<User>()
+      .AddAsync(user);
+
     await IdentityContext.SaveChangesAsync();
 
     var command = new RedeemAuthorizationCodeGrantCommand
@@ -84,7 +104,9 @@ public class RedeemAuthorizationGrantCodeHandlerTests : BaseUnitTest
       ClientSecret = client.Secret,
       RedirectUri = uri,
       GrantType = GrantTypeConstants.AuthorizationCode,
-      Scope = ScopeConstants.OpenId
+      Scope = ScopeConstants.OpenId,
+      Code = code,
+      CodeVerifier = pkce.CodeVerifier
     };
 
     // Act

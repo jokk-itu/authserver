@@ -26,7 +26,9 @@ public class CodeDecoder : ICodeDecoder
     using var reader = new BinaryReader(ms, Encoding.UTF8, false);
     var deserializedCode = JsonSerializer.Deserialize<AuthorizationCode>(reader.ReadString());
     if (deserializedCode is null)
+    {
       throw new InvalidOperationException();
+    }
 
     return deserializedCode;
   }
@@ -39,7 +41,9 @@ public class CodeDecoder : ICodeDecoder
     using var reader = new BinaryReader(ms, Encoding.UTF8, false);
     var deserializedCode = JsonSerializer.Deserialize<LoginCode>(reader.ReadString());
     if (deserializedCode is null)
+    {
       throw new InvalidOperationException();
+    }
 
     return deserializedCode;
   }
