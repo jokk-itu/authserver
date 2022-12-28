@@ -14,5 +14,5 @@ public class AuthorizationCodeGrant
   public Client Client { get; set; }
 
   public static readonly Expression<Func<AuthorizationCodeGrant, bool>> IsValid = a =>
-      !a.IsRedeemed && a.AuthTime.AddSeconds(60) < DateTime.UtcNow;
+      !a.IsRedeemed && a.AuthTime.AddSeconds(60) > DateTime.UtcNow;
 }

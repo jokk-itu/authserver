@@ -53,7 +53,7 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
         IsClientValid = x.Client.Id == value.ClientId && x.Client.Secret == value.ClientSecret,
         IsClientAuthorized = x.Client.RedirectUris.Any(y => y.Uri == value.RedirectUri)
                              && x.Client.GrantTypes.Any(y => y.Name == GrantTypeConstants.AuthorizationCode),
-        IsSessionValid = Session.IsValid.Compile().Invoke(x.Session)
+        IsSessionValid = (x.Session.MaxAge == 0) || DateTime.UtcNow < x.Session.Updated.AddSeconds(x.Session.MaxAge)
       })
       .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
@@ -82,10 +82,10 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
 
   private static bool IsCodeVerifierInvalid(RedeemAuthorizationCodeGrantCommand command, string codeChallenge)
   {
-    var isCodeVerifierValid = string.IsNullOrWhiteSpace(command.CodeVerifier) ||
+    var isCodeVerifierInvalid = string.IsNullOrWhiteSpace(command.CodeVerifier) ||
                               !Regex.IsMatch(command.CodeVerifier, "^[0-9a-zA-Z-_~.]{43,128}$");
 
-    if (!isCodeVerifierValid)
+    if (isCodeVerifierInvalid)
     {
       return true;
     }
