@@ -3,7 +3,7 @@ using Application.Validation;
 using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Helpers;
-using Infrastructure.Requests.RedeemAuthorizationGrant;
+using Infrastructure.Requests.RedeemAuthorizationGrantCode;
 using Microsoft.Extensions.DependencyInjection;
 using Specs.Helpers;
 using Xunit;

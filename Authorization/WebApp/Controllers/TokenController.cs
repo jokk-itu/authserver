@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Domain.Constants;
 using Application;
 using WebApp.Contracts.PostToken;
-using Infrastructure.Requests.RedeemAuthorizationGrant;
+using Infrastructure.Requests.RedeemAuthorizationGrantCode;
 using Infrastructure.Requests.RedeemClientCredentialsGrant;
 using Infrastructure.Requests.RedeemRefreshTokenGrant;
 using MediatR;

@@ -10,7 +10,7 @@ using Infrastructure.Decoders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Infrastructure.Requests.RedeemAuthorizationGrant;
+namespace Infrastructure.Requests.RedeemAuthorizationGrantCode;
 public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizationCodeGrantCommand>
 {
   private readonly IdentityContext _identityContext;

@@ -4,11 +4,10 @@ using Application.Validation;
 using Domain;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Decoders.Abstractions;
-using Infrastructure.Requests.CreateAuthorizationCodeGrant;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Requests.RedeemAuthorizationGrant;
+namespace Infrastructure.Requests.RedeemAuthorizationGrantCode;
 public class RedeemAuthorizationCodeGrantHandler : IRequestHandler<RedeemAuthorizationCodeGrantCommand, RedeemAuthorizationCodeGrantResponse>
 {
   private readonly IdentityContext _identityContext;
