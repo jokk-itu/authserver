@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="..\..\stylecop.json" Link="stylecop.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Bogus" Version="34.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.10" />
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="6.0.10" />

@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="..\..\stylecop.json" Link="stylecop.json" />
-  </ItemGroup>
-
-  <ItemGroup>
 	  <PackageReference Include="Mapster" Version="7.3.0" />
 	  <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.10" />
 	  <PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />

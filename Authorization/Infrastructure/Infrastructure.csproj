@@ -11,10 +11,6 @@
     <EmbeddedResource Remove="BaseValidators\**" />
     <None Remove="BaseValidators\**" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="..\..\stylecop.json" Link="stylecop.json" />
-  </ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.10" />
