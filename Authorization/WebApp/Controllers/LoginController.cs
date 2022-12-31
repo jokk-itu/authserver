@@ -32,7 +32,7 @@ public class LoginController : OAuthControllerBase
   [ValidateAntiForgeryToken]
   [SecurityHeader]
   [Consumes("application/x-www-form-urlencoded")]
-  [ProducesResponseType(StatusCodes.Status302Found)]
+  [ProducesResponseType(StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> Post(
     PostLoginRequest request,
