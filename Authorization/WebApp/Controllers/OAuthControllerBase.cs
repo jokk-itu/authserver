@@ -28,26 +28,6 @@ public abstract class OAuthControllerBase : Controller
         return BadRequest(response);
     }
 
-    protected IActionResult RedirectOAuthResult(string redirectUri, string state, string? error, string? errorDescription)
-    {
-        var queryBuilder = new QueryBuilder
-        {
-          { ParameterNames.State, state },
-          { ParameterNames.Issuer, _identityConfiguration.Issuer}
-        };
-        if (!string.IsNullOrWhiteSpace(error))
-        {
-            queryBuilder.Add(ParameterNames.Error, error);
-        }
-
-        if (!string.IsNullOrWhiteSpace(errorDescription))
-        {
-            queryBuilder.Add(ParameterNames.ErrorDescription, errorDescription);
-        }
-
-        return Redirect($"{redirectUri}{queryBuilder.ToQueryString()}");
-    }
-
     protected IActionResult AuthorizationCodeFormPostResult(string redirectUri, string state, string code)
     {
         return new ContentResult
