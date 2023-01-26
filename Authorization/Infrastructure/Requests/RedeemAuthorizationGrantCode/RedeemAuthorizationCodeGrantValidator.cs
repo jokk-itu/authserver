@@ -33,7 +33,7 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
       return new ValidationResult(ErrorCode.InvalidRequest, "code_verifier is invalid", HttpStatusCode.BadRequest);
     }
 
-    if (value.Scope.Split(' ').Except(code.Scopes).Any())
+    if (!string.IsNullOrWhiteSpace(value.Scope) && value.Scope.Split(' ').Except(code.Scopes).Any())
     { 
       return new ValidationResult(ErrorCode.InvalidScope, "scope is not equal to grant", HttpStatusCode.BadRequest);
     }
