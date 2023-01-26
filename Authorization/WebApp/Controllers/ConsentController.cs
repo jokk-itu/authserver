@@ -71,7 +71,7 @@ public class ConsentController : OAuthControllerBase
   }
 
   [HttpPost]
-  [Consumes("application/x-www-form-urlencoded")]
+  [Consumes(MimeTypeConstants.FormUrlEncoded)]
   [ValidateAntiForgeryToken]
   [SecurityHeader]
   public async Task<IActionResult> Post(

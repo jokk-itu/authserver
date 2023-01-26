@@ -4,6 +4,7 @@ using Infrastructure;
 using Infrastructure.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Attributes;
+using WebApp.Constants;
 using WebApp.Contracts.PostRegisterUser;
 
 namespace WebApp.Controllers;
@@ -30,7 +31,7 @@ public class RegisterController : OAuthControllerBase
   [HttpPost]
   [ValidateAntiForgeryToken]
   [SecurityHeader]
-  [Consumes("application/x-www-form-urlencoded")]
+  [Consumes(MimeTypeConstants.FormUrlEncoded)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status200OK)]
   public async Task<IActionResult> Post(PostRegisterUserRequest request)

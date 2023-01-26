@@ -31,7 +31,7 @@ public class LoginController : OAuthControllerBase
   [HttpPost]
   [ValidateAntiForgeryToken]
   [SecurityHeader]
-  [Consumes("application/x-www-form-urlencoded")]
+  [Consumes(MimeTypeConstants.FormUrlEncoded)]
   [ProducesResponseType(StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> Post(

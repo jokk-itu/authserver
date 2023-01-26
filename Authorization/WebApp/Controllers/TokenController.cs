@@ -8,6 +8,7 @@ using Infrastructure.Requests.RedeemClientCredentialsGrant;
 using Infrastructure.Requests.RedeemRefreshTokenGrant;
 using MediatR;
 using WebApp.Attributes;
+using WebApp.Constants;
 using WebApp.Contracts;
 
 namespace WebApp.Controllers;
@@ -25,7 +26,7 @@ public class TokenController : OAuthControllerBase
 
   [HttpPost]
   [SecurityHeader]
-  [Consumes("application/x-www-form-urlencoded")]
+  [Consumes(MimeTypeConstants.FormUrlEncoded)]
   [ProducesResponseType(typeof(PostTokenResponse), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> Post(
