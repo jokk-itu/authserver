@@ -473,33 +473,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("Sessions", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Token", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsRevoked")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("TokenType")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Tokens", (string)null);
-
-                    b.HasDiscriminator<int>("TokenType").HasValue(0);
-                });
-
             modelBuilder.Entity("Domain.User", b =>
                 {
                     b.Property<string>("Id")
@@ -561,33 +534,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.UserToken", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsRedeemed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserTokens", (string)null);
-                });
-
             modelBuilder.Entity("ResourceScope", b =>
                 {
                     b.Property<string>("ResourcesId")
@@ -601,98 +547,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ScopesId");
 
                     b.ToTable("ResourceScopes", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.AccessToken", b =>
-                {
-                    b.HasBaseType("Domain.Token");
-
-                    b.Property<string>("ClientId")
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("AccessToken_ClientId");
-
-                    b.Property<long?>("SessionId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("AccessToken_SessionId");
-
-                    b.HasIndex("ClientId");
-
-                    b.HasIndex("SessionId");
-
-                    b.HasDiscriminator().HasValue(3);
-                });
-
-            modelBuilder.Entity("Domain.ClientRegistrationToken", b =>
-                {
-                    b.HasBaseType("Domain.Token");
-
-                    b.Property<string>("ClientId")
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("ClientRegistrationToken_ClientId");
-
-                    b.HasIndex("ClientId");
-
-                    b.HasDiscriminator().HasValue(9);
-                });
-
-            modelBuilder.Entity("Domain.IdToken", b =>
-                {
-                    b.HasBaseType("Domain.Token");
-
-                    b.Property<string>("ClientId")
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("IdToken_ClientId");
-
-                    b.Property<long?>("SessionId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("IdToken_SessionId");
-
-                    b.HasIndex("ClientId");
-
-                    b.HasIndex("SessionId");
-
-                    b.HasDiscriminator().HasValue(1);
-                });
-
-            modelBuilder.Entity("Domain.RefreshToken", b =>
-                {
-                    b.HasBaseType("Domain.Token");
-
-                    b.Property<string>("ClientId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<long?>("SessionId")
-                        .HasColumnType("bigint");
-
-                    b.HasIndex("ClientId");
-
-                    b.HasIndex("SessionId");
-
-                    b.HasDiscriminator().HasValue(2);
-                });
-
-            modelBuilder.Entity("Domain.ResourceRegistrationToken", b =>
-                {
-                    b.HasBaseType("Domain.Token");
-
-                    b.Property<string>("ResourceId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasIndex("ResourceId");
-
-                    b.HasDiscriminator().HasValue(7);
-                });
-
-            modelBuilder.Entity("Domain.ScopeRegistrationToken", b =>
-                {
-                    b.HasBaseType("Domain.Token");
-
-                    b.Property<int?>("ScopeId")
-                        .HasColumnType("int");
-
-                    b.HasIndex("ScopeId");
-
-                    b.HasDiscriminator().HasValue(5);
                 });
 
             modelBuilder.Entity("ClaimConsentGrant", b =>
@@ -838,16 +692,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Session");
                 });
 
-            modelBuilder.Entity("Domain.UserToken", b =>
-                {
-                    b.HasOne("Domain.User", "User")
-                        .WithMany("UserTokens")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("ResourceScope", b =>
                 {
                     b.HasOne("Domain.Resource", null)
@@ -863,123 +707,18 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.AccessToken", b =>
-                {
-                    b.HasOne("Domain.Client", "Client")
-                        .WithMany("AccessTokens")
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("Domain.Session", "Session")
-                        .WithMany("AccessTokens")
-                        .HasForeignKey("SessionId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("Client");
-
-                    b.Navigation("Session");
-                });
-
-            modelBuilder.Entity("Domain.ClientRegistrationToken", b =>
-                {
-                    b.HasOne("Domain.Client", "Client")
-                        .WithMany("ClientRegistrationTokens")
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("Client");
-                });
-
-            modelBuilder.Entity("Domain.IdToken", b =>
-                {
-                    b.HasOne("Domain.Client", "Client")
-                        .WithMany("IdTokens")
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Domain.Session", "Session")
-                        .WithMany("IdTokens")
-                        .HasForeignKey("SessionId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("Client");
-
-                    b.Navigation("Session");
-                });
-
-            modelBuilder.Entity("Domain.RefreshToken", b =>
-                {
-                    b.HasOne("Domain.Client", "Client")
-                        .WithMany("RefreshTokens")
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Domain.Session", "Session")
-                        .WithMany("RefreshTokens")
-                        .HasForeignKey("SessionId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("Client");
-
-                    b.Navigation("Session");
-                });
-
-            modelBuilder.Entity("Domain.ResourceRegistrationToken", b =>
-                {
-                    b.HasOne("Domain.Resource", "Resource")
-                        .WithMany("ResourceRegistrationTokens")
-                        .HasForeignKey("ResourceId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Resource");
-                });
-
-            modelBuilder.Entity("Domain.ScopeRegistrationToken", b =>
-                {
-                    b.HasOne("Domain.Scope", "Scope")
-                        .WithMany("ScopeRegistrationTokens")
-                        .HasForeignKey("ScopeId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Scope");
-                });
-
             modelBuilder.Entity("Domain.Client", b =>
                 {
-                    b.Navigation("AccessTokens");
-
                     b.Navigation("AuthorizationCodeGrants");
-
-                    b.Navigation("ClientRegistrationTokens");
 
                     b.Navigation("ConsentGrants");
 
-                    b.Navigation("IdTokens");
-
                     b.Navigation("RedirectUris");
-
-                    b.Navigation("RefreshTokens");
-                });
-
-            modelBuilder.Entity("Domain.Resource", b =>
-                {
-                    b.Navigation("ResourceRegistrationTokens");
-                });
-
-            modelBuilder.Entity("Domain.Scope", b =>
-                {
-                    b.Navigation("ScopeRegistrationTokens");
                 });
 
             modelBuilder.Entity("Domain.Session", b =>
                 {
-                    b.Navigation("AccessTokens");
-
                     b.Navigation("AuthorizationCodeGrants");
-
-                    b.Navigation("IdTokens");
-
-                    b.Navigation("RefreshTokens");
 
                     b.Navigation("User");
                 });
@@ -987,8 +726,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.User", b =>
                 {
                     b.Navigation("ConsentGrants");
-
-                    b.Navigation("UserTokens");
                 });
 #pragma warning restore 612, 618
         }

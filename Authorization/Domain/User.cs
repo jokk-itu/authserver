@@ -16,7 +16,6 @@ public class User
   public DateTime Birthdate { get; set; }
   public string Locale { get; set; } = null!;
   public ICollection<ConsentGrant> ConsentGrants { get; set; } = new List<ConsentGrant>();
-  public ICollection<UserToken> UserTokens { get; set; } = new List<UserToken>();
   public Session? Session { get; set; }
   public long? SessionId { get; set; }
 

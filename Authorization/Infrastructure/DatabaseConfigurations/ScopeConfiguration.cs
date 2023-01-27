@@ -13,11 +13,6 @@ internal class ScopeConfiguration : IEntityTypeConfiguration<Scope>
       .HasIndex(s => s.Name)
       .IsUnique();
 
-    builder
-      .HasMany(x => x.ScopeRegistrationTokens)
-      .WithOne(x => x.Scope)
-      .OnDelete(DeleteBehavior.Cascade);
-
     builder.HasData(
       new Scope 
       {

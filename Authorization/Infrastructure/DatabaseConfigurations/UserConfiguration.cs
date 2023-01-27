@@ -9,12 +9,6 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
   {
     builder.Property(x => x.UserName).IsRequired();
     builder.HasIndex(x => x.UserName).IsUnique();
-
-    builder
-      .HasMany(u => u.UserTokens)
-      .WithOne(ut => ut.User)
-      .OnDelete(DeleteBehavior.Cascade);
-
     builder.Property(x => x.Password).IsRequired();
     builder.ToTable("Users");
   }
