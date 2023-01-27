@@ -4,5 +4,4 @@ namespace Infrastructure.Decoders.Abstractions;
 public interface ICodeDecoder
 {
   AuthorizationCode DecodeAuthorizationCode(string code);
-  LoginCode DecodeLoginCode(string code);
 }

@@ -1,36 +1,31 @@
-﻿using Contracts.GetJwksDocument;
-using Infrastructure.Repositories;
-using Microsoft.IdentityModel.Protocols;
+﻿using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.Json;
-using Application;
-using Domain;
-using Infrastructure;
-using Microsoft.EntityFrameworkCore;
+using Infrastructure.Builders.Abstractions;
+using Mapster;
 using WebApp.Contracts.GetDiscoveryDocument;
+using WebApp.Contracts.GetJwksDocument;
 
 namespace WebApp;
 
 public class InternalConfigurationManager : IConfigurationManager<OpenIdConnectConfiguration>
 {
-  private readonly JwkManager _jwkManager;
-  private readonly IdentityConfiguration _identityConfiguration;
+  private readonly IDiscoveryBuilder _builder;
   private OpenIdConnectConfiguration? _openIdConnectConfiguration;
-  private readonly IdentityContext _identityContext;
 
-  public InternalConfigurationManager(JwkManager jwkManager, IdentityConfiguration identityConfiguration, IServiceProvider serviceProvider)
+  public InternalConfigurationManager(IServiceProvider serviceProvider)
   {
     var scope = serviceProvider.CreateScope();
-    _jwkManager = jwkManager;
-    _identityContext = scope.ServiceProvider.GetRequiredService<IdentityContext>();
-    _identityConfiguration = identityConfiguration;
+    _builder = scope.ServiceProvider.GetRequiredService<IDiscoveryBuilder>();
   }
 
   public async Task<OpenIdConnectConfiguration> GetConfigurationAsync(CancellationToken cancel)
   {
-    if (_openIdConnectConfiguration is not null) 
+    if (_openIdConnectConfiguration is not null)
+    {
       return _openIdConnectConfiguration;
+    }
 
     await RefreshAsync();
     return _openIdConnectConfiguration ?? throw new Exception("Configuration is not available");
@@ -43,29 +38,15 @@ public class InternalConfigurationManager : IConfigurationManager<OpenIdConnectC
 
   private async Task RefreshAsync()
   {
-    var discoveryDocument = new GetDiscoveryDocumentResponse
-    {
-      Issuer = _identityConfiguration.InternalIssuer,
-      AuthorizationEndpoint = $"{_identityConfiguration.ExternalIssuer}/connect/authorize",
-      TokenEndpoint = $"{_identityConfiguration.InternalIssuer}/connect/token",
-      UserInfoEndpoint = $"{_identityConfiguration.InternalIssuer}/connect/userinfo",
-      JwksUri = $"{_identityConfiguration.InternalIssuer}/.well-known/jwks",
-      Scopes = await _identityContext.Set<Scope>().Select(x => x.Name).ToListAsync()
-    };
-    _openIdConnectConfiguration = OpenIdConnectConfiguration.Create(JsonSerializer.Serialize(discoveryDocument));
+    var discoveryDocument = (await _builder.BuildDiscoveryDocument()).Adapt<GetDiscoveryDocumentResponse>();
+    var jwkDocument = (await _builder.BuildJwkDocument()).Adapt<GetJwksDocumentResponse>();
 
-    var jwkDocument = new GetJwksDocumentResponse();
-    foreach (var jwk in _jwkManager.Jwks)
-    {
-      jwkDocument.Keys.Add(new JwkDto
-      {
-        KeyId = jwk.KeyId,
-        Modulus = Base64UrlEncoder.Encode(jwk.Modulus),
-        Exponent = Base64UrlEncoder.Encode(jwk.Exponent)
-      });
-    }
+    _openIdConnectConfiguration = OpenIdConnectConfiguration.Create(JsonSerializer.Serialize(discoveryDocument));
     _openIdConnectConfiguration.JsonWebKeySet = JsonWebKeySet.Create(JsonSerializer.Serialize(jwkDocument));
+
     foreach (var signingKey in _openIdConnectConfiguration.JsonWebKeySet.GetSigningKeys())
+    {
       _openIdConnectConfiguration.SigningKeys.Add(signingKey);
+    }
   }
 }

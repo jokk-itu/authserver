@@ -8,6 +8,6 @@ public class ConsentGrant
   public DateTime Updated { get; set; }
   public Client Client { get; set; }
   public User User { get; set; }
-  public ICollection<Claim> ConsentedClaims { get; set; }
-  public ICollection<Scope> ConsentedScopes { get; set; }
+  public ICollection<Claim> ConsentedClaims { get; set; } = new List<Claim>();
+  public ICollection<Scope> ConsentedScopes { get; set; } = new List<Scope>();
 }

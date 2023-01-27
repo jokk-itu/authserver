@@ -4,19 +4,17 @@ using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
-using Infrastructure.Decoders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.CreateAuthorizationGrant;
 public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationGrantCommand>
 {
   private readonly IdentityContext _identityContext;
-  private readonly ICodeDecoder _codeDecoder;
 
-  public CreateAuthorizationGrantValidator(IdentityContext identityContext, ICodeDecoder codeDecoder)
+  public CreateAuthorizationGrantValidator(
+    IdentityContext identityContext)
   {
     _identityContext = identityContext;
-    _codeDecoder = codeDecoder;
   }
 
   public async Task<ValidationResult> ValidateAsync(CreateAuthorizationGrantCommand value, CancellationToken cancellationToken = default)
@@ -31,32 +29,28 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
       return new ValidationResult(ErrorCode.InvalidRequest, "state is invalid", HttpStatusCode.BadRequest);
 
     if (await IsClientUnauthorized(value))
-      return new ValidationResult(ErrorCode.UnauthorizedClient, "client is unauthorized", HttpStatusCode.Redirect);
+      return new ValidationResult(ErrorCode.UnauthorizedClient, "client is unauthorized", HttpStatusCode.OK);
 
     if (IsResponseTypeInvalid(value))
-      return new ValidationResult(ErrorCode.UnsupportedResponseType, "response_type must be code", HttpStatusCode.Redirect);
+      return new ValidationResult(ErrorCode.UnsupportedResponseType, "response_type must be code", HttpStatusCode.OK);
 
     if (IsCodeChallengeInvalid(value))
-      return new ValidationResult(ErrorCode.InvalidRequest, "code_challenge is invalid", HttpStatusCode.Redirect);
+      return new ValidationResult(ErrorCode.InvalidRequest, "code_challenge is invalid", HttpStatusCode.OK);
 
     if (IsCodeChallengeMethodInvalid(value))
-      return new ValidationResult(ErrorCode.InvalidRequest, "code_challenge_method is invalid", HttpStatusCode.Redirect);
+      return new ValidationResult(ErrorCode.InvalidRequest, "code_challenge_method is invalid", HttpStatusCode.OK);
 
     if (await IsNonceInvalidAsync(value))
-      return new ValidationResult(ErrorCode.InvalidRequest, "nonce is invalid", HttpStatusCode.Redirect);
+      return new ValidationResult(ErrorCode.InvalidRequest, "nonce is invalid", HttpStatusCode.OK);
 
     if (await IsScopesInvalidAsync(value))
-      return new ValidationResult(ErrorCode.InvalidRequest, "scope is invalid", HttpStatusCode.Redirect);
-
-    var decryptedToken = _codeDecoder.DecodeLoginCode(value.LoginCode);
-    if (decryptedToken is null)
-      return new ValidationResult(ErrorCode.InvalidRequest, "login_token is invalid", HttpStatusCode.Redirect);
+      return new ValidationResult(ErrorCode.InvalidRequest, "scope is invalid", HttpStatusCode.OK);
 
     if (value.MaxAge < 0)
-      return new ValidationResult(ErrorCode.InvalidRequest, "max_age is invalid", HttpStatusCode.Redirect);
+      return new ValidationResult(ErrorCode.InvalidRequest, "max_age is invalid", HttpStatusCode.OK);
 
     if (await IsConsentGrantInvalid(value))
-      return new ValidationResult(ErrorCode.ConsentRequired, "consent is required", HttpStatusCode.Redirect);
+      return new ValidationResult(ErrorCode.ConsentRequired, "consent is required", HttpStatusCode.OK);
     
     return new ValidationResult(HttpStatusCode.OK);
   }
@@ -145,19 +139,21 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
 
   private async Task<bool> IsConsentGrantInvalid(CreateAuthorizationGrantCommand command)
   {
-    var code = _codeDecoder.DecodeLoginCode(command.LoginCode);
-    var userId = code.UserId;
     var consentGrant = await _identityContext
       .Set<ConsentGrant>()
       .Include(x => x.ConsentedScopes)
-      .Where(x => x.Client.Id == command.ClientId && x.User.Id == userId)
+      .Where(x => x.Client.Id == command.ClientId && x.User.Id == command.UserId)
       .SingleOrDefaultAsync();
 
     if (consentGrant is null)
+    {
       return true;
+    }
 
     if (consentGrant.ConsentedScopes.Count != command.Scopes.Count)
+    {
       return true;
+    }
 
     return consentGrant.ConsentedScopes.Any(scope => !command.Scopes.Contains(scope.Name));
   }

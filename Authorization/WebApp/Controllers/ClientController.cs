@@ -1,4 +1,4 @@
-﻿using Contracts;
+﻿using Application;
 using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Requests.CreateClient;
@@ -10,20 +10,20 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Constants;
+using WebApp.Contracts;
 using WebApp.Contracts.GetResourceInitialAccessToken;
 using WebApp.Contracts.PostClient;
-using WebApp.Extensions;
 using GetClientResponse = WebApp.Contracts.GetClient.GetClientResponse;
 
 namespace WebApp.Controllers;
 
 [Route("/connect/[controller]")]
-public class ClientController : Controller
+public class ClientController : OAuthControllerBase
 {
   private readonly IMediator _mediator;
   private readonly ITokenBuilder _tokenBuilder;
 
-  public ClientController(IMediator mediator, ITokenBuilder tokenBuilder)
+  public ClientController(IMediator mediator, ITokenBuilder tokenBuilder, IdentityConfiguration identityConfiguration) : base(identityConfiguration)
   {
     _mediator = mediator;
     _tokenBuilder = tokenBuilder;
@@ -44,11 +44,11 @@ public class ClientController : Controller
   }
 
   [HttpPost]
-  [Authorize(Policy = AuthorizationConstants.ClientRegistration)]
+  [Authorize(Policy = AuthorizationConstants.ClientRegistration, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   [Route("register")]
   [ProducesResponseType(typeof(PostClientResponse), StatusCodes.Status201Created)]
   [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-  public async Task<IActionResult> PostClientAsync([FromBody] PostClientRequest request, CancellationToken cancellationToken = default)
+  public async Task<IActionResult> Post([FromBody] PostClientRequest request, CancellationToken cancellationToken = default)
   {
     var scopes = request.Scope.Split(' ');
     var response = await _mediator.Send(new CreateClientCommand
@@ -67,7 +67,9 @@ public class ClientController : Controller
     }, cancellationToken: cancellationToken);
 
     if (response.IsError())
-      return this.BadOAuthResult(response.ErrorCode!, response.ErrorDescription!);
+    {
+      return BadOAuthResult(response.ErrorCode!, response.ErrorDescription!);
+    }
 
     var uri = $"{Request.Scheme}://{Request.Host}/connect/client/configuration";
     return Created(new Uri(uri), new PostClientResponse
@@ -92,10 +94,10 @@ public class ClientController : Controller
   }
 
   [HttpDelete]
-  [Authorize(Policy = AuthorizationConstants.ClientConfiguration)]
+  [Authorize(Policy = AuthorizationConstants.ClientConfiguration, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   [Route("configuration")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
-  public async Task<IActionResult> DeleteClientAsync(CancellationToken cancellationToken = default)
+  public async Task<IActionResult> Delete(CancellationToken cancellationToken = default)
   {
     var token = await HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, TokenTypeConstants.AccessToken);
     var command = new DeleteClientCommand
@@ -105,7 +107,9 @@ public class ClientController : Controller
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
 
     if (response.IsError())
-      return this.BadOAuthResult(response.ErrorCode, response.ErrorDescription);
+    {
+      return BadOAuthResult(response.ErrorCode, response.ErrorDescription);
+    }
 
     return NoContent();
   }
@@ -114,13 +118,15 @@ public class ClientController : Controller
   [Authorize(Policy = AuthorizationConstants.ClientConfiguration)]
   [Route("configuration")]
   [ProducesResponseType(typeof(GetClientResponse), StatusCodes.Status200OK)]
-  public async Task<IActionResult> GetClientAsync(CancellationToken cancellationToken = default)
+  public async Task<IActionResult> Get(CancellationToken cancellationToken = default)
   {
     var token = await HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, TokenTypeConstants.AccessToken);
     var response = await _mediator.Send(new ReadClientQuery(token), cancellationToken);
 
     if (response.IsError())
-      return this.BadOAuthResult(response.ErrorCode, response.ErrorDescription);
+    {
+      return BadOAuthResult(response.ErrorCode, response.ErrorDescription);
+    }
 
     return Ok(new GetClientResponse
     {

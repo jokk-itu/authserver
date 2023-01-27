@@ -7,12 +7,11 @@ using Xunit;
 namespace Specs.Validators;
 public class CreateClientValidatorTests : BaseUnitTest
 {
-  [Fact]
-  [Trait("Category", "Unit")]
-  public async Task ValidateAsync_ForceDefaultValues_ExpectCreatedResult()
+  private readonly CreateClientCommand _command;
+
+  public CreateClientValidatorTests()
   {
-    // Arrange
-    var command = new CreateClientCommand
+    _command = new CreateClientCommand
     {
       ApplicationType = string.Empty,
       ResponseTypes = new List<string>(),
@@ -26,10 +25,17 @@ public class CreateClientValidatorTests : BaseUnitTest
       TosUri = string.Empty,
       ClientName = "test"
     };
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_ForceDefaultValues_ExpectCreatedResult()
+  {
+    // Arrange
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act
-    var validationResult = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(_command);
 
     // Assert
     Assert.False(validationResult.IsError());
@@ -68,24 +74,11 @@ public class CreateClientValidatorTests : BaseUnitTest
   public async Task ValidateAsync_InvalidApplicationType_ExpectErrorResult()
   {
     // Arrange
-    var command = new CreateClientCommand
-    {
-      ApplicationType = "wrong_applicationtype",
-      ResponseTypes = new[] { ResponseTypeConstants.Code },
-      TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
-      Contacts = new[] { "test@mail.dk" },
-      PolicyUri = "https://localhost:5002/policy",
-      RedirectUris = new[] { "https://localhost:5002/callback" },
-      Scopes = new[] { ScopeConstants.OpenId },
-      GrantTypes = new[] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken },
-      SubjectType = SubjectTypeConstants.Public,
-      TosUri = "https://localhost:5002/tos",
-      ClientName = "test"
-    };
+    _command.ApplicationType = "wrong";
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act
-    var validationResult = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(_command);
 
     // Assert
     Assert.True(validationResult.IsError());
@@ -96,24 +89,11 @@ public class CreateClientValidatorTests : BaseUnitTest
   public async Task ValidateAsync_InvalidClientName_ExpectErrorResult()
   {
     // Arrange
-    var command = new CreateClientCommand
-    {
-      ApplicationType = ApplicationTypeConstants.Web,
-      ResponseTypes = new[] { ResponseTypeConstants.Code },
-      TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
-      Contacts = new[] { "test@mail.dk" },
-      PolicyUri = "https://localhost:5002/policy",
-      RedirectUris = new[] { "https://localhost:5002/callback" },
-      Scopes = new[] { ScopeConstants.OpenId },
-      GrantTypes = new[] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken },
-      SubjectType = SubjectTypeConstants.Public,
-      TosUri = "https://localhost:5002/tos",
-      ClientName = string.Empty
-    };
+    _command.ClientName = string.Empty;
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act
-    var validationResult = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(_command);
 
     // Assert
     Assert.True(validationResult.IsError());
@@ -133,24 +113,10 @@ public class CreateClientValidatorTests : BaseUnitTest
       });
     await IdentityContext.SaveChangesAsync();
 
-    var command = new CreateClientCommand
-    {
-      ApplicationType = ApplicationTypeConstants.Web,
-      ResponseTypes = new[] { ResponseTypeConstants.Code },
-      TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
-      Contacts = new[] { "test@mail.dk" },
-      PolicyUri = "https://localhost:5002/policy",
-      RedirectUris = new[] { "https://localhost:5002/callback" },
-      Scopes = new[] { ScopeConstants.OpenId },
-      GrantTypes = new[] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken },
-      SubjectType = SubjectTypeConstants.Public,
-      TosUri = "https://localhost:5002/tos",
-      ClientName = "test"
-    };
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act
-    var validationResult = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(_command);
 
     // Assert
     Assert.True(validationResult.IsError());
@@ -160,24 +126,11 @@ public class CreateClientValidatorTests : BaseUnitTest
   [Trait("Category", "Unit")]
   public async Task ValidateAsync_InvalidRedirectUris_ExpectErrorResult()
   {
-    var command = new CreateClientCommand
-    {
-      ApplicationType = ApplicationTypeConstants.Web,
-      ResponseTypes = new[] { ResponseTypeConstants.Code },
-      TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
-      Contacts = new[] { "test@mail.dk" },
-      PolicyUri = "https://localhost:5002/policy",
-      RedirectUris = new[] { "invalid_redirecturis" },
-      Scopes = new[] { ScopeConstants.OpenId },
-      GrantTypes = new[] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken },
-      SubjectType = SubjectTypeConstants.Public,
-      TosUri = "https://localhost:5002/tos",
-      ClientName = "test"
-    };
+    _command.RedirectUris = new[] { "invalid" };
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act
-    var validationResult = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(_command);
 
     // Assert
     Assert.True(validationResult.IsError());
@@ -187,24 +140,11 @@ public class CreateClientValidatorTests : BaseUnitTest
   [Trait("Category", "Unit")]
   public async Task ValidateAsync_EmptyRedirectUris_ExpectErrorResult()
   {
-    var command = new CreateClientCommand
-    {
-      ApplicationType = ApplicationTypeConstants.Web,
-      ResponseTypes = new[] { ResponseTypeConstants.Code },
-      TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
-      Contacts = new[] { "test@mail.dk" },
-      PolicyUri = "https://localhost:5002/policy",
-      RedirectUris = new List<string>(),
-      Scopes = new[] { ScopeConstants.OpenId },
-      GrantTypes = new[] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken },
-      SubjectType = SubjectTypeConstants.Public,
-      TosUri = "https://localhost:5002/tos",
-      ClientName = "test"
-    };
+    _command.RedirectUris = Array.Empty<string>();
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act
-    var validationResult = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(_command);
 
     // Assert
     Assert.True(validationResult.IsError());
@@ -215,24 +155,11 @@ public class CreateClientValidatorTests : BaseUnitTest
   public async Task ValidateAsync_InvalidResponseType_ExpectErrorResult()
   {
     // Arrange
-    var command = new CreateClientCommand
-    {
-      ApplicationType = ApplicationTypeConstants.Web,
-      ResponseTypes = new[] { "invalid_responsetype" },
-      TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
-      Contacts = new[] { "test@mail.dk" },
-      PolicyUri = "https://localhost:5002/policy",
-      RedirectUris = new[] { "https://localhost:5002/callback" },
-      Scopes = new[] { ScopeConstants.OpenId },
-      GrantTypes = new[] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken },
-      SubjectType = SubjectTypeConstants.Public,
-      TosUri = "https://localhost:5002/tos",
-      ClientName = "test"
-    };
+    _command.ResponseTypes = new[] { "invalid" };
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act
-    var validationResult = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(_command);
 
     // Assert
     Assert.True(validationResult.IsError());
@@ -243,24 +170,11 @@ public class CreateClientValidatorTests : BaseUnitTest
   public async Task ValidateAsync_InvalidGrantTypes_ExpectErrorResult()
   {
     // Arrange
-    var command = new CreateClientCommand
-    {
-      ApplicationType = ApplicationTypeConstants.Web,
-      ResponseTypes = new[] { ResponseTypeConstants.Code },
-      TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
-      Contacts = new[] { "test@mail.dk" },
-      PolicyUri = "https://localhost:5002/policy",
-      RedirectUris = new[] { "https://localhost:5002/callback" },
-      Scopes = new[] { ScopeConstants.OpenId },
-      GrantTypes = new[] { "invalid_granttypes" },
-      SubjectType = SubjectTypeConstants.Public,
-      TosUri = "https://localhost:5002/tos",
-      ClientName = "test"
-    };
+    _command.GrantTypes = new[] { "invalid" };
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act
-    var validationResult = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(_command);
 
     // Assert
     Assert.True(validationResult.IsError());
@@ -271,24 +185,11 @@ public class CreateClientValidatorTests : BaseUnitTest
   public async Task ValidateAsync_EmptyGrantTypes_ExpectErrorResult()
   {
     // Arrange
-    var command = new CreateClientCommand
-    {
-      ApplicationType = ApplicationTypeConstants.Web,
-      ResponseTypes = new[] { ResponseTypeConstants.Code },
-      TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
-      Contacts = new[] { "test@mail.dk" },
-      PolicyUri = "https://localhost:5002/policy",
-      RedirectUris = new[] { "https://localhost:5002/callback" },
-      Scopes = new[] { ScopeConstants.OpenId },
-      GrantTypes = new List<string>(),
-      SubjectType = SubjectTypeConstants.Public,
-      TosUri = "https://localhost:5002/tos",
-      ClientName = "test"
-    };
+    _command.GrantTypes = Array.Empty<string>();
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act
-    var validationResult = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(_command);
 
     // Assert
     Assert.True(validationResult.IsError());
@@ -299,24 +200,11 @@ public class CreateClientValidatorTests : BaseUnitTest
   public async Task ValidateAsync_InvalidContacts_ExpectErrorResult()
   {
     // Arrange
-    var command = new CreateClientCommand
-    {
-      ApplicationType = ApplicationTypeConstants.Web,
-      ResponseTypes = new[] { ResponseTypeConstants.Code },
-      TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
-      Contacts = new[] { "invalid_contacts" },
-      PolicyUri = "https://localhost:5002/policy",
-      RedirectUris = new[] { "https://localhost:5002/callback" },
-      Scopes = new[] { ScopeConstants.OpenId },
-      GrantTypes = new [] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken },
-      SubjectType = SubjectTypeConstants.Public,
-      TosUri = "https://localhost:5002/tos",
-      ClientName = "test"
-    };
+    _command.Contacts = new[] { "invalid" };
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act
-    var validationResult = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(_command);
 
     // Assert
     Assert.True(validationResult.IsError());
@@ -327,24 +215,11 @@ public class CreateClientValidatorTests : BaseUnitTest
   public async Task ValidateAsync_EmptyScopes_ExpectErrorResult()
   {
     // Arrange
-    var command = new CreateClientCommand
-    {
-      ApplicationType = ApplicationTypeConstants.Web,
-      ResponseTypes = new[] { ResponseTypeConstants.Code },
-      TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
-      Contacts = new[] { "test@mail.dk" },
-      PolicyUri = "https://localhost:5002/policy",
-      RedirectUris = new[] { "https://localhost:5002/callback" },
-      Scopes = new List<string>(),
-      GrantTypes = new [] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken },
-      SubjectType = SubjectTypeConstants.Public,
-      TosUri = "https://localhost:5002/tos",
-      ClientName = "test"
-    };
+    _command.Scopes = Array.Empty<string>();
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act
-    var validationResult = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(_command);
 
     // Assert
     Assert.True(validationResult.IsError());
@@ -355,24 +230,11 @@ public class CreateClientValidatorTests : BaseUnitTest
   public async Task ValidateAsync_InvalidScopes_ExpectErrorResult()
   {
     // Arrange
-    var command = new CreateClientCommand
-    {
-      ApplicationType = ApplicationTypeConstants.Web,
-      ResponseTypes = new[] { ResponseTypeConstants.Code },
-      TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
-      Contacts = new[] { "test@mail.dk" },
-      PolicyUri = "https://localhost:5002/policy",
-      RedirectUris = new[] { "https://localhost:5002/callback" },
-      Scopes = new[] { "invalid_scopes" },
-      GrantTypes = new [] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken },
-      SubjectType = SubjectTypeConstants.Public,
-      TosUri = "https://localhost:5002/tos",
-      ClientName = "test"
-    };
+    _command.Scopes = new[] { "invalid" };
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act
-    var validationResult = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(_command);
 
     // Assert
     Assert.True(validationResult.IsError());
@@ -383,24 +245,11 @@ public class CreateClientValidatorTests : BaseUnitTest
   public async Task ValidateAsync_InvalidPolicy_ExpectErrorResult()
   {
     // Arrange
-    var command = new CreateClientCommand
-    {
-      ApplicationType = ApplicationTypeConstants.Web,
-      ResponseTypes = new[] { ResponseTypeConstants.Code },
-      TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
-      Contacts = new[] { "test@mail.dk" },
-      PolicyUri = "invalid_policy",
-      RedirectUris = new[] { "https://localhost:5002/callback" },
-      Scopes = new[] { ScopeConstants.OpenId },
-      GrantTypes = new [] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken },
-      SubjectType = SubjectTypeConstants.Public,
-      TosUri = "https://localhost:5002/tos",
-      ClientName = "test"
-    };
+    _command.PolicyUri = "invalid";
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act
-    var validationResult = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(_command);
 
     // Assert
     Assert.True(validationResult.IsError());
@@ -411,24 +260,11 @@ public class CreateClientValidatorTests : BaseUnitTest
   public async Task ValidateAsync_InvalidTos_ExpectErrorResult()
   {
     // Arrange
-    var command = new CreateClientCommand
-    {
-      ApplicationType = ApplicationTypeConstants.Web,
-      ResponseTypes = new[] { ResponseTypeConstants.Code },
-      TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
-      Contacts = new[] { "test@mail.dk" },
-      PolicyUri = "http://localhost:5002/policy",
-      RedirectUris = new[] { "https://localhost:5002/callback" },
-      Scopes = new[] { ScopeConstants.OpenId },
-      GrantTypes = new [] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken },
-      SubjectType = SubjectTypeConstants.Public,
-      TosUri = "invalid_tos",
-      ClientName = "test"
-    };
+    _command.TosUri = "invalid";
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act
-    var validationResult = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(_command);
 
     // Assert
     Assert.True(validationResult.IsError());
@@ -439,24 +275,11 @@ public class CreateClientValidatorTests : BaseUnitTest
   public async Task ValidateAsync_InvalidSubjectType_ExpectErrorResult()
   {
     // Arrange
-    var command = new CreateClientCommand
-    {
-      ApplicationType = ApplicationTypeConstants.Web,
-      ResponseTypes = new[] { ResponseTypeConstants.Code },
-      TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
-      Contacts = new[] { "test@mail.dk" },
-      PolicyUri = "http://localhost:5002/policy",
-      RedirectUris = new[] { "https://localhost:5002/callback" },
-      Scopes = new[] { ScopeConstants.OpenId },
-      GrantTypes = new [] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken },
-      SubjectType = "invalid_subject_type",
-      TosUri = "http://localhost:5002/tos",
-      ClientName = "test"
-    };
+    _command.SubjectType = "invalid";
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act
-    var validationResult = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(_command);
 
     // Assert
     Assert.True(validationResult.IsError());
@@ -467,24 +290,11 @@ public class CreateClientValidatorTests : BaseUnitTest
   public async Task ValidateAsync_InvalidTokenEndpointAuthMethod_ExpectErrorResult()
   {
     // Arrange
-    var command = new CreateClientCommand
-    {
-      ApplicationType = ApplicationTypeConstants.Web,
-      ResponseTypes = new[] { ResponseTypeConstants.Code },
-      TokenEndpointAuthMethod = "invalid_tokenendpointauthmethod",
-      Contacts = new[] { "test@mail.dk" },
-      PolicyUri = "http://localhost:5002/policy",
-      RedirectUris = new[] { "https://localhost:5002/callback" },
-      Scopes = new[] { ScopeConstants.OpenId },
-      GrantTypes = new [] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken },
-      SubjectType = SubjectTypeConstants.Public,
-      TosUri = "http://localhost:5002/tos",
-      ClientName = "test"
-    };
+    _command.TokenEndpointAuthMethod = "invalid";
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act
-    var validationResult = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(_command);
 
     // Assert
     Assert.True(validationResult.IsError());

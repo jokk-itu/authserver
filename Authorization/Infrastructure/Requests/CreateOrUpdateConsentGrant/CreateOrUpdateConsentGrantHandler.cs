@@ -1,22 +1,24 @@
 ﻿using System.Net;
 using Application.Validation;
 using Domain;
+using Infrastructure.Decoders.Abstractions;
 using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Infrastructure.Requests.CreateOrUpdateConsentGrant;
 internal class CreateOrUpdateConsentGrantHandler : IRequestHandler<CreateOrUpdateConsentGrantCommand, CreateOrUpdateConsentGrantResponse>
 {
+  private readonly ICodeDecoder _codeDecoder;
   private readonly IValidator<CreateOrUpdateConsentGrantCommand> _validator;
   private readonly IdentityContext _identityContext;
 
   public CreateOrUpdateConsentGrantHandler(
+    ICodeDecoder codeDecoder,
     IValidator<CreateOrUpdateConsentGrantCommand> validator,
     IdentityContext identityContext)
   {
+    _codeDecoder = codeDecoder;
     _validator = validator;
     _identityContext = identityContext;
   }
@@ -25,8 +27,10 @@ internal class CreateOrUpdateConsentGrantHandler : IRequestHandler<CreateOrUpdat
   {
     var validationResult = await _validator.ValidateAsync(request, cancellationToken: cancellationToken);
     if (validationResult.IsError())
+    {
       return new CreateOrUpdateConsentGrantResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
-    
+    }
+
     var consentGrant = await _identityContext
       .Set<ConsentGrant>()
       .Include(x => x.ConsentedClaims)
@@ -55,8 +59,14 @@ internal class CreateOrUpdateConsentGrantHandler : IRequestHandler<CreateOrUpdat
     }
     else
     {
-      var client = await _identityContext.Set<Client>().SingleAsync(x => x.Id == request.ClientId, cancellationToken: cancellationToken);
-      var user = await _identityContext.Set<User>().SingleAsync(x => x.Id == request.UserId, cancellationToken: cancellationToken);
+      var client = await _identityContext
+        .Set<Client>()
+        .SingleAsync(x => x.Id == request.ClientId, cancellationToken: cancellationToken);
+
+      var user = await _identityContext
+        .Set<User>()
+        .SingleAsync(x => x.Id == request.UserId, cancellationToken: cancellationToken);
+
       consentGrant = new ConsentGrant
       {
         Client = client,
@@ -66,6 +76,7 @@ internal class CreateOrUpdateConsentGrantHandler : IRequestHandler<CreateOrUpdat
         IssuedAt = DateTime.UtcNow,
         Updated = DateTime.UtcNow
       };
+
       await _identityContext
         .Set<ConsentGrant>()
         .AddAsync(consentGrant, cancellationToken);

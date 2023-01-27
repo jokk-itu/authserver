@@ -7,5 +7,5 @@ public class Contact
 
   public string Email { get; set; }
 
-  public ICollection<Client> Clients { get; set; }
+  public ICollection<Client> Clients { get; set; } = new List<Client>();
 }

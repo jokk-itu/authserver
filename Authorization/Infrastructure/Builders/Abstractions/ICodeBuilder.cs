@@ -5,9 +5,5 @@ public interface ICodeBuilder
     string authorizationGrantId,
     string codeChallenge, 
     string codeChallengeMethod,
-    string userId,
-    string clientId,
     ICollection<string> scopes);
-
-  Task<string> BuildLoginCodeAsync(string userId);
 }

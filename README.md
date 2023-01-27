@@ -1,6 +1,11 @@
 # Authserver
 
-Supporting the Authorization Code flow for OAuth 2.1 and OpenId Connect 1.0
+Supporting OAuth 2.1 and OpenId Connect 1.0
+
+The following grant types are supported:
+- Authorization Code
+- Refresh Token
+- Client Credentials
 
 ## Pipeline runs
 
@@ -44,6 +49,11 @@ which supports the backend for frontend pattern on the frontend app created usin
 
 Supporting the authorization code grant type and the refresh token grant type on a confidential api,
 which supports the backend for frontend pattern on the frontend app created using blazor webassembly.
+
+### WorkerService
+
+Supporting the client credetials gran type on a confidential worker. It is illustrated by querying the token endpoint,
+and afterwards using the access token to query a protected resource for weather data.
 
 ## Resources
 

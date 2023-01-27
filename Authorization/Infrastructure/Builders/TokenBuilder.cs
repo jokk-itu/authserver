@@ -80,7 +80,8 @@ public class TokenBuilder : ITokenBuilder
       ICollection<string> scopes, 
       string nonce, 
       string userId, 
-      string sessionId, 
+      string sessionId,
+      DateTime authTime,
       CancellationToken cancellationToken = default)
     {
         var expires = DateTime.UtcNow.AddSeconds(_identityConfiguration.IdTokenExpiration);
@@ -90,7 +91,8 @@ public class TokenBuilder : ITokenBuilder
           { ClaimNameConstants.Aud, audiences },
           { ClaimNameConstants.Scope, string.Join(' ', scopes) },
           { ClaimNameConstants.Sid, sessionId },
-          { ClaimNameConstants.Nonce, nonce }
+          { ClaimNameConstants.Nonce, nonce },
+          { ClaimNameConstants.AuthTime, authTime }
         };
         var userInfo = await _claimService
           .GetClaimsFromConsentGrant(userId, clientId, cancellationToken: cancellationToken);
@@ -178,7 +180,7 @@ public class TokenBuilder : ITokenBuilder
     {
         var key = new RsaSecurityKey(_jwkManager.RsaCryptoServiceProvider)
         {
-            KeyId = _jwkManager.KeyId
+          KeyId = _jwkManager.KeyId
         };
         var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256);
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -186,7 +188,7 @@ public class TokenBuilder : ITokenBuilder
             IssuedAt = DateTime.UtcNow,
             Expires = expires,
             NotBefore = DateTime.UtcNow,
-            Issuer = _identityConfiguration.InternalIssuer,
+            Issuer = _identityConfiguration.Issuer,
             SigningCredentials = signingCredentials,
             Claims = claims
         };
@@ -214,7 +216,7 @@ public class TokenBuilder : ITokenBuilder
         IssuedAt = DateTime.UtcNow,
         Expires = expires,
         NotBefore = DateTime.UtcNow,
-        Issuer = _identityConfiguration.InternalIssuer,
+        Issuer = _identityConfiguration.Issuer,
         SigningCredentials = signingCredentials,
         EncryptingCredentials = encryptingCredentials,
         Claims = claims

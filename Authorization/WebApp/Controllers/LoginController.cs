@@ -1,11 +1,13 @@
 ﻿using System.Net;
+using System.Security.Claims;
 using Application;
 using Domain.Constants;
-using Infrastructure.Requests.CreateAuthorizationGrant;
-using Infrastructure.Requests.GetLoginToken;
+using Infrastructure.Requests.Login;
 using MediatR;
-using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using WebApp.Attributes;
 using WebApp.Constants;
 using WebApp.Contracts.PostLogin;
 using WebApp.Extensions;
@@ -13,16 +15,17 @@ using WebApp.Extensions;
 namespace WebApp.Controllers;
 
 [Route("connect/[controller]")]
-public class LoginController : Controller
+public class LoginController : OAuthControllerBase
 {
   private readonly IMediator _mediator;
 
-  public LoginController(IMediator mediator)
+  public LoginController(IMediator mediator, IdentityConfiguration identityConfiguration) : base(identityConfiguration)
   {
     _mediator = mediator;
   }
 
   [HttpGet]
+  [SecurityHeader]
   public IActionResult Index()
   {
     return View();
@@ -30,54 +33,53 @@ public class LoginController : Controller
 
   [HttpPost]
   [ValidateAntiForgeryToken]
-  [Consumes("application/x-www-form-urlencoded")]
-  [ProducesResponseType(StatusCodes.Status302Found)]
+  [SecurityHeader]
+  [Consumes(MimeTypeConstants.FormUrlEncoded)]
+  [ProducesResponseType(StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> Post(
     PostLoginRequest request,
     [FromQuery(Name = ParameterNames.Prompt)] string prompt,
     CancellationToken cancellationToken = default)
   {
-    var query = new GetLoginTokenQuery
+    var query = new LoginQuery
     {
       Username = request.Username,
       Password = request.Password
     };
-    var loginCodeResponse = await _mediator.Send(query, cancellationToken: cancellationToken);
+    var loginResponse = await _mediator.Send(query, cancellationToken: cancellationToken);
 
-    if (loginCodeResponse.IsError())
-      return this.BadOAuthResult(loginCodeResponse.ErrorCode, loginCodeResponse.ErrorDescription);
+    if (loginResponse.IsError())
+    {
+      return BadOAuthResult(loginResponse.ErrorCode, loginResponse.ErrorDescription);
+    }
 
     var routeValues = HttpContext.Request.Query.ToRouteValueDictionary();
-    routeValues.Add(ParameterNames.LoginCode, loginCodeResponse.LoginCode);
     var prompts = prompt.Split(' ');
-    if (prompts.Contains(PromptConstants.Consent))
-      return RedirectToAction(controllerName: "Consent", actionName: "Index", routeValues: routeValues);
+    if (!prompts.Contains(PromptConstants.Consent))
+    {
+      return await GetAuthorizationCode(loginResponse.UserId, cancellationToken: cancellationToken);
+    }
 
-    return await GetAuthorizationCode(loginCodeResponse.LoginCode, cancellationToken: cancellationToken);
+    var identity = new ClaimsIdentity(new[] { new Claim(ClaimNameConstants.Sub, loginResponse.UserId) },
+      CookieAuthenticationDefaults.AuthenticationScheme);
+
+    await HttpContext.SignInAsync(new ClaimsPrincipal(identity));
+    return RedirectToAction(controllerName: "Consent", actionName: "Index", routeValues: routeValues);
   }
 
-  private async Task<IActionResult> GetAuthorizationCode(string loginCode, CancellationToken cancellationToken = default)
+  private async Task<IActionResult> GetAuthorizationCode(string userId, CancellationToken cancellationToken = default)
   {
-    var command = HttpContext.Request.Query.ToAuthorizationGrantCommand(loginCode);
+    var command = HttpContext.Request.Query.ToAuthorizationGrantCommand(userId);
     var authorizationGrantResponse = await _mediator.Send(command, cancellationToken: cancellationToken);
     return authorizationGrantResponse.StatusCode switch
     {
-      HttpStatusCode.Redirect when authorizationGrantResponse.IsError() => 
-        this.RedirectOAuthResult(command.RedirectUri, command.State, authorizationGrantResponse.ErrorCode!, authorizationGrantResponse.ErrorDescription!),
+      HttpStatusCode.OK when authorizationGrantResponse.IsError() => 
+        ErrorFormPostResult(command.RedirectUri, command.State, authorizationGrantResponse.ErrorCode, authorizationGrantResponse.ErrorDescription),
       HttpStatusCode.BadRequest when authorizationGrantResponse.IsError() =>
-        this.BadOAuthResult(authorizationGrantResponse.ErrorCode!, authorizationGrantResponse.ErrorDescription!),
-      HttpStatusCode.Redirect => Redirect($"{command.RedirectUri}{GetCodeQuery(authorizationGrantResponse)}"),
-      _ => this.BadOAuthResult(ErrorCode.ServerError, "something went wrong")
+        BadOAuthResult(authorizationGrantResponse.ErrorCode, authorizationGrantResponse.ErrorDescription),
+      HttpStatusCode.OK => AuthorizationCodeFormPostResult(command.RedirectUri, authorizationGrantResponse.State, authorizationGrantResponse.Code),
+      _ => BadOAuthResult(ErrorCode.ServerError, "something went wrong")
     };
-  }
-
-  private static QueryString GetCodeQuery(CreateAuthorizationGrantResponse response)
-  {
-    return new QueryBuilder
-    {
-      {ParameterNames.State, response.State},
-      {ParameterNames.Code, response.Code}
-    }.ToQueryString();
   }
 }

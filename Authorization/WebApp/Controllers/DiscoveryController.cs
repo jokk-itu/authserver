@@ -1,9 +1,8 @@
-﻿using Application;
-using Contracts.GetJwksDocument;
-using Infrastructure.Repositories;
+﻿using Infrastructure.Builders.Abstractions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using WebApp.Contracts.GetDiscoveryDocument;
+using Mapster;
+using WebApp.Contracts.GetJwksDocument;
 
 namespace WebApp.Controllers;
 
@@ -11,48 +10,29 @@ namespace WebApp.Controllers;
 [Route("/.well-known")]
 public class DiscoveryController : ControllerBase
 {
-  private readonly IdentityConfiguration _identityConfiguration;
-  private readonly JwkManager _jwkManager;
+  private readonly IDiscoveryBuilder _builder;
 
   public DiscoveryController(
-    IdentityConfiguration identityConfiguration,
-    JwkManager jwkManager)
+    IDiscoveryBuilder builder)
   {
-    _identityConfiguration = identityConfiguration;
-    _jwkManager = jwkManager;
+    _builder = builder;
   }
 
   [HttpGet]
   [Route("openid-configuration")]
-  public IActionResult GetDiscoveryDocumentAsync()
+  [ProducesResponseType(typeof(GetDiscoveryDocumentResponse), StatusCodes.Status200OK)]
+  public async Task<IActionResult> GetDiscoveryDocument()
   {
-    var discoveryDocumentResponse = new GetDiscoveryDocumentResponse
-    {
-      Issuer = _identityConfiguration.InternalIssuer,
-      AuthorizationEndpoint = $"{_identityConfiguration.ExternalIssuer}/connect/authorize",
-      TokenEndpoint = $"{_identityConfiguration.InternalIssuer}/connect/token",
-      UserInfoEndpoint = $"{_identityConfiguration.InternalIssuer}/connect/userinfo",
-      JwksUri = $"{_identityConfiguration.InternalIssuer}/.well-known/jwks",
-      Scopes = new List<string>()
-    };
-    
-    return Ok(discoveryDocumentResponse);
+    var document = await _builder.BuildDiscoveryDocument();
+    return Ok(document.Adapt<GetDiscoveryDocumentResponse>());
   }
 
   [HttpGet]
   [Route("jwks")]
-  public IActionResult GetJwksDocument()
+  [ProducesResponseType(typeof(GetJwksDocumentResponse), StatusCodes.Status200OK)]
+  public async Task<IActionResult> GetJwksDocument()
   {
-    var response = new GetJwksDocumentResponse();
-    foreach (var jwk in _jwkManager.Jwks)
-    {
-      response.Keys.Add(new JwkDto
-      {
-        KeyId = jwk.KeyId,
-        Modulus = Base64UrlEncoder.Encode(jwk.Modulus),
-        Exponent = Base64UrlEncoder.Encode(jwk.Exponent)
-      });
-    }
-    return Ok(response);
+    var document = await _builder.BuildJwkDocument();
+    return Ok(document.Adapt<GetJwksDocumentResponse>());
   }
 }

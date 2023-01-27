@@ -1,5 +1,4 @@
-﻿using Domain.Enums;
-using Domain;
+﻿using Domain;
 using System.Text.Json.Serialization;
 using WebApp.Constants;
 

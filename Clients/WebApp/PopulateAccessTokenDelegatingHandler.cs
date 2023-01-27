@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using System.Net.Http.Headers;
 
-namespace WebApp;
+namespace App;
 
 public class PopulateAccessTokenDelegatingHandler : DelegatingHandler
 {
@@ -22,7 +22,7 @@ public class PopulateAccessTokenDelegatingHandler : DelegatingHandler
     var accessToken = await _httpContextAccessor.HttpContext!.GetTokenAsync(OpenIdConnectDefaults.AuthenticationScheme, "access_token");
     if (accessToken is null)
     {
-      _logger.LogWarning("Accesstoken is not present");
+      _logger.LogWarning("Access token is not present");
       return await base.SendAsync(request, cancellationToken);
     }
     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);

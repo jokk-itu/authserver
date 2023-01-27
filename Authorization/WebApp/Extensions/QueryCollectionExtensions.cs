@@ -16,12 +16,12 @@ public static class QueryCollectionExtensions
     return routeValues;
   }
 
-  public static CreateAuthorizationGrantCommand ToAuthorizationGrantCommand(this IQueryCollection query, string loginCode)
+  public static CreateAuthorizationGrantCommand ToAuthorizationGrantCommand(this IQueryCollection query, string userId)
   {
     var isMaxAgeParsed = long.TryParse(query[ParameterNames.MaxAge], out var maxAge);
     return new CreateAuthorizationGrantCommand
     {
-      LoginCode = loginCode,
+      UserId = userId,
       ClientId = query[ParameterNames.ClientId],
       CodeChallenge = query[ParameterNames.CodeChallenge],
       CodeChallengeMethod = query[ParameterNames.CodeChallengeMethod],

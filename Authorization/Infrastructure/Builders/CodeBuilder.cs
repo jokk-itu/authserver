@@ -21,8 +21,6 @@ public class CodeBuilder : ICodeBuilder
     string authorizationGrantId,
     string codeChallenge, 
     string codeChallengeMethod,
-    string userId,
-    string clientId,
     ICollection<string> scopes)
   {
     var ms = new MemoryStream();
@@ -32,34 +30,12 @@ public class CodeBuilder : ICodeBuilder
       CodeChallenge = codeChallenge,
       CodeChallengeMethod = codeChallengeMethod,
       AuthorizationGrantId = authorizationGrantId,
-      ClientId = clientId,
-      UserId = userId,
       Scopes = scopes
     };
     writer.Write(JsonSerializer.Serialize(authorizationCode));
     var protectedBytes = _dataProtector.Protect(ms.ToArray());
     return Base64UrlEncoder.Encode(protectedBytes);
   }
-
-  public async Task<string> BuildLoginCodeAsync(string userId)
-  {
-    var ms = new MemoryStream();
-    await using var writer = new BinaryWriter(ms, Encoding.UTF8, false);
-    var loginCode = new LoginCode
-    {
-      UserId = userId,
-      Expires = DateTime.UtcNow
-    };
-    writer.Write(JsonSerializer.Serialize(loginCode));
-    var protectedBytes = _dataProtector.Protect(ms.ToArray());
-    return Base64UrlEncoder.Encode(protectedBytes);
-  }
-}
-
-public class LoginCode
-{
-  public string UserId { get; set; } = null!;
-  public DateTime Expires { get; set; }
 }
 
 public class AuthorizationCode
@@ -67,8 +43,5 @@ public class AuthorizationCode
   public string AuthorizationGrantId { get; set; } = null!;
   public string CodeChallenge { get; set; } = null!;
   public string CodeChallengeMethod { get; set; } = null!;
-  public string ClientId { get; set; } = null!;
-  public string UserId { get; set; } = null!;
   public ICollection<string> Scopes { get; set; } = new List<string>();
-
 }

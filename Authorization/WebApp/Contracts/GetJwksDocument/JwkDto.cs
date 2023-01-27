@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Contracts.GetJwksDocument;
+namespace WebApp.Contracts.GetJwksDocument;
 
 #nullable disable
 public record JwkDto

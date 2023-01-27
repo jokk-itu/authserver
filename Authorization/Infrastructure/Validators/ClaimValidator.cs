@@ -18,7 +18,9 @@ public class ClaimValidator : IBaseValidator<ICollection<string>>
     foreach (var claim in value)
     {
       if (!await _identityContext.Set<Claim>().AnyAsync(x => x.Name == claim, cancellationToken: cancellationToken))
+      {
         return new BaseValidationResult(ErrorCode.InvalidRequest, "claim is invalid");
+      }
     }
 
     return new BaseValidationResult();

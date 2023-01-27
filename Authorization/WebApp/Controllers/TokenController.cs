@@ -1,33 +1,35 @@
 ﻿using Contracts.PostToken;
 using Microsoft.AspNetCore.Mvc;
-using WebApp.Extensions;
 using Domain.Constants;
 using Application;
-using Contracts;
 using WebApp.Contracts.PostToken;
-using Infrastructure.Requests.CreateRefreshTokenGrant;
-using Infrastructure.Requests.RedeemAuthorizationGrant;
+using Infrastructure.Requests.RedeemAuthorizationGrantCode;
 using Infrastructure.Requests.RedeemClientCredentialsGrant;
+using Infrastructure.Requests.RedeemRefreshTokenGrant;
 using MediatR;
+using WebApp.Attributes;
+using WebApp.Constants;
+using WebApp.Contracts;
 
 namespace WebApp.Controllers;
 
 [ApiController]
 [Route("connect/[controller]")]
-public class TokenController : ControllerBase
+public class TokenController : OAuthControllerBase
 {
   private readonly IMediator _mediator;
 
-  public TokenController(IMediator mediator)
+  public TokenController(IMediator mediator, IdentityConfiguration identityConfiguration) : base(identityConfiguration)
   {
     _mediator = mediator;
   }
 
   [HttpPost]
-  [Consumes("application/x-www-form-urlencoded")]
+  [SecurityHeader]
+  [Consumes(MimeTypeConstants.FormUrlEncoded)]
   [ProducesResponseType(typeof(PostTokenResponse), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-  public async Task<IActionResult> PostAsync(
+  public async Task<IActionResult> Post(
     [FromForm] PostTokenRequest request,
     CancellationToken cancellationToken = default)
   {
@@ -36,7 +38,7 @@ public class TokenController : ControllerBase
       GrantTypeConstants.AuthorizationCode => await PostAuthorize(request, cancellationToken: cancellationToken),
       GrantTypeConstants.RefreshToken => await PostRefresh(request, cancellationToken: cancellationToken),
       GrantTypeConstants.ClientCredentials => await PostClientCredentials(request, cancellationToken: cancellationToken),
-      _ => this.BadOAuthResult(ErrorCode.UnsupportedGrantType, "grant_type is unsupported")
+      _ => BadOAuthResult(ErrorCode.UnsupportedGrantType, "grant_type is unsupported")
     };
   }
 
@@ -53,12 +55,15 @@ public class TokenController : ControllerBase
     };
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
     if (response.IsError())
-      return this.BadOAuthResult(response.ErrorCode!, response.ErrorDescription!);
+    {
+      return BadOAuthResult(response.ErrorCode!, response.ErrorDescription!);
+    }
 
     return Ok(new PostTokenResponse
     {
       AccessToken = response.AccessToken,
       RefreshToken = response.RefreshToken,
+      IdToken = response.IdToken,
       ExpiresIn = response.ExpiresIn
     });
   }
@@ -69,9 +74,9 @@ public class TokenController : ControllerBase
   {
     var command = new RedeemAuthorizationCodeGrantCommand
     {
+      GrantType = request.GrantType,
       ClientId = request.ClientId,
       ClientSecret = request.ClientSecret,
-      GrantType = request.GrantType,
       RedirectUri = request.RedirectUri,
       Scope = request.Scope,
       CodeVerifier = request.CodeVerifier,
@@ -79,8 +84,10 @@ public class TokenController : ControllerBase
     };
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
     if (response.IsError())
-      return this.BadOAuthResult(response.ErrorCode, response.ErrorDescription);
-    
+    {
+      return BadOAuthResult(response.ErrorCode, response.ErrorDescription);
+    }
+
     return Ok(new PostTokenResponse
     {
       AccessToken = response.AccessToken,
@@ -96,14 +103,16 @@ public class TokenController : ControllerBase
   {
     var command = new RedeemClientCredentialsGrantCommand
     {
+      GrantType = request.GrantType,
       ClientId = request.ClientId,
       ClientSecret = request.ClientSecret,
-      Scope = request.Scope,
-      GrantType = request.GrantType
+      Scope = request.Scope
     };
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
     if (response.IsError())
-      return this.BadOAuthResult(response.ErrorCode, response.ErrorDescription);
+    {
+      return BadOAuthResult(response.ErrorCode, response.ErrorDescription);
+    }
 
     return Ok(new PostTokenResponse
     {

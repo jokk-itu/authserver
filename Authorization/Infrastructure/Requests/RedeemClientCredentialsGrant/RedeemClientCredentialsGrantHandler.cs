@@ -1,11 +1,8 @@
 ﻿using System.Net;
 using Application;
 using Application.Validation;
-using Domain;
 using Infrastructure.Builders.Abstractions;
 using MediatR;
-using Microsoft.AspNetCore.Mvc.Localization;
-using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.RedeemClientCredentialsGrant;
 public class RedeemClientCredentialsGrantHandler : IRequestHandler<RedeemClientCredentialsGrantCommand, RedeemClientCredentialsGrantResponse>
@@ -29,8 +26,10 @@ public class RedeemClientCredentialsGrantHandler : IRequestHandler<RedeemClientC
   {
     var validationResult = await _validator.ValidateAsync(request, cancellationToken: cancellationToken);
     if (validationResult.IsError())
+    {
       return new RedeemClientCredentialsGrantResponse(validationResult.ErrorCode, validationResult.ErrorDescription,
         validationResult.StatusCode);
+    }
 
     var accessToken = await _tokenBuilder.BuildClientAccessToken(request.ClientId, request.Scope.Split(' '),
       cancellationToken: cancellationToken);

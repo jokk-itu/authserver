@@ -3,21 +3,25 @@ using WebApp.Constants;
 using Application;
 using Domain.Constants;
 using WebApp.Extensions;
-using MediatR;
+using WebApp.Attributes;
 
 namespace WebApp.Controllers;
 
-[ApiController]
 [Route("connect/[controller]")]
-public class AuthorizeController : Controller
+public class AuthorizeController : OAuthControllerBase
 {
+  public AuthorizeController(IdentityConfiguration identityConfiguration) : base(identityConfiguration)
+  {
+  }
+
   [HttpGet]
+  [SecurityHeader]
   public IActionResult Get(
     [FromQuery(Name = ParameterNames.Prompt)] string prompt)
   {
     if (PromptConstants.Prompts.All(x => x != prompt))
     {
-      return this.BadOAuthResult(ErrorCode.InvalidRequest, "prompt is invalid");
+      return BadOAuthResult(ErrorCode.InvalidRequest, "prompt is invalid");
     }
 
     var prompts = prompt.Split(' ');
@@ -32,6 +36,6 @@ public class AuthorizeController : Controller
       return RedirectToAction(controllerName: "Login", actionName: "Index", routeValues: routeValues);
     }
 
-    return this.BadOAuthResult(ErrorCode.LoginRequired, "prompt must contain login");
+    return BadOAuthResult(ErrorCode.LoginRequired, "prompt must contain login");
   }
 }

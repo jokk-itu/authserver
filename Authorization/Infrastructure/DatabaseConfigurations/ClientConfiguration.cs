@@ -64,26 +64,6 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
       .WithOne(x => x.Client)
       .OnDelete(DeleteBehavior.Cascade);
 
-    builder
-      .HasMany(x => x.RefreshTokens)
-      .WithOne(x => x.Client)
-      .OnDelete(DeleteBehavior.NoAction);
-
-    builder
-      .HasMany(x => x.IdTokens)
-      .WithOne(x => x.Client)
-      .OnDelete(DeleteBehavior.NoAction);
-
-    builder
-      .HasMany(x => x.AccessTokens)
-      .WithOne(x => x.Client)
-      .OnDelete(DeleteBehavior.NoAction);
-
-    builder
-      .HasMany(x => x.ClientRegistrationTokens)
-      .WithOne(x => x.Client)
-      .OnDelete(DeleteBehavior.NoAction);
-      
     builder.ToTable("Clients");
   }
 }

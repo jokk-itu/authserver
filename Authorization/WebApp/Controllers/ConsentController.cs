@@ -3,59 +3,58 @@ using Domain;
 using Infrastructure;
 using Infrastructure.Decoders.Abstractions;
 using Infrastructure.Helpers;
-using Infrastructure.Requests.CreateAuthorizationGrant;
 using MediatR;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using Domain.Constants;
 using Infrastructure.Requests.CreateOrUpdateConsentGrant;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using WebApp.Constants;
 using WebApp.Extensions;
 using WebApp.ViewModels;
+using WebApp.Attributes;
+using WebApp.Contracts;
 
 namespace WebApp.Controllers;
 
 [Route("connect/[controller]")]
-public class ConsentController : Controller
+public class ConsentController : OAuthControllerBase
 {
-  private readonly ICodeDecoder _codeDecoder;
   private readonly IdentityContext _identityContext;
-  private readonly UserManager<User> _userManager;
   private readonly IMediator _mediator;
 
   public ConsentController(
-    ICodeDecoder codeDecoder,
     IdentityContext identityContext,
-    UserManager<User> userManager,
-    IMediator mediator)
+    IMediator mediator,
+    IdentityConfiguration identityConfiguration)
+  : base (identityConfiguration)
   {
-    _codeDecoder = codeDecoder;
     _identityContext = identityContext;
-    _userManager = userManager;
     _mediator = mediator;
   }
 
   [HttpGet]
+  [SecurityHeader]
+  [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
   public async Task<IActionResult> Index(
-    [FromQuery(Name = ParameterNames.LoginCode)] string loginCode,
+    [FromQuery(Name = ParameterNames.Scope)] string scope,
+    [FromQuery(Name = ParameterNames.ClientId)] string clientId,
     CancellationToken cancellationToken = default)
   {
-    var code = _codeDecoder.DecodeLoginCode(loginCode);
-    var scopes = HttpContext.Request.Query[ParameterNames.Scope].ToString().Split(' ');
-    var userId = code.UserId;
+    var scopes = scope.Split(' ');
+    var userId = HttpContext.User.FindFirst(ClaimNameConstants.Sub)!.Value;
     var claims = ClaimsHelper.MapToClaims(scopes);
-    var clientId = HttpContext.Request.Query[ParameterNames.ClientId].ToString();
     var client = await _identityContext
       .Set<Client>()
       .SingleAsync(x => x.Id == clientId, cancellationToken: cancellationToken);
 
-    var user = await _userManager.FindByIdAsync(userId);
+    var user = await _identityContext.Set<User>().SingleAsync(x => x.Id == userId, cancellationToken: cancellationToken);
     return View(new ConsentViewModel
     {
       Claims = claims,
-      LoginCode = loginCode,
       ClientName = client.Name,
       GivenName = user.FirstName,
       TosUri = client.TosUri,
@@ -64,43 +63,38 @@ public class ConsentController : Controller
   }
 
   [HttpPost]
-  [Consumes("application/x-www-form-urlencoded")]
+  [Consumes(MimeTypeConstants.FormUrlEncoded)]
+  [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
   [ValidateAntiForgeryToken]
-  public async Task<IActionResult> Post(
-    [FromQuery(Name = ParameterNames.LoginCode)] string loginCode,
-    CancellationToken cancellationToken = default)
+  [SecurityHeader]
+  public async Task<IActionResult> Post(CancellationToken cancellationToken = default)
   {
-    var command = HttpContext.Request.Query.ToAuthorizationGrantCommand(loginCode);
-    var code = _codeDecoder.DecodeLoginCode(loginCode);
+    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+    var userId = HttpContext.User.FindFirst(ClaimNameConstants.Sub)!.Value;
+    var command = HttpContext.Request.Query.ToAuthorizationGrantCommand(userId);
     var consentResponse = await _mediator.Send(new CreateOrUpdateConsentGrantCommand
     {
-      UserId = code.UserId,
+      UserId = userId,
       ClientId = command.ClientId,
-      ConsentedClaims = HttpContext.Request.Form.Keys.Where(x => x != "AntiForgeryField").ToList(),
+      ConsentedClaims = ConsentHelper.GetConsentedClaims(HttpContext.Request.Form).ToList(),
       ConsentedScopes = command.Scopes
     }, cancellationToken: cancellationToken);
 
     if (consentResponse.IsError())
-      return this.BadOAuthResult(consentResponse.ErrorCode, consentResponse.ErrorDescription);
+    {
+      return BadOAuthResult(consentResponse.ErrorCode, consentResponse.ErrorDescription);
+    }
 
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
     return response.StatusCode switch
     {
-      HttpStatusCode.Redirect when response.IsError() =>
-        this.RedirectOAuthResult(command.RedirectUri, command.State, response.ErrorCode!, response.ErrorDescription!),
+      HttpStatusCode.OK when response.IsError() =>
+        ErrorFormPostResult(command.RedirectUri, command.State, response.ErrorCode, response.ErrorDescription),
       HttpStatusCode.BadRequest when response.IsError() =>
-        this.BadOAuthResult(response.ErrorCode!, response.ErrorDescription!),
-      HttpStatusCode.Redirect => Redirect($"{command.RedirectUri}{GetCodeQuery(response)}"),
-      _ => this.BadOAuthResult(ErrorCode.ServerError, "something went wrong")
+        BadOAuthResult(response.ErrorCode!, response.ErrorDescription!),
+      HttpStatusCode.OK => AuthorizationCodeFormPostResult(command.RedirectUri, response.State, response.Code),
+      _ => BadOAuthResult(ErrorCode.ServerError, "something went wrong")
     };
-  }
-
-  private static QueryString GetCodeQuery(CreateAuthorizationGrantResponse response)
-  {
-    return new QueryBuilder
-    {
-      {ParameterNames.State, response.State},
-      {ParameterNames.Code, response.Code}
-    }.ToQueryString();
   }
 }
