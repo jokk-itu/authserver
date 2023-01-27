@@ -6,6 +6,4 @@ public interface ICodeBuilder
     string codeChallenge, 
     string codeChallengeMethod,
     ICollection<string> scopes);
-
-  Task<string> BuildLoginCodeAsync(string userId);
 }

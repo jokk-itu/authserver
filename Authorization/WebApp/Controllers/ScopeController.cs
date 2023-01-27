@@ -2,6 +2,7 @@
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Requests.CreateScope;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Constants;
@@ -38,7 +39,7 @@ public class ScopeController : OAuthControllerBase
 
   [HttpPost]
   [Route("register")]
-  [Authorize(Policy = AuthorizationConstants.ScopeRegistration)]
+  [Authorize(Policy = AuthorizationConstants.ScopeRegistration, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   [ProducesResponseType(typeof(PostScopeResponse), StatusCodes.Status201Created)]
   public async Task<IActionResult> Post([FromBody] PostScopeRequest request,
     CancellationToken cancellationToken = default)

@@ -34,24 +34,14 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
       return new CreateAuthorizationGrantResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
     }
 
-    var loginCode = _codeDecoder.DecodeLoginCode(request.LoginCode);
-    var userId = loginCode.UserId;
-    var userToken = await _identityContext
-      .Set<UserToken>()
-      .Where(x => x.User.Id == userId)
-      .Where(UserToken.IsActive)
-      .Where(x => x.Value == request.LoginCode)
-      .SingleAsync(cancellationToken: cancellationToken);
-    userToken.IsRedeemed = true;
-
-    var user = await _identityContext.Set<User>().SingleAsync(x => x.Id == userId, cancellationToken: cancellationToken);
+    var user = await _identityContext.Set<User>().SingleAsync(x => x.Id == request.UserId, cancellationToken: cancellationToken);
     var client = await _identityContext
       .Set<Client>()
       .SingleAsync(x => x.Id == request.ClientId, cancellationToken: cancellationToken);
 
     var session = await _identityContext
       .Set<Session>()
-      .SingleOrDefaultAsync(x => x.User.Id == userId, cancellationToken: cancellationToken) ?? new Session
+      .SingleOrDefaultAsync(x => x.User.Id == request.UserId, cancellationToken: cancellationToken) ?? new Session
       {
         Created = DateTime.Now,
         Updated = DateTime.Now,

@@ -171,9 +171,23 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     return user;
   }
 
+  protected async Task<AntiForgeryToken> GetAntiForgeryToken(string path, string authenticationCookie)
+  {
+    var request = new HttpRequestMessage(HttpMethod.Get, path);
+    request.Headers.Add("Cookie", authenticationCookie);
+    var response = await Client.SendAsync(request);
+    return await GetAntiForgeryTokenInternal(response);
+  }
+
   protected async Task<AntiForgeryToken> GetAntiForgeryToken(string path)
   {
     var response = await Client.GetAsync(path);
+    return await GetAntiForgeryTokenInternal(response);
+  }
+
+  private async Task<AntiForgeryToken> GetAntiForgeryTokenInternal(HttpResponseMessage response)
+  {
+    response.EnsureSuccessStatusCode();
     var html = await response.Content.ReadAsStringAsync();
 
     if (string.IsNullOrWhiteSpace(Cookie))

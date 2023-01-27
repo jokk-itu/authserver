@@ -1,9 +1,9 @@
 ﻿using MediatR;
 
-namespace Infrastructure.Requests.GetLoginToken;
+namespace Infrastructure.Requests.Login;
 
 #nullable disable
-public class GetLoginTokenQuery : IRequest<GetLoginTokenResponse>
+public class LoginQuery : IRequest<LoginResponse>
 {
   public string Username { get; init; }
   public string Password { get; init; }

@@ -25,7 +25,7 @@ public class UserInfoController : OAuthControllerBase
   }
 
   [HttpGet]
-  [Authorize]
+  [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   [SecurityHeader]
   [ProducesResponseType(StatusCodes.Status200OK)]
   public async Task<IActionResult> Get(CancellationToken cancellationToken = default)

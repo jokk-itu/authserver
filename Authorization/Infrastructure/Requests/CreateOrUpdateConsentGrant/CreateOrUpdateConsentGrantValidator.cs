@@ -2,21 +2,17 @@
 using Application;
 using Application.Validation;
 using Domain;
-using Infrastructure.Decoders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.CreateOrUpdateConsentGrant;
 public class CreateOrUpdateConsentGrantValidator : IValidator<CreateOrUpdateConsentGrantCommand>
 {
   private readonly IdentityContext _identityContext;
-  private readonly ICodeDecoder _codeDecoder;
 
   public CreateOrUpdateConsentGrantValidator(
-    IdentityContext identityContext,
-    ICodeDecoder codeDecoder)
+    IdentityContext identityContext)
   {
     _identityContext = identityContext;
-    _codeDecoder = codeDecoder;
   }
 
   public async Task<ValidationResult> ValidateAsync(CreateOrUpdateConsentGrantCommand value, CancellationToken cancellationToken = default)
@@ -38,13 +34,9 @@ public class CreateOrUpdateConsentGrantValidator : IValidator<CreateOrUpdateCons
       return new ValidationResult(ErrorCode.UnauthorizedClient, "client is unauthorized", HttpStatusCode.BadRequest);
     }
 
-    var code = _codeDecoder.DecodeLoginCode(value.LoginCode);
     var isUserValid = await _identityContext
       .Set<User>()
-      .Where(x => x.Id == code.UserId)
-      .SelectMany(x => x.UserTokens)
-      .Where(UserToken.IsActive)
-      .Where(x => x.Value == value.LoginCode)
+      .Where(x => x.Id == value.UserId)
       .AnyAsync(cancellationToken: cancellationToken);
 
     if (!isUserValid)

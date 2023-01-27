@@ -50,7 +50,7 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
         {
             Code = code,
             CodeVerifier = pkce.CodeVerifier,
-            Scope = string.Empty
+            Scope = "invalid_scope"
         };
 
         // Act

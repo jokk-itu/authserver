@@ -2,6 +2,7 @@
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Requests.CreateResource;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Constants;
@@ -41,7 +42,7 @@ public class ResourceController : OAuthControllerBase
 
   [HttpPost]
   [Route("register")]
-  [Authorize(Policy = AuthorizationConstants.ResourceRegistration)]
+  [Authorize(Policy = AuthorizationConstants.ResourceRegistration, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   [ProducesResponseType(typeof(PostResourceRequest), StatusCodes.Status201Created)]
   [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> Post([FromBody] PostResourceRequest request, CancellationToken cancellationToken = default)
@@ -69,7 +70,7 @@ public class ResourceController : OAuthControllerBase
   }
 
   [HttpPut]
-  [Authorize(Policy = AuthorizationConstants.ResourceConfiguration)]
+  [Authorize(Policy = AuthorizationConstants.ResourceConfiguration, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   [Route("configuration")]
   [ProducesResponseType(typeof(PutResourceRequest), StatusCodes.Status200OK)]
   public async Task<IActionResult> Put([FromBody] PutResourceRequest request, CancellationToken cancellationToken = default)
@@ -78,7 +79,7 @@ public class ResourceController : OAuthControllerBase
   }
 
   [HttpDelete]
-  [Authorize(Policy = AuthorizationConstants.ResourceConfiguration)]
+  [Authorize(Policy = AuthorizationConstants.ResourceConfiguration, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   [Route("configuration")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   public async Task<IActionResult> Delete(CancellationToken cancellationToken = default)
@@ -87,7 +88,7 @@ public class ResourceController : OAuthControllerBase
   }
 
   [HttpGet]
-  [Authorize(Policy = AuthorizationConstants.ResourceConfiguration)]
+  [Authorize(Policy = AuthorizationConstants.ResourceConfiguration, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   [Route("configuration")]
   [ProducesResponseType(typeof(GetClientResponse), StatusCodes.Status200OK)]
   public async Task<IActionResult> Get(CancellationToken cancellationToken = default)

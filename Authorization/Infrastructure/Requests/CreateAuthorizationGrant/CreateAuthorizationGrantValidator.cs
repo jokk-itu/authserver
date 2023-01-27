@@ -4,21 +4,17 @@ using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
-using Infrastructure.Decoders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.CreateAuthorizationGrant;
 public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationGrantCommand>
 {
   private readonly IdentityContext _identityContext;
-  private readonly ICodeDecoder _codeDecoder;
 
   public CreateAuthorizationGrantValidator(
-    IdentityContext identityContext,
-    ICodeDecoder codeDecoder)
+    IdentityContext identityContext)
   {
     _identityContext = identityContext;
-    _codeDecoder = codeDecoder;
   }
 
   public async Task<ValidationResult> ValidateAsync(CreateAuthorizationGrantCommand value, CancellationToken cancellationToken = default)
@@ -49,18 +45,6 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
 
     if (await IsScopesInvalidAsync(value))
       return new ValidationResult(ErrorCode.InvalidRequest, "scope is invalid", HttpStatusCode.OK);
-
-    var loginCode = _codeDecoder.DecodeLoginCode(value.LoginCode);
-    var isLoginCodeValid = await _identityContext
-      .Set<UserToken>()
-      .Where(x => x.User.Id == loginCode.UserId)
-      .Where(UserToken.IsActive)
-      .AnyAsync(cancellationToken: cancellationToken);
-
-    if (!isLoginCodeValid)
-    {
-      return new ValidationResult(ErrorCode.LoginRequired, "login is required", HttpStatusCode.OK);
-    }
 
     if (value.MaxAge < 0)
       return new ValidationResult(ErrorCode.InvalidRequest, "max_age is invalid", HttpStatusCode.OK);
@@ -155,19 +139,21 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
 
   private async Task<bool> IsConsentGrantInvalid(CreateAuthorizationGrantCommand command)
   {
-    var code = _codeDecoder.DecodeLoginCode(command.LoginCode);
-    var userId = code.UserId;
     var consentGrant = await _identityContext
       .Set<ConsentGrant>()
       .Include(x => x.ConsentedScopes)
-      .Where(x => x.Client.Id == command.ClientId && x.User.Id == userId)
+      .Where(x => x.Client.Id == command.ClientId && x.User.Id == command.UserId)
       .SingleOrDefaultAsync();
 
     if (consentGrant is null)
+    {
       return true;
+    }
 
     if (consentGrant.ConsentedScopes.Count != command.Scopes.Count)
+    {
       return true;
+    }
 
     return consentGrant.ConsentedScopes.Any(scope => !command.Scopes.Contains(scope.Name));
   }

@@ -44,7 +44,7 @@ public class ClientController : OAuthControllerBase
   }
 
   [HttpPost]
-  [Authorize(Policy = AuthorizationConstants.ClientRegistration)]
+  [Authorize(Policy = AuthorizationConstants.ClientRegistration, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   [Route("register")]
   [ProducesResponseType(typeof(PostClientResponse), StatusCodes.Status201Created)]
   [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
@@ -94,7 +94,7 @@ public class ClientController : OAuthControllerBase
   }
 
   [HttpDelete]
-  [Authorize(Policy = AuthorizationConstants.ClientConfiguration)]
+  [Authorize(Policy = AuthorizationConstants.ClientConfiguration, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   [Route("configuration")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   public async Task<IActionResult> Delete(CancellationToken cancellationToken = default)

@@ -2,7 +2,6 @@
 using System.Text.Json;
 using Application;
 using Infrastructure.Builders.Abstractions;
-using Infrastructure.Helpers;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 
@@ -37,26 +36,6 @@ public class CodeBuilder : ICodeBuilder
     var protectedBytes = _dataProtector.Protect(ms.ToArray());
     return Base64UrlEncoder.Encode(protectedBytes);
   }
-
-  public async Task<string> BuildLoginCodeAsync(string userId)
-  {
-    var ms = new MemoryStream();
-    await using var writer = new BinaryWriter(ms, Encoding.UTF8, false);
-    var loginCode = new LoginCode
-    {
-      UserId = userId,
-      Random = CryptographyHelper.GetRandomString(16)
-    };
-    writer.Write(JsonSerializer.Serialize(loginCode));
-    var protectedBytes = _dataProtector.Protect(ms.ToArray());
-    return Base64UrlEncoder.Encode(protectedBytes);
-  }
-}
-
-public class LoginCode
-{
-  public string UserId { get; set; } = null!;
-  public string Random { get; set; } = null!;
 }
 
 public class AuthorizationCode

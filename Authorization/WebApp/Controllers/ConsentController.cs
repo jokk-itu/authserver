@@ -7,7 +7,11 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using Domain.Constants;
 using Infrastructure.Requests.CreateOrUpdateConsentGrant;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using WebApp.Constants;
 using WebApp.Extensions;
 using WebApp.ViewModels;
@@ -19,41 +23,30 @@ namespace WebApp.Controllers;
 [Route("connect/[controller]")]
 public class ConsentController : OAuthControllerBase
 {
-  private readonly ICodeDecoder _codeDecoder;
   private readonly IdentityContext _identityContext;
   private readonly IMediator _mediator;
 
   public ConsentController(
-    ICodeDecoder codeDecoder,
     IdentityContext identityContext,
     IMediator mediator,
     IdentityConfiguration identityConfiguration)
   : base (identityConfiguration)
   {
-    _codeDecoder = codeDecoder;
     _identityContext = identityContext;
     _mediator = mediator;
   }
 
   [HttpGet]
   [SecurityHeader]
+  [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
   public async Task<IActionResult> Index(
-    [FromQuery(Name = ParameterNames.LoginCode)] string loginCode,
+    [FromQuery(Name = ParameterNames.Scope)] string scope,
+    [FromQuery(Name = ParameterNames.ClientId)] string clientId,
     CancellationToken cancellationToken = default)
   {
-    var code = _codeDecoder.DecodeLoginCode(loginCode);
-    var userToken = await _identityContext
-      .Set<UserToken>()
-      .SingleAsync(x => x.User.Id == code.UserId && x.Value == loginCode, cancellationToken: cancellationToken);
-
-    if (userToken.ExpiresAt < DateTime.UtcNow)
-    {
-      return Unauthorized(new ErrorResponse(ErrorCode.LoginRequired, "login is required"));
-    }
-    var scopes = HttpContext.Request.Query[ParameterNames.Scope].ToString().Split(' ');
-    var userId = code.UserId;
+    var scopes = scope.Split(' ');
+    var userId = HttpContext.User.FindFirst(ClaimNameConstants.Sub)!.Value;
     var claims = ClaimsHelper.MapToClaims(scopes);
-    var clientId = HttpContext.Request.Query[ParameterNames.ClientId].ToString();
     var client = await _identityContext
       .Set<Client>()
       .SingleAsync(x => x.Id == clientId, cancellationToken: cancellationToken);
@@ -62,7 +55,6 @@ public class ConsentController : OAuthControllerBase
     return View(new ConsentViewModel
     {
       Claims = claims,
-      LoginCode = loginCode,
       ClientName = client.Name,
       GivenName = user.FirstName,
       TosUri = client.TosUri,
@@ -72,16 +64,18 @@ public class ConsentController : OAuthControllerBase
 
   [HttpPost]
   [Consumes(MimeTypeConstants.FormUrlEncoded)]
+  [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
   [ValidateAntiForgeryToken]
   [SecurityHeader]
-  public async Task<IActionResult> Post(
-    [FromQuery(Name = ParameterNames.LoginCode)] string loginCode,
-    CancellationToken cancellationToken = default)
+  public async Task<IActionResult> Post(CancellationToken cancellationToken = default)
   {
-    var command = HttpContext.Request.Query.ToAuthorizationGrantCommand(loginCode);
+    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+    var userId = HttpContext.User.FindFirst(ClaimNameConstants.Sub)!.Value;
+    var command = HttpContext.Request.Query.ToAuthorizationGrantCommand(userId);
     var consentResponse = await _mediator.Send(new CreateOrUpdateConsentGrantCommand
     {
-      LoginCode = loginCode,
+      UserId = userId,
       ClientId = command.ClientId,
       ConsentedClaims = ConsentHelper.GetConsentedClaims(HttpContext.Request.Form).ToList(),
       ConsentedScopes = command.Scopes

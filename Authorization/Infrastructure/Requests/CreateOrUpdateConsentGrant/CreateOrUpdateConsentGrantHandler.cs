@@ -31,7 +31,6 @@ internal class CreateOrUpdateConsentGrantHandler : IRequestHandler<CreateOrUpdat
       return new CreateOrUpdateConsentGrantResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
     }
 
-    var loginCode = _codeDecoder.DecodeLoginCode(request.LoginCode);
     var consentGrant = await _identityContext
       .Set<ConsentGrant>()
       .Include(x => x.ConsentedClaims)
@@ -39,7 +38,7 @@ internal class CreateOrUpdateConsentGrantHandler : IRequestHandler<CreateOrUpdat
       .Include(x => x.Client)
       .Include(x => x.User)
       .Where(x => x.Client.Id == request.ClientId)
-      .Where(x => x.User.Id == loginCode.UserId)
+      .Where(x => x.User.Id == request.UserId)
       .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
     var claims = await _identityContext
@@ -66,7 +65,7 @@ internal class CreateOrUpdateConsentGrantHandler : IRequestHandler<CreateOrUpdat
 
       var user = await _identityContext
         .Set<User>()
-        .SingleAsync(x => x.Id == loginCode.UserId, cancellationToken: cancellationToken);
+        .SingleAsync(x => x.Id == request.UserId, cancellationToken: cancellationToken);
 
       consentGrant = new ConsentGrant
       {

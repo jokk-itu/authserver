@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Domain.Constants;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using WebApp.Constants;
 using WebApp.Options;
 
@@ -14,11 +15,22 @@ public static class ServiceCollectionExtensions
     services
       .AddAuthentication(configureOptions =>
       {
-        configureOptions.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        configureOptions.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+        configureOptions.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         configureOptions.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
       })
-      .AddJwtBearer();
+      .AddJwtBearer()
+      .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, config =>
+      {
+        config.Cookie = new CookieBuilder
+        {
+          Name = CookieConstants.IdentityCookie,
+          HttpOnly = true,
+          IsEssential = true,
+          SameSite = SameSiteMode.Strict,
+          SecurePolicy = CookieSecurePolicy.Always
+        };
+        config.ExpireTimeSpan = TimeSpan.FromSeconds(30);
+      });
     return services;
   }
 
@@ -65,7 +77,7 @@ public static class ServiceCollectionExtensions
     services.AddCookiePolicy(cookiePolicyOptions =>
     {
       cookiePolicyOptions.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
-      cookiePolicyOptions.MinimumSameSitePolicy = SameSiteMode.None;
+      cookiePolicyOptions.MinimumSameSitePolicy = SameSiteMode.Strict;
       cookiePolicyOptions.Secure = CookieSecurePolicy.Always;
     });
     return services;

@@ -1,8 +1,11 @@
 ﻿using System.Net;
+using System.Security.Claims;
 using Application;
 using Domain.Constants;
-using Infrastructure.Requests.GetLoginToken;
+using Infrastructure.Requests.Login;
 using MediatR;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Attributes;
 using WebApp.Constants;
@@ -39,32 +42,35 @@ public class LoginController : OAuthControllerBase
     [FromQuery(Name = ParameterNames.Prompt)] string prompt,
     CancellationToken cancellationToken = default)
   {
-    var query = new GetLoginTokenQuery
+    var query = new LoginQuery
     {
       Username = request.Username,
       Password = request.Password
     };
-    var loginCodeResponse = await _mediator.Send(query, cancellationToken: cancellationToken);
+    var loginResponse = await _mediator.Send(query, cancellationToken: cancellationToken);
 
-    if (loginCodeResponse.IsError())
+    if (loginResponse.IsError())
     {
-      return BadOAuthResult(loginCodeResponse.ErrorCode, loginCodeResponse.ErrorDescription);
+      return BadOAuthResult(loginResponse.ErrorCode, loginResponse.ErrorDescription);
     }
 
     var routeValues = HttpContext.Request.Query.ToRouteValueDictionary();
-    routeValues.Add(ParameterNames.LoginCode, loginCodeResponse.LoginCode);
     var prompts = prompt.Split(' ');
-    if (prompts.Contains(PromptConstants.Consent))
+    if (!prompts.Contains(PromptConstants.Consent))
     {
-      return RedirectToAction(controllerName: "Consent", actionName: "Index", routeValues: routeValues);
+      return await GetAuthorizationCode(loginResponse.UserId, cancellationToken: cancellationToken);
     }
 
-    return await GetAuthorizationCode(loginCodeResponse.LoginCode, cancellationToken: cancellationToken);
+    var identity = new ClaimsIdentity(new[] { new Claim(ClaimNameConstants.Sub, loginResponse.UserId) },
+      CookieAuthenticationDefaults.AuthenticationScheme);
+
+    await HttpContext.SignInAsync(new ClaimsPrincipal(identity));
+    return RedirectToAction(controllerName: "Consent", actionName: "Index", routeValues: routeValues);
   }
 
-  private async Task<IActionResult> GetAuthorizationCode(string loginCode, CancellationToken cancellationToken = default)
+  private async Task<IActionResult> GetAuthorizationCode(string userId, CancellationToken cancellationToken = default)
   {
-    var command = HttpContext.Request.Query.ToAuthorizationGrantCommand(loginCode);
+    var command = HttpContext.Request.Query.ToAuthorizationGrantCommand(userId);
     var authorizationGrantResponse = await _mediator.Send(command, cancellationToken: cancellationToken);
     return authorizationGrantResponse.StatusCode switch
     {

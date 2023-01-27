@@ -47,13 +47,13 @@ public class AuthorizationRefreshTests : BaseIntegrationTest
       { ParameterNames.Prompt, $"{PromptConstants.Login} {PromptConstants.Consent}" }
     };
 
-    var loginResponse = await LoginEndpointHelper.GetLoginCode(Client, query.ToQueryString(), user.UserName, password, await GetAntiForgeryToken($"connect/login{query}"));
-    var locationHeader = new Uri(Client.BaseAddress!, loginResponse.Headers.Location!);
-    var loginCode = HttpUtility.ParseQueryString(locationHeader.Query).Get(ParameterNames.LoginCode);
-    Assert.NotNull(loginCode);
-    Assert.NotEmpty(loginCode);
-    query.Add(ParameterNames.LoginCode, loginCode);
-    var consentResponse = await ConsentEndpointHelper.GetConsent(Client, query.ToQueryString(), await GetAntiForgeryToken($"connect/consent{query}"));
+    var loginAntiForgery = await GetAntiForgeryToken($"connect/login{query}");
+    var loginResponse = await LoginEndpointHelper.Login(Client, query.ToQueryString(), user.UserName, password, loginAntiForgery);
+    var loginCookie = loginResponse.Headers.GetValues("Set-Cookie").Single();
+    Assert.NotEmpty(loginCookie);
+
+    var consentAntiForgery = await GetAntiForgeryToken($"connect/consent{query}", loginCookie);
+    var consentResponse = await ConsentEndpointHelper.GetConsent(Client, query.ToQueryString(), consentAntiForgery, loginCookie);
     var html = await consentResponse.Content.ReadAsStringAsync();
     var authorizationCodeInput = Regex.Match(html, @"\<input name=""code"" type=""hidden"" value=""([^""]+)"" \/\>");
     Assert.Equal(2, authorizationCodeInput.Groups.Count);
