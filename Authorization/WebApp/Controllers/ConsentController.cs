@@ -1,19 +1,18 @@
 ﻿using Application;
 using Domain;
 using Infrastructure;
-using Infrastructure.Decoders.Abstractions;
 using Infrastructure.Helpers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using Domain.Constants;
+using Infrastructure.Requests.CreateAuthorizationGrant;
 using Infrastructure.Requests.CreateOrUpdateConsentGrant;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using WebApp.Constants;
-using WebApp.Extensions;
 using WebApp.ViewModels;
 using WebApp.Attributes;
 using WebApp.Contracts;
@@ -67,18 +66,19 @@ public class ConsentController : OAuthControllerBase
   [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
   [ValidateAntiForgeryToken]
   [SecurityHeader]
-  public async Task<IActionResult> Post(CancellationToken cancellationToken = default)
+  public async Task<IActionResult> Post(
+    AuthorizeRequest request,
+    CancellationToken cancellationToken = default)
   {
     await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
     var userId = HttpContext.User.FindFirst(ClaimNameConstants.Sub)!.Value;
-    var command = HttpContext.Request.Query.ToAuthorizationGrantCommand(userId);
     var consentResponse = await _mediator.Send(new CreateOrUpdateConsentGrantCommand
     {
       UserId = userId,
-      ClientId = command.ClientId,
+      ClientId = request.ClientId,
       ConsentedClaims = ConsentHelper.GetConsentedClaims(HttpContext.Request.Form).ToList(),
-      ConsentedScopes = command.Scopes
+      ConsentedScopes = request.Scope.Split(' ')
     }, cancellationToken: cancellationToken);
 
     if (consentResponse.IsError())
@@ -86,6 +86,25 @@ public class ConsentController : OAuthControllerBase
       return BadOAuthResult(consentResponse.ErrorCode, consentResponse.ErrorDescription);
     }
 
+    var maxAge = 0L;
+    if (long.TryParse(request.MaxAge, out var parsedMaxAge))
+    {
+      maxAge = parsedMaxAge;
+    }
+
+    var command = new CreateAuthorizationGrantCommand
+    {
+      ClientId = request.ClientId,
+      Scope = request.Scope,
+      CodeChallenge = request.CodeChallenge,
+      CodeChallengeMethod = request.CodeChallengeMethod,
+      MaxAge = maxAge,
+      Nonce = request.Nonce,
+      RedirectUri = request.RedirectUri,
+      ResponseType = request.ResponseType,
+      State = request.State,
+      UserId = userId
+    };
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
     return response.StatusCode switch
     {

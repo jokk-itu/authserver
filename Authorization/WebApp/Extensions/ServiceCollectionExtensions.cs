@@ -12,6 +12,7 @@ public static class ServiceCollectionExtensions
   {
     services.AddSingleton<InternalConfigurationManager>();
     services.ConfigureOptions<ConfigureJwtBearerOptions>();
+    services.ConfigureOptions<ConfigureCookieAuthenticationOptions>();
     services
       .AddAuthentication(configureOptions =>
       {
@@ -19,18 +20,7 @@ public static class ServiceCollectionExtensions
         configureOptions.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
       })
       .AddJwtBearer()
-      .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, config =>
-      {
-        config.Cookie = new CookieBuilder
-        {
-          Name = CookieConstants.IdentityCookie,
-          HttpOnly = true,
-          IsEssential = true,
-          SameSite = SameSiteMode.Strict,
-          SecurePolicy = CookieSecurePolicy.Always
-        };
-        config.ExpireTimeSpan = TimeSpan.FromSeconds(30);
-      });
+      .AddCookie();
     return services;
   }
 
@@ -90,8 +80,8 @@ public static class ServiceCollectionExtensions
       corsOptions.AddDefaultPolicy(corsPolicyBuilder =>
       {
         corsPolicyBuilder
-        .AllowAnyOrigin()
-        .AllowAnyHeader();
+          .AllowAnyOrigin()
+          .AllowAnyHeader();
       });
     });
     return services;

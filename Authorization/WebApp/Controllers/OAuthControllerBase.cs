@@ -1,5 +1,8 @@
-﻿using Application;
+﻿using System.Net;
+using Application;
+using Infrastructure.Requests;
 using Microsoft.AspNetCore.Mvc;
+using WebApp.Constants;
 using WebApp.Contracts;
 
 namespace WebApp.Controllers;
@@ -33,7 +36,8 @@ public abstract class OAuthControllerBase : Controller
     {
       return new ContentResult
       {
-        ContentType = "text/html",
+        StatusCode = (int)HttpStatusCode.OK,
+        ContentType = MimeTypeConstants.Html,
         Content = FormPostBuilder.BuildAuthorizationCodeResponse(redirectUri, state, code, _identityConfiguration.Issuer)
       };
     }
@@ -42,17 +46,9 @@ public abstract class OAuthControllerBase : Controller
     {
       return new ContentResult
       {
-        ContentType = "text/html",
+        StatusCode = (int)HttpStatusCode.OK,
+        ContentType = MimeTypeConstants.Html,
         Content = FormPostBuilder.BuildErrorResponse(redirectUri, state, error, errorDescription, _identityConfiguration.Issuer)
-      };
-    }
-
-    protected IActionResult LoginFormPostResult()
-    {
-      return new ContentResult
-      {
-        ContentType = "text/html",
-        Content = FormPostBuilder.BuildLoginCodeResponse()
       };
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Infrastructure.Requests.GeUserInfo;
+namespace Infrastructure.Requests.GetUserInfo;
 
 public class GetUserInfoResponse : Response
 {

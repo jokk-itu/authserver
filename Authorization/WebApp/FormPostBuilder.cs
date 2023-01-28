@@ -39,12 +39,6 @@ public static class FormPostBuilder
     return formBuilder.ToString();
   }
 
-  public static string BuildLoginCodeResponse()
-  {
-        // Return form containing the entire Authorize response AND the login code (iss is not needed)
-        throw new NotImplementedException();
-  }
-
   private static string AddStart(string redirectUri)
   {
     return $@"

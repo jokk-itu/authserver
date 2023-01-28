@@ -6,7 +6,7 @@ using Domain.Constants;
 using Infrastructure.Decoders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Requests.GeUserInfo;
+namespace Infrastructure.Requests.GetUserInfo;
 public class GetUserInfoValidator : IValidator<GetUserInfoQuery>
 {
   private readonly ITokenDecoder _tokenDecoder;
