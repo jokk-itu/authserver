@@ -48,6 +48,11 @@ public class AuthorizeController : OAuthControllerBase
       return await GetSilentLogin(request, cancellationToken);
     }
 
+    if (prompts.Contains(PromptConstants.Consent))
+    {
+      return RedirectToAction(controllerName: "Consent", actionName: "GetConsent", routeValues: routeValues);
+    }
+
     return BadOAuthResult(ErrorCode.LoginRequired, "prompt must contain login");
   }
 

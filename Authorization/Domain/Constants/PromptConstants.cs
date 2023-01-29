@@ -6,5 +6,5 @@ public static class PromptConstants
   public const string Create = "create";
   public const string None = "none";
 
-  public static readonly string[] Prompts = { $"{Consent} {Login}" ,$"{Login} {Consent}", Create, Login, None };
+  public static readonly string[] Prompts = { $"{Consent} {Login}" ,$"{Login} {Consent}", Create, Login, None, Consent };
 }

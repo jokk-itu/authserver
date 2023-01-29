@@ -56,7 +56,6 @@ public class LoginController : OAuthControllerBase
       return BadOAuthResult(loginResponse.ErrorCode, loginResponse.ErrorDescription);
     }
 
-    var routeValues = HttpContext.Request.Query.ToRouteValueDictionary();
     var prompts = authorizeRequest.Prompt.Split(' ');
     if (!prompts.Contains(PromptConstants.Consent))
     {
@@ -67,7 +66,8 @@ public class LoginController : OAuthControllerBase
       CookieAuthenticationDefaults.AuthenticationScheme);
 
     await HttpContext.SignInAsync(new ClaimsPrincipal(identity));
-    return RedirectToAction(controllerName: "Consent", actionName: "Index", routeValues: routeValues);
+    var routeValues = HttpContext.Request.Query.ToRouteValueDictionary();
+    return RedirectToAction(controllerName: "Consent", actionName: "GetConsentForAuthorizeCode", routeValues: routeValues);
   }
 
   private async Task<IActionResult> GetAuthorizationCode(AuthorizeRequest request, string userId, CancellationToken cancellationToken = default)
