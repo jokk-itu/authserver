@@ -7,11 +7,6 @@
       },
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5004"
-    },
-    "Docker": {
-      "commandName": "Docker",
-      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
-      "publishAllPorts": true
     }
   },
   "$schema": "https://json.schemastore.org/launchsettings.json"
