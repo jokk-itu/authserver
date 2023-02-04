@@ -34,6 +34,16 @@ public abstract class OAuthControllerBase : Controller
 
     protected IActionResult AuthorizationCodeFormPostResult(string redirectUri, string state, string code)
     {
+      if(!Uri.IsWellFormedUriString(redirectUri, UriKind.Absolute))
+      {
+        throw new ArgumentException($"{nameof(redirectUri)} must be a well formed uri");
+      }
+
+      if (string.IsNullOrWhiteSpace(state))
+      {
+        throw new ArgumentException($"{nameof(state)} must not be null or whitespace");
+      }
+
       return new ContentResult
       {
         StatusCode = (int)HttpStatusCode.OK,
@@ -44,6 +54,16 @@ public abstract class OAuthControllerBase : Controller
 
     protected IActionResult ErrorFormPostResult(string redirectUri, string state, string? error, string? errorDescription)
     {
+      if(!Uri.IsWellFormedUriString(redirectUri, UriKind.Absolute))
+      {
+        throw new ArgumentException($"{nameof(redirectUri)} must be a well formed uri");
+      }
+
+      if (string.IsNullOrWhiteSpace(state))
+      {
+        throw new ArgumentException($"{nameof(state)} must not be null or whitespace");
+      }
+
       return new ContentResult
       {
         StatusCode = (int)HttpStatusCode.OK,
