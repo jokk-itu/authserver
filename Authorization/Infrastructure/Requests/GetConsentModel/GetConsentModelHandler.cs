@@ -28,35 +28,39 @@ public class GetConsentModelHandler : IRequestHandler<GetConsentModelQuery, GetC
       return validationResult.ToResponse<GetConsentModelResponse>();
     }
 
-    var response = await _identityContext
+    var user = await _identityContext
+      .Set<User>()
+      .Where(x => x.Id == request.UserId)
+      .SingleAsync(cancellationToken: cancellationToken);
+
+    var client = await _identityContext
+      .Set<Client>()
+      .Where(x => x.Id == request.ClientId)
+      .SingleAsync(cancellationToken: cancellationToken);
+
+    var consentedClaims = await _identityContext
       .Set<ConsentGrant>()
       .Where(x => x.User.Id == request.UserId)
       .Where(x => x.Client.Id == request.ClientId)
-      .Select(x => new
-      {
-        GivenName = x.User.FirstName,
-        ClientName = x.Client.Name,
-        PolicyUri = x.Client.PolicyUri,
-        TosUri = x.Client.TosUri,
-        ConsentedClaims = x.ConsentedClaims.Select(y => y.Name)
-      })
-      .SingleAsync(cancellationToken: cancellationToken);
+      .SelectMany(x => x.ConsentedClaims)
+      .Select(x => x.Name)
+      .ToListAsync(cancellationToken: cancellationToken);
 
     var claims = ClaimsHelper
       .MapToClaims(request.Scope.Split(' '))
       .Select(x => new ClaimDto
       {
         Name = x,
-        IsConsented = response.ConsentedClaims.Contains(x)
+        IsConsented = consentedClaims.Contains(x)
       });
 
     return new GetConsentModelResponse(HttpStatusCode.OK)
     {
       Claims = claims,
-      ClientName = response.ClientName,
-      GivenName = response.GivenName,
-      PolicyUri = response.PolicyUri,
-      TosUri = response.TosUri
+      ClientName = client.Name,
+      GivenName = user.FirstName,
+      PolicyUri = client.PolicyUri,
+      TosUri = client.TosUri
     };
   }
 }
