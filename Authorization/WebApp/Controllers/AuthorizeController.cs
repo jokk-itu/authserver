@@ -7,6 +7,7 @@ using MediatR;
 using WebApp.Extensions;
 using WebApp.Attributes;
 using WebApp.Contracts;
+using WebApp.Controllers.Abstracts;
 
 namespace WebApp.Controllers;
 
@@ -50,7 +51,7 @@ public class AuthorizeController : OAuthControllerBase
 
     if (prompts.Contains(PromptConstants.Consent))
     {
-      return RedirectToAction(controllerName: "Consent", actionName: "GetConsent", routeValues: routeValues);
+      return RedirectToAction(controllerName: "Consent", actionName: "UpdateConsent", routeValues: routeValues);
     }
 
     return BadOAuthResult(ErrorCode.LoginRequired, "prompt must contain login");

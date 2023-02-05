@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using WebApp.Constants;
 using WebApp.Contracts.GetScopeInitialAccessToken;
 using WebApp.Contracts.PostScope;
+using WebApp.Controllers.Abstracts;
 
 namespace WebApp.Controllers;
 

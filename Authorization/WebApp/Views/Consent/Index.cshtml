@@ -6,7 +6,7 @@
     <p>wants to access your account <b>@Model.GivenName</b></p>
     <p>The following personal information is requested by the above app.</p>
     <br/>
-    <form name="consent" asp-action="connect/consent" method=@Model.FormMethod>
+    <form name="consent" method="@Model.FormMethod" >
         @foreach (var claim in Model.Claims)
         {
             <div class="form-check my-2">

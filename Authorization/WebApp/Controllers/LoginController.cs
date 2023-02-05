@@ -12,6 +12,7 @@ using WebApp.Attributes;
 using WebApp.Constants;
 using WebApp.Contracts;
 using WebApp.Contracts.PostLogin;
+using WebApp.Controllers.Abstracts;
 using WebApp.Extensions;
 
 namespace WebApp.Controllers;
@@ -67,7 +68,7 @@ public class LoginController : OAuthControllerBase
 
     await HttpContext.SignInAsync(new ClaimsPrincipal(identity));
     var routeValues = HttpContext.Request.Query.ToRouteValueDictionary();
-    return RedirectToAction(controllerName: "Consent", actionName: "GetConsentForAuthorizeCode", routeValues: routeValues);
+    return RedirectToAction(controllerName: "Consent", actionName: "CreateConsent", routeValues: routeValues);
   }
 
   private async Task<IActionResult> GetAuthorizationCode(AuthorizeRequest request, string userId, CancellationToken cancellationToken = default)

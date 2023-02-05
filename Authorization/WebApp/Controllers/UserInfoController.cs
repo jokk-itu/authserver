@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using WebApp.Attributes;
+using WebApp.Controllers.Abstracts;
 
 namespace WebApp.Controllers;
 

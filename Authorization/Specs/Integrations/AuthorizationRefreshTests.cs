@@ -8,7 +8,6 @@ using Specs.Helpers;
 using System.Net.Http.Json;
 using System.Net;
 using System.Text.Json;
-using System.Web;
 using WebApp.Constants;
 using Xunit;
 using System.Text.RegularExpressions;
@@ -52,7 +51,7 @@ public class AuthorizationRefreshTests : BaseIntegrationTest
     var loginCookie = loginResponse.Headers.GetValues("Set-Cookie").Single();
     Assert.NotEmpty(loginCookie);
 
-    var consentAntiForgery = await GetAntiForgeryToken($"connect/consent{query}", loginCookie);
+    var consentAntiForgery = await GetAntiForgeryToken($"connect/consent/create{query}", loginCookie);
     var consentResponse = await ConsentEndpointHelper.GetConsent(Client, query.ToQueryString(), consentAntiForgery, loginCookie);
     var html = await consentResponse.Content.ReadAsStringAsync();
     var authorizationCodeInput = Regex.Match(html, @"\<input name=""code"" type=""hidden"" value=""([^""]+)"" \/\>");
@@ -93,6 +92,7 @@ public class AuthorizationRefreshTests : BaseIntegrationTest
     var refreshTokenResponse = await Client.SendAsync(refreshTokenRequest);
     refreshTokenResponse.EnsureSuccessStatusCode();
     var refreshedTokens = await refreshTokenResponse.Content.ReadFromJsonAsync<PostTokenResponse>();
+    Assert.NotNull(refreshedTokens);
 
     var userInfoRequest = new HttpRequestMessage(HttpMethod.Get, "connect/userinfo");
     userInfoRequest.Headers.Add(HttpRequestHeader.Authorization.ToString(), $"Bearer {tokens!.AccessToken}");
@@ -100,9 +100,6 @@ public class AuthorizationRefreshTests : BaseIntegrationTest
     userInfoResponse.EnsureSuccessStatusCode();
     var userInfoContent = await userInfoResponse.Content.ReadAsStringAsync();
     var userInfoClaims = JsonSerializer.Deserialize<Dictionary<string, string>>(userInfoContent);
-
-    // Assert
-    Assert.NotNull(refreshedTokens);
     Assert.NotNull(userInfoClaims);
     Assert.NotEmpty(userInfoClaims);
   }

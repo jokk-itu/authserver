@@ -1,10 +1,6 @@
 ﻿using Application;
-using Domain;
-using Infrastructure;
-using Infrastructure.Helpers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Net;
 using Domain.Constants;
 using Infrastructure.Requests.CreateAuthorizationGrant;
@@ -16,94 +12,54 @@ using WebApp.Constants;
 using WebApp.ViewModels;
 using WebApp.Attributes;
 using WebApp.Contracts;
-using System.Threading;
 using Infrastructure.Decoders.Abstractions;
+using Infrastructure.Requests.GetConsentModel;
+using WebApp.Controllers.Abstracts;
 
 namespace WebApp.Controllers;
 
 [Route("connect/[controller]")]
 public class ConsentController : OAuthControllerBase
 {
-  private readonly IdentityContext _identityContext;
   private readonly IMediator _mediator;
   private readonly ITokenDecoder _tokenDecoder;
 
   public ConsentController(
-    IdentityContext identityContext,
     IMediator mediator,
     IdentityConfiguration identityConfiguration,
     ITokenDecoder tokenDecoder)
   : base (identityConfiguration)
   {
-    _identityContext = identityContext;
     _mediator = mediator;
     _tokenDecoder = tokenDecoder;
   }
 
-  [HttpGet]
+  [HttpGet("create")]
   [SecurityHeader]
   [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
-  public async Task<IActionResult> GetConsentForAuthorizeCode(
+  public async Task<IActionResult> CreateConsent(
     AuthorizeRequest request,
     CancellationToken cancellationToken = default)
   {
-    var scopes = request.Scope.Split(' ');
-    var userId = HttpContext.User.FindFirst(ClaimNameConstants.Sub)!.Value;
-    var claims = ClaimsHelper.MapToClaims(scopes);
-    var client = await _identityContext
-      .Set<Client>()
-      .SingleAsync(x => x.Id == request.ClientId, cancellationToken: cancellationToken);
-
-    var user = await _identityContext
-      .Set<User>()
-      .SingleAsync(x => x.Id == userId, cancellationToken: cancellationToken);
-
-    return View("Index", new ConsentViewModel
-    {
-      Claims = claims,
-      ClientName = client.Name,
-      GivenName = user.FirstName,
-      TosUri = client.TosUri,
-      PolicyUri = client.PolicyUri,
-      FormMethod = "POST"
-    });
+    return await GetConsentView(request, HttpContext.User.FindFirst(ClaimNameConstants.Sub)!.Value, HttpMethod.Post.Method, cancellationToken: cancellationToken);
   }
 
-  [HttpGet]
+  [HttpGet("update")]
   [SecurityHeader]
-  public async Task<IActionResult> GetConsent(
+  public async Task<IActionResult> UpdateConsent(
     AuthorizeRequest request,
     CancellationToken cancellationToken = default)
   {
-    var scopes = request.Scope.Split(' ');
     var token = _tokenDecoder.DecodeSignedToken(request.IdTokenHint);
     if (token is null)
     {
       return ErrorFormPostResult(request.RedirectUri, request.State, ErrorCode.LoginRequired, "login is required");
     }
 
-    var userId = token.Claims.Single(x => x.Type == ClaimNameConstants.Sub).Value;
-    var claims = ClaimsHelper.MapToClaims(scopes);
-    var client = await _identityContext
-      .Set<Client>()
-      .SingleAsync(x => x.Id == request.ClientId, cancellationToken: cancellationToken);
-
-    var user = await _identityContext
-      .Set<User>()
-      .SingleAsync(x => x.Id == userId, cancellationToken: cancellationToken);
-
-    return View("Index", new ConsentViewModel
-    {
-      Claims = claims,
-      ClientName = client.Name,
-      GivenName = user.FirstName,
-      TosUri = client.TosUri,
-      PolicyUri = client.PolicyUri,
-      FormMethod = "PUT"
-    });
+    return await GetConsentView(request, token.Claims.First(x => x.Type == ClaimNameConstants.Sub)!.Value, HttpMethod.Put.Method, cancellationToken: cancellationToken);
   }
 
-  [HttpPost]
+  [HttpPost("create")]
   [Consumes(MimeTypeConstants.FormUrlEncoded)]
   [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
   [ValidateAntiForgeryToken]
@@ -159,7 +115,7 @@ public class ConsentController : OAuthControllerBase
     };
   }
 
-  [HttpPut]
+  [HttpPut("update")]
   [Consumes(MimeTypeConstants.FormUrlEncoded)]
   [ValidateAntiForgeryToken]
   [SecurityHeader]
@@ -167,6 +123,51 @@ public class ConsentController : OAuthControllerBase
     AuthorizeRequest request,
     CancellationToken cancellationToken = default)
   {
-    throw new NotImplementedException();
+    var token = _tokenDecoder.DecodeSignedToken(request.IdTokenHint);
+    if (token is null)
+    {
+      return BadOAuthResult(ErrorCode.LoginRequired, "login is required");
+    }
+
+    var consentResponse = await _mediator.Send(new CreateOrUpdateConsentGrantCommand
+    {
+      UserId = token.Claims.First(x => x.Type == ClaimNameConstants.Sub)!.Value,
+      ClientId = request.ClientId,
+      ConsentedClaims = ConsentHelper.GetConsentedClaims(HttpContext.Request.Form).ToList(),
+      ConsentedScopes = request.Scope.Split(' ')
+    }, cancellationToken: cancellationToken);
+
+    if (consentResponse.IsError())
+    {
+      return BadOAuthResult(consentResponse.ErrorCode, consentResponse.ErrorDescription);
+    }
+
+    return Ok();
+  }
+
+  private async Task<IActionResult> GetConsentView(AuthorizeRequest request, string userId, string method, CancellationToken cancellationToken = default)
+  {
+    var query = new GetConsentModelQuery
+    {
+      Scope = request.Scope,
+      ClientId = request.ClientId,
+      UserId = userId
+    };
+    var response = await _mediator.Send(query, cancellationToken: cancellationToken);
+
+    if (response.IsError())
+    {
+      return ErrorFormPostResult(request.RedirectUri, request.State, response.ErrorCode, response.ErrorDescription);
+    }
+
+    return View("Index", new ConsentViewModel
+    {
+      Claims = response.Claims,
+      ClientName = response.ClientName,
+      GivenName = response.GivenName,
+      PolicyUri = response.PolicyUri,
+      TosUri = response.TosUri,
+      FormMethod = method
+    });
   }
 }
