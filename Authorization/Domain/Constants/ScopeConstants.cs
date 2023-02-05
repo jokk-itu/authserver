@@ -12,5 +12,6 @@ public static class ScopeConstants
   public const string ResourceConfiguration = "identityprovider:resourceconfiguration";
   public const string ScopeRegistration = "identityprovider:scoperegistration";
   public const string ScopeConfiguration = "identityprovider:scopeconfiguration";
-  public const string Prompt = "identityprovider:prompt";
+
+  public static readonly string[] PiiScopes = new[] { Profile, Email, Phone };
 }

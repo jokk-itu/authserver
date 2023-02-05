@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using WebApp.Attributes;
 using WebApp.Constants;
 using WebApp.Contracts.PostRegisterUser;
+using WebApp.Controllers.Abstracts;
 
 namespace WebApp.Controllers;
 

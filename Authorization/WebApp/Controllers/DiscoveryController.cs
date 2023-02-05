@@ -7,7 +7,7 @@ using WebApp.Contracts.GetJwksDocument;
 namespace WebApp.Controllers;
 
 [ApiController]
-[Route("/.well-known")]
+[Route(".well-known")]
 public class DiscoveryController : ControllerBase
 {
   private readonly IDiscoveryBuilder _builder;

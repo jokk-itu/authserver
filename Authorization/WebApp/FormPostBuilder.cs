@@ -38,23 +38,26 @@ public static class FormPostBuilder
     formBuilder.Append(_end);
     return formBuilder.ToString();
   }
-
-  public static string BuildLoginCodeResponse()
-  {
-        // Return form containing the entire Authorize response AND the login code (iss is not needed)
-        throw new NotImplementedException();
-  }
-
+  
   private static string AddStart(string redirectUri)
   {
     return $@"
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset=""utf-8"" />
+<meta name=""viewport"" content=""width=device-width, initial-scale=1.0"" />
 <title>Submit</title>
+<link rel=""stylesheet"" href=""/css/loader.css"" />
 </head>
 <body onload=""javascript:document.forms[0].submit()"">
 <p>Redirecting to client</p>
+<div class=""lds-ring"">
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+</div>
 <form method=""post"" action=""{redirectUri}"">
 ";
   }

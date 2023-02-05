@@ -1,13 +1,13 @@
 ﻿using Application;
 using Domain.Constants;
+using Infrastructure.Requests.GetUserInfo;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using Infrastructure.Requests.GeUserInfo;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using WebApp.Extensions;
 using WebApp.Attributes;
+using WebApp.Controllers.Abstracts;
 
 namespace WebApp.Controllers;
 

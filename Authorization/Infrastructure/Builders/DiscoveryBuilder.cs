@@ -11,6 +11,9 @@ namespace Infrastructure.Builders;
 #nullable disable
 public class DiscoveryBuilder : IDiscoveryBuilder
 {
+  private const string Algorithm = "RSA";
+  private const string Use = "sig";
+
   private readonly IdentityConfiguration _identityConfiguration;
   private readonly IdentityContext _identityContext;
   private readonly JwkManager _jwkManager;
@@ -44,7 +47,7 @@ public class DiscoveryBuilder : IDiscoveryBuilder
       GrantTypes = GrantTypeConstants.GrantTypes,
       ResponseTypes = ResponseTypeConstants.ResponseTypes,
       TokenEndpointAuthMethods = TokenEndpointAuthMethodConstants.TokenEndpointAuthMethods,
-      TokenEndpointAuthSigningAlgValues = new[] { "RS256" },
+      TokenEndpointAuthSigningAlgValues = TokenEndpointSigningAlgConstants.TokenEndpointSigningAlgorithms,
       CodeChallengeMethods = CodeChallengeMethodConstants.CodeChallengeMethods,
       ResponseModes = ResponseModeConstants.ResponseModes,
       SubjectTypes = SubjectTypeConstants.SubjectTypes,
@@ -58,9 +61,9 @@ public class DiscoveryBuilder : IDiscoveryBuilder
     var keys = _jwkManager.Jwks
       .Select(jwk => new Jwk
       {
-        KeyType = "RSA",
-        Use = "sig",
-        Alg = "RSA",
+        KeyType = Algorithm,
+        Use = Use,
+        Alg = Algorithm,
         KeyId = jwk.KeyId,
         Modulus = Base64UrlEncoder.Encode(jwk.Modulus),
         Exponent = Base64UrlEncoder.Encode(jwk.Exponent)

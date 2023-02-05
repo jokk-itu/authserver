@@ -13,6 +13,7 @@ using WebApp.Constants;
 using WebApp.Contracts;
 using WebApp.Contracts.GetResourceInitialAccessToken;
 using WebApp.Contracts.PostClient;
+using WebApp.Controllers.Abstracts;
 using GetClientResponse = WebApp.Contracts.GetClient.GetClientResponse;
 
 namespace WebApp.Controllers;

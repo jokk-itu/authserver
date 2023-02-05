@@ -10,6 +10,7 @@ using MediatR;
 using WebApp.Attributes;
 using WebApp.Constants;
 using WebApp.Contracts;
+using WebApp.Controllers.Abstracts;
 
 namespace WebApp.Controllers;
 

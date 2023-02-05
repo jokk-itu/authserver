@@ -11,6 +11,7 @@ using WebApp.Contracts.GetClient;
 using WebApp.Contracts.GetResourceInitialAccessToken;
 using WebApp.Contracts.PostResource;
 using WebApp.Contracts.PutResource;
+using WebApp.Controllers.Abstracts;
 
 namespace WebApp.Controllers;
 

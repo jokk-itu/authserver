@@ -43,7 +43,7 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
     if (await IsNonceInvalidAsync(value))
       return new ValidationResult(ErrorCode.InvalidRequest, "nonce is invalid", HttpStatusCode.OK);
 
-    if (await IsScopesInvalidAsync(value))
+    if (await IsScopeInvalidAsync(value))
       return new ValidationResult(ErrorCode.InvalidRequest, "scope is invalid", HttpStatusCode.OK);
 
     if (value.MaxAge < 0)
@@ -82,12 +82,16 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
       .SingleAsync(x => x.Id == command.ClientId);
 
     if (client.RedirectUris.All(x => x.Uri != command.RedirectUri))
+    {
       return true;
+    }
 
     if (client.GrantTypes.All(x => x.Name != GrantTypeConstants.AuthorizationCode))
+    {
       return true;
+    }
 
-    return command.Scopes.All(x => client.Scopes.All(y => y.Name != x));
+    return command.Scope.Split(' ').All(x => client.Scopes.All(y => y.Name != x));
   }
 
   private static bool IsResponseTypeInvalid(CreateAuthorizationGrantCommand command)
@@ -116,22 +120,29 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
   private async Task<bool> IsNonceInvalidAsync(CreateAuthorizationGrantCommand command)
   {
     if (string.IsNullOrWhiteSpace(command.Nonce))
+    {
       return true;
+    }
 
     return await _identityContext
       .Set<AuthorizationCodeGrant>()
       .AnyAsync(x => x.Nonce == command.Nonce);
   }
 
-  private async Task<bool> IsScopesInvalidAsync(CreateAuthorizationGrantCommand command)
+  private async Task<bool> IsScopeInvalidAsync(CreateAuthorizationGrantCommand command)
   {
-    if (command.Scopes.All(x => x != ScopeConstants.OpenId))
+    var scopes = command.Scope.Split(' ');
+    if (scopes.All(x => x != ScopeConstants.OpenId))
+    {
       return true;
+    }
 
-    foreach (var scope in command.Scopes)
+    foreach (var scope in scopes)
     {
       if (!await _identityContext.Set<Scope>().AnyAsync(x => x.Name == scope))
+      {
         return true;
+      }
     }
 
     return false;
@@ -150,11 +161,11 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
       return true;
     }
 
-    if (consentGrant.ConsentedScopes.Count != command.Scopes.Count)
+    if (consentGrant.ConsentedScopes.Count != command.Scope.Split(' ').Length)
     {
       return true;
     }
 
-    return consentGrant.ConsentedScopes.Any(scope => !command.Scopes.Contains(scope.Name));
+    return consentGrant.ConsentedScopes.Any(scope => !command.Scope.Split(' ').Contains(scope.Name));
   }
 }

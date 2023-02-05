@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using Application.Validation;
 using Domain;
-using Infrastructure.Builders.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,16 +8,13 @@ namespace Infrastructure.Requests.Login;
 public class LoginHandler : IRequestHandler<LoginQuery, LoginResponse>
 {
   private readonly IdentityContext _identityContext;
-  private readonly ICodeBuilder _codeBuilder;
   private readonly IValidator<LoginQuery> _validator;
 
   public LoginHandler(
     IdentityContext identityContext,
-    ICodeBuilder codeBuilder,
     IValidator<LoginQuery> validator)
   {
     _identityContext = identityContext;
-    _codeBuilder = codeBuilder;
     _validator = validator;
   }
 

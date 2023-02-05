@@ -1,16 +1,13 @@
-﻿using System.Globalization;
-using System.Net;
+﻿using System.Net;
 using System.Security;
 using Application.Validation;
-using Domain;
 using Domain.Constants;
 using Infrastructure.Decoders.Abstractions;
+using Infrastructure.Requests.GetUserInfo;
 using Infrastructure.Services.Abstract;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Requests.GeUserInfo;
+namespace Infrastructure.Requests.GetUserInfo;
 public class GetUserInfoHandler : IRequestHandler<GetUserInfoQuery, GetUserInfoResponse>
 {
   private readonly IValidator<GetUserInfoQuery> _validator;

@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Infrastructure.Requests.GeUserInfo;
+namespace Infrastructure.Requests.GetUserInfo;
 
 #nullable disable
 public class GetUserInfoQuery : IRequest<GetUserInfoResponse>
