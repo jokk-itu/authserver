@@ -38,20 +38,20 @@ public static class FormPostBuilder
     formBuilder.Append(_end);
     return formBuilder.ToString();
   }
-  // onload=""javascript:document.forms[0].submit()""
+  
   private static string AddStart(string redirectUri)
   {
     return $@"
 <!DOCTYPE html>
 <html>
 <head>
-
 <meta charset=""utf-8"" />
 <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"" />
 <title>Submit</title>
 <link rel=""stylesheet"" href=""/css/loader.css"" />
 </head>
-<body>
+<body onload=""javascript:document.forms[0].submit()"">
+<p>Redirecting to client</p>
 <div class=""lds-ring"">
   <div></div>
   <div></div>
