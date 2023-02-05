@@ -11,7 +11,7 @@ public class GetConsentModelResponse : Response
   {
   }
 
-  public IEnumerable<string> Claims { get; init; } = new LinkedList<string>();
+  public IEnumerable<ClaimDto> Claims { get; init; } = new LinkedList<ClaimDto>();
   public string ClientName { get; init; } = null!;
   public string GivenName { get; init; } = null!;
   public string? TosUri { get; init; }

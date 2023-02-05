@@ -7,11 +7,18 @@
     <p>The following personal information is requested by the above app.</p>
     <br/>
     <form name="consent" method="@Model.FormMethod" >
-        @foreach (var claim in Model.Claims)
+        @foreach (var claimDto in Model.Claims)
         {
             <div class="form-check my-2">
-                <input class="form-check-input" id="@claim" type="checkbox" name="@claim" checked/>
-                <label class="form-check-label mb-1" for="@claim">@claim</label>
+                @if (claimDto.IsConsented)
+                {
+                    <input class="form-check-input" id="@claimDto.Name" type="checkbox" name="@claimDto.Name" checked/>
+                }
+                else
+                {
+                    <input class="form-check-input" id="@claimDto.Name" type="checkbox" name="@claimDto.Name" />
+                }
+                <label class="form-check-label mb-1" for="@claimDto.Name">@claimDto.Name</label>
             </div>
         }
         <div class="form-group my-2">

@@ -28,21 +28,35 @@ public class GetConsentModelHandler : IRequestHandler<GetConsentModelQuery, GetC
       return validationResult.ToResponse<GetConsentModelResponse>();
     }
 
-    var client = await _identityContext
-      .Set<Client>()
-      .SingleAsync(x => x.Id == request.ClientId, cancellationToken: cancellationToken);
+    var response = await _identityContext
+      .Set<ConsentGrant>()
+      .Where(x => x.User.Id == request.UserId)
+      .Where(x => x.Client.Id == request.ClientId)
+      .Select(x => new
+      {
+        GivenName = x.User.FirstName,
+        ClientName = x.Client.Name,
+        PolicyUri = x.Client.PolicyUri,
+        TosUri = x.Client.TosUri,
+        ConsentedClaims = x.ConsentedClaims.Select(y => y.Name)
+      })
+      .SingleAsync(cancellationToken: cancellationToken);
 
-    var user = await _identityContext
-      .Set<User>()
-      .SingleAsync(x => x.Id == request.UserId, cancellationToken: cancellationToken);
+    var claims = ClaimsHelper
+      .MapToClaims(request.Scope.Split(' '))
+      .Select(x => new ClaimDto
+      {
+        Name = x,
+        IsConsented = response.ConsentedClaims.Contains(x)
+      });
 
     return new GetConsentModelResponse(HttpStatusCode.OK)
     {
-      Claims = ClaimsHelper.MapToClaims(request.Scope.Split(' ')),
-      ClientName = client.Name,
-      GivenName = user.FirstName,
-      PolicyUri = client.PolicyUri,
-      TosUri = client.TosUri
+      Claims = claims,
+      ClientName = response.ClientName,
+      GivenName = response.GivenName,
+      PolicyUri = response.PolicyUri,
+      TosUri = response.TosUri
     };
   }
 }
