@@ -1,7 +1,4 @@
-﻿using Infrastructure.Requests.CreateAuthorizationGrant;
-using WebApp.Constants;
-
-namespace WebApp.Extensions;
+﻿namespace WebApp.Extensions;
 
 public static class QueryCollectionExtensions
 {
