@@ -17,9 +17,9 @@ public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions
       InternalConfigurationManager internalConfigurationManager,
       IdentityConfiguration identityConfiguration)
     {
-        _logger = logger;
-        _internalConfigurationManager = internalConfigurationManager;
-        _identityConfiguration = identityConfiguration;
+      _logger = logger;
+      _internalConfigurationManager = internalConfigurationManager;
+      _identityConfiguration = identityConfiguration;
     }
 
     public void Configure(string name, JwtBearerOptions options)
@@ -30,39 +30,39 @@ public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions
     public void Configure(JwtBearerOptions options)
     {
       options.Audience = AudienceConstants.IdentityProvider;
-        options.Authority = _identityConfiguration.Issuer;
-        options.ConfigurationManager = _internalConfigurationManager;
-        options.SaveToken = true;
-        options.Events = new JwtBearerEvents
+      options.Authority = _identityConfiguration.Issuer;
+      options.ConfigurationManager = _internalConfigurationManager;
+      options.SaveToken = true;
+      options.Events = new JwtBearerEvents
+      {
+        OnAuthenticationFailed = context =>
         {
-            OnAuthenticationFailed = context =>
-            {
-              _logger.LogError(context.Exception, "Authentication failed");
-                return Task.CompletedTask;
-            },
-            OnForbidden = context =>
-            {
-              var scopes = context.Principal?.Claims.Where(x => x.Type == ClaimNameConstants.Scope);
-              _logger.LogInformation("User is not Authorized, with scopes {@Scopes}", scopes);
-                return Task.CompletedTask;
-            },
-            OnTokenValidated = context =>
-            {
-              _logger.LogInformation("Token is validated, with id {TokenId}, from {ValidFrom}, to {ValidTo}",
-                context.SecurityToken.Id, context.SecurityToken.ValidFrom, context.SecurityToken.ValidTo);
-              return Task.CompletedTask;
-            },
-            OnChallenge = _ =>
-            {
-              _logger.LogInformation("Challenge response returned");
-              return Task.CompletedTask;
-            },
-            OnMessageReceived = _ =>
-            {
-              _logger.LogInformation("Initiating bearer validation");
-              return Task.CompletedTask;
-            }
-        };
-        options.Validate();
+          _logger.LogError(context.Exception, "Authentication failed");
+          return Task.CompletedTask;
+        },
+        OnForbidden = context =>
+        {
+          var scopes = context.Principal?.Claims.Where(x => x.Type == ClaimNameConstants.Scope);
+          _logger.LogInformation("User is not Authorized, with scopes {@Scopes}", scopes);
+          return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+          _logger.LogInformation("Token is validated, with id {TokenId}, from {ValidFrom}, to {ValidTo}",
+          context.SecurityToken.Id, context.SecurityToken.ValidFrom, context.SecurityToken.ValidTo);
+          return Task.CompletedTask;
+        }, 
+        OnChallenge = _ => 
+        { 
+          _logger.LogInformation("Challenge response returned"); 
+          return Task.CompletedTask;
+        }, 
+        OnMessageReceived = _ => 
+        { 
+          _logger.LogInformation("Initiating bearer validation"); 
+          return Task.CompletedTask;
+        }
+      };
+      options.Validate();
     }
 }
