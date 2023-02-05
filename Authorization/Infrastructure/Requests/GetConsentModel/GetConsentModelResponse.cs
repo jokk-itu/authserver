@@ -1,0 +1,19 @@
+﻿using System.Net;
+
+namespace Infrastructure.Requests.GetConsentModel;
+public class GetConsentModelResponse : Response
+{
+  public GetConsentModelResponse(HttpStatusCode statusCode) : base(statusCode)
+  {
+  }
+
+  public GetConsentModelResponse(string? errorCode, string? errorDescription, HttpStatusCode statusCode) : base(errorCode, errorDescription, statusCode)
+  {
+  }
+
+  public IEnumerable<string> Claims { get; init; } = new LinkedList<string>();
+  public string ClientName { get; init; } = null!;
+  public string GivenName { get; init; } = null!;
+  public string? TosUri { get; init; }
+  public string? PolicyUri { get; init; }
+}
