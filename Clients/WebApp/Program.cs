@@ -2,7 +2,6 @@ using App;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using WebApp;
 using WebApp.Services;
 using Serilog;
 using Microsoft.IdentityModel.Logging;
@@ -23,11 +22,10 @@ builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggingConfigurati
 builder.WebHost.ConfigureServices(services =>
 {
   services.AddControllersWithViews();
-  services.AddAuthentication(configureOptions =>
+  services.AddAuthentication(configureOptions => 
   {
-    configureOptions.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    configureOptions.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    configureOptions.DefaultChallengeScheme = OpenIdConnectDefaults.DisplayName;
+    configureOptions.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    configureOptions.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
   })
   .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, configureOptions =>
   {
@@ -135,7 +133,7 @@ builder.WebHost.ConfigureServices(services =>
         return Task.CompletedTask;
       }
     };
-    configureOptions.RequireHttpsMetadata = false;
+    configureOptions.RequireHttpsMetadata = true;
     configureOptions.NonceCookie = new CookieBuilder
     {
       Name = "OpenId-Auth-Nonce",
@@ -158,7 +156,7 @@ builder.WebHost.ConfigureServices(services =>
   services.AddCookiePolicy(cookiePolicyOptions =>
   {
     cookiePolicyOptions.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
-    cookiePolicyOptions.MinimumSameSitePolicy = SameSiteMode.None;
+    cookiePolicyOptions.MinimumSameSitePolicy = SameSiteMode.Strict;
     cookiePolicyOptions.Secure = CookieSecurePolicy.Always;
   });
   services.AddHttpClient<WeatherService>(httpClient =>

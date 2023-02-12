@@ -34,7 +34,7 @@ public class ClientController : OAuthControllerBase
   [Route("initial-token")]
   [AllowAnonymous]
   [ProducesResponseType(typeof(GetResourceInitialAccessToken), StatusCodes.Status200OK)]
-  public IActionResult GetResourceInitialToken()
+  public IActionResult GetClientInitialToken()
   {
     var token = _tokenBuilder.BuildClientInitialAccessToken();
     return Ok(new GetResourceInitialAccessToken
