@@ -1,4 +1,5 @@
-﻿namespace Infrastructure.Helpers;
+﻿#nullable disable
+namespace Infrastructure.Helpers;
 // Copyright (c) 2006 Damien Miller <djm@mindrot.org>
 // Copyright (c) 2007 Derek Slager
 //

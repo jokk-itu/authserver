@@ -2,7 +2,6 @@ using App;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using WebApp;
 using WebApp.Services;
 using Serilog;
 using Microsoft.IdentityModel.Logging;
@@ -23,11 +22,10 @@ builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggingConfigurati
 builder.WebHost.ConfigureServices(services =>
 {
   services.AddControllersWithViews();
-  services.AddAuthentication(configureOptions =>
+  services.AddAuthentication(configureOptions => 
   {
-    configureOptions.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    configureOptions.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    configureOptions.DefaultChallengeScheme = OpenIdConnectDefaults.DisplayName;
+    configureOptions.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    configureOptions.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
   })
   .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, configureOptions =>
   {
@@ -89,6 +87,7 @@ builder.WebHost.ConfigureServices(services =>
     configureOptions.ClientSecret = identity["ClientSecret"];
     configureOptions.MetadataAddress = $"{identity["Authority"]}{identity["MetaPath"]}";
     configureOptions.CallbackPath = identity["CallbackPath"];
+    configureOptions.RequireHttpsMetadata = true;
     configureOptions.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     configureOptions.ResponseType = OpenIdConnectResponseType.Code;
     configureOptions.UsePkce = true;
@@ -135,10 +134,9 @@ builder.WebHost.ConfigureServices(services =>
         return Task.CompletedTask;
       }
     };
-    configureOptions.RequireHttpsMetadata = false;
     configureOptions.NonceCookie = new CookieBuilder
     {
-      Name = "OpenId-Auth-Nonce",
+      Name = "OpenId-Auth-Nonce-WebApp",
       SameSite = SameSiteMode.None,
       SecurePolicy = CookieSecurePolicy.Always,
       IsEssential = true,
@@ -146,7 +144,7 @@ builder.WebHost.ConfigureServices(services =>
     };
     configureOptions.CorrelationCookie = new CookieBuilder
     {
-      Name = "OpenId-Auth-Correlation",
+      Name = "OpenId-Auth-Correlation-WebApp",
       SameSite = SameSiteMode.None,
       SecurePolicy = CookieSecurePolicy.Always,
       IsEssential = true,
@@ -158,7 +156,7 @@ builder.WebHost.ConfigureServices(services =>
   services.AddCookiePolicy(cookiePolicyOptions =>
   {
     cookiePolicyOptions.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
-    cookiePolicyOptions.MinimumSameSitePolicy = SameSiteMode.None;
+    cookiePolicyOptions.MinimumSameSitePolicy = SameSiteMode.Strict;
     cookiePolicyOptions.Secure = CookieSecurePolicy.Always;
   });
   services.AddHttpClient<WeatherService>(httpClient =>
@@ -173,11 +171,18 @@ builder.WebHost.ConfigureServices(services =>
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
+{
   app.UseExceptionHandler("/Home/Error");
+}
 
 if (app.Environment.IsDevelopment())
+{
   IdentityModelEventSource.ShowPII = true;
+}
 
+app.UseHttpsRedirection();
+app.UseHsts();
+app.UseSerilogRequestLogging();
 app.UseStaticFiles();
 
 app.UseRouting();
