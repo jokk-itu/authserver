@@ -4,8 +4,18 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using System.Net.Http.Headers;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Yarp.ReverseProxy.Transforms;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggerConfiguration) =>
+{
+  loggerConfiguration
+    .Enrich.FromLogContext()
+    .MinimumLevel.Information()
+    .Enrich.WithProperty("Application", "Wasm")
+    .WriteTo.Console();
+});
 
 builder.WebHost.ConfigureServices((context, services) =>
 {
