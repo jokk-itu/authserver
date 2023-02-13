@@ -88,6 +88,8 @@ else
 }
 
 app.UseHttpsRedirection();
+app.UseHsts();
+app.UseSerilogRequestLogging();
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
