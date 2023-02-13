@@ -14,6 +14,6 @@ public class SecurityHeaderAttribute : Attribute, IAsyncActionFilter
     headers.Pragma = "no-cache";
     headers.XContentTypeOptions = "DENY";
     headers.XFrameOptions = "SAMEORIGIN";
-    headers.ContentSecurityPolicy = "default-src 'self'; script-src 'unsafe-inline'";
+    headers.ContentSecurityPolicy = "script-src 'self' 'unsafe-inline' cdn.jsdelivr.net; style-src 'self' cdn.jsdelivr.net";
   }
 }

@@ -57,6 +57,7 @@ if (app.Environment.IsDevelopment())
   IdentityModelEventSource.ShowPII = true;
 }
 
+app.UseHttpsRedirection();
 app.UseHsts();
 app.UseSerilogRequestLogging();
 app.UseStaticFiles();
