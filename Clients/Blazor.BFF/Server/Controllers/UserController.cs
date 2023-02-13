@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +12,6 @@ namespace Server.Controllers;
 public class UserController : ControllerBase
 {
   [HttpGet]
-  [AllowAnonymous]
   public IActionResult Get()
   {
     var isAuthenticated = HttpContext.User.Identity?.IsAuthenticated ?? false;
@@ -35,7 +35,12 @@ public class UserController : ControllerBase
   [HttpGet("login")]
   public IActionResult Login()
   {
-    return Challenge();
+    if (!HttpContext.User.Identity?.IsAuthenticated ?? false)
+    {
+      return Challenge(OpenIdConnectDefaults.AuthenticationScheme);
+    }
+
+    return Redirect("/");
   }
 
   [HttpGet("logout")]
