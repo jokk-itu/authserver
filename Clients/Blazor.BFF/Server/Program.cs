@@ -55,6 +55,23 @@ builder.WebHost.ConfigureServices((context, services) =>
       options.Scope.Add("identityprovider:read");
       options.MapInboundClaims = true;
       options.GetClaimsFromUserInfoEndpoint = true;
+      options.RequireHttpsMetadata = true;
+      options.NonceCookie = new CookieBuilder
+      {
+        Name = "OpenId-Auth-Nonce-Wasm",
+        SameSite = SameSiteMode.None,
+        SecurePolicy = CookieSecurePolicy.Always,
+        IsEssential = true,
+        HttpOnly = true
+      };
+      options.CorrelationCookie = new CookieBuilder
+      {
+        Name = "OpenId-Auth-Correlation-Wasm",
+        SameSite = SameSiteMode.None,
+        SecurePolicy = CookieSecurePolicy.Always,
+        IsEssential = true,
+        HttpOnly = true
+      };
     });
 
   services.AddAuthorization();
