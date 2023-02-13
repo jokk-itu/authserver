@@ -1,5 +1,4 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32825.248
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -48,6 +47,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Worker", "Worker", "{3B2F9A07-D144-4854-B32D-72D32CC29F3F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkerService", "Clients\WorkerService\WorkerService.csproj", "{B04DA1CA-F9D2-40C2-9EFF-34FDDCAFB05F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Blazor.Hybrid", "Blazor.Hybrid", "{4E0AC923-0B84-43A4-A1B4-78250036632A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HybridApp", "Clients\Blazor.Hybrid\HybridApp\HybridApp.csproj", "{0885287C-5BAD-4EBD-9AE8-5D517D638FF8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -103,6 +106,12 @@ Global
 		{B04DA1CA-F9D2-40C2-9EFF-34FDDCAFB05F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B04DA1CA-F9D2-40C2-9EFF-34FDDCAFB05F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B04DA1CA-F9D2-40C2-9EFF-34FDDCAFB05F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0885287C-5BAD-4EBD-9AE8-5D517D638FF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0885287C-5BAD-4EBD-9AE8-5D517D638FF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0885287C-5BAD-4EBD-9AE8-5D517D638FF8}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{0885287C-5BAD-4EBD-9AE8-5D517D638FF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0885287C-5BAD-4EBD-9AE8-5D517D638FF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0885287C-5BAD-4EBD-9AE8-5D517D638FF8}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -125,6 +134,8 @@ Global
 		{D7C79E0C-0F15-4B49-B245-0C16C2F289D8} = {A0CDB450-2BAA-4618-8B25-E4E76EB44A5B}
 		{3B2F9A07-D144-4854-B32D-72D32CC29F3F} = {39434E92-EAC6-49B0-B1F1-258329AFC6CC}
 		{B04DA1CA-F9D2-40C2-9EFF-34FDDCAFB05F} = {3B2F9A07-D144-4854-B32D-72D32CC29F3F}
+		{4E0AC923-0B84-43A4-A1B4-78250036632A} = {39434E92-EAC6-49B0-B1F1-258329AFC6CC}
+		{0885287C-5BAD-4EBD-9AE8-5D517D638FF8} = {4E0AC923-0B84-43A4-A1B4-78250036632A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {35950B1F-C5E1-4227-8946-7874424B4A16}
