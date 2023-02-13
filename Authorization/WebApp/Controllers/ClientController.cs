@@ -122,7 +122,7 @@ public class ClientController : OAuthControllerBase
   public async Task<IActionResult> Get(CancellationToken cancellationToken = default)
   {
     var token = await HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, TokenTypeConstants.AccessToken);
-    var response = await _mediator.Send(new ReadClientQuery(token), cancellationToken);
+    var response = await _mediator.Send(new ReadClientQuery(token!), cancellationToken);
 
     if (response.IsError())
     {

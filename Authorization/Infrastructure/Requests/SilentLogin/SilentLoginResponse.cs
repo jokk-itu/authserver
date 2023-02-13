@@ -1,5 +1,6 @@
 ﻿using System.Net;
 
+#nullable disable
 namespace Infrastructure.Requests.SilentLogin;
 public class SilentLoginResponse : Response
 {
