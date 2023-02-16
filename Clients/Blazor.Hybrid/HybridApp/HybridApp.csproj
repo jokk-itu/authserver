@@ -43,6 +43,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="IdentityModel.OidcClient" Version="5.2.1" />
       <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="6.0.13" />
     </ItemGroup>
 
