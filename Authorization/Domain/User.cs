@@ -3,7 +3,7 @@
 #nullable enable
 public class User
 {
-  public string Id { get; set; } = null!;
+  public string Id { get; set; } = Guid.NewGuid().ToString();
   public string UserName { get; set; } = null!;
   public string Password { get; set; } = null!;
   public string PhoneNumber { get; set; } = null!;
@@ -16,8 +16,7 @@ public class User
   public DateTime Birthdate { get; set; }
   public string Locale { get; set; } = null!;
   public ICollection<ConsentGrant> ConsentGrants { get; set; } = new List<ConsentGrant>();
-  public Session? Session { get; set; }
-  public long? SessionId { get; set; }
+  public ICollection<Session> Sessions { get; set; } = new List<Session>();
 
   public string GetName()
   {

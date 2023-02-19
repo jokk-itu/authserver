@@ -8,5 +8,8 @@ public enum TokenEndpointAuthMethod
   ClientSecretPost,
 
   [Description(TokenEndpointAuthMethodConstants.ClientSecretBasic)]
-  ClientSecretBasic
+  ClientSecretBasic,
+
+  [Description(TokenEndpointAuthMethodConstants.None)]
+  None,
 }

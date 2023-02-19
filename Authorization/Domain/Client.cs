@@ -2,15 +2,17 @@ using Domain.Constants;
 using Domain.Enums;
 
 namespace Domain;
-
-#nullable disable
 public class Client
 {
-  public string Id { get; set; }
-  public string Name { get; set; }
-  public string Secret { get; set; }
-  public string TosUri { get; set; }
-  public string PolicyUri { get; set; }
+  public string Id { get; set; } = Guid.NewGuid().ToString();
+  public string Name { get; set; } = null!;
+  public string? Secret { get; set; }
+  public string? TosUri { get; set; }
+  public string? PolicyUri { get; set; }
+  public string? ClientUri { get; set; }
+  public string? LogoUri { get; set; }
+  public string? InitiateLoginUri { get; set; }
+  public long? DefaultMaxAge { get; set; }
   public ApplicationType ApplicationType { get; set; }
   public TokenEndpointAuthMethod TokenEndpointAuthMethod { get; set; }
   public SubjectType SubjectType { get; set; }

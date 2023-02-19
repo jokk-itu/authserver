@@ -3,8 +3,7 @@
 #nullable disable
 public class ConsentGrant
 {
-  public long Id { get; set; }
-  public DateTime IssuedAt { get; set; }
+  public int Id { get; set; }
   public DateTime Updated { get; set; }
   public Client Client { get; set; }
   public User User { get; set; }

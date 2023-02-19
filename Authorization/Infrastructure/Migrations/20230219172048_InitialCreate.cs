@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Infrastructure.Migrations
 {
-    public partial class Initial : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -27,10 +27,14 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Secret = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TosUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PolicyUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClientUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LogoUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    InitiateLoginUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DefaultMaxAge = table.Column<long>(type: "bigint", nullable: true),
                     ApplicationType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TokenEndpointAuthMethod = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SubjectType = table.Column<string>(type: "nvarchar(max)", nullable: false)
@@ -122,18 +126,25 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Sessions",
+                name: "Users",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    MaxAge = table.Column<long>(type: "bigint", nullable: false),
-                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Updated = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsEmailVerified = table.Column<bool>(type: "bit", nullable: false),
+                    IsPhoneNumberVerified = table.Column<bool>(type: "bit", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Birthdate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Locale = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Sessions", x => x.Id);
+                    table.PrimaryKey("PK_Users", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -277,167 +288,11 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AuthorizationCodeGrants",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Code = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Nonce = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsRedeemed = table.Column<bool>(type: "bit", nullable: false),
-                    AuthTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    SessionId = table.Column<long>(type: "bigint", nullable: true),
-                    ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AuthorizationCodeGrants", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AuthorizationCodeGrants_Clients_ClientId",
-                        column: x => x.ClientId,
-                        principalTable: "Clients",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_AuthorizationCodeGrants_Sessions_SessionId",
-                        column: x => x.SessionId,
-                        principalTable: "Sessions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SessionClients",
-                columns: table => new
-                {
-                    ClientsId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    SessionsId = table.Column<long>(type: "bigint", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SessionClients", x => new { x.ClientsId, x.SessionsId });
-                    table.ForeignKey(
-                        name: "FK_SessionClients_Clients_ClientsId",
-                        column: x => x.ClientsId,
-                        principalTable: "Clients",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_SessionClients_Sessions_SessionsId",
-                        column: x => x.SessionsId,
-                        principalTable: "Sessions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Tokens",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsRevoked = table.Column<bool>(type: "bit", nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TokenType = table.Column<int>(type: "int", nullable: false),
-                    AccessToken_SessionId = table.Column<long>(type: "bigint", nullable: true),
-                    AccessToken_ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    ClientRegistrationToken_ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    IdToken_SessionId = table.Column<long>(type: "bigint", nullable: true),
-                    IdToken_ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    SessionId = table.Column<long>(type: "bigint", nullable: true),
-                    ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    ResourceId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    ScopeId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Tokens", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Tokens_Clients_AccessToken_ClientId",
-                        column: x => x.AccessToken_ClientId,
-                        principalTable: "Clients",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Tokens_Clients_ClientId",
-                        column: x => x.ClientId,
-                        principalTable: "Clients",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Tokens_Clients_ClientRegistrationToken_ClientId",
-                        column: x => x.ClientRegistrationToken_ClientId,
-                        principalTable: "Clients",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Tokens_Clients_IdToken_ClientId",
-                        column: x => x.IdToken_ClientId,
-                        principalTable: "Clients",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Tokens_Resources_ResourceId",
-                        column: x => x.ResourceId,
-                        principalTable: "Resources",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Tokens_Scopes_ScopeId",
-                        column: x => x.ScopeId,
-                        principalTable: "Scopes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Tokens_Sessions_AccessToken_SessionId",
-                        column: x => x.AccessToken_SessionId,
-                        principalTable: "Sessions",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Tokens_Sessions_IdToken_SessionId",
-                        column: x => x.IdToken_SessionId,
-                        principalTable: "Sessions",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Tokens_Sessions_SessionId",
-                        column: x => x.SessionId,
-                        principalTable: "Sessions",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Users",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsEmailVerified = table.Column<bool>(type: "bit", nullable: false),
-                    IsPhoneNumberVerified = table.Column<bool>(type: "bit", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Birthdate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Locale = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SessionId = table.Column<long>(type: "bigint", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Users", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Users_Sessions_SessionId",
-                        column: x => x.SessionId,
-                        principalTable: "Sessions",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ConsentGrants",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    IssuedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Updated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
@@ -459,32 +314,29 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserTokens",
+                name: "Sessions",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsRedeemed = table.Column<bool>(type: "bit", nullable: false),
-                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsRevoked = table.Column<bool>(type: "bit", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserTokens", x => x.Id);
+                    table.PrimaryKey("PK_Sessions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UserTokens_Users_UserId",
+                        name: "FK_Sessions_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
                 name: "ConsentedGrantClaims",
                 columns: table => new
                 {
-                    ConsentGrantsId = table.Column<long>(type: "bigint", nullable: false),
+                    ConsentGrantsId = table.Column<int>(type: "int", nullable: false),
                     ConsentedClaimsId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -508,7 +360,7 @@ namespace Infrastructure.Migrations
                 name: "ConsentedGrantScopes",
                 columns: table => new
                 {
-                    ConsentGrantsId = table.Column<long>(type: "bigint", nullable: false),
+                    ConsentGrantsId = table.Column<int>(type: "int", nullable: false),
                     ConsentedScopesId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -524,6 +376,37 @@ namespace Infrastructure.Migrations
                         name: "FK_ConsentedGrantScopes_Scopes_ConsentedScopesId",
                         column: x => x.ConsentedScopesId,
                         principalTable: "Scopes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AuthorizationCodeGrants",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Nonce = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsCodeRedeemed = table.Column<bool>(type: "bit", nullable: false),
+                    AuthTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    MaxAge = table.Column<long>(type: "bigint", nullable: true),
+                    IsRevoked = table.Column<bool>(type: "bit", nullable: false),
+                    SessionId = table.Column<int>(type: "int", nullable: true),
+                    ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AuthorizationCodeGrants", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AuthorizationCodeGrants_Clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AuthorizationCodeGrants_Sessions_SessionId",
+                        column: x => x.SessionId,
+                        principalTable: "Sessions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -639,72 +522,15 @@ namespace Infrastructure.Migrations
                 filter: "[Name] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SessionClients_SessionsId",
-                table: "SessionClients",
-                column: "SessionsId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tokens_AccessToken_ClientId",
-                table: "Tokens",
-                column: "AccessToken_ClientId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tokens_AccessToken_SessionId",
-                table: "Tokens",
-                column: "AccessToken_SessionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tokens_ClientId",
-                table: "Tokens",
-                column: "ClientId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tokens_ClientRegistrationToken_ClientId",
-                table: "Tokens",
-                column: "ClientRegistrationToken_ClientId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tokens_IdToken_ClientId",
-                table: "Tokens",
-                column: "IdToken_ClientId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tokens_IdToken_SessionId",
-                table: "Tokens",
-                column: "IdToken_SessionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tokens_ResourceId",
-                table: "Tokens",
-                column: "ResourceId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tokens_ScopeId",
-                table: "Tokens",
-                column: "ScopeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tokens_SessionId",
-                table: "Tokens",
-                column: "SessionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Users_SessionId",
-                table: "Users",
-                column: "SessionId",
-                unique: true,
-                filter: "[SessionId] IS NOT NULL");
+                name: "IX_Sessions_UserId",
+                table: "Sessions",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_UserName",
                 table: "Users",
                 column: "UserName",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserTokens_UserId",
-                table: "UserTokens",
-                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -740,13 +566,7 @@ namespace Infrastructure.Migrations
                 name: "ResourceScopes");
 
             migrationBuilder.DropTable(
-                name: "SessionClients");
-
-            migrationBuilder.DropTable(
-                name: "Tokens");
-
-            migrationBuilder.DropTable(
-                name: "UserTokens");
+                name: "Sessions");
 
             migrationBuilder.DropTable(
                 name: "Contacts");
@@ -774,9 +594,6 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Users");
-
-            migrationBuilder.DropTable(
-                name: "Sessions");
         }
     }
 }
