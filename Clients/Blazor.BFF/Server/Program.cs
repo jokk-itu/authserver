@@ -52,7 +52,7 @@ builder.WebHost.ConfigureServices((context, services) =>
       options.Scope.Add("phone");
       options.Scope.Add("openid");
       options.Scope.Add("weather:read");
-      options.Scope.Add("identityprovider:read");
+      options.Scope.Add("identityprovider:userinfo");
       options.MapInboundClaims = true;
       options.GetClaimsFromUserInfoEndpoint = true;
       options.RequireHttpsMetadata = true;

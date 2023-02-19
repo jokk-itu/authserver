@@ -25,7 +25,7 @@ public static class MauiProgram
     {
       Authority = "https://localhost:5000",
       ClientId = "",
-      Scope = "openid profile email phone identityprovider:read weather:read",
+      Scope = "openid profile email phone identityprovider:userinfo weather:read",
       RedirectUri = "hybridapp://callback",
       Browser = new AuthenticationBrowser()
     }));
