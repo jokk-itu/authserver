@@ -55,7 +55,7 @@ public class CreateClientHandlerTests : BaseUnitTest
       ClientName = "Test",
       RedirectUris = new[] { "http://localhost:5002/callback" },
       SubjectType = SubjectTypeConstants.Public,
-      Scopes = new[] { ScopeConstants.OpenId },
+      Scope = $"{ScopeConstants.OpenId}",
       TosUri = "http://localhost:5002/tos"
     };
     

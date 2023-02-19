@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Infrastructure.Requests.CreateRefreshTokenGrant;
+namespace Infrastructure.Requests.RedeemRefreshTokenGrant;
 public class RedeemRefreshTokenGrantResponse : Response
 {
   public RedeemRefreshTokenGrantResponse(HttpStatusCode statusCode) : base(statusCode)

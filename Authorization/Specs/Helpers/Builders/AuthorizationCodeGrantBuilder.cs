@@ -12,7 +12,7 @@ public class AuthorizationCodeGrantBuilder
     {
       Id = Guid.NewGuid().ToString(),
       AuthTime = DateTime.UtcNow,
-      IsRedeemed = false,
+      IsCodeRedeemed = false,
       Nonce = CryptographyHelper.GetRandomString(16)
     };
   }
@@ -35,7 +35,7 @@ public class AuthorizationCodeGrantBuilder
 
   public AuthorizationCodeGrantBuilder IsRedeemed()
   {
-    _authorizationCodeGrant.IsRedeemed = true;
+    _authorizationCodeGrant.IsCodeRedeemed = true;
     return this;
   }
 

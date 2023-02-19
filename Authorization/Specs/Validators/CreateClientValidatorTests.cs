@@ -19,7 +19,7 @@ public class CreateClientValidatorTests : BaseUnitTest
       Contacts = new List<string>(),
       PolicyUri = string.Empty,
       RedirectUris = new[] { "http://localhost:5002/callback" },
-      Scopes = new[] { ScopeConstants.OpenId },
+      Scope = $"{ScopeConstants.OpenId}",
       GrantTypes = new[] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken },
       SubjectType = string.Empty,
       TosUri = string.Empty,
@@ -54,7 +54,7 @@ public class CreateClientValidatorTests : BaseUnitTest
       Contacts = new[] { "test@mail.dk" },
       PolicyUri = "https://localhost:5002/policy",
       RedirectUris = new[] { "https://localhost:5002/callback" },
-      Scopes = new[] { ScopeConstants.OpenId },
+      Scope = $"{ScopeConstants.OpenId}",
       GrantTypes = new[] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken },
       SubjectType = SubjectTypeConstants.Public,
       TosUri = "https://localhost:5002/tos",
@@ -215,7 +215,7 @@ public class CreateClientValidatorTests : BaseUnitTest
   public async Task ValidateAsync_EmptyScopes_ExpectErrorResult()
   {
     // Arrange
-    _command.Scopes = Array.Empty<string>();
+    _command.Scope = string.Empty;
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act
@@ -230,7 +230,7 @@ public class CreateClientValidatorTests : BaseUnitTest
   public async Task ValidateAsync_InvalidScopes_ExpectErrorResult()
   {
     // Arrange
-    _command.Scopes = new[] { "invalid" };
+    _command.Scope = string.Empty;
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act

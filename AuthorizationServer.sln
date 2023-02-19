@@ -1,4 +1,5 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32825.248
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -50,9 +51,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkerService", "Clients\Wo
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Blazor.Hybrid", "Blazor.Hybrid", "{4E0AC923-0B84-43A4-A1B4-78250036632A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HybridApp", "Clients\Blazor.Hybrid\HybridApp\HybridApp.csproj", "{0885287C-5BAD-4EBD-9AE8-5D517D638FF8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HybridApp", "Clients\Blazor.Hybrid\HybridApp\HybridApp.csproj", "{0885287C-5BAD-4EBD-9AE8-5D517D638FF8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Clients\Blazor.BFF\Shared\Shared.csproj", "{CED14AD3-6058-443B-9823-5922E821CF30}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "Clients\Blazor.BFF\Shared\Shared.csproj", "{CED14AD3-6058-443B-9823-5922E821CF30}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{52AE7B64-7117-43CF-994B-CF0AD4820390}"
+	ProjectSection(SolutionItems) = preProject
+		Tools\CreateClients.ps1 = Tools\CreateClients.ps1
+		Tools\CreateMigration.ps1 = Tools\CreateMigration.ps1
+		Tools\CreateResources.ps1 = Tools\CreateResources.ps1
+		Tools\CreateScopes.ps1 = Tools\CreateScopes.ps1
+		Tools\RemoveMigration.ps1 = Tools\RemoveMigration.ps1
+		Tools\RunMigrationLocal.ps1 = Tools\RunMigrationLocal.ps1
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

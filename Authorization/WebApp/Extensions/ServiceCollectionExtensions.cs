@@ -28,6 +28,15 @@ public static class ServiceCollectionExtensions
   {
     services.AddAuthorization(options =>
     {
+      options.AddPolicy(AuthorizationConstants.UserInfo, policy =>
+      {
+        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+        policy.RequireAssertion(context =>
+        {
+          var scope = context.User.Claims.SingleOrDefault(x => x.Type == ClaimNameConstants.Scope)?.Value;
+          return scope is not null && scope.Split(' ').Contains(ScopeConstants.UserInfo);
+        });
+      });
       options.AddPolicy(AuthorizationConstants.ClientRegistration, policy =>
       {
         policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);

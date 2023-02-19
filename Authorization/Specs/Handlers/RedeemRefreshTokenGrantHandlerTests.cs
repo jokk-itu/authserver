@@ -5,7 +5,6 @@ using Domain;
 using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Helpers;
-using Infrastructure.Requests.CreateRefreshTokenGrant;
 using Infrastructure.Requests.RedeemRefreshTokenGrant;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

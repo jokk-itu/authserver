@@ -5,7 +5,7 @@ using Domain;
 using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Helpers;
-using Infrastructure.Requests.RedeemAuthorizationGrantCode;
+using Infrastructure.Requests.RedeemAuthorizationCodeGrant;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;

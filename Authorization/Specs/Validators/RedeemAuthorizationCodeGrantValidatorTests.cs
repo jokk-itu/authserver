@@ -4,7 +4,7 @@ using Domain;
 using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Helpers;
-using Infrastructure.Requests.RedeemAuthorizationGrantCode;
+using Infrastructure.Requests.RedeemAuthorizationCodeGrant;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Specs.Helpers;
@@ -172,12 +172,9 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
     {
         // Arrange
         var serviceProvider = BuildServiceProvider();
-
         var authorizationCodeGrant = await GetAuthorizationCodeGrant();
-        authorizationCodeGrant.Session.MaxAge = 2;
-        authorizationCodeGrant.Session.Updated = DateTime.UtcNow.AddDays(-2);
+        authorizationCodeGrant.Session.IsRevoked = true;
         await IdentityContext.SaveChangesAsync();
-
         var codeBuilder = serviceProvider.GetRequiredService<ICodeBuilder>();
         var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
         var code = await codeBuilder.BuildAuthorizationCodeAsync(authorizationCodeGrant.Id, pkce.CodeChallenge, CodeChallengeMethodConstants.S256, new[] { ScopeConstants.OpenId });

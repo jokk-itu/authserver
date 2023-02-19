@@ -14,5 +14,5 @@ public class CreateAuthorizationGrantCommand : IRequest<CreateAuthorizationGrant
   public string CodeChallenge { get; init; }
   public string CodeChallengeMethod { get; init; }
   public string Nonce { get; init; }
-  public long MaxAge { get; init; }
+  public string MaxAge { get; init; }
 }

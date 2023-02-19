@@ -9,9 +9,7 @@ public class SessionBuilder
   {
     _session = new Session
     {
-      Created = DateTime.UtcNow,
-      MaxAge = 0,
-      Updated = DateTime.UtcNow
+      IsRevoked = false
     };
   }
 
@@ -23,6 +21,12 @@ public class SessionBuilder
   public Session Build()
   {
     return _session;
+  }
+
+  public SessionBuilder RevokeSession()
+  {
+    _session.IsRevoked = true;
+    return this;
   }
 
   public SessionBuilder AddAuthorizationCodeGrant(AuthorizationCodeGrant authorizationCodeGrant)

@@ -44,7 +44,7 @@ public class UserBuilder
 
   public UserBuilder AddSession(Session session)
   {
-    _user.Session = session;
+    _user.Sessions.Add(session);
     return this;
   }
 

@@ -46,7 +46,7 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
     if (await IsScopeInvalidAsync(value))
       return new ValidationResult(ErrorCode.InvalidRequest, "scope is invalid", HttpStatusCode.OK);
 
-    if (value.MaxAge < 0)
+    if (IsMaxAgeInvalid(value))
       return new ValidationResult(ErrorCode.InvalidRequest, "max_age is invalid", HttpStatusCode.OK);
 
     if (await IsConsentGrantInvalid(value))
@@ -167,5 +167,17 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
     }
 
     return consentGrant.ConsentedScopes.Any(scope => !command.Scope.Split(' ').Contains(scope.Name));
+  }
+
+  private static bool IsMaxAgeInvalid(CreateAuthorizationGrantCommand command)
+  {
+    if (!string.IsNullOrWhiteSpace(command.MaxAge)
+        && !long.TryParse(command.MaxAge, out var maxAge)
+        && maxAge > -1)
+    {
+      return true;
+    }
+
+    return false;
   }
 }

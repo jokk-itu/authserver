@@ -70,19 +70,13 @@ public class AuthorizeController : OAuthControllerBase
       return ErrorFormPostResult(request.RedirectUri, request.State, response.ErrorCode, response.ErrorDescription);
     }
 
-    var maxAge = 0L;
-    if (long.TryParse(request.MaxAge, out var parsedMaxAge))
-    {
-      maxAge = parsedMaxAge;
-    }
-
     var command = new CreateAuthorizationGrantCommand
     {
       ClientId = request.ClientId,
       Scope = request.Scope,
       CodeChallenge = request.CodeChallenge,
       CodeChallengeMethod = request.CodeChallengeMethod,
-      MaxAge = maxAge,
+      MaxAge = request.MaxAge,
       Nonce = request.Nonce,
       RedirectUri = request.RedirectUri,
       ResponseType = request.ResponseType,

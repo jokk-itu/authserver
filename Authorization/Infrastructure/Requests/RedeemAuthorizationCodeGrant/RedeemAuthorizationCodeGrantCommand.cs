@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Infrastructure.Requests.RedeemAuthorizationGrantCode;
+namespace Infrastructure.Requests.RedeemAuthorizationCodeGrant;
 
 #nullable disable
 public class RedeemAuthorizationCodeGrantCommand : IRequest<RedeemAuthorizationCodeGrantResponse>

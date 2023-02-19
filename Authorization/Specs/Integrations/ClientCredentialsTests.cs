@@ -1,8 +1,8 @@
-﻿using Contracts.PostToken;
-using Microsoft.AspNetCore.Mvc.Testing;
+﻿using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Net.Http.Json;
 using WebApp.Constants;
+using WebApp.Contracts.PostToken;
 using Xunit;
 
 namespace Specs.Integrations;

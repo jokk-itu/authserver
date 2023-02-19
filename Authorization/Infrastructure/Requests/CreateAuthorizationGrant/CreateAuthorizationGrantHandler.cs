@@ -41,12 +41,11 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
 
     var session = await _identityContext
       .Set<Session>()
-      .SingleOrDefaultAsync(x => x.User.Id == request.UserId, cancellationToken: cancellationToken) ?? new Session
+      .Where(x => x.User.Id == request.UserId)
+      .Where(x => !x.IsRevoked)
+      .SingleOrDefaultAsync(cancellationToken: cancellationToken) ?? new Session
       {
-        Created = DateTime.Now,
-        Updated = DateTime.Now,
         User = user,
-        MaxAge = request.MaxAge
       };
 
     var grantId = Guid.NewGuid().ToString();
@@ -58,13 +57,15 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
       request.CodeChallengeMethod,
       request.Scope.Split(' '));
 
+    var maxAge = string.IsNullOrWhiteSpace(request.MaxAge) ? client.DefaultMaxAge : long.Parse(request.MaxAge);
     var authorizationCodeGrant = new AuthorizationCodeGrant
     {
       Id = grantId,
-      IsRedeemed = false,
+      IsCodeRedeemed = false,
       Client = client,
       Code = code,
       AuthTime = authTime,
+      MaxAge = maxAge,
       Nonce = request.Nonce,
       Session = session
     };

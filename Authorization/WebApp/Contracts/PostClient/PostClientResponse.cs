@@ -53,4 +53,16 @@ public class PostClientResponse
 
   [JsonPropertyName(ParameterNames.RegistrationClientUri)]
   public string RegistrationClientUri { get; init; }
+
+  [JsonPropertyName(ParameterNames.DefaultMaxAge)]
+  public string DefaultMaxAge { get; init; }
+
+  [JsonPropertyName(ParameterNames.InitiateLoginUri)]
+  public string InitiateLoginUri { get; init; }
+
+  [JsonPropertyName(ParameterNames.LogoUri)]
+  public string LogoUri { get; init; }
+
+  [JsonPropertyName(ParameterNames.ClientUri)]
+  public string ClientUri { get; init; }
 }

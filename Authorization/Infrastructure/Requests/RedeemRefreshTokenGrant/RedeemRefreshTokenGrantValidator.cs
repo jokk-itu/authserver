@@ -57,11 +57,11 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
     }
 
     var session = await _identityContext
-      .Set<Session>()
-      .Where(s => s.Id == sessionId)
-      .Where(Session.IsValid)
-      .Where(s => s.AuthorizationCodeGrants.Any(acg => acg.Client.Id == value.ClientId))
-      .SingleOrDefaultAsync(cancellationToken: cancellationToken);
+      .Set<AuthorizationCodeGrant>()
+      .Where(g => g.Client.Id == value.ClientId)
+      .Where(AuthorizationCodeGrant.IsMaxAgeValid)
+      .Select(g => g.Session)
+      .SingleOrDefaultAsync(s => s.Id == sessionId, cancellationToken: cancellationToken);
 
     if (session is null)
     {

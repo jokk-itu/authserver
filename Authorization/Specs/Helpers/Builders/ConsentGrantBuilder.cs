@@ -9,7 +9,6 @@ public class ConsentGrantBuilder
   {
     _consentGrant = new ConsentGrant
     {
-      IssuedAt = DateTime.UtcNow,
       Updated = DateTime.UtcNow
     };
   }

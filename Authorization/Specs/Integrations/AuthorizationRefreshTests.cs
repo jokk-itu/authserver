@@ -1,5 +1,4 @@
-﻿using Contracts.PostToken;
-using Domain.Constants;
+﻿using Domain.Constants;
 using Infrastructure.Helpers;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -11,6 +10,7 @@ using System.Text.Json;
 using WebApp.Constants;
 using Xunit;
 using System.Text.RegularExpressions;
+using WebApp.Contracts.PostToken;
 
 namespace Specs.Integrations;
 

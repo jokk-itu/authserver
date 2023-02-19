@@ -6,12 +6,7 @@ namespace Api.Controllers;
 [ApiController]
 public class WeatherController : ControllerBase
 {
-  private static string[] _weatherTypes = new[] { "Freezing", "Cold", "Mild", "Hot", "Scorching" };
-
-  public WeatherController()
-  {
-
-  }
+  private static readonly string[] _weatherTypes = { "Freezing", "Cold", "Mild", "Hot", "Scorching" };
 
   [Authorize]
   [HttpGet]

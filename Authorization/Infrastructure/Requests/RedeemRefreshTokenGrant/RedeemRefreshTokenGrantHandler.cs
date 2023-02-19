@@ -5,7 +5,6 @@ using Domain;
 using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Decoders.Abstractions;
-using Infrastructure.Requests.CreateRefreshTokenGrant;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -52,9 +51,10 @@ public class RedeemRefreshTokenGrantHandler : IRequestHandler<RedeemRefreshToken
     var sessionId = token.Claims.Single(x => x.Type == ClaimNameConstants.Sid).Value;
     var authorizationCodeGrant = await _identityContext
       .Set<AuthorizationCodeGrant>()
-      .Where(x => x.Client.Id == request.ClientId && x.Client.Secret == request.ClientSecret)
+      .Where(x => x.Client.Id == request.ClientId)
+      .Where(x => x.Client.Secret == request.ClientSecret)
       .Where(x => x.Session.Id.ToString() == sessionId)
-      .Where(x => x.IsRedeemed)
+      .Where(x => x.IsCodeRedeemed)
       .OrderBy(x => x.AuthTime)
       .FirstAsync(cancellationToken: cancellationToken);
 
@@ -62,6 +62,7 @@ public class RedeemRefreshTokenGrantHandler : IRequestHandler<RedeemRefreshToken
     var accessToken = await _tokenBuilder.BuildAccessTokenAsync(request.ClientId, scopes, userId, sessionId, cancellationToken: cancellationToken);
     var idToken = await _tokenBuilder.BuildIdTokenAsync(request.ClientId, scopes, authorizationCodeGrant.Nonce, userId,
       sessionId, authorizationCodeGrant.AuthTime, cancellationToken: cancellationToken);
+
     return new RedeemRefreshTokenGrantResponse(HttpStatusCode.OK)
     {
       AccessToken = accessToken,

@@ -73,19 +73,13 @@ public class LoginController : OAuthControllerBase
 
   private async Task<IActionResult> GetAuthorizationCode(AuthorizeRequest request, string userId, CancellationToken cancellationToken = default)
   {
-    var maxAge = 0L;
-    if (long.TryParse(request.MaxAge, out var parsedMaxAge))
-    {
-      maxAge = parsedMaxAge;
-    }
-
     var command = new CreateAuthorizationGrantCommand
     {
       ClientId = request.ClientId,
       Scope = request.Scope,
       CodeChallenge = request.CodeChallenge,
       CodeChallengeMethod = request.CodeChallengeMethod,
-      MaxAge = maxAge,
+      MaxAge = request.MaxAge,
       Nonce = request.Nonce,
       RedirectUri = request.RedirectUri,
       ResponseType = request.ResponseType,

@@ -24,7 +24,7 @@ public static class MauiProgram
     builder.Services.AddSingleton(new OidcClient(new OidcClientOptions
     {
       Authority = "https://localhost:5000",
-      ClientId = "",
+      ClientId = "130e78e1-8d0f-4ebc-a62c-7bb219519b1e",
       Scope = "openid profile email phone identityprovider:userinfo weather:read",
       RedirectUri = "hybridapp://callback",
       Browser = new AuthenticationBrowser()

@@ -10,7 +10,7 @@ using Infrastructure.Decoders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Infrastructure.Requests.RedeemAuthorizationGrantCode;
+namespace Infrastructure.Requests.RedeemAuthorizationCodeGrant;
 public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizationCodeGrantCommand>
 {
   private readonly IdentityContext _identityContext;
@@ -47,13 +47,13 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
     var query = await _identityContext
       .Set<AuthorizationCodeGrant>()
       .Where(x => x.Id == code.AuthorizationGrantId)
-      .Where(AuthorizationCodeGrant.IsValid)
+      .Where(AuthorizationCodeGrant.IsCodeValid)
       .Select(x => new
       {
         IsClientValid = x.Client.Id == value.ClientId && x.Client.Secret == value.ClientSecret,
         IsClientAuthorized = x.Client.RedirectUris.Any(y => y.Uri == value.RedirectUri)
                              && x.Client.GrantTypes.Any(y => y.Name == GrantTypeConstants.AuthorizationCode),
-        IsSessionValid = (x.Session.MaxAge == 0) || DateTime.UtcNow < x.Session.Updated.AddSeconds(x.Session.MaxAge)
+        IsSessionValid = !x.Session.IsRevoked
       })
       .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 

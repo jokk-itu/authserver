@@ -3,7 +3,6 @@ using Application.Validation;
 using Domain;
 using Infrastructure.Decoders.Abstractions;
 using MediatR;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.CreateOrUpdateConsentGrant;
@@ -73,7 +72,6 @@ internal class CreateOrUpdateConsentGrantHandler : IRequestHandler<CreateOrUpdat
         User = user,
         ConsentedClaims = claims,
         ConsentedScopes = scopes,
-        IssuedAt = DateTime.UtcNow,
         Updated = DateTime.UtcNow
       };
 

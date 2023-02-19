@@ -24,5 +24,7 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=cb4c89d3_002Dbfaf_002D42c5_002Da564_002D2aa12f9cddfd/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="BuildIdToken_ExpectIdToken #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Project Location="C:\Workspace\AuthServer" Presentation="&amp;lt;Authorization&amp;gt;" /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=connectionstring/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=datastore/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=DOCTYPE/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=weatherservice/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

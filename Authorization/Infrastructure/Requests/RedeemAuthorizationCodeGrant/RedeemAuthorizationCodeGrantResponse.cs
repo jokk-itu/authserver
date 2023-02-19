@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Infrastructure.Requests.RedeemAuthorizationGrantCode;
+namespace Infrastructure.Requests.RedeemAuthorizationCodeGrant;
 public class RedeemAuthorizationCodeGrantResponse : Response
 {
   public RedeemAuthorizationCodeGrantResponse(HttpStatusCode statusCode) : base(statusCode)

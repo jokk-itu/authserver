@@ -1,5 +1,4 @@
-﻿using Infrastructure.Requests.CreateRefreshTokenGrant;
-using MediatR;
+﻿using MediatR;
 
 namespace Infrastructure.Requests.RedeemRefreshTokenGrant;
 

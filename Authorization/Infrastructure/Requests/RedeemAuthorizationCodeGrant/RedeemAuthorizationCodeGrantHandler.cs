@@ -7,7 +7,7 @@ using Infrastructure.Decoders.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Requests.RedeemAuthorizationGrantCode;
+namespace Infrastructure.Requests.RedeemAuthorizationCodeGrant;
 public class RedeemAuthorizationCodeGrantHandler : IRequestHandler<RedeemAuthorizationCodeGrantCommand, RedeemAuthorizationCodeGrantResponse>
 {
   private readonly IdentityContext _identityContext;
@@ -46,7 +46,7 @@ public class RedeemAuthorizationCodeGrantHandler : IRequestHandler<RedeemAuthori
       .ThenInclude(x => x.User)
       .SingleAsync(x => x.Id == code.AuthorizationGrantId, cancellationToken: cancellationToken);
 
-    authorizationCodeGrant.IsRedeemed = true;
+    authorizationCodeGrant.IsCodeRedeemed = true;
     var sessionId = authorizationCodeGrant.Session.Id.ToString();
     var userId = authorizationCodeGrant.Session.User.Id;
 
