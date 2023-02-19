@@ -23,7 +23,7 @@ namespace Specs;
 public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<Program>>
 {
   private readonly WebApplicationFactory<Program> _factory;
-  protected const string IdentityProviderScope = "identityprovider:read";
+  protected const string IdentityProviderScope = "identityprovider:userinfo";
 
   public HttpClient Client { get; set; }
   private string? Cookie { get; set; }

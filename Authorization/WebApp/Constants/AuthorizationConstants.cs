@@ -8,4 +8,5 @@ public static class AuthorizationConstants
   public const string ResourceConfiguration = "ResourceConfiguration";
   public const string ScopeRegistration = "ScopeRegistration";
   public const string ScopeConfiguration = "ScopeConfiguration";
+  public const string UserInfo = "UserInfoConfiguration";
 }
