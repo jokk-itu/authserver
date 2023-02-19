@@ -68,21 +68,22 @@ function CreateWasm() {
 
 function CreateHybrid() {
     $token = GetInitialToken 'https://localhost:5000/connect/client/initial-token'
-    $body = ${
-        'redirect_uris' = $('hybridapp://callback')
-        'responses_types' = $('code')
-        'grant_types' = $('authorization_code', 'refresh_token')
-        'application_types' = 'web'
+    $body = @{
+        'redirect_uris' = @('hybridapp://callback')
+        'response_types' = @('code')
+        'grant_types' = @('authorization_code', 'refresh_token')
+        'application_type' = 'native'
         'contacts' = @('test@gmail.com')
         'client_name' = 'hybridapp'
         'subject_type' = 'public'
         'token_endpoint_auth_method' = 'none'
         'scope' = 'openid profile email phone offline_access weather:read identityprovider:userinfo'
         'logo_uri' = 'https://www.gravatar.com/avatar/30bc082fbe72e3c7a5ac3316095e106d?d=identicon'
-        'default_max_age' = '3600'
     }
+    PostClient 'https://localhost:5000/connect/client/register' $token $body
 }
 
 CreateWebApp
 CreateWorker
 CreateWasm
+CreateHybrid
