@@ -13,6 +13,11 @@ html {
   min-height: 100%;
 }
 
-body {
-  margin-bottom: 60px;
+main {
+    background-image: url(/images/wave.svg);
+    background-position: bottom;
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 100vw;
+    height: 100vh;
 }
