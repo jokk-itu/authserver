@@ -1,5 +1,6 @@
 ﻿using HybridApp.Data;
 using IdentityModel.OidcClient;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace HybridApp;
 public static class MauiProgram
@@ -20,6 +21,8 @@ public static class MauiProgram
 #endif
 
     builder.Services.AddSingleton<WeatherForecastService>();
+    builder.Services.AddScoped<AuthenticationStateProvider, MauiAuthenticationStateProvider>();
+    builder.Services.AddAuthorizationCore();
 
     builder.Services.AddSingleton(new OidcClient(new OidcClientOptions
     {
