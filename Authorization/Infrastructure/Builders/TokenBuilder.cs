@@ -92,7 +92,8 @@ public class TokenBuilder : ITokenBuilder
           { ClaimNameConstants.Scope, string.Join(' ', scopes) },
           { ClaimNameConstants.Sid, sessionId },
           { ClaimNameConstants.Nonce, nonce },
-          { ClaimNameConstants.AuthTime, authTime }
+          { ClaimNameConstants.AuthTime, authTime },
+          { ClaimNameConstants.ClientId, clientId }
         };
         var userInfo = await _claimService
           .GetClaimsFromConsentGrant(userId, clientId, cancellationToken: cancellationToken);
