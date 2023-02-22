@@ -33,7 +33,7 @@ public class SilentLoginHandler : IRequestHandler<SilentLoginQuery, SilentLoginR
       return new SilentLoginResponse(ErrorCode.ServerError, "something went wrong", HttpStatusCode.OK);
     }
 
-    var userId = token.Claims.Single(x => x.Type == ClaimNameConstants.Sid).Value;
+    var userId = token.Claims.Single(x => x.Type == ClaimNameConstants.Sub).Value;
     return new SilentLoginResponse(HttpStatusCode.OK)
     {
       UserId = userId

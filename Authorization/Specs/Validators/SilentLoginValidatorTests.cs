@@ -70,6 +70,78 @@ public class SilentLoginValidatorTests : BaseUnitTest
 
   [Fact]
   [Trait("Category", "Unit")]
+  public async Task ValidateAsync_ExpectExpiredMaxAge()
+  {
+    // Arrange
+    var serviceProvider = BuildServiceProvider();
+    var client = await GetClient();
+    var authorizationGrant = client.AuthorizationCodeGrants.Single();
+    authorizationGrant.MaxAge = 0;
+    await IdentityContext.SaveChangesAsync();
+    var session = authorizationGrant.Session;
+
+    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginQuery>>();
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
+    var idToken = await tokenBuilder.BuildIdTokenAsync(
+      client.Id,
+      new[] {ScopeConstants.OpenId},
+      authorizationGrant.Nonce,
+      session.User.Id,
+      session.Id.ToString(),
+      authorizationGrant.AuthTime);
+
+    var query = new SilentLoginQuery
+    {
+      ClientId = client.Id,
+      IdTokenHint = idToken
+    };
+
+    // Act
+    var validationResult = await validator.ValidateAsync(query);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+    Assert.Equal(ErrorCode.LoginRequired, validationResult.ErrorCode);
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_ExpectRevokedSession()
+  {
+    // Arrange
+    var serviceProvider = BuildServiceProvider();
+    var client = await GetClient();
+    var authorizationGrant = client.AuthorizationCodeGrants.Single();
+    var session = authorizationGrant.Session;
+    session.IsRevoked = true;
+    await IdentityContext.SaveChangesAsync();
+
+    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginQuery>>();
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
+    var idToken = await tokenBuilder.BuildIdTokenAsync(
+      client.Id,
+      new[] {ScopeConstants.OpenId},
+      authorizationGrant.Nonce,
+      session.User.Id,
+      session.Id.ToString(),
+      authorizationGrant.AuthTime);
+
+    var query = new SilentLoginQuery
+    {
+      ClientId = client.Id,
+      IdTokenHint = idToken
+    };
+
+    // Act
+    var validationResult = await validator.ValidateAsync(query);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+    Assert.Equal(ErrorCode.LoginRequired, validationResult.ErrorCode);
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
   public async Task ValidateAsync_ExpectOk()
   {
     // Arrange
