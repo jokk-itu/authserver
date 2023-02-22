@@ -64,7 +64,9 @@ public class TokenDecoder : ITokenDecoder
     public JwtSecurityToken? DecodeEncryptedToken(string token)
     {
       if (string.IsNullOrWhiteSpace(token))
+      {
         return null;
+      }
 
       var signingKeys = _jwkManager.Jwks
         .Select(x => new RsaSecurityKey(_jwkManager.RsaCryptoServiceProvider) { KeyId = x.KeyId.ToString() })

@@ -1,4 +1,5 @@
-﻿using Application.Validation;
+﻿using Application;
+using Application.Validation;
 using Domain;
 using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
@@ -14,7 +15,62 @@ public class SilentLoginValidatorTests : BaseUnitTest
 {
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task ValidateAsyncOk()
+  public async Task ValidateAsync_ExpectInvalidToken()
+  {
+    //  Arrange
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginQuery>>();
+    var query = new SilentLoginQuery
+    {
+      ClientId = Guid.NewGuid().ToString(),
+      IdTokenHint = null
+    };
+
+    // Act
+    var validationResult = await validator.ValidateAsync(query);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+    Assert.Equal(ErrorCode.InvalidRequest, validationResult.ErrorCode);
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_ExpectInvalidClientId()
+  {
+    // Arrange
+    var serviceProvider = BuildServiceProvider();
+    var client = await GetClient();
+    var authorizationGrant = client.AuthorizationCodeGrants.Single();
+    var session = authorizationGrant.Session;
+
+    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginQuery>>();
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
+    var idToken = await tokenBuilder.BuildIdTokenAsync(
+      Guid.Empty.ToString(),
+      new[] {ScopeConstants.OpenId},
+      authorizationGrant.Nonce,
+      session.User.Id,
+      session.Id.ToString(),
+      authorizationGrant.AuthTime);
+
+    var query = new SilentLoginQuery
+    {
+      ClientId = client.Id,
+      IdTokenHint = idToken
+    };
+
+    // Act
+    var validationResult = await validator.ValidateAsync(query);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+    Assert.Equal(ErrorCode.AccessDenied, validationResult.ErrorCode);
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_ExpectOk()
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
