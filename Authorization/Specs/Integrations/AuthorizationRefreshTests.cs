@@ -10,6 +10,7 @@ using System.Text.Json;
 using WebApp.Constants;
 using Xunit;
 using System.Text.RegularExpressions;
+using Specs.Helpers.EndpointBuilders;
 using WebApp.Contracts.PostToken;
 
 namespace Specs.Integrations;
@@ -29,34 +30,16 @@ public class AuthorizationRefreshTests : BaseIntegrationTest
     var password = CryptographyHelper.GetRandomString(32);
     var user = await BuildUserAsync(password);
     var client = await BuildAuthorizationGrantClient(ApplicationTypeConstants.Web, "test", scope);
-    var state = CryptographyHelper.GetRandomString(16);
-    var nonce = CryptographyHelper.GetRandomString(32);
-    var pkce= ProofKeyForCodeExchangeHelper.GetPkce();
-    var query = new QueryBuilder
-    {
-      { ParameterNames.ResponseType, ResponseTypeConstants.Code },
-      { ParameterNames.ClientId, client.ClientId },
-      { ParameterNames.RedirectUri, "http://localhost:5002/callback" },
-      { ParameterNames.Scope, scope },
-      { ParameterNames.State, state },
-      { ParameterNames.CodeChallenge, pkce.CodeChallenge },
-      { ParameterNames.CodeChallengeMethod, CodeChallengeMethodConstants.S256 },
-      { ParameterNames.Nonce, nonce },
-      { ParameterNames.MaxAge, "120" },
-      { ParameterNames.Prompt, $"{PromptConstants.Login} {PromptConstants.Consent}" }
-    };
-
-    var loginAntiForgery = await GetAntiForgeryToken($"connect/login{query}");
-    var loginResponse = await LoginEndpointHelper.Login(Client, query.ToQueryString(), user.UserName, password, loginAntiForgery);
-    var loginCookie = loginResponse.Headers.GetValues("Set-Cookie").Single();
-    Assert.NotEmpty(loginCookie);
-
-    var consentAntiForgery = await GetAntiForgeryToken($"connect/consent/create{query}", loginCookie);
-    var consentResponse = await ConsentEndpointHelper.GetConsent(Client, query.ToQueryString(), consentAntiForgery, loginCookie);
-    var html = await consentResponse.Content.ReadAsStringAsync();
-    var authorizationCodeInput = Regex.Match(html, @"\<input name=""code"" type=""hidden"" value=""([^""]+)"" \/\>");
-    Assert.Equal(2, authorizationCodeInput.Groups.Count);
-    var code = authorizationCodeInput.Groups[1].Captures[0].Value;
+    var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
+    var code = await AuthorizeBuilder
+      .Instance()
+      .AddClientId(client.ClientId)
+      .AddScope(scope)
+      .AddCodeChallenge(pkce.CodeChallenge)
+      .AddPrompt($"{PromptConstants.Login} {PromptConstants.Consent}")
+      .AddRedirectUri(client.RedirectUris.First())
+      .AddUser(user.UserName, password)
+      .BuildLoginAndConsent(Client);
 
     var tokenContent = new FormUrlEncodedContent(new Dictionary<string, string>
     {
@@ -64,7 +47,7 @@ public class AuthorizationRefreshTests : BaseIntegrationTest
       { ParameterNames.ClientSecret, client.ClientSecret },
       { ParameterNames.Code, code },
       { ParameterNames.GrantType, OpenIdConnectGrantTypes.AuthorizationCode },
-      { ParameterNames.RedirectUri, "http://localhost:5002/callback" },
+      { ParameterNames.RedirectUri, "https://localhost:5002/callback" },
       { ParameterNames.Scope, scope },
       { ParameterNames.CodeVerifier, pkce.CodeVerifier }
     });
@@ -82,7 +65,6 @@ public class AuthorizationRefreshTests : BaseIntegrationTest
       { ParameterNames.ClientId, client.ClientId },
       { ParameterNames.ClientSecret, client.ClientSecret },
       { ParameterNames.GrantType, OpenIdConnectGrantTypes.RefreshToken },
-      { ParameterNames.RedirectUri, "http://localhost:5002/callback" },
       { ParameterNames.RefreshToken, tokens!.RefreshToken }
     });
     var refreshTokenRequest = new HttpRequestMessage(HttpMethod.Post, "connect/token")
