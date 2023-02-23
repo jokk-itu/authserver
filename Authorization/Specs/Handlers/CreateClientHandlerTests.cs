@@ -51,12 +51,16 @@ public class CreateClientHandlerTests : BaseUnitTest
       TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
       GrantTypes = new[] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken },
       Contacts = new[] { "test@mail.dk" },
-      PolicyUri = "http://localhost:5002/policy",
+      PolicyUri = "https://localhost:5002/policy",
       ClientName = "Test",
-      RedirectUris = new[] { "http://localhost:5002/callback" },
+      RedirectUris = new[] { "https://localhost:5002/callback" },
       SubjectType = SubjectTypeConstants.Public,
       Scope = $"{ScopeConstants.OpenId}",
-      TosUri = "http://localhost:5002/tos"
+      TosUri = "https://localhost:5002/tos",
+      ClientUri = "https://localhost:5002",
+      DefaultMaxAge = "120",
+      InitiateLoginUri = "https://localhost:5002/login",
+      LogoUri = "https://gravatar.com/avatar"
     };
     
     var fakeTokenBuilder = new Mock<ITokenBuilder>();
