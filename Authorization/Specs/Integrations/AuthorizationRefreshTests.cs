@@ -31,7 +31,7 @@ public class AuthorizationRefreshTests : BaseIntegrationTest
     var user = await BuildUserAsync(password);
     var client = await BuildAuthorizationGrantClient(ApplicationTypeConstants.Web, "test", scope);
     var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
-    var code = await AuthorizeBuilder
+    var code = await AuthorizeEndpointBuilder
       .Instance()
       .AddClientId(client.ClientId)
       .AddScope(scope)
@@ -41,48 +41,30 @@ public class AuthorizationRefreshTests : BaseIntegrationTest
       .AddUser(user.UserName, password)
       .BuildLoginAndConsent(Client);
 
-    var tokenContent = new FormUrlEncodedContent(new Dictionary<string, string>
-    {
-      { ParameterNames.ClientId, client.ClientId },
-      { ParameterNames.ClientSecret, client.ClientSecret },
-      { ParameterNames.Code, code },
-      { ParameterNames.GrantType, OpenIdConnectGrantTypes.AuthorizationCode },
-      { ParameterNames.RedirectUri, "https://localhost:5002/callback" },
-      { ParameterNames.Scope, scope },
-      { ParameterNames.CodeVerifier, pkce.CodeVerifier }
-    });
-    var request = new HttpRequestMessage(HttpMethod.Post, "connect/token")
-    {
-      Content = tokenContent
-    };
-    var tokenResponse = await Client.SendAsync(request);
-    tokenResponse.EnsureSuccessStatusCode();
-    var tokens = await tokenResponse.Content.ReadFromJsonAsync<PostTokenResponse>();
-    Assert.NotNull(tokens);
+    var tokenResponse = await TokenEndpointBuilder
+      .Instance()
+      .AddClientId(client.ClientId)
+      .AddClientSecret(client.ClientSecret)
+      .AddScope(scope)
+      .AddCodeVerifier(pkce.CodeVerifier)
+      .AddCode(code)
+      .AddGrantType(GrantTypeConstants.AuthorizationCode)
+      .AddRedirectUri(client.RedirectUris.First())
+      .BuildRedeemAuthorizationCode(Client);
 
-    var refreshTokenContent = new FormUrlEncodedContent(new Dictionary<string, string>
-    {
-      { ParameterNames.ClientId, client.ClientId },
-      { ParameterNames.ClientSecret, client.ClientSecret },
-      { ParameterNames.GrantType, OpenIdConnectGrantTypes.RefreshToken },
-      { ParameterNames.RefreshToken, tokens!.RefreshToken }
-    });
-    var refreshTokenRequest = new HttpRequestMessage(HttpMethod.Post, "connect/token")
-    {
-      Content = refreshTokenContent
-    };
-    var refreshTokenResponse = await Client.SendAsync(refreshTokenRequest);
-    refreshTokenResponse.EnsureSuccessStatusCode();
-    var refreshedTokens = await refreshTokenResponse.Content.ReadFromJsonAsync<PostTokenResponse>();
-    Assert.NotNull(refreshedTokens);
+    var refreshResponse = await TokenEndpointBuilder
+      .Instance()
+      .AddClientId(client.ClientId)
+      .AddClientSecret(client.ClientSecret)
+      .AddGrantType(GrantTypeConstants.RefreshToken)
+      .AddRefreshToken(tokenResponse.RefreshToken)
+      .BuildRedeemRefreshToken(Client);
 
-    var userInfoRequest = new HttpRequestMessage(HttpMethod.Get, "connect/userinfo");
-    userInfoRequest.Headers.Add(HttpRequestHeader.Authorization.ToString(), $"Bearer {tokens!.AccessToken}");
-    var userInfoResponse = await Client.SendAsync(userInfoRequest);
-    userInfoResponse.EnsureSuccessStatusCode();
-    var userInfoContent = await userInfoResponse.Content.ReadAsStringAsync();
-    var userInfoClaims = JsonSerializer.Deserialize<Dictionary<string, string>>(userInfoContent);
-    Assert.NotNull(userInfoClaims);
-    Assert.NotEmpty(userInfoClaims);
+    var userInfo = await UserInfoEndpointBuilder
+      .Instance()
+      .AddAccessToken(refreshResponse.AccessToken)
+      .BuildUserInfo(Client);
+
+    Assert.NotEmpty(userInfo);
   }
 }

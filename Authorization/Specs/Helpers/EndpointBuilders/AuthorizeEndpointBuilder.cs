@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using WebApp.Constants;
 
 namespace Specs.Helpers.EndpointBuilders;
-public class AuthorizeBuilder
+public class AuthorizeEndpointBuilder
 {
   private readonly QueryBuilder _queryBuilder = new();
 
@@ -21,62 +21,62 @@ public class AuthorizeBuilder
   private string _userName = string.Empty;
   private string _password = string.Empty;
 
-  private AuthorizeBuilder()
+  private AuthorizeEndpointBuilder()
   {
     _queryBuilder.Add(ParameterNames.CodeChallengeMethod, CodeChallengeMethodConstants.S256);
     _queryBuilder.Add(ParameterNames.State, CryptographyHelper.GetRandomString(16));
     _queryBuilder.Add(ParameterNames.Nonce, CryptographyHelper.GetRandomString(16));
   }
 
-  public static AuthorizeBuilder Instance()
+  public static AuthorizeEndpointBuilder Instance()
   {
-    return new AuthorizeBuilder();
+    return new AuthorizeEndpointBuilder();
   }
 
-  public AuthorizeBuilder AddUser(string userName, string password)
+  public AuthorizeEndpointBuilder AddUser(string userName, string password)
   {
     _userName = userName;
     _password = password;
     return this;
   }
 
-  public AuthorizeBuilder AddCodeChallenge(string codeChallenge)
+  public AuthorizeEndpointBuilder AddCodeChallenge(string codeChallenge)
   {
     _codeChallenge = codeChallenge;
     return this;
   }
 
-  public AuthorizeBuilder AddClientId(string clientId)
+  public AuthorizeEndpointBuilder AddClientId(string clientId)
   {
     _clientId = clientId;
     return this;
   }
 
-  public AuthorizeBuilder AddRedirectUri(string redirectUri)
+  public AuthorizeEndpointBuilder AddRedirectUri(string redirectUri)
   {
     _redirectUri = redirectUri;
     return this;
   }
 
-  public AuthorizeBuilder AddScope(string scope)
+  public AuthorizeEndpointBuilder AddScope(string scope)
   {
     _scope = scope;
     return this;
   }
 
-  public AuthorizeBuilder AddMaxAge(string maxAge)
+  public AuthorizeEndpointBuilder AddMaxAge(string maxAge)
   {
     _maxAge = maxAge;
     return this;
   }
 
-  public AuthorizeBuilder AddPrompt(string prompt)
+  public AuthorizeEndpointBuilder AddPrompt(string prompt)
   {
     _prompt = prompt;
     return this;
   }
 
-  public AuthorizeBuilder AddIdTokenHint(string idTokenHint)
+  public AuthorizeEndpointBuilder AddIdTokenHint(string idTokenHint)
   {
     _idTokenHint = idTokenHint;
     return this;
