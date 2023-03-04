@@ -31,8 +31,7 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
       return new ValidationResult(ErrorCode.InvalidGrant, "grant_type must be refresh_token", HttpStatusCode.BadRequest);
     }
     var clientId = refreshToken.Claims.Single(x => x.Type == ClaimNameConstants.ClientId).Value;
-    var sessionClaim = refreshToken.Claims.Single(x => x.Type == ClaimNameConstants.Sid);
-    var sessionId = long.Parse(sessionClaim.Value);
+    var sessionId = refreshToken.Claims.Single(x => x.Type == ClaimNameConstants.Sid).Value;
 
     if (clientId != value.ClientId)
     {

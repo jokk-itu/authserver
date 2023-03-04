@@ -2,7 +2,7 @@
 using Infrastructure.Helpers;
 using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
-using Specs.Helpers.Builders;
+using Specs.Helpers.EntityBuilders;
 using Xunit;
 
 namespace Specs.Services;

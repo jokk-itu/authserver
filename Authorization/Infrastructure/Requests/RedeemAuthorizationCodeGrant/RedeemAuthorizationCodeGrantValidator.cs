@@ -47,7 +47,7 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
     var query = await _identityContext
       .Set<AuthorizationCodeGrant>()
       .Where(x => x.Id == code.AuthorizationGrantId)
-      .Where(AuthorizationCodeGrant.IsCodeValid)
+      .Where(AuthorizationCodeGrant.IsAuthorizationCodeValid(code.AuthorizationCodeId))
       .Select(x => new
       {
         IsClientValid = x.Client.Id == value.ClientId && x.Client.Secret == value.ClientSecret,

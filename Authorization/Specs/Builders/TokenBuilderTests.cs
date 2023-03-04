@@ -5,7 +5,7 @@ using Infrastructure.Decoders.Abstractions;
 using Infrastructure.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
-using Specs.Helpers.Builders;
+using Specs.Helpers.EntityBuilders;
 using Xunit;
 
 namespace Specs.Builders;
@@ -67,7 +67,7 @@ public class TokenBuilderTests : BaseUnitTest
     var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
 
     // Act
-    var token = await tokenBuilder.BuildIdTokenAsync("test", new[] { ScopeConstants.OpenId }, "nonce", user.Id, "123", DateTime.UtcNow);
+    var token = await tokenBuilder.BuildIdTokenAsync("test", "test", new[] { ScopeConstants.OpenId }, "nonce", user.Id, "123", DateTime.UtcNow);
     var securityToken = tokenDecoder.DecodeSignedToken(token);
 
     // Assert
@@ -94,7 +94,7 @@ public class TokenBuilderTests : BaseUnitTest
     var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
    
     // Act
-    var token = await tokenBuilder.BuildRefreshTokenAsync("test", new[] { ScopeConstants.OpenId, scope.Name }, "1234", "123");
+    var token = await tokenBuilder.BuildRefreshTokenAsync("123", "test", new[] { ScopeConstants.OpenId, scope.Name }, "1234", "123");
     var securityToken = tokenDecoder.DecodeSignedToken(token);
 
     // Assert

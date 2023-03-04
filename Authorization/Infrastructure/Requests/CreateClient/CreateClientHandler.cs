@@ -99,7 +99,7 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       ClientId = client.Id,
       ClientName = client.Name,
       ClientSecret = client.Secret,
-      Scope = string.Join(' ', client.Scopes),
+      Scope = string.Join(' ', client.Scopes.Select(x => x.Name)),
       RedirectUris = client.RedirectUris.Select(x => x.Uri).ToList(),
       SubjectType = request.SubjectType,
       TosUri = client.TosUri,

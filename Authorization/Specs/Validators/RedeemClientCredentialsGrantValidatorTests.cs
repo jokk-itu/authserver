@@ -5,7 +5,7 @@ using Domain.Constants;
 using Infrastructure.Requests.RedeemClientCredentialsGrant;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Specs.Helpers.Builders;
+using Specs.Helpers.EntityBuilders;
 using Xunit;
 
 namespace Specs.Validators;
@@ -132,6 +132,7 @@ public class RedeemClientCredentialsGrantValidatorTests : BaseUnitTest
     var serviceProvider = BuildServiceProvider();
     var scope = ScopeBuilder
       .Instance()
+      .AddName("identityprovider")
       .Build();
 
     var client = ClientBuilder
