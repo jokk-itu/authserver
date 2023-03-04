@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20230219172048_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20230304232351_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -114,6 +114,33 @@ namespace Infrastructure.Migrations
                     b.ToTable("ConsentedGrantScopes", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.AuthorizationCode", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AuthorizationCodeGrantId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsRedeemed")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("IssuedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("RedeemedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorizationCodeGrantId");
+
+                    b.ToTable("AuthorizationCode", (string)null);
+                });
+
             modelBuilder.Entity("Domain.AuthorizationCodeGrant", b =>
                 {
                     b.Property<string>("Id")
@@ -125,23 +152,14 @@ namespace Infrastructure.Migrations
                     b.Property<string>("ClientId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Code")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsCodeRedeemed")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsRevoked")
                         .HasColumnType("bit");
 
                     b.Property<long?>("MaxAge")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("Nonce")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("SessionId")
-                        .HasColumnType("int");
+                    b.Property<string>("SessionId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -362,6 +380,24 @@ namespace Infrastructure.Migrations
                     b.ToTable("Jwks", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Nonce", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AuthorizationCodeGrantId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorizationCodeGrantId");
+
+                    b.ToTable("Nonce", (string)null);
+                });
+
             modelBuilder.Entity("Domain.RedirectUri", b =>
                 {
                     b.Property<int>("Id")
@@ -471,11 +507,8 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Session", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsRevoked")
                         .HasColumnType("bit");
@@ -649,6 +682,15 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Domain.AuthorizationCode", b =>
+                {
+                    b.HasOne("Domain.AuthorizationCodeGrant", "AuthorizationCodeGrant")
+                        .WithMany("AuthorizationCodes")
+                        .HasForeignKey("AuthorizationCodeGrantId");
+
+                    b.Navigation("AuthorizationCodeGrant");
+                });
+
             modelBuilder.Entity("Domain.AuthorizationCodeGrant", b =>
                 {
                     b.HasOne("Domain.Client", "Client")
@@ -680,6 +722,15 @@ namespace Infrastructure.Migrations
                     b.Navigation("Client");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Nonce", b =>
+                {
+                    b.HasOne("Domain.AuthorizationCodeGrant", "AuthorizationCodeGrant")
+                        .WithMany("Nonces")
+                        .HasForeignKey("AuthorizationCodeGrantId");
+
+                    b.Navigation("AuthorizationCodeGrant");
                 });
 
             modelBuilder.Entity("Domain.RedirectUri", b =>
@@ -715,6 +766,13 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("ScopesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.AuthorizationCodeGrant", b =>
+                {
+                    b.Navigation("AuthorizationCodes");
+
+                    b.Navigation("Nonces");
                 });
 
             modelBuilder.Entity("Domain.Client", b =>

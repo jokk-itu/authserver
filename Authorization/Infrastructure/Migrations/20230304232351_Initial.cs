@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Infrastructure.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -317,8 +317,7 @@ namespace Infrastructure.Migrations
                 name: "Sessions",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     IsRevoked = table.Column<bool>(type: "bit", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
@@ -385,13 +384,10 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Code = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Nonce = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsCodeRedeemed = table.Column<bool>(type: "bit", nullable: false),
                     AuthTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     MaxAge = table.Column<long>(type: "bigint", nullable: true),
                     IsRevoked = table.Column<bool>(type: "bit", nullable: false),
-                    SessionId = table.Column<int>(type: "int", nullable: true),
+                    SessionId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
@@ -409,6 +405,45 @@ namespace Infrastructure.Migrations
                         principalTable: "Sessions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AuthorizationCode",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsRedeemed = table.Column<bool>(type: "bit", nullable: false),
+                    IssuedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    RedeemedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    AuthorizationCodeGrantId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AuthorizationCode", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AuthorizationCode_AuthorizationCodeGrants_AuthorizationCodeGrantId",
+                        column: x => x.AuthorizationCodeGrantId,
+                        principalTable: "AuthorizationCodeGrants",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Nonce",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AuthorizationCodeGrantId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Nonce", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Nonce_AuthorizationCodeGrants_AuthorizationCodeGrantId",
+                        column: x => x.AuthorizationCodeGrantId,
+                        principalTable: "AuthorizationCodeGrants",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.InsertData(
@@ -453,6 +488,11 @@ namespace Infrastructure.Migrations
                     { 4, "offline_access" },
                     { 5, "phone" }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuthorizationCode_AuthorizationCodeGrantId",
+                table: "AuthorizationCode",
+                column: "AuthorizationCodeGrantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AuthorizationCodeGrants_ClientId",
@@ -505,6 +545,11 @@ namespace Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Nonce_AuthorizationCodeGrantId",
+                table: "Nonce",
+                column: "AuthorizationCodeGrantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RedirectUris_ClientId",
                 table: "RedirectUris",
                 column: "ClientId");
@@ -536,7 +581,7 @@ namespace Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AuthorizationCodeGrants");
+                name: "AuthorizationCode");
 
             migrationBuilder.DropTable(
                 name: "ClientContacts");
@@ -560,13 +605,13 @@ namespace Infrastructure.Migrations
                 name: "Jwks");
 
             migrationBuilder.DropTable(
+                name: "Nonce");
+
+            migrationBuilder.DropTable(
                 name: "RedirectUris");
 
             migrationBuilder.DropTable(
                 name: "ResourceScopes");
-
-            migrationBuilder.DropTable(
-                name: "Sessions");
 
             migrationBuilder.DropTable(
                 name: "Contacts");
@@ -584,6 +629,9 @@ namespace Infrastructure.Migrations
                 name: "ConsentGrants");
 
             migrationBuilder.DropTable(
+                name: "AuthorizationCodeGrants");
+
+            migrationBuilder.DropTable(
                 name: "Resources");
 
             migrationBuilder.DropTable(
@@ -591,6 +639,9 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Clients");
+
+            migrationBuilder.DropTable(
+                name: "Sessions");
 
             migrationBuilder.DropTable(
                 name: "Users");
