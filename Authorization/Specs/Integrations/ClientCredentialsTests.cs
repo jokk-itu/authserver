@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using System.Net.Http.Json;
-using WebApp.Constants;
-using WebApp.Contracts.PostToken;
+using Domain.Constants;
+using Specs.Helpers.EndpointBuilders;
 using Xunit;
 
 namespace Specs.Integrations;
@@ -23,21 +21,14 @@ public class ClientCredentialsTests : BaseIntegrationTest
     await BuildResource(scope, "weatherservice");
 
     var client = await BuildClientCredentialsWebClient("test", scope);
-    var tokenContent = new FormUrlEncodedContent(new Dictionary<string, string>
-    {
-      { ParameterNames.ClientId, client.ClientId },
-      { ParameterNames.ClientSecret, client.ClientSecret },
-      { ParameterNames.GrantType, OpenIdConnectGrantTypes.ClientCredentials },
-      { ParameterNames.RedirectUri, "http://localhost:5002/callback" },
-      { ParameterNames.Scope, scope }
-    });
-    var request = new HttpRequestMessage(HttpMethod.Post, "connect/token")
-    {
-      Content = tokenContent
-    };
-    var tokenResponse = await Client.SendAsync(request);
-    tokenResponse.EnsureSuccessStatusCode();
-    var tokens = await tokenResponse.Content.ReadFromJsonAsync<PostTokenResponse>();
+    var tokens = await TokenEndpointBuilder
+      .Instance()
+      .AddClientId(client.ClientId)
+      .AddClientSecret(client.ClientSecret)
+      .AddGrantType(GrantTypeConstants.ClientCredentials)
+      .AddScope(scope)
+      .BuildRedeemClientCredentials(GetClient());
+    
     Assert.NotNull(tokens);
     Assert.NotEmpty(tokens.AccessToken);
     Assert.True(tokens.ExpiresIn > 0);

@@ -6,7 +6,7 @@ using Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
-using Specs.Helpers.Builders;
+using Specs.Helpers.EntityBuilders;
 using WebApp.Contracts.GetClientInitialAccessToken;
 using WebApp.Contracts.GetScopeInitialAccessToken;
 using WebApp.Contracts.PostClient;
@@ -18,9 +18,7 @@ namespace Specs;
 public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<Program>>
 {
   private readonly WebApplicationFactory<Program> _factory;
-  protected const string IdentityProviderScope = "identityprovider:userinfo";
-
-  public HttpClient Client { get; set; }
+  protected const string UserInfoScope = "identityprovider:userinfo";
 
   protected BaseIntegrationTest(WebApplicationFactory<Program> factory)
   {
@@ -31,18 +29,21 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
       var identityContext = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<IdentityContext>();
       identityContext.Database.EnsureDeleted();
       identityContext.Database.EnsureCreated();
-      Client = _factory.CreateClient(new WebApplicationFactoryClientOptions
-      {
-        AllowAutoRedirect = false
-      });
+      BuildScope(UserInfoScope).GetAwaiter().GetResult();
+      BuildResource(UserInfoScope, "identityprovider").GetAwaiter().GetResult();
+  }
 
-      BuildScope(IdentityProviderScope).GetAwaiter().GetResult();
-      BuildResource(IdentityProviderScope, "identityprovider").GetAwaiter().GetResult();
+  protected HttpClient GetClient()
+  {
+    return _factory.CreateClient(new WebApplicationFactoryClientOptions
+    {
+      AllowAutoRedirect = false
+    });
   }
 
   protected async Task<PostScopeResponse> BuildScope(string scope)
   {
-    var getInitialToken = await Client.GetFromJsonAsync<GetScopeInitialAccessToken>("connect/scope/initial-token");
+    var getInitialToken = await GetClient().GetFromJsonAsync<GetScopeInitialAccessToken>("connect/scope/initial-token");
     var postScopeRequest = new PostScopeRequest
     {
       ScopeName = scope
@@ -51,16 +52,16 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     {
       Content = JsonContent.Create(postScopeRequest)
     };
-    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", getInitialToken.AccessToken);
-    var response = await Client.SendAsync(request);
+    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", getInitialToken!.AccessToken);
+    var response = await GetClient().SendAsync(request);
     response.EnsureSuccessStatusCode();
     var postScopeResponse = await response.Content.ReadFromJsonAsync<PostScopeResponse>();
-    return postScopeResponse;
+    return postScopeResponse!;
   }
 
   protected async Task<PostResourceResponse> BuildResource(string scope, string name)
   {
-    var getInitialToken = await Client.GetFromJsonAsync<GetClientInitialAccessTokenResponse>("connect/resource/initial-token");
+    var getInitialToken = await GetClient().GetFromJsonAsync<GetClientInitialAccessTokenResponse>("connect/resource/initial-token");
     var postResourceRequest = new PostResourceRequest
     {
       Scope = scope,
@@ -70,23 +71,39 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     {
       Content = JsonContent.Create(postResourceRequest)
     };
-    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", getInitialToken.AccessToken);
-    var response = await Client.SendAsync(request);
+    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", getInitialToken!.AccessToken);
+    var response = await GetClient().SendAsync(request);
     response.EnsureSuccessStatusCode();
     var postResourceResponse = await response.Content.ReadFromJsonAsync<PostResourceResponse>();
-    return postResourceResponse;
+    return postResourceResponse!;
   }
 
-  protected async Task<PostClientResponse> BuildAuthorizationGrantClient(string applicationType, string name, string scope)
+  protected async Task<PostClientResponse> BuildAuthorizationGrantWebClient(string name, string scope)
   {
     var postClientRequest = new PostClientRequest
     {
-      ApplicationType = applicationType,
+      ApplicationType = ApplicationTypeConstants.Web,
       TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
       Scope = scope,
       ClientName = name,
       GrantTypes = new[] { GrantTypeConstants.AuthorizationCode, GrantTypeConstants.RefreshToken },
       RedirectUris = new[] { "https://localhost:5002/callback" },
+      SubjectType = SubjectTypeConstants.Public,
+      ResponseTypes = new[] { ResponseTypeConstants.Code }
+    };
+    return await BuildClient(postClientRequest);
+  }
+
+  protected async Task<PostClientResponse> BuildAuthorizationGrantNativeClient(string name, string scope)
+  {
+    var postClientRequest = new PostClientRequest
+    {
+      ApplicationType = ApplicationTypeConstants.Native,
+      TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.None,
+      Scope = scope,
+      ClientName = name,
+      GrantTypes = new[] { GrantTypeConstants.AuthorizationCode, GrantTypeConstants.RefreshToken },
+      RedirectUris = new[] { "https://localhost:5003/callback" },
       SubjectType = SubjectTypeConstants.Public,
       ResponseTypes = new[] { ResponseTypeConstants.Code }
     };
@@ -111,16 +128,16 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 
   private async Task<PostClientResponse> BuildClient(PostClientRequest request)
   {
-    var getInitialToken = await Client.GetFromJsonAsync<GetClientInitialAccessTokenResponse>("connect/client/initial-token");
+    var getInitialToken = await GetClient().GetFromJsonAsync<GetClientInitialAccessTokenResponse>("connect/client/initial-token");
     var requestMessage = new HttpRequestMessage(HttpMethod.Post, "connect/client/register")
     {
       Content = JsonContent.Create(request)
     };
-    requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", getInitialToken.AccessToken);
-    var response = await Client.SendAsync(requestMessage);
+    requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", getInitialToken!.AccessToken);
+    var response = await GetClient().SendAsync(requestMessage);
     response.EnsureSuccessStatusCode();
     var postClientResponse = await response.Content.ReadFromJsonAsync<PostClientResponse>();
-    return postClientResponse;
+    return postClientResponse!;
   }
 
   protected async Task<User> BuildUserAsync(string password)
