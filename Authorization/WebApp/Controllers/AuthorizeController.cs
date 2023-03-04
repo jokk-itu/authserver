@@ -59,9 +59,17 @@ public class AuthorizeController : OAuthControllerBase
 
   private async Task<IActionResult> GetSilentLogin(AuthorizeRequest request, CancellationToken cancellationToken = default)
   {
-    var query = new SilentLoginQuery
+    var query = new SilentLoginCommand
     {
-      IdTokenHint = request.IdTokenHint
+      IdTokenHint = request.IdTokenHint,
+      ClientId = request.ClientId,
+      Nonce = request.Nonce,
+      CodeChallenge = request.CodeChallenge,
+      RedirectUri = request.RedirectUri,
+      CodeChallengeMethod = request.CodeChallengeMethod,
+      ResponseType = request.ResponseType,
+      Scope = request.Scope,
+      State = request.State
     };
     var response = await _mediator.Send(query, cancellationToken: cancellationToken);
 
@@ -70,26 +78,6 @@ public class AuthorizeController : OAuthControllerBase
       return ErrorFormPostResult(request.RedirectUri, request.State, response.ErrorCode, response.ErrorDescription);
     }
 
-    var command = new CreateAuthorizationGrantCommand
-    {
-      ClientId = request.ClientId,
-      Scope = request.Scope,
-      CodeChallenge = request.CodeChallenge,
-      CodeChallengeMethod = request.CodeChallengeMethod,
-      MaxAge = request.MaxAge,
-      Nonce = request.Nonce,
-      RedirectUri = request.RedirectUri,
-      ResponseType = request.ResponseType,
-      State = request.State,
-      UserId = response.UserId
-    };
-    var authorizationCodeResponse = await _mediator.Send(command, cancellationToken: cancellationToken);
-
-    if (authorizationCodeResponse.IsError())
-    {
-      return ErrorFormPostResult(request.RedirectUri, request.State, authorizationCodeResponse.ErrorCode, authorizationCodeResponse.ErrorDescription);
-    }
-
-    return AuthorizationCodeFormPostResult(request.RedirectUri, request.State, authorizationCodeResponse.Code);
+    return AuthorizationCodeFormPostResult(request.RedirectUri, request.State, response.Code);
   }
 }

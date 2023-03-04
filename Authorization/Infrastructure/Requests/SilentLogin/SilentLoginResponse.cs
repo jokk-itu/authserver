@@ -12,6 +12,5 @@ public class SilentLoginResponse : Response
   {
   }
 
-  public string UserId { get; init; }
-
+  public string Code { get; init; }
 }
