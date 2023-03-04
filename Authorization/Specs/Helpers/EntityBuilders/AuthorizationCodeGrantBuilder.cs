@@ -1,25 +1,22 @@
 ﻿using Domain;
-using Infrastructure.Helpers;
 
-namespace Specs.Helpers.Builders;
+namespace Specs.Helpers.EntityBuilders;
 public class AuthorizationCodeGrantBuilder
 {
   private readonly AuthorizationCodeGrant _authorizationCodeGrant;
 
-  private AuthorizationCodeGrantBuilder()
+  private AuthorizationCodeGrantBuilder(string id)
   {
     _authorizationCodeGrant = new AuthorizationCodeGrant
     {
-      Id = Guid.NewGuid().ToString(),
+      Id = id,
       AuthTime = DateTime.UtcNow,
-      IsCodeRedeemed = false,
-      Nonce = CryptographyHelper.GetRandomString(16)
     };
   }
 
-  public static AuthorizationCodeGrantBuilder Instance()
+  public static AuthorizationCodeGrantBuilder Instance(string id)
   {
-    return new AuthorizationCodeGrantBuilder();
+    return new AuthorizationCodeGrantBuilder(id);
   }
 
   public AuthorizationCodeGrant Build()
@@ -27,15 +24,21 @@ public class AuthorizationCodeGrantBuilder
     return _authorizationCodeGrant;
   }
 
-  public AuthorizationCodeGrantBuilder AddCode(string code)
+  public AuthorizationCodeGrantBuilder AddRevoked()
   {
-    _authorizationCodeGrant.Code = code;
+    _authorizationCodeGrant.IsRevoked = true;
     return this;
   }
 
-  public AuthorizationCodeGrantBuilder IsRedeemed()
+  public AuthorizationCodeGrantBuilder AddNonce(Nonce nonce)
   {
-    _authorizationCodeGrant.IsCodeRedeemed = true;
+    _authorizationCodeGrant.Nonces.Add(nonce);
+    return this;
+  }
+
+  public AuthorizationCodeGrantBuilder AddAuthorizationCode(AuthorizationCode authorizationCode)
+  {
+    _authorizationCodeGrant.AuthorizationCodes.Add(authorizationCode);
     return this;
   }
 

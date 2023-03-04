@@ -7,7 +7,7 @@ using WebApp.Constants;
 namespace Specs.Helpers.EndpointBuilders;
 public class AuthorizeEndpointBuilder
 {
-  private readonly QueryBuilder _queryBuilder = new();
+  private QueryBuilder _queryBuilder = new();
 
   private string _codeChallenge = string.Empty;
   private string _responseType = ResponseTypeConstants.Code;
@@ -20,13 +20,6 @@ public class AuthorizeEndpointBuilder
 
   private string _userName = string.Empty;
   private string _password = string.Empty;
-
-  private AuthorizeEndpointBuilder()
-  {
-    _queryBuilder.Add(ParameterNames.CodeChallengeMethod, CodeChallengeMethodConstants.S256);
-    _queryBuilder.Add(ParameterNames.State, CryptographyHelper.GetRandomString(16));
-    _queryBuilder.Add(ParameterNames.Nonce, CryptographyHelper.GetRandomString(16));
-  }
 
   public static AuthorizeEndpointBuilder Instance()
   {
@@ -92,6 +85,9 @@ public class AuthorizeEndpointBuilder
     _queryBuilder.Add(ParameterNames.MaxAge, _maxAge);
     _queryBuilder.Add(ParameterNames.Prompt, _prompt);
     _queryBuilder.Add(ParameterNames.IdTokenHint, _idTokenHint);
+    _queryBuilder.Add(ParameterNames.CodeChallengeMethod, CodeChallengeMethodConstants.S256);
+    _queryBuilder.Add(ParameterNames.State, CryptographyHelper.GetRandomString(16));
+    _queryBuilder.Add(ParameterNames.Nonce, CryptographyHelper.GetRandomString(16));
   }
 
   public async Task<string> BuildLogin(HttpClient httpClient, CancellationToken cancellationToken = default)

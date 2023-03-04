@@ -1,18 +1,13 @@
-﻿using Bogus;
-using Domain;
+﻿using Domain;
 
-namespace Specs.Helpers.Builders;
+namespace Specs.Helpers.EntityBuilders;
 public class ScopeBuilder
 {
   private readonly Scope _scope;
 
   private ScopeBuilder()
   {
-    var faker = new Faker();
-    _scope = new Scope
-    {
-      Name = faker.Name.FirstName()
-    };
+    _scope = new Scope();
   }
 
   public static ScopeBuilder Instance()
@@ -23,5 +18,11 @@ public class ScopeBuilder
   public Scope Build()
   {
     return _scope;
+  }
+
+  public ScopeBuilder AddName(string name)
+  {
+    _scope.Name = name;
+    return this;
   }
 }

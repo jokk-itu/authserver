@@ -1,6 +1,6 @@
 ﻿using Domain;
 
-namespace Specs.Helpers.Builders;
+namespace Specs.Helpers.EntityBuilders;
 public class SessionBuilder
 {
   private readonly Session _session;
@@ -23,7 +23,7 @@ public class SessionBuilder
     return _session;
   }
 
-  public SessionBuilder RevokeSession()
+  public SessionBuilder AddRevoke()
   {
     _session.IsRevoked = true;
     return this;

@@ -2,9 +2,8 @@
 using Domain;
 using Domain.Enums;
 using Infrastructure.Helpers;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
-namespace Specs.Helpers.Builders;
+namespace Specs.Helpers.EntityBuilders;
 public class ClientBuilder
 {
   private readonly Client _client;
@@ -18,9 +17,8 @@ public class ClientBuilder
       ApplicationType = ApplicationType.Web,
       Name = faker.Name.FirstName(),
       Secret = CryptographyHelper.GetRandomString(32),
-      TokenEndpointAuthMethod = TokenEndpointAuthMethod.ClientSecretPost,
-      PolicyUri = faker.Person.Website,
-      TosUri = faker.Person.Website
+      PolicyUri = "https://localhost:5001/policy",
+      TosUri = "https://locaolhost:5001/tos"
     };
   }
 
@@ -32,6 +30,12 @@ public class ClientBuilder
   public Client Build()
   {
     return _client;
+  }
+
+  public ClientBuilder AddTokenEndpointAuthMethod(TokenEndpointAuthMethod tokenEndpointAuthMethod)
+  {
+    _client.TokenEndpointAuthMethod = tokenEndpointAuthMethod;
+    return this;
   }
 
   public ClientBuilder AddConsentGrant(ConsentGrant consentGrant)

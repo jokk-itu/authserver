@@ -3,7 +3,6 @@ using System.Security;
 using Application.Validation;
 using Domain.Constants;
 using Infrastructure.Decoders.Abstractions;
-using Infrastructure.Requests.GetUserInfo;
 using Infrastructure.Services.Abstract;
 using MediatR;
 

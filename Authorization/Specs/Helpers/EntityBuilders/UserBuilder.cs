@@ -2,7 +2,7 @@
 using Domain;
 using Infrastructure.Helpers;
 
-namespace Specs.Helpers.Builders;
+namespace Specs.Helpers.EntityBuilders;
 public class UserBuilder
 {
   private readonly User _user;

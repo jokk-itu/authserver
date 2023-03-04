@@ -1,6 +1,6 @@
 ﻿using Domain;
 
-namespace Specs.Helpers.Builders;
+namespace Specs.Helpers.EntityBuilders;
 public class ConsentGrantBuilder
 {
   private readonly ConsentGrant _consentGrant;
@@ -27,7 +27,7 @@ public class ConsentGrantBuilder
   {
     foreach (var claim in claims)
     {
-      _consentGrant.ConsentedClaims.Add(claim); 
+      _consentGrant.ConsentedClaims.Add(claim);
     }
 
     return this;
@@ -37,7 +37,7 @@ public class ConsentGrantBuilder
   {
     foreach (var scope in scopes)
     {
-      _consentGrant.ConsentedScopes.Add(scope); 
+      _consentGrant.ConsentedScopes.Add(scope);
     }
 
     return this;

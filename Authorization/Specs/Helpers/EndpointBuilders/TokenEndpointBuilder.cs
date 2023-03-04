@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using System.Net.Http.Json;
 using WebApp.Constants;
 using WebApp.Contracts.PostToken;
 
@@ -106,6 +107,26 @@ public class TokenEndpointBuilder
       Content = tokenContent
     };
     var tokenResponse = await httpClient.SendAsync(refreshTokenRequest, cancellationToken);
+    tokenResponse.EnsureSuccessStatusCode();
+    var deserialized = await tokenResponse.Content.ReadFromJsonAsync<PostTokenResponse>(cancellationToken: cancellationToken);
+    return deserialized!;
+  }
+
+  public async Task<PostTokenResponse> BuildRedeemClientCredentials(HttpClient httpClient,
+    CancellationToken cancellationToken = default)
+  {
+    var tokenContent = new FormUrlEncodedContent(new Dictionary<string, string>
+    {
+      { ParameterNames.ClientId, _clientId },
+      { ParameterNames.ClientSecret, _clientSecret },
+      { ParameterNames.GrantType, OpenIdConnectGrantTypes.ClientCredentials },
+      { ParameterNames.Scope, _scope }
+    });
+    var request = new HttpRequestMessage(HttpMethod.Post, "connect/token")
+    {
+      Content = tokenContent
+    };
+    var tokenResponse = await httpClient.SendAsync(request, cancellationToken);
     tokenResponse.EnsureSuccessStatusCode();
     var deserialized = await tokenResponse.Content.ReadFromJsonAsync<PostTokenResponse>(cancellationToken: cancellationToken);
     return deserialized!;

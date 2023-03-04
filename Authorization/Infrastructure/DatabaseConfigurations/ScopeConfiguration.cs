@@ -2,7 +2,6 @@
 using Domain.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Infrastructure.DatabaseConfigurations;
 internal class ScopeConfiguration : IEntityTypeConfiguration<Scope>
@@ -17,12 +16,12 @@ internal class ScopeConfiguration : IEntityTypeConfiguration<Scope>
       new Scope 
       {
         Id = 1,
-        Name = OpenIdConnectScope.OpenId
+        Name = ScopeConstants.OpenId
       },
       new Scope
       {
         Id = 2,
-        Name = OpenIdConnectScope.Email
+        Name = ScopeConstants.Email
       },
       new Scope
       {
@@ -32,7 +31,7 @@ internal class ScopeConfiguration : IEntityTypeConfiguration<Scope>
       new Scope
       {
         Id = 4,
-        Name = OpenIdConnectScope.OfflineAccess
+        Name = ScopeConstants.OfflineAccess
       },
       new Scope
       {
