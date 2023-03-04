@@ -1,5 +1,5 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">C:\Users\joach\AppData\Local\Temp\JetBrains\ReSharperPlatformVs17\vAny_9769f0be\CoverageData\_AuthorizationServer.-561961205\Snapshot\snapshot.utdcvr</s:String>
+	
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=22ab4aa2_002Da06e_002D4611_002Db3db_002D1dc82fbb32e4/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Handle_CreateClient_ExpectCreatedResult" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Handlers.DeleteClientHandlerTests.Handle_CreateClient_ExpectCreatedResult&lt;/TestId&gt;&#xD;

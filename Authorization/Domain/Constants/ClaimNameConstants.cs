@@ -83,6 +83,11 @@ public static class ClaimNameConstants
   /// </summary>
   public const string Iss = "iss";
 
+  /// <summary>
+  /// Id of the issued grant.
+  /// </summary>
+  public const string GrantId = "grant_id";
+
   public const string Address = "address";
   public const string GivenName = "given_name";
   public const string FamilyName = "family_name";

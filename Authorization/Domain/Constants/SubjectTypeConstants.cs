@@ -2,5 +2,5 @@
 public static class SubjectTypeConstants
 {
   public const string Public = "public";
-  public static readonly string[] SubjectTypes = new[] { Public };
+  public static readonly string[] SubjectTypes = { Public };
 }

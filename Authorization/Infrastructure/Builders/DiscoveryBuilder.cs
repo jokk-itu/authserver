@@ -52,7 +52,7 @@ public class DiscoveryBuilder : IDiscoveryBuilder
       ResponseModes = ResponseModeConstants.ResponseModes,
       SubjectTypes = SubjectTypeConstants.SubjectTypes,
       AuthorizationResponseIssParameterSupported = true,
-      IdTokenSigningAlgValues = new[] { "RS256" }
+      IdTokenSigningAlgValues = IdTokenSigningAlgConstants.IdTokenSigningAlgorithms
     };
   }
 
