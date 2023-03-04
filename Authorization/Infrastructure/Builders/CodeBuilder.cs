@@ -19,6 +19,8 @@ public class CodeBuilder : ICodeBuilder
 
   public async Task<string> BuildAuthorizationCodeAsync(
     string authorizationGrantId,
+    string authorizationCodeId,
+    string nonceId,
     string codeChallenge, 
     string codeChallengeMethod,
     ICollection<string> scopes)
@@ -27,9 +29,11 @@ public class CodeBuilder : ICodeBuilder
     await using var writer = new BinaryWriter(ms, Encoding.UTF8, false);
     var authorizationCode = new AuthorizationCode
     {
+      AuthorizationGrantId = authorizationGrantId,
+      AuthorizationCodeId = authorizationCodeId,
+      NonceId = nonceId,
       CodeChallenge = codeChallenge,
       CodeChallengeMethod = codeChallengeMethod,
-      AuthorizationGrantId = authorizationGrantId,
       Scopes = scopes
     };
     writer.Write(JsonSerializer.Serialize(authorizationCode));
@@ -41,6 +45,8 @@ public class CodeBuilder : ICodeBuilder
 public class AuthorizationCode
 {
   public string AuthorizationGrantId { get; set; } = null!;
+  public string AuthorizationCodeId { get; set; } = null!;
+  public string NonceId { get; set; } = null!;
   public string CodeChallenge { get; set; } = null!;
   public string CodeChallengeMethod { get; set; } = null!;
   public ICollection<string> Scopes { get; set; } = new List<string>();

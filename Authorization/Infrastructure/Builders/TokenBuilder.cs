@@ -41,7 +41,11 @@ public class TokenBuilder : ITokenBuilder
       return GetSignedToken(claims, expires);
     }
 
-    public async Task<string> BuildAccessTokenAsync(string clientId, ICollection<string> scopes, string userId, string sessionId,
+    public async Task<string> BuildAccessTokenAsync(
+      string clientId,
+      ICollection<string> scopes,
+      string userId,
+      string sessionId,
       CancellationToken cancellationToken = default)
     {
         var expires = DateTime.UtcNow.AddSeconds(_identityConfiguration.AccessTokenExpiration);
@@ -58,7 +62,12 @@ public class TokenBuilder : ITokenBuilder
         return GetSignedToken(claims, expires);
     }
 
-    public async Task<string> BuildRefreshTokenAsync(string clientId, ICollection<string> scopes, string userId, string sessionId,
+    public async Task<string> BuildRefreshTokenAsync(
+      string authorizationGrantId,
+      string clientId,
+      ICollection<string> scopes,
+      string userId,
+      string sessionId,
       CancellationToken cancellationToken = default)
     {
         var expires = DateTime.UtcNow.AddSeconds(_identityConfiguration.RefreshTokenExpiration);
@@ -70,12 +79,14 @@ public class TokenBuilder : ITokenBuilder
           { ClaimNameConstants.Aud, audiences },
           { ClaimNameConstants.Scope, string.Join(' ', scopes) },
           { ClaimNameConstants.ClientId, clientId },
-          { ClaimNameConstants.Sid, sessionId }
+          { ClaimNameConstants.Sid, sessionId },
+          { ClaimNameConstants.GrantId, authorizationGrantId }
         };
         return GetSignedToken(claims, expires);
     }
 
     public async Task<string> BuildIdTokenAsync(
+      string authorizationGrantId,
       string clientId, 
       ICollection<string> scopes, 
       string nonce, 
@@ -93,7 +104,8 @@ public class TokenBuilder : ITokenBuilder
           { ClaimNameConstants.Sid, sessionId },
           { ClaimNameConstants.Nonce, nonce },
           { ClaimNameConstants.AuthTime, authTime },
-          { ClaimNameConstants.ClientId, clientId }
+          { ClaimNameConstants.ClientId, clientId },
+          { ClaimNameConstants.GrantId, authorizationGrantId }
         };
         var userInfo = await _claimService
           .GetClaimsFromConsentGrant(userId, clientId, cancellationToken: cancellationToken);
