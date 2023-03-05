@@ -34,7 +34,8 @@ builder.WebHost.ConfigureServices(services =>
     .AddDataServices()
     .AddDecoders()
     .AddManagers()
-    .AddRequests();
+    .AddRequests()
+    .AddContextAccessors();
   
   services.AddCorsPolicy();
   services.AddCookiePolicy();

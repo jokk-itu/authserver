@@ -8,6 +8,7 @@ using Infrastructure.Requests.RedeemRefreshTokenGrant;
 using MediatR;
 using WebApp.Attributes;
 using WebApp.Constants;
+using WebApp.Context;
 using WebApp.Contracts;
 using WebApp.Controllers.Abstracts;
 
@@ -18,10 +19,15 @@ namespace WebApp.Controllers;
 public class TokenController : OAuthControllerBase
 {
   private readonly IMediator _mediator;
+  private readonly IContextAccessor<TokenContext> _contextAccessor;
 
-  public TokenController(IMediator mediator, IdentityConfiguration identityConfiguration) : base(identityConfiguration)
+  public TokenController(
+    IMediator mediator,
+    IdentityConfiguration identityConfiguration,
+    IContextAccessor<TokenContext> contextAccessor) : base(identityConfiguration)
   {
     _mediator = mediator;
+    _contextAccessor = contextAccessor;
   }
 
   [HttpPost]
@@ -29,34 +35,33 @@ public class TokenController : OAuthControllerBase
   [Consumes(MimeTypeConstants.FormUrlEncoded)]
   [ProducesResponseType(typeof(PostTokenResponse), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-  public async Task<IActionResult> Post(
-    [FromForm] PostTokenRequest request,
-    CancellationToken cancellationToken = default)
+  public async Task<IActionResult> Post(CancellationToken cancellationToken = default)
   {
-    return request.GrantType switch
+    var context = await _contextAccessor.GetContext(HttpContext);
+    return context.GrantType switch
     {
-      GrantTypeConstants.AuthorizationCode => await PostAuthorize(request, cancellationToken: cancellationToken),
-      GrantTypeConstants.RefreshToken => await PostRefresh(request, cancellationToken: cancellationToken),
-      GrantTypeConstants.ClientCredentials => await PostClientCredentials(request, cancellationToken: cancellationToken),
+      GrantTypeConstants.AuthorizationCode => await PostAuthorize(context, cancellationToken: cancellationToken),
+      GrantTypeConstants.RefreshToken => await PostRefresh(context, cancellationToken: cancellationToken),
+      GrantTypeConstants.ClientCredentials => await PostClientCredentials(context, cancellationToken: cancellationToken),
       _ => BadOAuthResult(ErrorCode.UnsupportedGrantType, "grant_type is unsupported")
     };
   }
 
   private async Task<IActionResult> PostRefresh(
-    PostTokenRequest request,
+    TokenContext context,
     CancellationToken cancellationToken = default)
   {
     var command = new RedeemRefreshTokenGrantCommand
     {
-      GrantType = request.GrantType,
-      ClientId = request.ClientId,
-      ClientSecret = request.ClientSecret,
-      RefreshToken = request.RefreshToken
+      GrantType = context.GrantType,
+      ClientId = context.ClientId,
+      ClientSecret = context.ClientSecret,
+      RefreshToken = context.RefreshToken
     };
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
     if (response.IsError())
     {
-      return BadOAuthResult(response.ErrorCode!, response.ErrorDescription!);
+      return BadOAuthResult(response.ErrorCode, response.ErrorDescription);
     }
 
     return Ok(new PostTokenResponse
@@ -69,18 +74,18 @@ public class TokenController : OAuthControllerBase
   }
 
   private async Task<IActionResult> PostAuthorize(
-      PostTokenRequest request,
+      TokenContext context,
       CancellationToken cancellationToken = default)
   {
     var command = new RedeemAuthorizationCodeGrantCommand
     {
-      GrantType = request.GrantType,
-      ClientId = request.ClientId,
-      ClientSecret = request.ClientSecret,
-      RedirectUri = request.RedirectUri,
-      Scope = request.Scope,
-      CodeVerifier = request.CodeVerifier,
-      Code = request.Code
+      GrantType = context.GrantType,
+      ClientId = context.ClientId,
+      ClientSecret = context.ClientSecret,
+      RedirectUri = context.RedirectUri,
+      Scope = context.Scope,
+      CodeVerifier = context.CodeVerifier,
+      Code = context.Code
     };
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
     if (response.IsError())
@@ -98,15 +103,15 @@ public class TokenController : OAuthControllerBase
   }
 
   private async Task<IActionResult> PostClientCredentials(
-    PostTokenRequest request,
+    TokenContext context,
     CancellationToken cancellationToken = default)
   {
     var command = new RedeemClientCredentialsGrantCommand
     {
-      GrantType = request.GrantType,
-      ClientId = request.ClientId,
-      ClientSecret = request.ClientSecret,
-      Scope = request.Scope
+      GrantType = context.GrantType,
+      ClientId = context.ClientId,
+      ClientSecret = context.ClientSecret,
+      Scope = context.Scope
     };
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
     if (response.IsError())

@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Attributes;
 using WebApp.Constants;
-using WebApp.Contracts;
+using WebApp.Context;
 using WebApp.Contracts.PostLogin;
 using WebApp.Controllers.Abstracts;
 using WebApp.Extensions;
@@ -21,10 +21,15 @@ namespace WebApp.Controllers;
 public class LoginController : OAuthControllerBase
 {
   private readonly IMediator _mediator;
+  private readonly IContextAccessor<AuthorizeContext> _contextAccessor;
 
-  public LoginController(IMediator mediator, IdentityConfiguration identityConfiguration) : base(identityConfiguration)
+  public LoginController(
+    IMediator mediator,
+    IdentityConfiguration identityConfiguration,
+    IContextAccessor<AuthorizeContext> contextAccessor) : base(identityConfiguration)
   {
     _mediator = mediator;
+    _contextAccessor = contextAccessor;
   }
 
   [HttpGet]
@@ -42,9 +47,9 @@ public class LoginController : OAuthControllerBase
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> Post(
     PostLoginRequest request,
-    AuthorizeRequest authorizeRequest,
     CancellationToken cancellationToken = default)
   {
+    var context = await _contextAccessor.GetContext(HttpContext);
     var query = new LoginQuery
     {
       Username = request.Username,
@@ -57,10 +62,10 @@ public class LoginController : OAuthControllerBase
       return BadOAuthResult(loginResponse.ErrorCode, loginResponse.ErrorDescription);
     }
 
-    var prompts = authorizeRequest.Prompt.Split(' ');
+    var prompts = context.Prompt.Split(' ');
     if (!prompts.Contains(PromptConstants.Consent))
     {
-      return await GetAuthorizationCode(authorizeRequest, loginResponse.UserId, cancellationToken: cancellationToken);
+      return await GetAuthorizationCode(context, loginResponse.UserId, cancellationToken: cancellationToken);
     }
 
     var identity = new ClaimsIdentity(new[] { new Claim(ClaimNameConstants.Sub, loginResponse.UserId) },
@@ -71,19 +76,19 @@ public class LoginController : OAuthControllerBase
     return RedirectToAction(controllerName: "Consent", actionName: "CreateConsent", routeValues: routeValues);
   }
 
-  private async Task<IActionResult> GetAuthorizationCode(AuthorizeRequest request, string userId, CancellationToken cancellationToken = default)
+  private async Task<IActionResult> GetAuthorizationCode(AuthorizeContext context, string userId, CancellationToken cancellationToken = default)
   {
     var command = new CreateAuthorizationGrantCommand
     {
-      ClientId = request.ClientId,
-      Scope = request.Scope,
-      CodeChallenge = request.CodeChallenge,
-      CodeChallengeMethod = request.CodeChallengeMethod,
-      MaxAge = request.MaxAge,
-      Nonce = request.Nonce,
-      RedirectUri = request.RedirectUri,
-      ResponseType = request.ResponseType,
-      State = request.State,
+      ClientId = context.ClientId,
+      Scope = context.Scope,
+      CodeChallenge = context.CodeChallenge,
+      CodeChallengeMethod = context.CodeChallengeMethod,
+      MaxAge = context.MaxAge,
+      Nonce = context.Nonce,
+      RedirectUri = context.RedirectUri,
+      ResponseType = context.ResponseType,
+      State = context.State,
       UserId = userId
     };
 
