@@ -6,6 +6,7 @@ using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
+using Domain.Enums;
 using Infrastructure.Decoders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -50,7 +51,9 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
       .Where(AuthorizationCodeGrant.IsAuthorizationCodeValid(code.AuthorizationCodeId))
       .Select(x => new
       {
-        IsClientValid = x.Client.Id == value.ClientId && x.Client.Secret == value.ClientSecret,
+        IsClientIdValid = x.Client.Id == value.ClientId,
+        IsClientSecretValid = x.Client.Secret == value.ClientSecret,
+        IsClientNative = x.Client.ApplicationType == ApplicationType.Native,
         IsClientAuthorized = x.Client.RedirectUris.Any(y => y.Uri == value.RedirectUri)
                              && x.Client.GrantTypes.Any(y => y.Name == GrantTypeConstants.AuthorizationCode),
         IsSessionValid = !x.Session.IsRevoked
@@ -62,9 +65,14 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
       return new ValidationResult(ErrorCode.InvalidGrant, "grant is invalid", HttpStatusCode.BadRequest);
     }
 
-    if (!query.IsClientValid)
+    if (!query.IsClientIdValid)
     {
-      return new ValidationResult(ErrorCode.InvalidClient, "client is invalid", HttpStatusCode.BadRequest);
+      return new ValidationResult(ErrorCode.InvalidClient, "client_id is invalid", HttpStatusCode.BadRequest);
+    }
+
+    if (!query.IsClientNative && !query.IsClientSecretValid)
+    {
+      return new ValidationResult(ErrorCode.InvalidClient, "client_secret is invalid", HttpStatusCode.BadRequest);
     }
 
     if (!query.IsClientAuthorized)

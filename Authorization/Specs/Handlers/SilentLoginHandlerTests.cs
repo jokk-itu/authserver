@@ -1,13 +1,10 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Net;
-using System.Security.Claims;
+﻿using System.Net;
 using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
 using Domain.Enums;
 using Infrastructure.Builders.Abstractions;
-using Infrastructure.Decoders.Abstractions;
 using Infrastructure.Helpers;
 using Infrastructure.Requests.SilentLogin;
 using MediatR;
@@ -16,7 +13,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Specs.Helpers;
 using Specs.Helpers.EntityBuilders;
-using WebApp.Contracts.GetScopeInitialAccessToken;
 using Xunit;
 
 namespace Specs.Handlers;
