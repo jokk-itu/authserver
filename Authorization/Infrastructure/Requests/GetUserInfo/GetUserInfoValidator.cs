@@ -35,8 +35,11 @@ public class GetUserInfoValidator : IValidator<GetUserInfoQuery>
       .Where(cg => cg.Client.Id == clientId)
       .Where(cg => cg.User.Id == userId)
       .Select(cg => cg.User)
-      .Select(u => u.Session)
-      .Where(Session.IsValid)
+      .SelectMany(u => u.Sessions)
+      .Where(x => !x.IsRevoked)
+      .SelectMany(s => s.AuthorizationCodeGrants)
+      .Where(g => g.Client.Id == clientId)
+      .Where(AuthorizationCodeGrant.IsMaxAgeValid)
       .AnyAsync(cancellationToken: cancellationToken);
 
     if (!isUserValid)

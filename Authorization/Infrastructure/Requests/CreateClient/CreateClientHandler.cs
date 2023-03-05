@@ -35,9 +35,10 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
         validationResult.StatusCode);
     }
 
+    var splitScopes = request.Scope.Split(' ');
     var scopes = await _identityContext
       .Set<Scope>()
-      .Where(x => request.Scopes.Contains(x.Name))
+      .Where(x => splitScopes.Contains(x.Name))
       .ToListAsync(cancellationToken: cancellationToken);
 
     var grantTypes = await _identityContext
@@ -58,23 +59,32 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       .Select(email => new Contact
       {
         Email = email
-      }).ToList() ?? new List<Contact>();
+      })
+      .ToList() ?? new List<Contact>();
+
+    long? defaultMaxAge = string.IsNullOrWhiteSpace(request.DefaultMaxAge) ? null : long.Parse(request.DefaultMaxAge);
+    var secret = request.ApplicationType.GetEnum<ApplicationType>() == ApplicationType.Native
+      ? null
+      : CryptographyHelper.GetRandomString(32);
 
     var client = new Client
     {
-      Id = Guid.NewGuid().ToString(),
       Name = request.ClientName,
-      Secret = CryptographyHelper.GetRandomString(32),
+      Secret = secret,
       ApplicationType = request.ApplicationType.GetEnum<ApplicationType>(),
       Scopes = scopes,
       RedirectUris = redirectUris,
       GrantTypes = grantTypes,
       ResponseTypes = responseTypes,
       TokenEndpointAuthMethod = request.TokenEndpointAuthMethod.GetEnum<TokenEndpointAuthMethod>(),
-      PolicyUri = request.PolicyUri,
       Contacts = contacts,
       SubjectType = request.SubjectType.GetEnum<SubjectType>(),
-      TosUri = request.TosUri
+      TosUri = request.TosUri,
+      PolicyUri = request.PolicyUri,
+      InitiateLoginUri = request.InitiateLoginUri,
+      LogoUri = request.LogoUri,
+      ClientUri = request.ClientUri,
+      DefaultMaxAge = defaultMaxAge
     };
     await _identityContext
       .Set<Client>()
@@ -89,7 +99,7 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       ClientId = client.Id,
       ClientName = client.Name,
       ClientSecret = client.Secret,
-      Scope = string.Join(' ', client.Scopes),
+      Scope = string.Join(' ', client.Scopes.Select(x => x.Name)),
       RedirectUris = client.RedirectUris.Select(x => x.Uri).ToList(),
       SubjectType = request.SubjectType,
       TosUri = client.TosUri,
@@ -97,7 +107,12 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       PolicyUri = client.PolicyUri,
       TokenEndpointAuthMethod = request.TokenEndpointAuthMethod,
       ResponseTypes = client.ResponseTypes.Select(x => x.Name).ToList(),
-      RegistrationAccessToken = _tokenBuilder.BuildClientRegistrationAccessToken(client.Id)
+      RegistrationAccessToken = _tokenBuilder.BuildClientRegistrationAccessToken(client.Id),
+      ClientSecretExpiresAt = 0,
+      ClientUri = request.ClientUri,
+      DefaultMaxAge = defaultMaxAge,
+      LogoUri = request.LogoUri,
+      InitiateLoginUri = request.InitiateLoginUri
     };
   }
 }

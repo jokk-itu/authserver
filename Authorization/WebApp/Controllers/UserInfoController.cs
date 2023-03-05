@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using WebApp.Attributes;
+using WebApp.Constants;
 using WebApp.Controllers.Abstracts;
 
 namespace WebApp.Controllers;
@@ -25,7 +26,7 @@ public class UserInfoController : OAuthControllerBase
   }
 
   [HttpGet]
-  [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+  [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = AuthorizationConstants.UserInfo)]
   [SecurityHeader]
   [ProducesResponseType(StatusCodes.Status200OK)]
   public async Task<IActionResult> Get(CancellationToken cancellationToken = default)

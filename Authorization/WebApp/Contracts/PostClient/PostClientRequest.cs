@@ -13,7 +13,7 @@ public class PostClientRequest
   public ICollection<string> ResponseTypes { get; init; } = new List<string>();
 
   [JsonPropertyName(ParameterNames.GrantTypes)]
-  public ICollection<string> GrantTypes { get; init; }
+  public ICollection<string> GrantTypes { get; init; } = new List<string>();
 
   [JsonPropertyName(ParameterNames.ApplicationType)]
   public string ApplicationType { get; init; }
@@ -38,4 +38,16 @@ public class PostClientRequest
 
   [JsonPropertyName(ParameterNames.Scope)]
   public string Scope { get; init; }
+
+  [JsonPropertyName(ParameterNames.DefaultMaxAge)]
+  public string DefaultMaxAge { get; init; }
+
+  [JsonPropertyName(ParameterNames.InitiateLoginUri)]
+  public string InitiateLoginUri { get; init; }
+
+  [JsonPropertyName(ParameterNames.LogoUri)]
+  public string LogoUri { get; init; }
+
+  [JsonPropertyName(ParameterNames.ClientUri)]
+  public string ClientUri { get; init; }
 }

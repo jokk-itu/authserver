@@ -15,6 +15,16 @@ public abstract class OAuthControllerBase : Controller
         _identityConfiguration = identityConfiguration;
     }
 
+    protected IActionResult CreatedOAuthResult(string locationPath, object createdEntity)
+    {
+      if (!Uri.TryCreate($"{Request.Scheme}://{Request.Host}/{locationPath}", UriKind.Absolute, out var location))
+      {
+        throw new ArgumentException("is not a well-formed path", nameof(locationPath));
+      }
+
+      return Created(location, createdEntity);
+    }
+
     protected IActionResult BadOAuthResult(string? error, string? errorDescription)
     {
         var response = new ErrorResponse();

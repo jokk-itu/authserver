@@ -49,7 +49,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Worker", "Worker", "{3B2F9A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkerService", "Clients\WorkerService\WorkerService.csproj", "{B04DA1CA-F9D2-40C2-9EFF-34FDDCAFB05F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Clients\Blazor.BFF\Shared\Shared.csproj", "{CED14AD3-6058-443B-9823-5922E821CF30}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "Clients\Blazor.BFF\Shared\Shared.csproj", "{CED14AD3-6058-443B-9823-5922E821CF30}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{52AE7B64-7117-43CF-994B-CF0AD4820390}"
+	ProjectSection(SolutionItems) = preProject
+		Tools\CreateClients.ps1 = Tools\CreateClients.ps1
+		Tools\CreateMigration.ps1 = Tools\CreateMigration.ps1
+		Tools\CreateResources.ps1 = Tools\CreateResources.ps1
+		Tools\CreateScopes.ps1 = Tools\CreateScopes.ps1
+		Tools\RemoveMigration.ps1 = Tools\RemoveMigration.ps1
+		Tools\RunMigrationLocal.ps1 = Tools\RunMigrationLocal.ps1
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

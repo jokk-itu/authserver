@@ -1,7 +1,7 @@
 ﻿using App.Models;
+using App.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebApp.Services;
 
 namespace App.Controllers;
 public class HomeController : Controller

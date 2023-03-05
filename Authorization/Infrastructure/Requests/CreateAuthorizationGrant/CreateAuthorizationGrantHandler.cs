@@ -2,7 +2,6 @@
 using Application.Validation;
 using Domain;
 using Infrastructure.Builders.Abstractions;
-using Infrastructure.Decoders.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,18 +11,15 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
   private readonly IdentityContext _identityContext;
   private readonly IValidator<CreateAuthorizationGrantCommand> _validator;
   private readonly ICodeBuilder _codeBuilder;
-  private readonly ICodeDecoder _codeDecoder;
 
   public CreateAuthorizationGrantHandler(
     IdentityContext identityContext, 
     IValidator<CreateAuthorizationGrantCommand> validator,
-    ICodeBuilder codeBuilder,
-    ICodeDecoder codeDecoder)
+    ICodeBuilder codeBuilder)
   {
     _identityContext = identityContext;
     _validator = validator;
     _codeBuilder = codeBuilder;
-    _codeDecoder = codeDecoder;
   }
 
   public async Task<CreateAuthorizationGrantResponse> Handle(CreateAuthorizationGrantCommand request, CancellationToken cancellationToken)
@@ -41,32 +37,50 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
 
     var session = await _identityContext
       .Set<Session>()
-      .SingleOrDefaultAsync(x => x.User.Id == request.UserId, cancellationToken: cancellationToken) ?? new Session
+      .Where(x => x.User.Id == request.UserId)
+      .Where(x => !x.IsRevoked)
+      .SingleOrDefaultAsync(cancellationToken: cancellationToken) ?? new Session
       {
-        Created = DateTime.Now,
-        Updated = DateTime.Now,
         User = user,
-        MaxAge = request.MaxAge
       };
 
     var grantId = Guid.NewGuid().ToString();
+    var codeId = Guid.NewGuid().ToString();
+    var nonceId = Guid.NewGuid().ToString();
     var authTime = DateTime.UtcNow;
 
     var code = await _codeBuilder.BuildAuthorizationCodeAsync(
       grantId,
+      codeId,
+      nonceId,
       request.CodeChallenge,
       request.CodeChallengeMethod,
       request.Scope.Split(' '));
 
+    var authorizationCode = new AuthorizationCode
+    {
+      Id = codeId,
+      IsRedeemed = false,
+      IssuedAt = DateTime.UtcNow,
+      Value = code
+    };
+
+    var nonce = new Nonce
+    {
+      Id = nonceId,
+      Value = request.Nonce
+    };
+
+    var maxAge = string.IsNullOrWhiteSpace(request.MaxAge) ? client.DefaultMaxAge : long.Parse(request.MaxAge);
     var authorizationCodeGrant = new AuthorizationCodeGrant
     {
       Id = grantId,
-      IsRedeemed = false,
       Client = client,
-      Code = code,
       AuthTime = authTime,
-      Nonce = request.Nonce,
-      Session = session
+      MaxAge = maxAge,
+      Session = session,
+      AuthorizationCodes = new[] { authorizationCode },
+      Nonces = new [] { nonce }
     };
 
     await _identityContext

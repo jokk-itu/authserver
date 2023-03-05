@@ -2,12 +2,12 @@ using App;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using WebApp.Services;
 using Serilog;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.AspNetCore.Authentication;
 using IdentityModel.Client;
 using Microsoft.Extensions.Options;
+using App.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -98,7 +98,7 @@ builder.WebHost.ConfigureServices(services =>
     configureOptions.Scope.Add("phone");
     configureOptions.Scope.Add("openid");
     configureOptions.Scope.Add("weather:read");
-    configureOptions.Scope.Add("identityprovider:read");
+    configureOptions.Scope.Add("identityprovider:userinfo");
     configureOptions.MapInboundClaims = true;
     configureOptions.GetClaimsFromUserInfoEndpoint = true;
     configureOptions.Events = new OpenIdConnectEvents

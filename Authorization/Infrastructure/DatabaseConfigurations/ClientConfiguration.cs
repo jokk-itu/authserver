@@ -22,14 +22,6 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
       .HasConversion<string>();
 
     builder
-      .Property(client => client.TosUri)
-      .IsRequired(false);
-
-    builder
-      .Property(client => client.PolicyUri)
-      .IsRequired(false);
-
-    builder
       .HasMany(client => client.RedirectUris)
       .WithOne(redirectUri => redirectUri.Client)
       .OnDelete(DeleteBehavior.Cascade);

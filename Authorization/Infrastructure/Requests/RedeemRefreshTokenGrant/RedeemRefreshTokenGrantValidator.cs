@@ -3,6 +3,7 @@ using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
+using Domain.Enums;
 using Infrastructure.Decoders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,41 +32,51 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
       return new ValidationResult(ErrorCode.InvalidGrant, "grant_type must be refresh_token", HttpStatusCode.BadRequest);
     }
     var clientId = refreshToken.Claims.Single(x => x.Type == ClaimNameConstants.ClientId).Value;
-    var sessionClaim = refreshToken.Claims.Single(x => x.Type == ClaimNameConstants.Sid);
-    var sessionId = long.Parse(sessionClaim.Value);
+    var sessionId = refreshToken.Claims.Single(x => x.Type == ClaimNameConstants.Sid).Value;
+    var authorizationGrantId = refreshToken.Claims.Single(x => x.Type == ClaimNameConstants.GrantId).Value;
 
     if (clientId != value.ClientId)
     {
-      return new ValidationResult(ErrorCode.InvalidRequest, "refresh_token is invalid", HttpStatusCode.BadRequest);
+      return new ValidationResult(ErrorCode.AccessDenied, "client_id does not match client_id in refresh_token", HttpStatusCode.BadRequest);
     }
 
-    var client = await _identityContext
-      .Set<Client>()
-      .Where(c => c.Id == value.ClientId)
-      .Where(c => c.Secret == value.ClientSecret)
-      .Include(c => c.GrantTypes)
+    var query = await _identityContext
+      .Set<AuthorizationCodeGrant>()
+      .Where(x => x.Id == authorizationGrantId)
+      .Where(AuthorizationCodeGrant.IsMaxAgeValid)
+      .Select(x => new
+      {
+        IsClientIdValid = x.Client.Id == value.ClientId,
+        IsClientSecretValid = x.Client.Secret == value.ClientSecret,
+        IsClientNative = x.Client.ApplicationType == ApplicationType.Native,
+        IsClientAuthorized = x.Client.GrantTypes.Any(y => y.Name == GrantTypeConstants.RefreshToken),
+        IsSessionValid = !x.Session.IsRevoked && x.Session.Id == sessionId
+      })
       .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
-    if (client is null)
+    if (query is null)
     {
-      return new ValidationResult(ErrorCode.InvalidClient, "client is invalid", HttpStatusCode.BadRequest);
+      return new ValidationResult(ErrorCode.LoginRequired, "authorization grant is invalid", HttpStatusCode.BadRequest);
     }
 
-    if (client.GrantTypes.All(x => x.Name != GrantTypeConstants.RefreshToken))
+    if (!query.IsClientIdValid)
+    {
+      return new ValidationResult(ErrorCode.InvalidClient, "client_id is invalid", HttpStatusCode.BadRequest);
+    }
+
+    if (!query.IsClientNative && !query.IsClientSecretValid)
+    {
+      return new ValidationResult(ErrorCode.InvalidClient, "client_secret is invalid", HttpStatusCode.BadRequest);
+    }
+
+    if (!query.IsClientAuthorized)
     {
       return new ValidationResult(ErrorCode.UnauthorizedClient, "client is unauthorized", HttpStatusCode.BadRequest);
     }
 
-    var session = await _identityContext
-      .Set<Session>()
-      .Where(s => s.Id == sessionId)
-      .Where(Session.IsValid)
-      .Where(s => s.AuthorizationCodeGrants.Any(acg => acg.Client.Id == value.ClientId))
-      .SingleOrDefaultAsync(cancellationToken: cancellationToken);
-
-    if (session is null)
+    if (!query.IsSessionValid)
     {
-      return new ValidationResult(ErrorCode.LoginRequired, "session is invalid", HttpStatusCode.Unauthorized);
+      return new ValidationResult(ErrorCode.LoginRequired, "session is invalid", HttpStatusCode.BadRequest);
     }
 
     return new ValidationResult(HttpStatusCode.OK);

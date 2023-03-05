@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using WebApp.Constants;
 
-namespace Contracts.PostToken;
+namespace WebApp.Contracts.PostToken;
 #nullable disable
 public record PostTokenResponse
 {

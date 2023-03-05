@@ -29,7 +29,7 @@ public class ServerAuthenticationStateProvider : AuthenticationStateProvider
 
       return new AuthenticationState(new ClaimsPrincipal(identity));
     }
-    catch (Exception e)
+    catch (Exception)
     {
       return new AuthenticationState(new ClaimsPrincipal());
     }

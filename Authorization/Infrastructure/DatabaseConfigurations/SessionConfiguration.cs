@@ -14,8 +14,7 @@ public class SessionConfiguration : IEntityTypeConfiguration<Session>
 
     builder
       .HasOne(x => x.User)
-      .WithOne(x => x.Session)
-      .HasForeignKey<User>(x => x.SessionId)
+      .WithMany(x => x.Sessions)
       .OnDelete(DeleteBehavior.NoAction);
 
     builder.ToTable("Sessions");

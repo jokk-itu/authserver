@@ -8,9 +8,9 @@ public class SilentLoginResponse : Response
   {
   }
 
-  public SilentLoginResponse(string? errorCode, string? errorDescription, HttpStatusCode statusCode) : base(errorCode, errorDescription, statusCode)
+  public SilentLoginResponse(string errorCode, string errorDescription, HttpStatusCode statusCode) : base(errorCode, errorDescription, statusCode)
   {
   }
 
-  public string UserId { get; init; }
+  public string Code { get; init; }
 }

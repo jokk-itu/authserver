@@ -53,6 +53,9 @@ public static class ParameterNames
   public const string Birthdate = "birthdate";
   public const string Locale = "locale";
   public const string ScopeName = "scope_name";
-  public const string LoginCode = "login_code";
   public const string Issuer = "iss";
+  public const string DefaultMaxAge = "default_max_age";
+  public const string InitiateLoginUri = "initiate_login_uri";
+  public const string LogoUri = "logo_uri";
+  public const string ClientUri = "client_uri";
 }

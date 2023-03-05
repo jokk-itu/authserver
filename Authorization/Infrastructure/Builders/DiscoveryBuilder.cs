@@ -52,7 +52,7 @@ public class DiscoveryBuilder : IDiscoveryBuilder
       ResponseModes = ResponseModeConstants.ResponseModes,
       SubjectTypes = SubjectTypeConstants.SubjectTypes,
       AuthorizationResponseIssParameterSupported = true,
-      IdTokenSigningAlgValues = new[] { "RS256" }
+      IdTokenSigningAlgValues = IdTokenSigningAlgConstants.IdTokenSigningAlgorithms
     };
   }
 
@@ -64,7 +64,7 @@ public class DiscoveryBuilder : IDiscoveryBuilder
         KeyType = Algorithm,
         Use = Use,
         Alg = Algorithm,
-        KeyId = jwk.KeyId,
+        KeyId = jwk.KeyId.ToString(),
         Modulus = Base64UrlEncoder.Encode(jwk.Modulus),
         Exponent = Base64UrlEncoder.Encode(jwk.Exponent)
       })
@@ -105,7 +105,7 @@ public class Jwk
 {
   public string KeyType { get; init; }
   public string Use { get; init; }
-  public long KeyId { get; init; }
+  public string KeyId { get; init; }
   public string Alg { get; init; }
   public string Modulus { get; init; }
   public string Exponent { get; init; }

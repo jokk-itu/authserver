@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Application;
 using Domain.Constants;
-using Infrastructure.Requests.CreateAuthorizationGrant;
 using Infrastructure.Requests.SilentLogin;
 using MediatR;
 using WebApp.Extensions;
 using WebApp.Attributes;
-using WebApp.Contracts;
+using WebApp.Context;
 using WebApp.Controllers.Abstracts;
 
 namespace WebApp.Controllers;
@@ -14,25 +13,29 @@ namespace WebApp.Controllers;
 [Route("connect/[controller]")]
 public class AuthorizeController : OAuthControllerBase
 {
+  private readonly IContextAccessor<AuthorizeContext> _contextAccessor;
   private readonly IMediator _mediator;
 
   public AuthorizeController(
+    IContextAccessor<AuthorizeContext> contextAccessor,
     IdentityConfiguration identityConfiguration,
     IMediator mediator) : base(identityConfiguration)
   {
+    _contextAccessor = contextAccessor;
     _mediator = mediator;
   }
 
   [HttpGet]
   [SecurityHeader]
-  public async Task<IActionResult> Get(AuthorizeRequest request, CancellationToken cancellationToken = default)
+  public async Task<IActionResult> Get(CancellationToken cancellationToken = default)
   {
-    if (PromptConstants.Prompts.All(x => x != request.Prompt))
+    var context = await _contextAccessor.GetContext(HttpContext);
+    if (PromptConstants.Prompts.All(x => x != context.Prompt))
     {
       return BadOAuthResult(ErrorCode.InvalidRequest, "prompt is invalid");
     }
 
-    var prompts = request.Prompt.Split(' ');
+    var prompts = context.Prompt.Split(' ');
     var routeValues = HttpContext.Request.Query.ToRouteValueDictionary();
     if (prompts.Contains(PromptConstants.Create))
     {
@@ -46,7 +49,7 @@ public class AuthorizeController : OAuthControllerBase
 
     if (prompts.Contains(PromptConstants.None))
     {
-      return await GetSilentLogin(request, cancellationToken);
+      return await GetSilentLogin(context, cancellationToken);
     }
 
     if (prompts.Contains(PromptConstants.Consent))
@@ -57,45 +60,27 @@ public class AuthorizeController : OAuthControllerBase
     return BadOAuthResult(ErrorCode.LoginRequired, "prompt must contain login");
   }
 
-  private async Task<IActionResult> GetSilentLogin(AuthorizeRequest request, CancellationToken cancellationToken = default)
+  private async Task<IActionResult> GetSilentLogin(AuthorizeContext context, CancellationToken cancellationToken = default)
   {
-    var query = new SilentLoginQuery
+    var query = new SilentLoginCommand
     {
-      IdTokenHint = request.IdTokenHint
+      IdTokenHint = context.IdTokenHint,
+      ClientId = context.ClientId,
+      Nonce = context.Nonce,
+      CodeChallenge = context.CodeChallenge,
+      RedirectUri = context.RedirectUri,
+      CodeChallengeMethod = context.CodeChallengeMethod,
+      ResponseType = context.ResponseType,
+      Scope = context.Scope,
+      State = context.State
     };
     var response = await _mediator.Send(query, cancellationToken: cancellationToken);
 
     if (response.IsError())
     {
-      return ErrorFormPostResult(request.RedirectUri, request.State, response.ErrorCode, response.ErrorDescription);
+      return ErrorFormPostResult(context.RedirectUri, context.State, response.ErrorCode, response.ErrorDescription);
     }
 
-    var maxAge = 0L;
-    if (long.TryParse(request.MaxAge, out var parsedMaxAge))
-    {
-      maxAge = parsedMaxAge;
-    }
-
-    var command = new CreateAuthorizationGrantCommand
-    {
-      ClientId = request.ClientId,
-      Scope = request.Scope,
-      CodeChallenge = request.CodeChallenge,
-      CodeChallengeMethod = request.CodeChallengeMethod,
-      MaxAge = maxAge,
-      Nonce = request.Nonce,
-      RedirectUri = request.RedirectUri,
-      ResponseType = request.ResponseType,
-      State = request.State,
-      UserId = response.UserId
-    };
-    var authorizationCodeResponse = await _mediator.Send(command, cancellationToken: cancellationToken);
-
-    if (authorizationCodeResponse.IsError())
-    {
-      return ErrorFormPostResult(request.RedirectUri, request.State, authorizationCodeResponse.ErrorCode, authorizationCodeResponse.ErrorDescription);
-    }
-
-    return AuthorizationCodeFormPostResult(request.RedirectUri, request.State, authorizationCodeResponse.Code);
+    return AuthorizationCodeFormPostResult(context.RedirectUri, context.State, response.Code);
   }
 }

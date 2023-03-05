@@ -24,8 +24,8 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("ClaimConsentGrant", b =>
                 {
-                    b.Property<long>("ConsentGrantsId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("ConsentGrantsId")
+                        .HasColumnType("int");
 
                     b.Property<int>("ConsentedClaimsId")
                         .HasColumnType("int");
@@ -99,8 +99,8 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("ConsentGrantScope", b =>
                 {
-                    b.Property<long>("ConsentGrantsId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("ConsentGrantsId")
+                        .HasColumnType("int");
 
                     b.Property<int>("ConsentedScopesId")
                         .HasColumnType("int");
@@ -110,6 +110,33 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ConsentedScopesId");
 
                     b.ToTable("ConsentedGrantScopes", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.AuthorizationCode", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AuthorizationCodeGrantId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsRedeemed")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("IssuedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("RedeemedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorizationCodeGrantId");
+
+                    b.ToTable("AuthorizationCode", (string)null);
                 });
 
             modelBuilder.Entity("Domain.AuthorizationCodeGrant", b =>
@@ -123,17 +150,14 @@ namespace Infrastructure.Migrations
                     b.Property<string>("ClientId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Code")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsRedeemed")
+                    b.Property<bool>("IsRevoked")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Nonce")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long?>("SessionId")
+                    b.Property<long?>("MaxAge")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("SessionId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -216,7 +240,20 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ClientUri")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("DefaultMaxAge")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("InitiateLoginUri")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LogoUri")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PolicyUri")
@@ -243,17 +280,14 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.ConsentGrant", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("ClientId")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("IssuedAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("Updated")
                         .HasColumnType("datetime2");
@@ -342,6 +376,24 @@ namespace Infrastructure.Migrations
                     b.HasKey("KeyId");
 
                     b.ToTable("Jwks", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Nonce", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AuthorizationCodeGrantId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorizationCodeGrantId");
+
+                    b.ToTable("Nonce", (string)null);
                 });
 
             modelBuilder.Entity("Domain.RedirectUri", b =>
@@ -453,22 +505,18 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Session", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("bit");
 
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("MaxAge")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("Updated")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Sessions", (string)null);
                 });
@@ -515,18 +563,11 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("SessionId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("SessionId")
-                        .IsUnique()
-                        .HasFilter("[SessionId] IS NOT NULL");
 
                     b.HasIndex("UserName")
                         .IsUnique();
@@ -639,6 +680,15 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Domain.AuthorizationCode", b =>
+                {
+                    b.HasOne("Domain.AuthorizationCodeGrant", "AuthorizationCodeGrant")
+                        .WithMany("AuthorizationCodes")
+                        .HasForeignKey("AuthorizationCodeGrantId");
+
+                    b.Navigation("AuthorizationCodeGrant");
+                });
+
             modelBuilder.Entity("Domain.AuthorizationCodeGrant", b =>
                 {
                     b.HasOne("Domain.Client", "Client")
@@ -672,6 +722,15 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.Nonce", b =>
+                {
+                    b.HasOne("Domain.AuthorizationCodeGrant", "AuthorizationCodeGrant")
+                        .WithMany("Nonces")
+                        .HasForeignKey("AuthorizationCodeGrantId");
+
+                    b.Navigation("AuthorizationCodeGrant");
+                });
+
             modelBuilder.Entity("Domain.RedirectUri", b =>
                 {
                     b.HasOne("Domain.Client", "Client")
@@ -682,14 +741,14 @@ namespace Infrastructure.Migrations
                     b.Navigation("Client");
                 });
 
-            modelBuilder.Entity("Domain.User", b =>
+            modelBuilder.Entity("Domain.Session", b =>
                 {
-                    b.HasOne("Domain.Session", "Session")
-                        .WithOne("User")
-                        .HasForeignKey("Domain.User", "SessionId")
+                    b.HasOne("Domain.User", "User")
+                        .WithMany("Sessions")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction);
 
-                    b.Navigation("Session");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ResourceScope", b =>
@@ -707,6 +766,13 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Domain.AuthorizationCodeGrant", b =>
+                {
+                    b.Navigation("AuthorizationCodes");
+
+                    b.Navigation("Nonces");
+                });
+
             modelBuilder.Entity("Domain.Client", b =>
                 {
                     b.Navigation("AuthorizationCodeGrants");
@@ -719,13 +785,13 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Session", b =>
                 {
                     b.Navigation("AuthorizationCodeGrants");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.User", b =>
                 {
                     b.Navigation("ConsentGrants");
+
+                    b.Navigation("Sessions");
                 });
 #pragma warning restore 612, 618
         }

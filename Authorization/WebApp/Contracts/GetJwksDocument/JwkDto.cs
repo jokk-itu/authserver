@@ -6,16 +6,16 @@ namespace WebApp.Contracts.GetJwksDocument;
 public record JwkDto
 {
   [JsonPropertyName("kty")]
-  public string KeyType { get; } = "RSA";
+  public string KeyType { get; init; }
 
   [JsonPropertyName("use")]
-  public string Use { get; } = "sig";
+  public string Use { get; init; }
 
   [JsonPropertyName("kid")]
-  public long KeyId { get; init; }
+  public string KeyId { get; init; }
 
   [JsonPropertyName("alg")]
-  public string Alg { get; } = "RS256";
+  public string Alg { get; init; }
 
   [JsonPropertyName("n")]
   public string Modulus { get; init; }

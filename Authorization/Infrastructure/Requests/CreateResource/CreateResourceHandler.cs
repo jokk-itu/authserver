@@ -27,7 +27,9 @@ public class CreateResourceHandler : IRequestHandler<CreateResourceCommand, Crea
   {
     var validationResult = await _validator.ValidateAsync(request, cancellationToken);
     if (validationResult.IsError())
+    {
       return new CreateResourceResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
+    }
 
     var scopes = await _identityContext
       .Set<Scope>()
@@ -36,7 +38,6 @@ public class CreateResourceHandler : IRequestHandler<CreateResourceCommand, Crea
 
     var resource = new Resource
     {
-      Id = Guid.NewGuid().ToString(),
       Scopes = scopes,
       Name = request.ResourceName,
       Secret = CryptographyHelper.GetRandomString(32)

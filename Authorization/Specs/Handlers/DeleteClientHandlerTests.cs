@@ -8,7 +8,7 @@ using Infrastructure.Decoders.Abstractions;
 using Infrastructure.Requests.DeleteClient;
 using Xunit;
 using Microsoft.Extensions.DependencyInjection;
-using Specs.Helpers.Builders;
+using Specs.Helpers.EntityBuilders;
 
 namespace Specs.Handlers;
 

@@ -1,28 +1,16 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">C:\Users\joach\AppData\Local\Temp\JetBrains\ReSharperPlatformVs17\vAny_9769f0be\CoverageData\_AuthorizationServer.-561961205\Snapshot\snapshot.utdcvr</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=22ab4aa2_002Da06e_002D4611_002Db3db_002D1dc82fbb32e4/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Handle_CreateClient_ExpectCreatedResult" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Handlers.DeleteClientHandlerTests.Handle_CreateClient_ExpectCreatedResult&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=22e3d5a0_002D8d4e_002D4e84_002D867d_002Ddaa50c2155cf/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="ValidateAsync_ExpectOkResult" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=36e33683_002Db78a_002D462d_002Db3c2_002D24821335e787/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from &amp;lt;Authorization&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Project Location="C:\Workspace\AuthServer" Presentation="&amp;lt;Authorization&amp;gt;" /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=a83496fb_002D3b30_002D44ed_002D8ca6_002D0f95b928f778/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="BuildRefreshToken_ExpectRefreshToken" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Token.TokenBuilderTests.BuildRefreshToken_ExpectRefreshToken&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=b98a828e_002De838_002D48c4_002D8351_002D7aa1fa4aaec2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="BuildScopeConfigurationAccessToken_ExpectConfigurationToken" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::18324B84-CB8D-4F9B-A2F2-4A3D4B2FC1FD::net6.0::Specs.Token.TokenBuilderTests.BuildScopeConfigurationAccessToken_ExpectConfigurationToken&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=be1bc383_002D5147_002D4a31_002Dab12_002D2a087ee7346b/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="BuildIdToken_ExpectIdToken" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Project Location="C:\Workspace\AuthServer" Presentation="&amp;lt;Authorization&amp;gt;" /&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=cb4c89d3_002Dbfaf_002D42c5_002Da564_002D2aa12f9cddfd/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="BuildIdToken_ExpectIdToken #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Project Location="C:\Workspace\AuthServer" Presentation="&amp;lt;Authorization&amp;gt;" /&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
+	
+	
+	
+	
+	
+	
+	
+	
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=connectionstring/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=datastore/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=DOCTYPE/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=weatherservice/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

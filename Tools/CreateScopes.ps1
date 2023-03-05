@@ -15,6 +15,6 @@ function PostScope([Parameter(Mandatory)][string]$Uri, [Parameter(Mandatory)][st
     return $response.Content
 }
 
-$token = GetInitialToken 'http://localhost:5000/connect/scope/initial-token'
-PostScope 'http://localhost:5000/connect/scope/register' $token 'weather:read'
-PostScope 'http://localhost:5000/connect/scope/register' $token 'identityprovider:read'
+$token = GetInitialToken 'https://localhost:5000/connect/scope/initial-token'
+PostScope 'https://localhost:5000/connect/scope/register' $token 'weather:read'
+PostScope 'https://localhost:5000/connect/scope/register' $token 'identityprovider:userinfo'

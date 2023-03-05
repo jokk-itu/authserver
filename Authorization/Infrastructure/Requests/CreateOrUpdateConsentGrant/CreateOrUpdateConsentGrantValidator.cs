@@ -58,7 +58,9 @@ public class CreateOrUpdateConsentGrantValidator : IValidator<CreateOrUpdateCons
     foreach (var claim in command.ConsentedClaims)
     {
       if (!await _identityContext.Set<Claim>().AnyAsync(x => x.Name == claim, cancellationToken: cancellationToken))
+      {
         return true;
+      }
     }
 
     return false;

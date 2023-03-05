@@ -9,7 +9,7 @@ public class IdentityContextFactory : IDesignTimeDbContextFactory<IdentityContex
     var optionsBuilder = new DbContextOptionsBuilder<IdentityContext>();
     if (args.Length != 2)
     {
-      throw new Exception("Arguments datastore provider and connectionstring are missing");
+      throw new ArgumentException("datastore provider and connectionstring are missing", nameof(args));
     }
 
     switch (args[0])
@@ -21,7 +21,7 @@ public class IdentityContextFactory : IDesignTimeDbContextFactory<IdentityContex
         optionsBuilder.UseSqlServer(args[1]);
         break;
       default:
-        throw new Exception($"DataStore provider is unknown {args[0]}");
+        throw new ArgumentException("datastore provider is unknown", nameof(args));
     }
 
     return new IdentityContext(optionsBuilder.Options);

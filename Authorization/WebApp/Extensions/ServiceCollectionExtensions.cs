@@ -2,6 +2,7 @@
 using Domain.Constants;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using WebApp.Constants;
+using WebApp.Context;
 using WebApp.Options;
 
 namespace WebApp.Extensions;
@@ -28,6 +29,15 @@ public static class ServiceCollectionExtensions
   {
     services.AddAuthorization(options =>
     {
+      options.AddPolicy(AuthorizationConstants.UserInfo, policy =>
+      {
+        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+        policy.RequireAssertion(context =>
+        {
+          var scope = context.User.Claims.SingleOrDefault(x => x.Type == ClaimNameConstants.Scope)?.Value;
+          return scope is not null && scope.Split(' ').Contains(ScopeConstants.UserInfo);
+        });
+      });
       options.AddPolicy(AuthorizationConstants.ClientRegistration, policy =>
       {
         policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
@@ -84,6 +94,13 @@ public static class ServiceCollectionExtensions
           .AllowAnyHeader();
       });
     });
+    return services;
+  }
+
+  public static IServiceCollection AddContextAccessors(this IServiceCollection services)
+  {
+    services.AddScoped<IContextAccessor<TokenContext>, TokenContextAccessor>();
+    services.AddScoped<IContextAccessor<AuthorizeContext>, AuthorizeContextAccessor>();
     return services;
   }
 }

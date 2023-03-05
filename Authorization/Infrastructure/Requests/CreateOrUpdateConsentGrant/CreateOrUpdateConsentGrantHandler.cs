@@ -1,24 +1,19 @@
 ﻿using System.Net;
 using Application.Validation;
 using Domain;
-using Infrastructure.Decoders.Abstractions;
 using MediatR;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.CreateOrUpdateConsentGrant;
-internal class CreateOrUpdateConsentGrantHandler : IRequestHandler<CreateOrUpdateConsentGrantCommand, CreateOrUpdateConsentGrantResponse>
+public class CreateOrUpdateConsentGrantHandler : IRequestHandler<CreateOrUpdateConsentGrantCommand, CreateOrUpdateConsentGrantResponse>
 {
-  private readonly ICodeDecoder _codeDecoder;
   private readonly IValidator<CreateOrUpdateConsentGrantCommand> _validator;
   private readonly IdentityContext _identityContext;
 
   public CreateOrUpdateConsentGrantHandler(
-    ICodeDecoder codeDecoder,
     IValidator<CreateOrUpdateConsentGrantCommand> validator,
     IdentityContext identityContext)
   {
-    _codeDecoder = codeDecoder;
     _validator = validator;
     _identityContext = identityContext;
   }
@@ -73,7 +68,6 @@ internal class CreateOrUpdateConsentGrantHandler : IRequestHandler<CreateOrUpdat
         User = user,
         ConsentedClaims = claims,
         ConsentedScopes = scopes,
-        IssuedAt = DateTime.UtcNow,
         Updated = DateTime.UtcNow
       };
 

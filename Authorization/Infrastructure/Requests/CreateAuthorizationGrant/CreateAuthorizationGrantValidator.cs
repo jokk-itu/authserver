@@ -38,7 +38,7 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
       return new ValidationResult(ErrorCode.InvalidRequest, "code_challenge is invalid", HttpStatusCode.OK);
 
     if (IsCodeChallengeMethodInvalid(value))
-      return new ValidationResult(ErrorCode.InvalidRequest, "code_challenge_method is invalid", HttpStatusCode.OK);
+      return new ValidationResult(ErrorCode.InvalidRequest, "code_challenge_method must be S256", HttpStatusCode.OK);
 
     if (await IsNonceInvalidAsync(value))
       return new ValidationResult(ErrorCode.InvalidRequest, "nonce is invalid", HttpStatusCode.OK);
@@ -46,7 +46,7 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
     if (await IsScopeInvalidAsync(value))
       return new ValidationResult(ErrorCode.InvalidRequest, "scope is invalid", HttpStatusCode.OK);
 
-    if (value.MaxAge < 0)
+    if (IsMaxAgeInvalid(value))
       return new ValidationResult(ErrorCode.InvalidRequest, "max_age is invalid", HttpStatusCode.OK);
 
     if (await IsConsentGrantInvalid(value))
@@ -104,7 +104,7 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
     if (string.IsNullOrWhiteSpace(command.CodeChallenge))
       return true;
 
-    return !Regex.IsMatch(command.CodeChallenge, "^[0-9a-zA-Z-_~.]{43,128}$");
+    return !Regex.IsMatch(command.CodeChallenge, @"^[0-9a-zA-Z-_~.]{43,128}$");
   }
 
   private static bool IsCodeChallengeMethodInvalid(CreateAuthorizationGrantCommand command)
@@ -125,8 +125,8 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
     }
 
     return await _identityContext
-      .Set<AuthorizationCodeGrant>()
-      .AnyAsync(x => x.Nonce == command.Nonce);
+      .Set<Nonce>()
+      .AnyAsync(x => x.Value == command.Nonce);
   }
 
   private async Task<bool> IsScopeInvalidAsync(CreateAuthorizationGrantCommand command)
@@ -161,11 +161,18 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
       return true;
     }
 
-    if (consentGrant.ConsentedScopes.Count != command.Scope.Split(' ').Length)
+    return consentGrant.ConsentedScopes.Any(scope => !command.Scope.Split(' ').Contains(scope.Name));
+  }
+
+  private static bool IsMaxAgeInvalid(CreateAuthorizationGrantCommand command)
+  {
+    if (!string.IsNullOrWhiteSpace(command.MaxAge)
+        && !long.TryParse(command.MaxAge, out var maxAge)
+        && maxAge > -1)
     {
       return true;
     }
 
-    return consentGrant.ConsentedScopes.Any(scope => !command.Scope.Split(' ').Contains(scope.Name));
+    return false;
   }
 }

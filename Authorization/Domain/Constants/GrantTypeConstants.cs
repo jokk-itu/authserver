@@ -5,5 +5,5 @@ public static class GrantTypeConstants
   public const string RefreshToken = "refresh_token";
   public const string ClientCredentials = "client_credentials";
 
-  public static readonly string[] GrantTypes = new string[] { AuthorizationCode, RefreshToken, ClientCredentials };
+  public static readonly string[] GrantTypes = { AuthorizationCode, RefreshToken, ClientCredentials };
 }

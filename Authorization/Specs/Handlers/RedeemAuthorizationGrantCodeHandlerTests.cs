@@ -5,12 +5,12 @@ using Domain;
 using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Helpers;
-using Infrastructure.Requests.RedeemAuthorizationGrantCode;
+using Infrastructure.Requests.RedeemAuthorizationCodeGrant;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Specs.Helpers;
-using Specs.Helpers.Builders;
+using Specs.Helpers.EntityBuilders;
 using Xunit;
 
 namespace Specs.Handlers;
@@ -68,17 +68,30 @@ public class RedeemAuthorizationGrantCodeHandlerTests : BaseUnitTest
       .AddRedirect(new RedirectUri{Uri = uri})
       .Build();
 
-    var authorizationCodeGrant = AuthorizationCodeGrantBuilder
-      .Instance()
-      .AddClient(client)
-      .Build();
-
+    var nonceId = Guid.NewGuid().ToString();
+    var authorizationCodeId = Guid.NewGuid().ToString();
+    var authorizationCodeGrantId = Guid.NewGuid().ToString();
     var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
     var code = await serviceProvider
-        .GetRequiredService<ICodeBuilder>()
-        .BuildAuthorizationCodeAsync(authorizationCodeGrant.Id, pkce.CodeChallenge, CodeChallengeMethodConstants.S256, new[] { ScopeConstants.OpenId });
+      .GetRequiredService<ICodeBuilder>()
+      .BuildAuthorizationCodeAsync(
+        authorizationCodeGrantId,
+        authorizationCodeId,
+        nonceId,
+        pkce.CodeChallenge,
+        CodeChallengeMethodConstants.S256,
+        new[] { ScopeConstants.OpenId });
 
-    authorizationCodeGrant.Code = code;
+    var nonce = NonceBuilder.Instance(nonceId).Build();
+    var authorizationCode = AuthorizationCodeBuilder.Instance(authorizationCodeId).AddCode(code).Build();
+    var authorizationCodeGrant = AuthorizationCodeGrantBuilder
+      .Instance(authorizationCodeGrantId)
+      .AddClient(client)
+      .AddNonce(nonce)
+      .AddAuthorizationCode(authorizationCode)
+      .Build();
+
+    authorizationCode.Value = code;
 
     var session = SessionBuilder
         .Instance()

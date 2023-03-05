@@ -1,17 +1,10 @@
-﻿using System.Linq.Expressions;
-
-namespace Domain;
+﻿namespace Domain;
 
 #nullable disable
 public class Session
 {
-  public long Id { get; set; }
+  public string Id { get; set; } = Guid.NewGuid().ToString();
+  public bool IsRevoked { get; set; }
   public User User { get; set; }
   public ICollection<AuthorizationCodeGrant> AuthorizationCodeGrants { get; set; } = new List<AuthorizationCodeGrant>();
-  public long MaxAge { get; set; }
-  public DateTime Created { get; set; }
-  public DateTime Updated { get; set; }
-
-  public static readonly Expression<Func<Session, bool>> IsValid = s =>
-    (s.MaxAge == 0) || DateTime.UtcNow < s.Updated.AddSeconds(s.MaxAge);
 }

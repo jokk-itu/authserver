@@ -4,6 +4,7 @@ using Infrastructure.Builders.Abstractions;
 using Infrastructure.Requests.CreateClient;
 using Infrastructure.Requests.DeleteClient;
 using Infrastructure.Requests.ReadClient;
+using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -24,7 +25,10 @@ public class ClientController : OAuthControllerBase
   private readonly IMediator _mediator;
   private readonly ITokenBuilder _tokenBuilder;
 
-  public ClientController(IMediator mediator, ITokenBuilder tokenBuilder, IdentityConfiguration identityConfiguration) : base(identityConfiguration)
+  public ClientController(
+    IMediator mediator,
+    ITokenBuilder tokenBuilder,
+    IdentityConfiguration identityConfiguration) : base(identityConfiguration)
   {
     _mediator = mediator;
     _tokenBuilder = tokenBuilder;
@@ -51,47 +55,14 @@ public class ClientController : OAuthControllerBase
   [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> Post([FromBody] PostClientRequest request, CancellationToken cancellationToken = default)
   {
-    var scopes = request.Scope.Split(' ');
-    var response = await _mediator.Send(new CreateClientCommand
-    {
-      ClientName = request.ClientName,
-      ApplicationType = request.ApplicationType,
-      GrantTypes = request.GrantTypes,
-      ResponseTypes = request.ResponseTypes,
-      TokenEndpointAuthMethod = request.TokenEndpointAuthMethod,
-      TosUri = request.TosUri,
-      Contacts = request.Contacts,
-      RedirectUris = request.RedirectUris,
-      PolicyUri = request.PolicyUri,
-      SubjectType = request.SubjectType,
-      Scopes = scopes
-    }, cancellationToken: cancellationToken);
+    var response = await _mediator.Send(request.Adapt<CreateClientCommand>(), cancellationToken: cancellationToken);
 
     if (response.IsError())
     {
-      return BadOAuthResult(response.ErrorCode!, response.ErrorDescription!);
+      return BadOAuthResult(response.ErrorCode, response.ErrorDescription);
     }
 
-    var uri = $"{Request.Scheme}://{Request.Host}/connect/client/configuration";
-    return Created(new Uri(uri), new PostClientResponse
-    {
-      ApplicationType = response.ApplicationType,
-      GrantTypes = response.GrantTypes,
-      ResponseTypes = response.ResponseTypes,
-      TokenEndpointAuthMethod = response.TokenEndpointAuthMethod,
-      ClientName = response.ClientName,
-      TosUri = response.TosUri,
-      ClientId = response.ClientId,
-      ClientSecret = response.ClientSecret,
-      Contacts = response.Contacts,
-      PolicyUri = response.PolicyUri,
-      RedirectUris = response.RedirectUris,
-      RegistrationAccessToken = response.RegistrationAccessToken,
-      RegistrationClientUri = uri,
-      Scope = response.Scope,
-      SubjectType = response.SubjectType,
-      ClientSecretExpiresAt = 0
-    });
+    return CreatedOAuthResult("connect/client/configuration", response.Adapt<PostClientResponse>());
   }
 
   [HttpDelete]
