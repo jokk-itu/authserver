@@ -6,9 +6,9 @@ using Xunit;
 namespace Specs.Integrations;
 
 [Collection("Integration")]
-public class ClientCredentialsTests : BaseIntegrationTest
+public class ClientCredentialsTokenTest : BaseIntegrationTest
 {
-  public ClientCredentialsTests(WebApplicationFactory<Program> factory) : base(factory)
+  public ClientCredentialsTokenTest(WebApplicationFactory<Program> factory) : base(factory)
   {
   }
 

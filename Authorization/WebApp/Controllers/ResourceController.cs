@@ -69,31 +69,4 @@ public class ResourceController : OAuthControllerBase
       ResourceSecret = response.ResourceSecret
     });
   }
-
-  [HttpPut]
-  [Authorize(Policy = AuthorizationConstants.ResourceConfiguration, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-  [Route("configuration")]
-  [ProducesResponseType(typeof(PutResourceRequest), StatusCodes.Status200OK)]
-  public async Task<IActionResult> Put([FromBody] PutResourceRequest request, CancellationToken cancellationToken = default)
-  {
-    return Ok();
-  }
-
-  [HttpDelete]
-  [Authorize(Policy = AuthorizationConstants.ResourceConfiguration, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-  [Route("configuration")]
-  [ProducesResponseType(StatusCodes.Status204NoContent)]
-  public async Task<IActionResult> Delete(CancellationToken cancellationToken = default)
-  {
-    return NoContent();
-  }
-
-  [HttpGet]
-  [Authorize(Policy = AuthorizationConstants.ResourceConfiguration, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-  [Route("configuration")]
-  [ProducesResponseType(typeof(GetClientResponse), StatusCodes.Status200OK)]
-  public async Task<IActionResult> Get(CancellationToken cancellationToken = default)
-  {
-    return Ok();
-  }
 }

@@ -77,24 +77,48 @@ public class AuthorizeEndpointBuilder
 
   private void BuildQuery()
   {
-    _queryBuilder.Add(ParameterNames.CodeChallenge, _codeChallenge);
-    _queryBuilder.Add(ParameterNames.ResponseType, _responseType);
-    _queryBuilder.Add(ParameterNames.ClientId, _clientId);
-    _queryBuilder.Add(ParameterNames.RedirectUri, _redirectUri);
-    _queryBuilder.Add(ParameterNames.Scope, _scope);
-    _queryBuilder.Add(ParameterNames.MaxAge, _maxAge);
-    _queryBuilder.Add(ParameterNames.Prompt, _prompt);
-    _queryBuilder.Add(ParameterNames.IdTokenHint, _idTokenHint);
+    if (!string.IsNullOrWhiteSpace(_codeChallenge))
+    {
+      _queryBuilder.Add(ParameterNames.CodeChallenge, _codeChallenge);
+    }
+    if (!string.IsNullOrWhiteSpace(_responseType))
+    {
+      _queryBuilder.Add(ParameterNames.ResponseType, _responseType);
+    }
+    if (!string.IsNullOrWhiteSpace(_clientId))
+    {
+      _queryBuilder.Add(ParameterNames.ClientId, _clientId);
+    }
+    if (!string.IsNullOrWhiteSpace(_redirectUri))
+    {
+      _queryBuilder.Add(ParameterNames.RedirectUri, _redirectUri);
+    }
+    if (!string.IsNullOrWhiteSpace(_maxAge))
+    {
+      _queryBuilder.Add(ParameterNames.MaxAge, _maxAge);
+    }
+    if (!string.IsNullOrWhiteSpace(_prompt))
+    {
+      _queryBuilder.Add(ParameterNames.Prompt, _prompt);
+    }
+    if (!string.IsNullOrWhiteSpace(_idTokenHint))
+    {
+      _queryBuilder.Add(ParameterNames.IdTokenHint, _idTokenHint);
+    }
+    if (!string.IsNullOrWhiteSpace(_scope))
+    {
+      _queryBuilder.Add(ParameterNames.Scope, _scope);
+    }
     _queryBuilder.Add(ParameterNames.CodeChallengeMethod, CodeChallengeMethodConstants.S256);
-    _queryBuilder.Add(ParameterNames.State, CryptographyHelper.GetRandomString(16));
-    _queryBuilder.Add(ParameterNames.Nonce, CryptographyHelper.GetRandomString(16));
+    _queryBuilder.Add(ParameterNames.State, CryptographyHelper.GetUrlEncodedRandomString(6));
+    _queryBuilder.Add(ParameterNames.Nonce, CryptographyHelper.GetUrlEncodedRandomString(6));
   }
 
   public async Task<string> BuildLogin(HttpClient httpClient, CancellationToken cancellationToken = default)
   {
     var antiForgeryTokenHelper = new AntiForgeryTokenHelper(httpClient);
     BuildQuery();
-    var authorizeResponse = await httpClient.GetAsync($"/connect/authorize?{_queryBuilder}", cancellationToken: cancellationToken);
+    var authorizeResponse = await httpClient.GetAsync($"/connect/authorize{_queryBuilder}", cancellationToken: cancellationToken);
     var locationHeader = authorizeResponse.Headers.Location;
     var loginAntiForgery = await antiForgeryTokenHelper.GetAntiForgeryToken(locationHeader!.ToString());
     var loginResponse = await LoginEndpointHelper.Login(httpClient, _queryBuilder.ToQueryString(), _userName, _password,
@@ -107,7 +131,7 @@ public class AuthorizeEndpointBuilder
   public async Task<string> BuildNone(HttpClient httpClient, CancellationToken cancellationToken = default)
   {
     BuildQuery();
-    var authorizeResponse = await httpClient.GetAsync($"/connect/authorize?{_queryBuilder}", cancellationToken: cancellationToken);
+    var authorizeResponse = await httpClient.GetAsync($"/connect/authorize{_queryBuilder}", cancellationToken: cancellationToken);
     var html = await authorizeResponse.Content.ReadAsStringAsync(cancellationToken);
     var authorizationCodeInput = Regex.Match(html, @"\<input name=""code"" type=""hidden"" value=""([^""]+)"" \/\>");
     return authorizationCodeInput.Groups[1].Captures[0].Value;
@@ -115,9 +139,9 @@ public class AuthorizeEndpointBuilder
 
   public async Task<string> BuildLoginAndConsent(HttpClient httpClient, CancellationToken cancellationToken = default)
   {
-    var antiForgeryTokenHelper = new AntiForgeryTokenHelper(httpClient);
     BuildQuery();
-    var authorizeResponse = await httpClient.GetAsync($"/connect/authorize?{_queryBuilder}", cancellationToken: cancellationToken);
+    var antiForgeryTokenHelper = new AntiForgeryTokenHelper(httpClient);
+    var authorizeResponse = await httpClient.GetAsync($"/connect/authorize{_queryBuilder}", cancellationToken: cancellationToken);
     var locationHeader = authorizeResponse.Headers.Location;
     var loginAntiForgery = await antiForgeryTokenHelper.GetAntiForgeryToken(locationHeader!.ToString());
     var loginResponse = await LoginEndpointHelper.Login(httpClient, _queryBuilder.ToQueryString(), _userName, _password, loginAntiForgery);

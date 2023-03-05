@@ -61,4 +61,10 @@ public class ClientBuilder
     _client.RedirectUris.Add(redirectUri);
     return this;
   }
+
+  public ClientBuilder AddApplicationType(ApplicationType applicationType)
+  {
+    _client.ApplicationType = applicationType;
+    return this;
+  }
 }

@@ -29,7 +29,6 @@ public class AntiForgeryTokenHelper
 
   private async Task<AntiForgeryToken> GetAntiForgeryTokenInternal(HttpResponseMessage response)
   {
-    response.EnsureSuccessStatusCode();
     var html = await response.Content.ReadAsStringAsync();
 
     if (string.IsNullOrWhiteSpace(_cookie))

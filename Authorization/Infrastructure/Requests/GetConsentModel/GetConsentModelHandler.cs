@@ -2,7 +2,6 @@
 using Application.Validation;
 using Domain;
 using Infrastructure.Helpers;
-using Infrastructure.Mappers;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,7 +24,7 @@ public class GetConsentModelHandler : IRequestHandler<GetConsentModelQuery, GetC
     var validationResult = await _validator.ValidateAsync(request, cancellationToken: cancellationToken);
     if (validationResult.IsError())
     {
-      return validationResult.ToResponse<GetConsentModelResponse>();
+      return new GetConsentModelResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
     }
 
     var user = await _identityContext

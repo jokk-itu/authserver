@@ -8,16 +8,16 @@ using Specs.Helpers.EndpointBuilders;
 namespace Specs.Integrations;
 
 [Collection("Integration")]
-public class AuthorizationRefreshTests : BaseIntegrationTest
+public class UserInfoTest : BaseIntegrationTest
 {
-  public AuthorizationRefreshTests(WebApplicationFactory<Program> factory)
+  public UserInfoTest(WebApplicationFactory<Program> factory)
     : base(factory)
   {
   }
 
   [Fact]
   [Trait("Category", "Integration")]
-  public async Task AuthorizationGrantWithConsentWithRefreshWithUserInfo()
+  public async Task ConfidentialClient_UserInfo()
   {
     const string scope = $"{ScopeConstants.OpenId} {ScopeConstants.Profile} {ScopeConstants.Email} {ScopeConstants.Phone} {UserInfoScope}";
     var password = CryptographyHelper.GetRandomString(32);
@@ -45,17 +45,46 @@ public class AuthorizationRefreshTests : BaseIntegrationTest
       .AddRedirectUri(client.RedirectUris.First())
       .BuildRedeemAuthorizationCode(GetClient());
 
-    var refreshResponse = await TokenEndpointBuilder
+    var userInfo = await UserInfoEndpointBuilder
+      .Instance()
+      .AddAccessToken(tokenResponse.AccessToken)
+      .BuildUserInfo(GetClient());
+
+    Assert.NotEmpty(userInfo);
+  }
+
+  [Fact]
+  [Trait("Category", "Integration")]
+  public async Task NativeClient_UserInfo()
+  {
+    const string scope = $"{ScopeConstants.OpenId} {ScopeConstants.Profile} {ScopeConstants.Email} {ScopeConstants.Phone} {UserInfoScope}";
+    var password = CryptographyHelper.GetRandomString(32);
+    var user = await BuildUserAsync(password);
+    var client = await BuildAuthorizationGrantNativeClient("nativeapp", scope);
+    var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
+    var code = await AuthorizeEndpointBuilder
       .Instance()
       .AddClientId(client.ClientId)
-      .AddClientSecret(client.ClientSecret)
-      .AddGrantType(GrantTypeConstants.RefreshToken)
-      .AddRefreshToken(tokenResponse.RefreshToken)
-      .BuildRedeemRefreshToken(GetClient());
+      .AddScope(scope)
+      .AddCodeChallenge(pkce.CodeChallenge)
+      .AddPrompt($"{PromptConstants.Login} {PromptConstants.Consent}")
+      .AddRedirectUri(client.RedirectUris.First())
+      .AddUser(user.UserName, password)
+      .BuildLoginAndConsent(GetClient());
+
+    var tokenResponse = await TokenEndpointBuilder
+      .Instance()
+      .AddClientId(client.ClientId)
+      .AddScope(scope)
+      .AddCodeVerifier(pkce.CodeVerifier)
+      .AddCode(code)
+      .AddGrantType(GrantTypeConstants.AuthorizationCode)
+      .AddRedirectUri(client.RedirectUris.First())
+      .BuildRedeemAuthorizationCode(GetClient());
 
     var userInfo = await UserInfoEndpointBuilder
       .Instance()
-      .AddAccessToken(refreshResponse.AccessToken)
+      .AddAccessToken(tokenResponse.AccessToken)
       .BuildUserInfo(GetClient());
 
     Assert.NotEmpty(userInfo);
