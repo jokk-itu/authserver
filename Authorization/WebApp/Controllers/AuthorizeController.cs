@@ -5,8 +5,9 @@ using Infrastructure.Requests.SilentLogin;
 using MediatR;
 using WebApp.Extensions;
 using WebApp.Attributes;
-using WebApp.Context;
 using WebApp.Controllers.Abstracts;
+using WebApp.Context.Abstract;
+using WebApp.Context.AuthorizeContext;
 
 namespace WebApp.Controllers;
 

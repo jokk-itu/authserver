@@ -8,9 +8,10 @@ using Infrastructure.Requests.RedeemRefreshTokenGrant;
 using MediatR;
 using WebApp.Attributes;
 using WebApp.Constants;
-using WebApp.Context;
 using WebApp.Contracts;
 using WebApp.Controllers.Abstracts;
+using WebApp.Context.Abstract;
+using WebApp.Context.TokenContext;
 
 namespace WebApp.Controllers;
 

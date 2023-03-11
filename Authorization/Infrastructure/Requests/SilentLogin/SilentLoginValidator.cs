@@ -38,8 +38,6 @@ public class SilentLoginValidator : IValidator<SilentLoginCommand>
       return new ValidationResult(ErrorCode.InvalidRequest, "state is invalid", HttpStatusCode.BadRequest);
     }
 
-    // TODO do not validate time claims only the signing validation is done,
-    // TODO it is only to be used against the session it contains
     var token = _tokenDecoder.DecodeSignedToken(value.IdTokenHint);
     if (token is null)
     {

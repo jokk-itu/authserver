@@ -13,8 +13,9 @@ using WebApp.ViewModels;
 using WebApp.Attributes;
 using Infrastructure.Decoders.Abstractions;
 using Infrastructure.Requests.GetConsentModel;
-using WebApp.Context;
 using WebApp.Controllers.Abstracts;
+using WebApp.Context.Abstract;
+using WebApp.Context.AuthorizeContext;
 
 namespace WebApp.Controllers;
 

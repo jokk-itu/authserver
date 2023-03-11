@@ -2,8 +2,10 @@
 using Domain.Constants;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using WebApp.Constants;
-using WebApp.Context;
 using WebApp.Options;
+using WebApp.Context.Abstract;
+using WebApp.Context.AuthorizeContext;
+using WebApp.Context.TokenContext;
 
 namespace WebApp.Extensions;
 
