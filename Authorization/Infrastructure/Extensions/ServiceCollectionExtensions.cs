@@ -9,8 +9,10 @@ using Infrastructure.Builders;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Decoders;
 using Infrastructure.Decoders.Abstractions;
+using Infrastructure.PipelineBehaviors;
 using Infrastructure.Services;
 using Infrastructure.Services.Abstract;
+using Microsoft.AspNetCore.Http;
 
 namespace Infrastructure.Extensions;
 
@@ -84,6 +86,7 @@ public static class ServiceCollectionExtensions
   {
     AddBaseValidators(services);
     AddValidators(services);
+    AddPipelineBehavior(services);
     services.AddMediatR(Assembly.GetExecutingAssembly());
     return services;
   }
@@ -118,5 +121,11 @@ public static class ServiceCollectionExtensions
       var serviceType = validator.GetInterface(typeof(IBaseValidator<>).Name)!;
       services.AddScoped(serviceType, validator);
     }
+  }
+
+  private static void AddPipelineBehavior(IServiceCollection services)
+  {
+    services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidatorBehavior<,>));
+    services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
   }
 }
