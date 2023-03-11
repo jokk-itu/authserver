@@ -1,7 +1,4 @@
-﻿using Application;
-using Moq;
-using System.Net;
-using Application.Validation;
+﻿using System.Net;
 using Domain;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Decoders.Abstractions;
@@ -14,34 +11,6 @@ namespace Specs.Handlers;
 
 public class DeleteClientHandlerTests : BaseUnitTest
 {
-  [Fact]
-  [Trait("Category", "Unit")]
-  public async Task Handle_ValidateFalse_ExpectErrorResponse()
-  {
-    // Arrange
-    var fakeTokenDecoder = new Mock<ITokenDecoder>();
-    var fakeValidator = new Mock<IValidator<DeleteClientCommand>>();
-    var validationResult = new ValidationResult(HttpStatusCode.BadRequest)
-    {
-      ErrorCode = ErrorCode.InvalidClientMetadata,
-      ErrorDescription = string.Empty
-    };
-    fakeValidator
-      .Setup(x => x.ValidateAsync(It.IsAny<DeleteClientCommand>(), CancellationToken.None))
-      .ReturnsAsync(validationResult);
-
-    var handler = new DeleteClientHandler(IdentityContext, fakeValidator.Object, fakeTokenDecoder.Object);
-    var command = new DeleteClientCommand();
-
-    // Act
-    var errorResponse = await handler.Handle(command, CancellationToken.None);
-
-    // Assert
-    Assert.Equal(errorResponse.ErrorCode, validationResult.ErrorCode);
-    Assert.Equal(errorResponse.ErrorDescription, validationResult.ErrorDescription);
-    Assert.Equal(errorResponse.StatusCode, validationResult.StatusCode);
-  }
-
   [Fact]
   [Trait("Category", "Unit")]
   public async Task Handle_CreateClient_ExpectCreatedResult()
@@ -62,13 +31,7 @@ public class DeleteClientHandlerTests : BaseUnitTest
     {
       ClientRegistrationToken = token
     };
-    var fakeValidator = new Mock<IValidator<DeleteClientCommand>>();
-    var validationResult = new ValidationResult(HttpStatusCode.OK);
-    fakeValidator
-      .Setup(x => x.ValidateAsync(It.IsAny<DeleteClientCommand>(), CancellationToken.None))
-      .ReturnsAsync(validationResult);
-
-    var handler = new DeleteClientHandler(IdentityContext, fakeValidator.Object, tokenDecoder);
+    var handler = new DeleteClientHandler(IdentityContext, tokenDecoder);
 
     // Act
     var response = await handler.Handle(command, CancellationToken.None);

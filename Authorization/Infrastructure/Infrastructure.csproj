@@ -8,8 +8,11 @@
 
   <ItemGroup>
     <Compile Remove="BaseValidators\**" />
+    <Compile Remove="Mappers\**" />
     <EmbeddedResource Remove="BaseValidators\**" />
+    <EmbeddedResource Remove="Mappers\**" />
     <None Remove="BaseValidators\**" />
+    <None Remove="Mappers\**" />
   </ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Mapster" Version="7.3.0" />
@@ -26,8 +29,5 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\Application\Application.csproj" />
 	  <ProjectReference Include="..\Domain\Domain.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="Mappers\" />
 	</ItemGroup>
 </Project>

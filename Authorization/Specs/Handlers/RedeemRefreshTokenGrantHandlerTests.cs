@@ -18,29 +18,6 @@ namespace Specs.Handlers;
 public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
 {
   [Fact]
-  public async Task Handle_ValidateError()
-  {
-    // Arrange
-    var validator = new Mock<IValidator<RedeemRefreshTokenGrantCommand>>();
-    validator
-      .Setup(x => 
-        x.ValidateAsync(It.IsAny<RedeemRefreshTokenGrantCommand>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(new ValidationResult(ErrorCode.LoginRequired, "error", HttpStatusCode.Unauthorized));
-
-    var serviceProvider = BuildServiceProvider(services => 
-      services.AddTransient(_ => validator.Object));
-
-    var handler = serviceProvider.GetRequiredService<IRequestHandler<RedeemRefreshTokenGrantCommand, RedeemRefreshTokenGrantResponse>>();
-    var command = new RedeemRefreshTokenGrantCommand();
-
-    // Act
-    var response = await handler.Handle(command, CancellationToken.None);
-
-    // Assert
-    Assert.True(response.IsError());
-  }
-
-  [Fact]
   public async Task Handle_TokenDecodeError()
   {
     // Arrange

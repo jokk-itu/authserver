@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Application.Validation;
 using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -7,25 +6,16 @@ using Microsoft.EntityFrameworkCore;
 namespace Infrastructure.Requests.CreateOrUpdateConsentGrant;
 public class CreateOrUpdateConsentGrantHandler : IRequestHandler<CreateOrUpdateConsentGrantCommand, CreateOrUpdateConsentGrantResponse>
 {
-  private readonly IValidator<CreateOrUpdateConsentGrantCommand> _validator;
   private readonly IdentityContext _identityContext;
 
   public CreateOrUpdateConsentGrantHandler(
-    IValidator<CreateOrUpdateConsentGrantCommand> validator,
     IdentityContext identityContext)
   {
-    _validator = validator;
     _identityContext = identityContext;
   }
 
   public async Task<CreateOrUpdateConsentGrantResponse> Handle(CreateOrUpdateConsentGrantCommand request, CancellationToken cancellationToken)
   {
-    var validationResult = await _validator.ValidateAsync(request, cancellationToken: cancellationToken);
-    if (validationResult.IsError())
-    {
-      return new CreateOrUpdateConsentGrantResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
-    }
-
     var consentGrant = await _identityContext
       .Set<ConsentGrant>()
       .Include(x => x.ConsentedClaims)

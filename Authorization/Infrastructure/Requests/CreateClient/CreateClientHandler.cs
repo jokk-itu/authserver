@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Application.Validation;
 using Domain;
 using Domain.Enums;
 using Domain.Extensions;
@@ -12,29 +11,19 @@ namespace Infrastructure.Requests.CreateClient;
 
 public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateClientResponse>
 {
-  private readonly IValidator<CreateClientCommand> _createClientValidator;
   private readonly IdentityContext _identityContext;
   private readonly ITokenBuilder _tokenBuilder;
 
   public CreateClientHandler(
-    IValidator<CreateClientCommand> createClientValidator,
     IdentityContext identityContext,
     ITokenBuilder tokenBuilder)
   {
-    _createClientValidator = createClientValidator;
     _identityContext = identityContext;
     _tokenBuilder = tokenBuilder;
   }
 
   public async Task<CreateClientResponse> Handle(CreateClientCommand request, CancellationToken cancellationToken)
   {
-    var validationResult = await _createClientValidator.ValidateAsync(request, cancellationToken);
-    if (validationResult.IsError())
-    {
-      return new CreateClientResponse(validationResult.ErrorCode, validationResult.ErrorDescription,
-        validationResult.StatusCode);
-    }
-
     var splitScopes = request.Scope.Split(' ');
     var scopes = await _identityContext
       .Set<Scope>()

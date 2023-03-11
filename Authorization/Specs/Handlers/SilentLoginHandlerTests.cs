@@ -20,35 +20,6 @@ public class SilentLoginHandlerTests : BaseUnitTest
 {
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task Handle_ExpectInvalidValidation()
-  {
-    // Arrange
-    var validationResult = new ValidationResult(ErrorCode.InvalidRequest, "invalid request", HttpStatusCode.BadRequest);
-    var validator = new Mock<IValidator<SilentLoginCommand>>();
-    validator
-      .Setup(x => x.ValidateAsync(It.IsAny<SilentLoginCommand>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(validationResult)
-      .Verifiable();
-
-    var serviceProvider = BuildServiceProvider(services =>
-    {
-      services.AddScopedMock(validator);
-    });
-
-    var handler = serviceProvider.GetRequiredService<IRequestHandler<SilentLoginCommand, SilentLoginResponse>>();
-
-    // Act
-    var response = await handler.Handle(new SilentLoginCommand(), CancellationToken.None);
-
-    // Assert
-    Assert.True(response.IsError());
-    Assert.Equal(validationResult.ErrorCode, response.ErrorCode);
-    Assert.Equal(validationResult.ErrorDescription, response.ErrorDescription);
-    validator.Verify();
-  }
-
-  [Fact]
-  [Trait("Category", "Unit")]
   public async Task Handle_Ok()
   {
     // Arrange

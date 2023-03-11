@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Application.Validation;
 using Domain;
 using Infrastructure.Builders.Abstractions;
 using MediatR;
@@ -9,27 +8,18 @@ namespace Infrastructure.Requests.CreateAuthorizationGrant;
 public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizationGrantCommand, CreateAuthorizationGrantResponse>
 {
   private readonly IdentityContext _identityContext;
-  private readonly IValidator<CreateAuthorizationGrantCommand> _validator;
   private readonly ICodeBuilder _codeBuilder;
 
   public CreateAuthorizationGrantHandler(
-    IdentityContext identityContext, 
-    IValidator<CreateAuthorizationGrantCommand> validator,
+    IdentityContext identityContext,
     ICodeBuilder codeBuilder)
   {
     _identityContext = identityContext;
-    _validator = validator;
     _codeBuilder = codeBuilder;
   }
 
   public async Task<CreateAuthorizationGrantResponse> Handle(CreateAuthorizationGrantCommand request, CancellationToken cancellationToken)
   {
-    var validationResult = await _validator.ValidateAsync(request, cancellationToken);
-    if (validationResult.IsError())
-    {
-      return new CreateAuthorizationGrantResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
-    }
-
     var user = await _identityContext.Set<User>().SingleAsync(x => x.Id == request.UserId, cancellationToken: cancellationToken);
     var client = await _identityContext
       .Set<Client>()
