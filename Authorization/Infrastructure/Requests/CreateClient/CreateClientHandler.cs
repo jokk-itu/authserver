@@ -36,8 +36,14 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       .ToListAsync(cancellationToken: cancellationToken);
 
     var redirectUris = request.RedirectUris
-      .Select(x => new RedirectUri { Uri = x })
+      .Select(x => new RedirectUri { Uri = x, Type = RedirectUriType.AuthorizeRedirectUri })
       .ToList();
+
+    var postLogoutRedirectUris = request.PostLogoutRedirectUris
+      .Select(x => new RedirectUri { Uri = x, Type = RedirectUriType.PostLogoutRedirectUri })
+      .ToList();
+
+    redirectUris.AddRange(postLogoutRedirectUris);
 
     var responseTypes = await _identityContext
       .Set<ResponseType>()
@@ -89,7 +95,8 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       ClientName = client.Name,
       ClientSecret = client.Secret,
       Scope = string.Join(' ', client.Scopes.Select(x => x.Name)),
-      RedirectUris = client.RedirectUris.Select(x => x.Uri).ToList(),
+      RedirectUris = client.RedirectUris.Where(x => x.Type == RedirectUriType.AuthorizeRedirectUri).Select(x => x.Uri).ToList(),
+      PostLogoutRedirectUris = client.RedirectUris.Where(x => x.Type == RedirectUriType.PostLogoutRedirectUri).Select(x => x.Uri).ToList(),
       SubjectType = request.SubjectType,
       TosUri = client.TosUri,
       Contacts = client.Contacts.Select(x => x.Email).ToList(),

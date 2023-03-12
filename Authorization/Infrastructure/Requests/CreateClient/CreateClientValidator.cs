@@ -32,6 +32,11 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
       return GetInvalidClientMetadataResult("redirect_uri is invalid");
     }
 
+    if (IsPostLogoutRedirectUrisInvalid(value))
+    {
+      return GetInvalidClientMetadataResult("post_logout_redirect_uris is invalid");
+    }
+
     if (IsResponseTypesInvalid(value))
     {
       return GetInvalidClientMetadataResult("response_type is invalid");
@@ -97,7 +102,23 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
       return GetInvalidClientMetadataResult("default_max_age is invalid");
     }
 
+    if (IsBackChannelLogoutUriInvalid(value))
+    {
+      return GetInvalidClientMetadataResult("backchannel_logout_uri is invalid");
+    }
+
     return new ValidationResult(HttpStatusCode.OK);
+  }
+
+  private static bool IsBackChannelLogoutUriInvalid(CreateClientCommand command)
+  {
+    if(string.IsNullOrWhiteSpace(command.BackChannelLogoutUri))
+    {
+      return false;
+    }
+
+    return !(Uri.TryCreate(command.BackChannelLogoutUri, UriKind.Absolute, out var uri)
+             && string.IsNullOrWhiteSpace(uri.Fragment));
   }
 
   private static bool IsApplicationTypeInvalid(CreateClientCommand command)
@@ -129,8 +150,13 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
       return false;
     }
 
-    return !command.RedirectUris.Any() 
+    return !command.RedirectUris.Any()
            || command.RedirectUris.Any(redirectUri => !Uri.IsWellFormedUriString(redirectUri, UriKind.Absolute));
+  }
+
+  private static bool IsPostLogoutRedirectUrisInvalid(CreateClientCommand command)
+  {
+    return command.PostLogoutRedirectUris.Any(redirectUri => !Uri.IsWellFormedUriString(redirectUri, UriKind.Absolute));
   }
 
   private static bool IsResponseTypesInvalid(CreateClientCommand command)
@@ -220,14 +246,17 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
 
   private static bool IsDefaultMaxAgeInvalid(CreateClientCommand command)
   {
-    if (!string.IsNullOrWhiteSpace(command.DefaultMaxAge)
-        && !long.TryParse(command.DefaultMaxAge, out var defaultMaxAge)
-        && defaultMaxAge > -1)
+    if (string.IsNullOrWhiteSpace(command.DefaultMaxAge))
+    {
+      return false;
+    }
+
+    if (!long.TryParse(command.DefaultMaxAge, out var defaultMaxAge))
     {
       return true;
     }
 
-    return false;
+    return defaultMaxAge < 0;
   }
 
   private static ValidationResult GetInvalidClientMetadataResult(string errorDescription)

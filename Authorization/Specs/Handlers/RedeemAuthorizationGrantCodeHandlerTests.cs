@@ -35,7 +35,7 @@ public class RedeemAuthorizationGrantCodeHandlerTests : BaseUnitTest
     const string uri = "https://localhost:5000/callback";
     var client = ClientBuilder
       .Instance()
-      .AddRedirect(new RedirectUri{Uri = uri})
+      .AddRedirectUri(uri)
       .Build();
 
     var nonceId = Guid.NewGuid().ToString();

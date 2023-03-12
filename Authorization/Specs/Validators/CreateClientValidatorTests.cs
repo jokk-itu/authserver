@@ -18,7 +18,7 @@ public class CreateClientValidatorTests : BaseUnitTest
       TokenEndpointAuthMethod = string.Empty,
       Contacts = new List<string>(),
       PolicyUri = string.Empty,
-      RedirectUris = new[] { "http://localhost:5002/callback" },
+      RedirectUris = new[] { "https://localhost:5002/callback" },
       Scope = $"{ScopeConstants.OpenId}",
       GrantTypes = new[] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken },
       SubjectType = string.Empty,
@@ -27,7 +27,9 @@ public class CreateClientValidatorTests : BaseUnitTest
       ClientUri = string.Empty,
       DefaultMaxAge = string.Empty,
       LogoUri = string.Empty,
-      InitiateLoginUri = string.Empty
+      InitiateLoginUri = string.Empty,
+      BackChannelLogoutUri = string.Empty,
+      PostLogoutRedirectUris = new List<string>()
     };
   }
 
@@ -66,7 +68,9 @@ public class CreateClientValidatorTests : BaseUnitTest
       ClientUri = "https://localhost:5002",
       DefaultMaxAge = "120",
       LogoUri = "https://gravatar.com/avatar",
-      InitiateLoginUri = "https://localhost:5002/login"
+      InitiateLoginUri = "https://localhost:5002/login",
+      BackChannelLogoutUri = "https://localhost:5002/logout",
+      PostLogoutRedirectUris = new[] { "https://localhost:5002" }
     };
     var validator = new CreateClientValidator(IdentityContext);
 
@@ -299,6 +303,126 @@ public class CreateClientValidatorTests : BaseUnitTest
   {
     // Arrange
     _command.TokenEndpointAuthMethod = "invalid";
+    var validator = new CreateClientValidator(IdentityContext);
+
+    // Act
+    var validationResult = await validator.ValidateAsync(_command);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_InvalidInitiateLoginUri_ExpectErrorResult()
+  {
+    // Arrange
+    _command.InitiateLoginUri = "invalid_uri";
+    var validator = new CreateClientValidator(IdentityContext);
+
+    // Act
+    var validationResult = await validator.ValidateAsync(_command);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_InvalidLogoUri_ExpectErrorResult()
+  {
+    // Arrange
+    _command.LogoUri = "invalid_uri";
+    var validator = new CreateClientValidator(IdentityContext);
+
+    // Act
+    var validationResult = await validator.ValidateAsync(_command);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_InvalidClientUri_ExpectErrorResult()
+  {
+    // Arrange
+    _command.ClientUri = "invalid_uri";
+    var validator = new CreateClientValidator(IdentityContext);
+
+    // Act
+    var validationResult = await validator.ValidateAsync(_command);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_InvalidDefaultMaxAgeMinusOne_ExpectErrorResult()
+  {
+    // Arrange
+    _command.DefaultMaxAge = "-2";
+    var validator = new CreateClientValidator(IdentityContext);
+
+    // Act
+    var validationResult = await validator.ValidateAsync(_command);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_InvalidDefaultMaxAge_ExpectErrorResult()
+  {
+    // Arrange
+    _command.DefaultMaxAge = "invalid_number";
+    var validator = new CreateClientValidator(IdentityContext);
+
+    // Act
+    var validationResult = await validator.ValidateAsync(_command);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_InvalidPostLogoutRedirectUris_ExpectErrorResult()
+  {
+    // Arrange
+    _command.PostLogoutRedirectUris = new[] { "invalid_uri" };
+    var validator = new CreateClientValidator(IdentityContext);
+
+    // Act
+    var validationResult = await validator.ValidateAsync(_command);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_InvalidBackChannelLogoutUri_ExpectErrorResult()
+  {
+    // Arrange
+    _command.BackChannelLogoutUri = "invalid_uri";
+    var validator = new CreateClientValidator(IdentityContext);
+
+    // Act
+    var validationResult = await validator.ValidateAsync(_command);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_InvalidBackChannelLogoutUriWithFragment_ExpectErrorResult()
+  {
+    // Arrange
+    _command.BackChannelLogoutUri = "https://localhost:5002/callback#something";
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act

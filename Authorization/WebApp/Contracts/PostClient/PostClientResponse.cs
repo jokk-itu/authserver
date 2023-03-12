@@ -65,4 +65,10 @@ public class PostClientResponse
 
   [JsonPropertyName(ParameterNames.ClientUri)]
   public string ClientUri { get; init; }
+
+  [JsonPropertyName(ParameterNames.PostLogoutRedirectUris)]
+  public ICollection<string> PostLogoutRedirectUris { get; init; }
+
+  [JsonPropertyName(ParameterNames.BackChannelLogoutUri)]
+  public string BackChannelLogoutUri { get; init; }
 }
