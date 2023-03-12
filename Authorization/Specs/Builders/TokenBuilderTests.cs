@@ -36,7 +36,7 @@ public class TokenBuilderTests : BaseUnitTest
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
     var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
     // Act
-    var token = await tokenBuilder.BuildAccessTokenAsync("test", new[] { ScopeConstants.OpenId, identityScope.Name }, "1234", "123");
+    var token = await tokenBuilder.BuildAccessToken("test", new[] { ScopeConstants.OpenId, identityScope.Name }, "1234", "123");
     var securityToken = tokenDecoder.DecodeSignedToken(token);
 
     // Assert
@@ -67,7 +67,7 @@ public class TokenBuilderTests : BaseUnitTest
     var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
 
     // Act
-    var token = await tokenBuilder.BuildIdTokenAsync("test", "test", new[] { ScopeConstants.OpenId }, "nonce", user.Id, "123", DateTime.UtcNow);
+    var token = await tokenBuilder.BuildIdToken("test", "test", new[] { ScopeConstants.OpenId }, "nonce", user.Id, "123", DateTime.UtcNow);
     var securityToken = tokenDecoder.DecodeSignedToken(token);
 
     // Assert
@@ -94,7 +94,7 @@ public class TokenBuilderTests : BaseUnitTest
     var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
    
     // Act
-    var token = await tokenBuilder.BuildRefreshTokenAsync("123", "test", new[] { ScopeConstants.OpenId, scope.Name }, "1234", "123");
+    var token = await tokenBuilder.BuildRefreshToken("123", "test", new[] { ScopeConstants.OpenId, scope.Name }, "1234", "123");
     var securityToken = tokenDecoder.DecodeSignedToken(token);
 
     // Assert

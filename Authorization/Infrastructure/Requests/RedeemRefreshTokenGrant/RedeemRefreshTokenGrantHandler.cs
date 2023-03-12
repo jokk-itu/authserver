@@ -50,9 +50,9 @@ public class RedeemRefreshTokenGrantHandler : IRequestHandler<RedeemRefreshToken
       })
       .FirstAsync(cancellationToken: cancellationToken);
 
-    var refreshToken = await _tokenBuilder.BuildRefreshTokenAsync(authorizationGrantId, request.ClientId, scopes, userId, sessionId, cancellationToken: cancellationToken);
-    var accessToken = await _tokenBuilder.BuildAccessTokenAsync(request.ClientId, scopes, userId, sessionId, cancellationToken: cancellationToken);
-    var idToken = await _tokenBuilder.BuildIdTokenAsync(authorizationGrantId, request.ClientId, scopes, query.Nonce.Value, userId,
+    var refreshToken = await _tokenBuilder.BuildRefreshToken(authorizationGrantId, request.ClientId, scopes, userId, sessionId, cancellationToken: cancellationToken);
+    var accessToken = await _tokenBuilder.BuildAccessToken(request.ClientId, scopes, userId, sessionId, cancellationToken: cancellationToken);
+    var idToken = await _tokenBuilder.BuildIdToken(authorizationGrantId, request.ClientId, scopes, query.Nonce.Value, userId,
       sessionId, query.AuthorizationCodeGrant.AuthTime, cancellationToken: cancellationToken);
 
     return new RedeemRefreshTokenGrantResponse(HttpStatusCode.OK)

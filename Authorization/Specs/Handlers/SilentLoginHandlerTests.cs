@@ -28,7 +28,7 @@ public class SilentLoginHandlerTests : BaseUnitTest
     var authorizationGrant = client.AuthorizationCodeGrants.Single();
     var handler = serviceProvider.GetRequiredService<IRequestHandler<SilentLoginCommand, SilentLoginResponse>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var idToken = await tokenBuilder.BuildIdTokenAsync(
+    var idToken = await tokenBuilder.BuildIdToken(
       authorizationGrant.Id,
       client.Id,
       new[] {ScopeConstants.OpenId},

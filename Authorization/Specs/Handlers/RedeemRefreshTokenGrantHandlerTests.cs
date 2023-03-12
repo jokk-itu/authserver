@@ -89,7 +89,7 @@ public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
 
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
     var scopes = new[] { ScopeConstants.OpenId };
-    var refreshToken = await tokenBuilder.BuildRefreshTokenAsync(authorizationCodeGrant.Id, client.Id, scopes, user.Id, session.Id);
+    var refreshToken = await tokenBuilder.BuildRefreshToken(authorizationCodeGrant.Id, client.Id, scopes, user.Id, session.Id);
     var handler = serviceProvider.GetRequiredService<IRequestHandler<RedeemRefreshTokenGrantCommand, RedeemRefreshTokenGrantResponse>>();
     var command = new RedeemRefreshTokenGrantCommand
     {
