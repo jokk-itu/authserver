@@ -9,10 +9,12 @@ using Infrastructure.Builders;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Decoders;
 using Infrastructure.Decoders.Abstractions;
+using Infrastructure.DelegatingHandlers;
 using Infrastructure.PipelineBehaviors;
 using Infrastructure.Services;
 using Infrastructure.Services.Abstract;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Http;
 
 namespace Infrastructure.Extensions;
 
@@ -88,6 +90,20 @@ public static class ServiceCollectionExtensions
     AddValidators(services);
     AddPipelineBehavior(services);
     services.AddMediatR(Assembly.GetExecutingAssembly());
+    return services;
+  }
+
+  public static IServiceCollection AddDelegatingHandlers(this IServiceCollection services)
+  {
+    services.AddTransient<PerformanceDelegatingHandler>();
+
+    services.ConfigureAll<HttpClientFactoryOptions>(options =>
+    {
+      options.HttpMessageHandlerBuilderActions.Add(builder =>
+      {
+        builder.AdditionalHandlers.Add(builder.Services.GetRequiredService<PerformanceDelegatingHandler>());
+      });
+    });
     return services;
   }
 
