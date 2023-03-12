@@ -7,6 +7,8 @@ using WebApp.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.UseKestrel(options => options.AddServerHeader = false);
+
 builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggerConfiguration) =>
 {
   loggerConfiguration
@@ -35,7 +37,8 @@ builder.WebHost.ConfigureServices(services =>
     .AddDecoders()
     .AddManagers()
     .AddRequests()
-    .AddContextAccessors();
+    .AddContextAccessors()
+    .AddDelegatingHandlers();
   
   services.AddCorsPolicy();
   services.AddCookiePolicy();

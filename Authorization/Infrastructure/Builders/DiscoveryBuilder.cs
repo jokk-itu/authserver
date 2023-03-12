@@ -43,6 +43,7 @@ public class DiscoveryBuilder : IDiscoveryBuilder
       TokenEndpoint = $"{issuer}/connect/token",
       UserInfoEndpoint = $"{issuer}/connect/userinfo",
       JwksUri = $"{issuer}/.well-known/jwks",
+      EndSessionEndpoint = $"{issuer}/connect/end-session",
       Scopes = scopes,
       GrantTypes = GrantTypeConstants.GrantTypes,
       ResponseTypes = ResponseTypeConstants.ResponseTypes,
@@ -52,6 +53,7 @@ public class DiscoveryBuilder : IDiscoveryBuilder
       ResponseModes = ResponseModeConstants.ResponseModes,
       SubjectTypes = SubjectTypeConstants.SubjectTypes,
       AuthorizationResponseIssParameterSupported = true,
+      BackChannelLogoutSupported = true,
       IdTokenSigningAlgValues = IdTokenSigningAlgConstants.IdTokenSigningAlgorithms
     };
   }
@@ -84,6 +86,7 @@ public class DiscoveryDocument
   public string TokenEndpoint { get; init; }
   public string UserInfoEndpoint { get; init; }
   public string JwksUri { get; init; }
+  public string EndSessionEndpoint { get; init; }
   public IEnumerable<string> Scopes { get; init; }
   public IEnumerable<string> ResponseTypes { get; init; }
   public IEnumerable<string> GrantTypes { get; init; }
@@ -94,6 +97,7 @@ public class DiscoveryDocument
   public IEnumerable<string> IdTokenSigningAlgValues { get; init; }
   public IEnumerable<string> ResponseModes { get; init; }
   public bool AuthorizationResponseIssParameterSupported { get; init; }
+  public bool BackChannelLogoutSupported { get; init; }
 }
 
 public class JwksDocument
