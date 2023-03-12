@@ -7,6 +7,7 @@ namespace Specs.Verification;
 public class ValidatorVerification
 {
   [Fact]
+  [Trait("Category", "Unit")]
   public void RequireAllRequestsToHaveAValidator()
   {
     var requests = typeof(Response).Assembly
@@ -23,6 +24,8 @@ public class ValidatorVerification
       .OfType<Type>()
       .ToList();
 
+    Assert.True(requests.Any());
+    Assert.True(validators.Any());
     Assert.True(requests.All(x => validators.Any(y => y.GenericTypeArguments[0] == x)));
   }
 }

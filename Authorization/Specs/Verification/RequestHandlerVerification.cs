@@ -6,6 +6,7 @@ namespace Specs.Verification;
 public class RequestHandlerVerification
 {
   [Fact]
+  [Trait("Category", "Unit")]
   public void RequireAllRequestsToHaveARequestsHandler()
   {
     var requests = typeof(Response).Assembly
@@ -22,6 +23,8 @@ public class RequestHandlerVerification
       .OfType<Type>()
       .ToList();
 
+    Assert.True(requests.Any());
+    Assert.True(requestHandlers.Any());
     Assert.True(requests.All(x => requestHandlers.Any(y => y.GenericTypeArguments[0] == x)));
   }
 }
