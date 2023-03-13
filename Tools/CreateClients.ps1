@@ -30,6 +30,8 @@ function CreateWebApp() {
         'logo_uri' = 'https://www.gravatar.com/avatar/b6920d9083c8e76685bcc8db34b8c9bb?d=identicon'
         'initiate_login_uri' = 'https://localhost:5002/login'
         'default_max_age' = '3600'
+        'post_logout_redirect_uris' = @('https://localhost:5002/signout-callback-oidc')
+        'backchannel_logout_uri' = 'https://localhost:5002/backchannel-logout'
     }
     PostClient 'https://localhost:5000/connect/client/register' $token $body
 }
@@ -66,24 +68,6 @@ function CreateWasm() {
     PostClient 'https://localhost:5000/connect/client/register' $token $body
 }
 
-function CreateHybrid() {
-    $token = GetInitialToken 'https://localhost:5000/connect/client/initial-token'
-    $body = @{
-        'redirect_uris' = @('hybridapp://callback')
-        'response_types' = @('code')
-        'grant_types' = @('authorization_code', 'refresh_token')
-        'application_type' = 'native'
-        'contacts' = @('test@gmail.com')
-        'client_name' = 'hybridapp'
-        'subject_type' = 'public'
-        'token_endpoint_auth_method' = 'none'
-        'scope' = 'openid profile email phone offline_access weather:read identityprovider:userinfo'
-        'logo_uri' = 'https://www.gravatar.com/avatar/30bc082fbe72e3c7a5ac3316095e106d?d=identicon'
-    }
-    PostClient 'https://localhost:5000/connect/client/register' $token $body
-}
-
 CreateWebApp
 CreateWorker
 CreateWasm
-CreateHybrid
