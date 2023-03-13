@@ -95,6 +95,7 @@ public static class ServiceCollectionExtensions
 
   public static IServiceCollection AddDelegatingHandlers(this IServiceCollection services)
   {
+    services.AddHttpClient();
     services.AddTransient<PerformanceDelegatingHandler>();
 
     services.ConfigureAll<HttpClientFactoryOptions>(options =>

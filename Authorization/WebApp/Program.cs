@@ -15,7 +15,7 @@ builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggerConfiguratio
     .Enrich.FromLogContext()
     .MinimumLevel.Information()
     .Enrich.WithProperty("Application", "AuthorizationServer")
-    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", Serilog.Events.LogEventLevel.Warning)
+    .MinimumLevel.Override("Authorization", Serilog.Events.LogEventLevel.Information)
     .WriteTo.Console();
 });
 
