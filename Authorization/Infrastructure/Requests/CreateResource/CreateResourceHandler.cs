@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Application.Validation;
 using Domain;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Helpers;
@@ -10,27 +9,18 @@ namespace Infrastructure.Requests.CreateResource;
 public class CreateResourceHandler : IRequestHandler<CreateResourceCommand, CreateResourceResponse>
 {
   private readonly IdentityContext _identityContext;
-  private readonly IValidator<CreateResourceCommand> _validator;
   private readonly ITokenBuilder _tokenBuilder;
 
   public CreateResourceHandler(
-    IdentityContext identityContext, 
-    IValidator<CreateResourceCommand> validator,
+    IdentityContext identityContext,
     ITokenBuilder tokenBuilder)
   {
     _identityContext = identityContext;
-    _validator = validator;
     _tokenBuilder = tokenBuilder;
   }
 
   public async Task<CreateResourceResponse> Handle(CreateResourceCommand request, CancellationToken cancellationToken)
   {
-    var validationResult = await _validator.ValidateAsync(request, cancellationToken);
-    if (validationResult.IsError())
-    {
-      return new CreateResourceResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
-    }
-
     var scopes = await _identityContext
       .Set<Scope>()
       .Where(x => request.Scopes.Contains(x.Name))

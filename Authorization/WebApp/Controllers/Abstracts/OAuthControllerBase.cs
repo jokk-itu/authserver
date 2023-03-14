@@ -1,6 +1,9 @@
 ﻿using System.Net;
 using Application;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.Extensions.Primitives;
 using WebApp.Constants;
 using WebApp.Contracts;
 
@@ -59,6 +62,26 @@ public abstract class OAuthControllerBase : Controller
             ContentType = MimeTypeConstants.Html,
             Content = FormPostBuilder.BuildAuthorizationCodeResponse(redirectUri, state, code, _identityConfiguration.Issuer)
         };
+    }
+
+    protected IActionResult LogoutRedirectResult(string redirectUri, string state)
+    {
+      if (!Uri.IsWellFormedUriString(redirectUri, UriKind.Absolute))
+      {
+        throw new ArgumentException($"{nameof(redirectUri)} must not be null or whitespace");
+      }
+
+      if (string.IsNullOrWhiteSpace(state))
+      {
+        throw new ArgumentException($"{nameof(state)} must not be null or whitespace");
+      }
+
+      var query = new QueryBuilder
+      {
+        { ParameterNames.State, state }
+      }.ToQueryString();
+
+      return Redirect($"{redirectUri}{query}");
     }
 
     protected IActionResult ErrorFormPostResult(string redirectUri, string state, string? error, string? errorDescription)

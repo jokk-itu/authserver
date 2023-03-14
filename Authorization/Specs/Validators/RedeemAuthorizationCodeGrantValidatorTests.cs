@@ -327,7 +327,7 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
         var client = ClientBuilder
             .Instance()
             .AddGrantType(grantType)
-            .AddRedirect(new RedirectUri { Uri = "https://localhost:5001/callback" })
+            .AddRedirectUri("https://localhost:5001/callback")
             .AddApplicationType(applicationType)
             .Build();
 

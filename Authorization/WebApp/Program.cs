@@ -7,13 +7,15 @@ using WebApp.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.UseKestrel(options => options.AddServerHeader = false);
+
 builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggerConfiguration) =>
 {
   loggerConfiguration
     .Enrich.FromLogContext()
     .MinimumLevel.Information()
     .Enrich.WithProperty("Application", "AuthorizationServer")
-    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", Serilog.Events.LogEventLevel.Warning)
+    .MinimumLevel.Override("Authorization", Serilog.Events.LogEventLevel.Information)
     .WriteTo.Console();
 });
 
@@ -35,7 +37,8 @@ builder.WebHost.ConfigureServices(services =>
     .AddDecoders()
     .AddManagers()
     .AddRequests()
-    .AddContextAccessors();
+    .AddContextAccessors()
+    .AddDelegatingHandlers();
   
   services.AddCorsPolicy();
   services.AddCookiePolicy();

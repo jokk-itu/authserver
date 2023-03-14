@@ -17,6 +17,9 @@ public record GetDiscoveryDocumentResponse
   [JsonPropertyName("userinfo_endpoint")]
   public string UserInfoEndpoint { get; init; }
 
+  [JsonPropertyName("end_session_endpoint")]
+  public string EndSessionEndpoint { get; init; }
+
   [JsonPropertyName("jwks_uri")]
   public string JwksUri { get; init; }
 
@@ -49,4 +52,7 @@ public record GetDiscoveryDocumentResponse
 
   [JsonPropertyName("authorization_response_iss_parameter_supported")]
   public bool AuthorizationResponseIssParameterSupported { get; init; }
+
+  [JsonPropertyName("backchannel_logout_supported")]
+  public bool BackChannelLogoutSupported { get; init; }
 }

@@ -36,12 +36,13 @@ public class TokenBuilder : ITokenBuilder
       {
         { ClaimNameConstants.Aud, audiences },
         { ClaimNameConstants.Scope, string.Join(' ', scopes) },
-        { ClaimNameConstants.ClientId, clientId }
+        { ClaimNameConstants.ClientId, clientId },
+        { ClaimNameConstants.Jti, Guid.NewGuid() }
       };
       return GetSignedToken(claims, expires);
     }
 
-    public async Task<string> BuildAccessTokenAsync(
+    public async Task<string> BuildAccessToken(
       string clientId,
       ICollection<string> scopes,
       string userId,
@@ -57,12 +58,13 @@ public class TokenBuilder : ITokenBuilder
           { ClaimNameConstants.Aud, audiences },
           { ClaimNameConstants.Scope, string.Join(' ', scopes) },
           { ClaimNameConstants.ClientId, clientId },
-          { ClaimNameConstants.Sid, sessionId }
+          { ClaimNameConstants.Sid, sessionId },
+          { ClaimNameConstants.Jti, Guid.NewGuid() }
         };
         return GetSignedToken(claims, expires);
     }
 
-    public async Task<string> BuildRefreshTokenAsync(
+    public async Task<string> BuildRefreshToken(
       string authorizationGrantId,
       string clientId,
       ICollection<string> scopes,
@@ -80,12 +82,13 @@ public class TokenBuilder : ITokenBuilder
           { ClaimNameConstants.Scope, string.Join(' ', scopes) },
           { ClaimNameConstants.ClientId, clientId },
           { ClaimNameConstants.Sid, sessionId },
-          { ClaimNameConstants.GrantId, authorizationGrantId }
+          { ClaimNameConstants.GrantId, authorizationGrantId },
+          { ClaimNameConstants.Jti, Guid.NewGuid() }
         };
         return GetSignedToken(claims, expires);
     }
 
-    public async Task<string> BuildIdTokenAsync(
+    public async Task<string> BuildIdToken(
       string authorizationGrantId,
       string clientId, 
       ICollection<string> scopes, 
@@ -104,8 +107,8 @@ public class TokenBuilder : ITokenBuilder
           { ClaimNameConstants.Sid, sessionId },
           { ClaimNameConstants.Nonce, nonce },
           { ClaimNameConstants.AuthTime, authTime },
-          { ClaimNameConstants.ClientId, clientId },
-          { ClaimNameConstants.GrantId, authorizationGrantId }
+          { ClaimNameConstants.GrantId, authorizationGrantId },
+          { ClaimNameConstants.Jti, Guid.NewGuid() }
         };
         var userInfo = await _claimService
           .GetClaimsFromConsentGrant(userId, clientId, cancellationToken: cancellationToken);
@@ -116,6 +119,24 @@ public class TokenBuilder : ITokenBuilder
         }
 
         return GetSignedToken(claims, expires);
+    }
+
+    public string BuildLogoutToken(string clientId, string sessionId, string userId, CancellationToken cancellationToken = default)
+    {
+      var expires = DateTime.UtcNow.AddSeconds(_identityConfiguration.IdTokenExpiration);
+      var audiences = new[] { clientId };
+      var claims = new Dictionary<string, object>
+      {
+        { ClaimNameConstants.Aud, audiences },
+        { ClaimNameConstants.Sid, sessionId },
+        { ClaimNameConstants.Sub, userId },
+        { ClaimNameConstants.Jti, Guid.NewGuid() },
+        { ClaimNameConstants.Events, new Dictionary<string, object>
+        {
+          { "http://schemas.openid.net/event/backchannel-logout", new() }
+        }}
+      };
+      return GetSignedToken(claims, expires, tokenType: "logout+jwt");
     }
 
     public string BuildResourceInitialAccessToken()
@@ -189,7 +210,8 @@ public class TokenBuilder : ITokenBuilder
 
     private string GetSignedToken(
       IDictionary<string, object> claims,
-      DateTime expires)
+      DateTime expires,
+      string tokenType = "JWT")
     {
         var key = new RsaSecurityKey(_jwkManager.RsaCryptoServiceProvider)
         {
@@ -203,6 +225,7 @@ public class TokenBuilder : ITokenBuilder
             NotBefore = DateTime.UtcNow,
             Issuer = _identityConfiguration.Issuer,
             SigningCredentials = signingCredentials,
+            TokenType = tokenType,
             Claims = claims
         };
         var tokenHandler = new JwtSecurityTokenHandler();

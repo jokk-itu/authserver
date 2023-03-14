@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Application.Validation;
 using Domain;
 using Domain.Enums;
 using Domain.Extensions;
@@ -12,29 +11,19 @@ namespace Infrastructure.Requests.CreateClient;
 
 public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateClientResponse>
 {
-  private readonly IValidator<CreateClientCommand> _createClientValidator;
   private readonly IdentityContext _identityContext;
   private readonly ITokenBuilder _tokenBuilder;
 
   public CreateClientHandler(
-    IValidator<CreateClientCommand> createClientValidator,
     IdentityContext identityContext,
     ITokenBuilder tokenBuilder)
   {
-    _createClientValidator = createClientValidator;
     _identityContext = identityContext;
     _tokenBuilder = tokenBuilder;
   }
 
   public async Task<CreateClientResponse> Handle(CreateClientCommand request, CancellationToken cancellationToken)
   {
-    var validationResult = await _createClientValidator.ValidateAsync(request, cancellationToken);
-    if (validationResult.IsError())
-    {
-      return new CreateClientResponse(validationResult.ErrorCode, validationResult.ErrorDescription,
-        validationResult.StatusCode);
-    }
-
     var splitScopes = request.Scope.Split(' ');
     var scopes = await _identityContext
       .Set<Scope>()
@@ -47,8 +36,14 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       .ToListAsync(cancellationToken: cancellationToken);
 
     var redirectUris = request.RedirectUris
-      .Select(x => new RedirectUri { Uri = x })
+      .Select(x => new RedirectUri { Uri = x, Type = RedirectUriType.AuthorizeRedirectUri })
       .ToList();
+
+    var postLogoutRedirectUris = request.PostLogoutRedirectUris
+      .Select(x => new RedirectUri { Uri = x, Type = RedirectUriType.PostLogoutRedirectUri })
+      .ToList();
+
+    redirectUris.AddRange(postLogoutRedirectUris);
 
     var responseTypes = await _identityContext
       .Set<ResponseType>()
@@ -100,7 +95,8 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       ClientName = client.Name,
       ClientSecret = client.Secret,
       Scope = string.Join(' ', client.Scopes.Select(x => x.Name)),
-      RedirectUris = client.RedirectUris.Select(x => x.Uri).ToList(),
+      RedirectUris = client.RedirectUris.Where(x => x.Type == RedirectUriType.AuthorizeRedirectUri).Select(x => x.Uri).ToList(),
+      PostLogoutRedirectUris = client.RedirectUris.Where(x => x.Type == RedirectUriType.PostLogoutRedirectUri).Select(x => x.Uri).ToList(),
       SubjectType = request.SubjectType,
       TosUri = client.TosUri,
       Contacts = client.Contacts.Select(x => x.Email).ToList(),

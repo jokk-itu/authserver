@@ -4,6 +4,7 @@ namespace Infrastructure.Requests.CreateClient;
 public class CreateClientResponse : Response
 {
   public ICollection<string> RedirectUris { get; init; } = new List<string>();
+  public ICollection<string> PostLogoutRedirectUris { get; init; } = new List<string>();
   public ICollection<string> ResponseTypes { get; init; } = new List<string>();
   public ICollection<string> GrantTypes { get; init; } = new List<string>();
   public string ApplicationType { get; init; } = null!;

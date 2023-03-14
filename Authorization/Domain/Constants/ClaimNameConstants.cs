@@ -28,6 +28,11 @@ public static class ClaimNameConstants
   public const string Sub = "sub";
 
   /// <summary>
+  /// JWT ID.
+  /// </summary>
+  public const string Jti = "jti";
+
+  /// <summary>
   /// Session Id.
   /// </summary>
   public const string Sid = "sid";
@@ -87,6 +92,11 @@ public static class ClaimNameConstants
   /// Id of the issued grant.
   /// </summary>
   public const string GrantId = "grant_id";
+
+  /// <summary>
+  /// Events object.
+  /// </summary>
+  public const string Events = "events";
 
   public const string Address = "address";
   public const string GivenName = "given_name";

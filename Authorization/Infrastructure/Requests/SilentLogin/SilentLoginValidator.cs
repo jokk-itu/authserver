@@ -38,18 +38,17 @@ public class SilentLoginValidator : IValidator<SilentLoginCommand>
       return new ValidationResult(ErrorCode.InvalidRequest, "state is invalid", HttpStatusCode.BadRequest);
     }
 
-    // TODO do not validate time claims only the signing validation is done,
-    // TODO it is only to be used against the session it contains
     var token = _tokenDecoder.DecodeSignedToken(value.IdTokenHint);
     if (token is null)
     {
       return new ValidationResult(ErrorCode.InvalidRequest, "id_token_hint is invalid", HttpStatusCode.OK);
     }
 
-    var clientId = token.Claims.Single(x => x.Type == ClaimNameConstants.ClientId).Value;
-    if (value.ClientId != clientId)
+
+    var aud = token.Claims.Single(x => x.Type == ClaimNameConstants.Aud).Value;
+    if (value.ClientId != aud)
     {
-      return new ValidationResult(ErrorCode.AccessDenied, "client_id does not match client_id in id_token_hint", HttpStatusCode.OK);
+      return new ValidationResult(ErrorCode.AccessDenied, "client_id does not match aud in id_token_hint", HttpStatusCode.OK);
     }
 
     var scopes = value.Scope?.Split(' ');
@@ -90,7 +89,7 @@ public class SilentLoginValidator : IValidator<SilentLoginCommand>
 
     var authorizedClientQuery = await _identityContext
       .Set<Client>()
-      .Where(x => x.Id == clientId)
+      .Where(x => x.Id == aud)
       .Select(x => new
       {
         IsGrantTypeAuthorized = x.GrantTypes.Any(y => y.Name == GrantTypeConstants.AuthorizationCode),
@@ -123,7 +122,7 @@ public class SilentLoginValidator : IValidator<SilentLoginCommand>
     var consentedScopes = await _identityContext
       .Set<ConsentGrant>()
       .Where(x => x.User.Id == userId)
-      .Where(x => x.Client.Id == clientId)
+      .Where(x => x.Client.Id == aud)
       .SelectMany(x => x.ConsentedScopes)
       .Where(x => scopes.Any(y => y == x.Name))
       .ToListAsync(cancellationToken: cancellationToken);

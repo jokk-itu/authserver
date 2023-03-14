@@ -33,6 +33,7 @@ public abstract class BaseUnitTest
       config.Authority = "auth-server";
     });
     services.AddDataProtection();
+    services.AddHttpClient();
 
     services
       .AddSingleton(_ => new IdentityConfiguration
@@ -51,7 +52,8 @@ public abstract class BaseUnitTest
       .AddDataServices()
       .AddDecoders()
       .AddRequests()
-      .AddManagers();
+      .AddManagers()
+      .AddDelegatingHandlers();
 
     return services;
   }

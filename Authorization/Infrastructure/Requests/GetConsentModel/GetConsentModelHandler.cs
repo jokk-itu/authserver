@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Application.Validation;
 using Domain;
 using Infrastructure.Helpers;
 using MediatR;
@@ -9,24 +8,15 @@ namespace Infrastructure.Requests.GetConsentModel;
 public class GetConsentModelHandler : IRequestHandler<GetConsentModelQuery, GetConsentModelResponse>
 {
   private readonly IdentityContext _identityContext;
-  private readonly IValidator<GetConsentModelQuery> _validator;
 
   public GetConsentModelHandler(
-    IdentityContext identityContext,
-    IValidator<GetConsentModelQuery> validator)
+    IdentityContext identityContext)
   {
     _identityContext = identityContext;
-    _validator = validator;
   }
 
   public async Task<GetConsentModelResponse> Handle(GetConsentModelQuery request, CancellationToken cancellationToken)
   {
-    var validationResult = await _validator.ValidateAsync(request, cancellationToken: cancellationToken);
-    if (validationResult.IsError())
-    {
-      return new GetConsentModelResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
-    }
-
     var user = await _identityContext
       .Set<User>()
       .Where(x => x.Id == request.UserId)

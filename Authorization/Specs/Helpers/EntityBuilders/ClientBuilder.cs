@@ -56,15 +56,35 @@ public class ClientBuilder
     return this;
   }
 
-  public ClientBuilder AddRedirect(RedirectUri redirectUri)
+  public ClientBuilder AddRedirectUri(string uri)
   {
-    _client.RedirectUris.Add(redirectUri);
+    _client.RedirectUris.Add(new RedirectUri
+    {
+      Type = RedirectUriType.AuthorizeRedirectUri,
+      Uri = uri
+    });
     return this;
   }
 
   public ClientBuilder AddApplicationType(ApplicationType applicationType)
   {
     _client.ApplicationType = applicationType;
+    return this;
+  }
+
+  public ClientBuilder AddPostLogoutRedirectUri(string uri)
+  {
+    _client.RedirectUris.Add(new RedirectUri()
+    {
+      Type = RedirectUriType.PostLogoutRedirectUri,
+      Uri = uri
+    });
+    return this;
+  }
+
+  public ClientBuilder AddBackChannelLogoutUri(string uri)
+  {
+    _client.BackChannelLogoutUri = uri;
     return this;
   }
 }

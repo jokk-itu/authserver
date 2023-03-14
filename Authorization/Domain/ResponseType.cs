@@ -1,6 +1,4 @@
-﻿using System.Collections.ObjectModel;
-
-namespace Domain;
+﻿namespace Domain;
 
 #nullable disable
 public class ResponseType

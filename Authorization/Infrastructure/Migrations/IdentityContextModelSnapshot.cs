@@ -240,6 +240,9 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("BackChannelLogoutUri")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ClientUri")
                         .HasColumnType("nvarchar(max)");
 
@@ -406,6 +409,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("ClientId")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.Property<string>("Uri")
                         .HasColumnType("nvarchar(max)");

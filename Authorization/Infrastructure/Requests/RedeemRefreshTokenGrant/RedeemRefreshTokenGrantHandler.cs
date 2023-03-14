@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using Application;
-using Application.Validation;
 using Domain;
 using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
@@ -12,20 +11,17 @@ using Microsoft.IdentityModel.Tokens;
 namespace Infrastructure.Requests.RedeemRefreshTokenGrant;
 public class RedeemRefreshTokenGrantHandler : IRequestHandler<RedeemRefreshTokenGrantCommand, RedeemRefreshTokenGrantResponse>
 {
-  private readonly IValidator<RedeemRefreshTokenGrantCommand> _validator;
   private readonly ITokenDecoder _tokenDecoder;
   private readonly ITokenBuilder _tokenBuilder;
   private readonly IdentityConfiguration _identityConfiguration;
   private readonly IdentityContext _identityContext;
 
   public RedeemRefreshTokenGrantHandler(
-    IValidator<RedeemRefreshTokenGrantCommand> validator,
     ITokenDecoder tokenDecoder,
     ITokenBuilder tokenBuilder,
     IdentityConfiguration identityConfiguration,
     IdentityContext identityContext)
   {
-    _validator = validator;
     _tokenDecoder = tokenDecoder;
     _tokenBuilder = tokenBuilder;
     _identityConfiguration = identityConfiguration;
@@ -34,12 +30,6 @@ public class RedeemRefreshTokenGrantHandler : IRequestHandler<RedeemRefreshToken
 
   public async Task<RedeemRefreshTokenGrantResponse> Handle(RedeemRefreshTokenGrantCommand request, CancellationToken cancellationToken)
   {
-    var validationResult = await _validator.ValidateAsync(request, cancellationToken);
-    if (validationResult.IsError())
-    {
-      return new RedeemRefreshTokenGrantResponse(validationResult.ErrorCode, validationResult.ErrorDescription, validationResult.StatusCode);
-    }
-
     var token = _tokenDecoder.DecodeSignedToken(request.RefreshToken);
     if (token is null)
     {
@@ -60,9 +50,9 @@ public class RedeemRefreshTokenGrantHandler : IRequestHandler<RedeemRefreshToken
       })
       .FirstAsync(cancellationToken: cancellationToken);
 
-    var refreshToken = await _tokenBuilder.BuildRefreshTokenAsync(authorizationGrantId, request.ClientId, scopes, userId, sessionId, cancellationToken: cancellationToken);
-    var accessToken = await _tokenBuilder.BuildAccessTokenAsync(request.ClientId, scopes, userId, sessionId, cancellationToken: cancellationToken);
-    var idToken = await _tokenBuilder.BuildIdTokenAsync(authorizationGrantId, request.ClientId, scopes, query.Nonce.Value, userId,
+    var refreshToken = await _tokenBuilder.BuildRefreshToken(authorizationGrantId, request.ClientId, scopes, userId, sessionId, cancellationToken: cancellationToken);
+    var accessToken = await _tokenBuilder.BuildAccessToken(request.ClientId, scopes, userId, sessionId, cancellationToken: cancellationToken);
+    var idToken = await _tokenBuilder.BuildIdToken(authorizationGrantId, request.ClientId, scopes, query.Nonce.Value, userId,
       sessionId, query.AuthorizationCodeGrant.AuthTime, cancellationToken: cancellationToken);
 
     return new RedeemRefreshTokenGrantResponse(HttpStatusCode.OK)

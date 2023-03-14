@@ -16,17 +16,23 @@ public class ClientValidator : IBaseValidator<ClientToValidate>
   public async Task<BaseValidationResult> ValidateAsync(ClientToValidate value, CancellationToken cancellationToken = default)
   {
     if (string.IsNullOrWhiteSpace(value.ClientId))
+    {
       return new BaseValidationResult(ErrorCode.InvalidClient, "client_id is invalid");
+    }
 
     var client = await _identityContext
       .Set<Client>()
       .SingleOrDefaultAsync(x => x.Id == value.ClientId, cancellationToken: cancellationToken);
 
     if (client is null)
+    {
       return new BaseValidationResult(ErrorCode.InvalidClient, "client_id is invalid");
+    }
 
-    if(!string.IsNullOrWhiteSpace(value.ClientSecret) && client.Secret != value.ClientSecret)
+    if (!string.IsNullOrWhiteSpace(value.ClientSecret) && client.Secret != value.ClientSecret)
+    {
       return new BaseValidationResult(ErrorCode.InvalidClient, "client_secret is invalid");
+    }
 
     return new BaseValidationResult();
   }

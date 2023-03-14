@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
@@ -16,35 +15,6 @@ using Xunit;
 namespace Specs.Handlers;
 public class RedeemAuthorizationGrantCodeHandlerTests : BaseUnitTest
 {
-  [Fact]
-  public async Task Handle_NotValid()
-  {
-    // Arrange
-    var validator = new Mock<IValidator<RedeemAuthorizationCodeGrantCommand>>();
-    var result = new ValidationResult(ErrorCode.InvalidRequest,"error", HttpStatusCode.BadRequest);
-    validator
-      .Setup(x => x.ValidateAsync(It.IsAny<RedeemAuthorizationCodeGrantCommand>(), CancellationToken.None))
-      .ReturnsAsync(result);
-
-    var serviceProvider = BuildServiceProvider(services =>
-    {
-      services.AddTransient(_ => validator.Object);
-    });
-
-    var handler = serviceProvider
-      .GetRequiredService<IRequestHandler<RedeemAuthorizationCodeGrantCommand, RedeemAuthorizationCodeGrantResponse>>();
-
-    var command = new RedeemAuthorizationCodeGrantCommand();
-
-    // Act
-    var response = await handler.Handle(command, CancellationToken.None);
-
-    // Assert
-    Assert.True(response.IsError());
-    Assert.Equal(result.ErrorCode, response.ErrorCode);
-    Assert.Equal(result.ErrorDescription, response.ErrorDescription);
-  }
-
   [Fact]
   public async Task Handle_Ok()
   {
@@ -65,7 +35,7 @@ public class RedeemAuthorizationGrantCodeHandlerTests : BaseUnitTest
     const string uri = "https://localhost:5000/callback";
     var client = ClientBuilder
       .Instance()
-      .AddRedirect(new RedirectUri{Uri = uri})
+      .AddRedirectUri(uri)
       .Build();
 
     var nonceId = Guid.NewGuid().ToString();

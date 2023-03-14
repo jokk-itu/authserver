@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using Application;
-using Application.Validation;
 using Domain;
 using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
@@ -11,18 +10,15 @@ using Microsoft.EntityFrameworkCore;
 namespace Infrastructure.Requests.SilentLogin;
 public class SilentLoginHandler : IRequestHandler<SilentLoginCommand, SilentLoginResponse>
 {
-  private readonly IValidator<SilentLoginCommand> _validator;
   private readonly ITokenDecoder _tokenDecoder;
   private readonly IdentityContext _identityContext;
   private readonly ICodeBuilder _codeBuilder;
 
   public SilentLoginHandler(
-    IValidator<SilentLoginCommand> validator,
     ITokenDecoder tokenDecoder,
     IdentityContext identityContext,
     ICodeBuilder codeBuilder)
   {
-    _validator = validator;
     _tokenDecoder = tokenDecoder;
     _identityContext = identityContext;
     _codeBuilder = codeBuilder;
@@ -30,12 +26,6 @@ public class SilentLoginHandler : IRequestHandler<SilentLoginCommand, SilentLogi
 
   public async Task<SilentLoginResponse> Handle(SilentLoginCommand request, CancellationToken cancellationToken)
   {
-    var validatorResponse = await _validator.ValidateAsync(request, cancellationToken: cancellationToken);
-    if (validatorResponse.IsError())
-    {
-      return new SilentLoginResponse(validatorResponse.ErrorCode, validatorResponse.ErrorDescription, validatorResponse.StatusCode);
-    }
-
     var token = _tokenDecoder.DecodeSignedToken(request.IdTokenHint);
     if (token is null)
     {

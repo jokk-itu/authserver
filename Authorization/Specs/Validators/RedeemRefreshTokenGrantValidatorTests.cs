@@ -48,7 +48,7 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
       GrantType = string.Empty,
       ClientId = authorizationGrant.Client.Id,
       ClientSecret = authorizationGrant.Client.Secret,
-      RefreshToken = await tokenBuilder.BuildRefreshTokenAsync(authorizationGrant.Id, authorizationGrant.Client.Id, scopes, authorizationGrant.Session.User.Id, authorizationGrant.Session.Id)
+      RefreshToken = await tokenBuilder.BuildRefreshToken(authorizationGrant.Id, authorizationGrant.Client.Id, scopes, authorizationGrant.Session.User.Id, authorizationGrant.Session.Id)
     };
     
     // Act
@@ -74,7 +74,7 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
       GrantType = GrantTypeConstants.RefreshToken,
       ClientId = authorizationGrant.Client.Id,
       ClientSecret = authorizationGrant.Client.Secret,
-      RefreshToken = await tokenBuilder.BuildRefreshTokenAsync(authorizationGrant.Id, "mismatch_client_id", scopes, authorizationGrant.Session.User.Id, authorizationGrant.Session.Id)
+      RefreshToken = await tokenBuilder.BuildRefreshToken(authorizationGrant.Id, "mismatch_client_id", scopes, authorizationGrant.Session.User.Id, authorizationGrant.Session.Id)
     };
     
     // Act
@@ -102,7 +102,7 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
       GrantType = GrantTypeConstants.RefreshToken,
       ClientId = "invalid_id",
       ClientSecret = authorizationGrant.Client.Secret,
-      RefreshToken = await tokenBuilder.BuildRefreshTokenAsync(authorizationGrant.Id, "invalid_id", scopes, userId, sessionId)
+      RefreshToken = await tokenBuilder.BuildRefreshToken(authorizationGrant.Id, "invalid_id", scopes, userId, sessionId)
     };
     
     // Act
@@ -131,7 +131,7 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
       GrantType = GrantTypeConstants.RefreshToken,
       ClientId = authorizationGrant.Client.Id,
       ClientSecret = "invalid_secret",
-      RefreshToken = await tokenBuilder.BuildRefreshTokenAsync(authorizationGrant.Id, authorizationGrant.Client.Id, scopes, userId, sessionId)
+      RefreshToken = await tokenBuilder.BuildRefreshToken(authorizationGrant.Id, authorizationGrant.Client.Id, scopes, userId, sessionId)
     };
     
     // Act
@@ -161,7 +161,7 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
       GrantType = GrantTypeConstants.RefreshToken,
       ClientId = authorizationGrant.Client.Id,
       ClientSecret = authorizationGrant.Client.Secret,
-      RefreshToken = await tokenBuilder.BuildRefreshTokenAsync(authorizationGrant.Id, authorizationGrant.Client.Id, scopes, userId, sessionId)
+      RefreshToken = await tokenBuilder.BuildRefreshToken(authorizationGrant.Id, authorizationGrant.Client.Id, scopes, userId, sessionId)
     };
     
     // Act
@@ -191,7 +191,7 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
       GrantType = GrantTypeConstants.RefreshToken,
       ClientId = authorizationGrant.Client.Id,
       ClientSecret = authorizationGrant.Client.Secret,
-      RefreshToken = await tokenBuilder.BuildRefreshTokenAsync(authorizationGrant.Id, authorizationGrant.Client.Id, scopes, userId, sessionId)
+      RefreshToken = await tokenBuilder.BuildRefreshToken(authorizationGrant.Id, authorizationGrant.Client.Id, scopes, userId, sessionId)
     };
     
     // Act
@@ -218,7 +218,7 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
       GrantType = GrantTypeConstants.RefreshToken,
       ClientId = authorizationGrant.Client.Id,
       ClientSecret = authorizationGrant.Client.Secret,
-      RefreshToken = await tokenBuilder.BuildRefreshTokenAsync(authorizationGrant.Id, authorizationGrant.Client.Id, scopes, userId, authorizationGrant.Session.Id.ToString())
+      RefreshToken = await tokenBuilder.BuildRefreshToken(authorizationGrant.Id, authorizationGrant.Client.Id, scopes, userId, authorizationGrant.Session.Id.ToString())
     };
     
     // Act

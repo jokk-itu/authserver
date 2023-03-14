@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication;
 using IdentityModel.Client;
 using Microsoft.Extensions.Options;
 using App.Services;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,8 @@ builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggingConfigurati
   loggingConfiguration
     .Enrich.FromLogContext()
     .Enrich.WithProperty("Application", "WebApp")
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("App", LogEventLevel.Information)
     .WriteTo.Console();
 });
 
@@ -101,6 +104,8 @@ builder.WebHost.ConfigureServices(services =>
     configureOptions.Scope.Add("identityprovider:userinfo");
     configureOptions.MapInboundClaims = true;
     configureOptions.GetClaimsFromUserInfoEndpoint = true;
+    configureOptions.SignedOutRedirectUri = identity["PostLogoutRedirectUri"];
+    configureOptions.RemoteSignOutPath = new PathString(identity["BackChannelLogoutUri"]);
     configureOptions.Events = new OpenIdConnectEvents
     {
       OnTokenValidated = context => 
@@ -131,6 +136,32 @@ builder.WebHost.ConfigureServices(services =>
       OnAuthenticationFailed = context =>
       {
         Log.Information("Authentication failed");
+        return Task.CompletedTask;
+      },
+      OnRemoteSignOut = context =>
+      {
+        Log.Information("Logout request received");
+        return Task.CompletedTask;
+      },
+      OnSignedOutCallbackRedirect = context =>
+      {
+        Log.Information("Redirecting to SignedOutRedirectUri");
+        return Task.CompletedTask;
+      },
+      OnRedirectToIdentityProviderForSignOut = context =>
+      {
+        Log.Information("Redirecting to Identity Provider for Sign out");
+        context.ProtocolMessage.Parameters.Add("client_id", context.Options.ClientId);
+        return Task.CompletedTask;
+      },
+      OnUserInformationReceived = context =>
+      {
+        Log.Information("Userinfo Endpoint response received");
+        return Task.CompletedTask;
+      },
+      OnRemoteFailure = context =>
+      {
+        Log.Warning("Server error occurred at Identity Provider");
         return Task.CompletedTask;
       }
     };

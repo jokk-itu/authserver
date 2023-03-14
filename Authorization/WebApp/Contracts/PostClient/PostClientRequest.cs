@@ -9,6 +9,9 @@ public class PostClientRequest
   [JsonPropertyName(ParameterNames.RedirectUris)]
   public ICollection<string> RedirectUris { get; set; } = new List<string>();
 
+  [JsonPropertyName(ParameterNames.PostLogoutRedirectUris)]
+  public ICollection<string> PostLogoutRedirectUris { get; set; } = new List<string>();
+
   [JsonPropertyName(ParameterNames.ResponseTypes)]
   public ICollection<string> ResponseTypes { get; init; } = new List<string>();
 
@@ -50,4 +53,7 @@ public class PostClientRequest
 
   [JsonPropertyName(ParameterNames.ClientUri)]
   public string ClientUri { get; init; }
+
+  [JsonPropertyName(ParameterNames.BackChannelLogoutUri)]
+  public string BackChannelLogoutUri { get; init; }
 }
