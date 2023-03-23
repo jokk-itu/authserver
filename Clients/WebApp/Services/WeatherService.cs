@@ -1,4 +1,6 @@
-﻿namespace App.Services;
+﻿using App.Contracts;
+
+namespace App.Services;
 
 public class WeatherService
 {
@@ -9,8 +11,9 @@ public class WeatherService
     _httpClient = httpClient;
   }
 
-  public async Task<string> GetSecretAsync()
+  public async Task<IEnumerable<WeatherDto>> GetSecretAsync()
   {
-    return await _httpClient.GetStringAsync("api/weather");
+    var response = await _httpClient.GetFromJsonAsync<IEnumerable<WeatherDto>>("api/weather");
+    return response;
   }
 }

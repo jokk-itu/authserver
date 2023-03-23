@@ -5,14 +5,14 @@
     <h2>@Model.ClientName</h2>
     <p>wants to access your account <b>@Model.GivenName</b></p>
     <p>The following personal information is requested by the above app.</p>
-    <br/>
-    <form name="consent" method="@Model.FormMethod" >
+    <br />
+    <form name="consent" method="@Model.FormMethod">
         @foreach (var claimDto in Model.Claims)
         {
             <div class="form-check my-2">
                 @if (claimDto.IsConsented)
                 {
-                    <input class="form-check-input" id="@claimDto.Name" type="checkbox" name="@claimDto.Name" checked/>
+                    <input class="form-check-input" id="@claimDto.Name" type="checkbox" name="@claimDto.Name" checked />
                 }
                 else
                 {

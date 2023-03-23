@@ -168,7 +168,7 @@ builder.WebHost.ConfigureServices(services =>
     configureOptions.NonceCookie = new CookieBuilder
     {
       Name = "OpenId-Auth-Nonce-WebApp",
-      SameSite = SameSiteMode.None,
+      SameSite = SameSiteMode.Strict,
       SecurePolicy = CookieSecurePolicy.Always,
       IsEssential = true,
       HttpOnly = true
@@ -176,7 +176,7 @@ builder.WebHost.ConfigureServices(services =>
     configureOptions.CorrelationCookie = new CookieBuilder
     {
       Name = "OpenId-Auth-Correlation-WebApp",
-      SameSite = SameSiteMode.None,
+      SameSite = SameSiteMode.Strict,
       SecurePolicy = CookieSecurePolicy.Always,
       IsEssential = true,
       HttpOnly = true

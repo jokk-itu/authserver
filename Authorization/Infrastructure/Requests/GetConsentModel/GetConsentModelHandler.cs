@@ -27,29 +27,37 @@ public class GetConsentModelHandler : IRequestHandler<GetConsentModelQuery, GetC
       .Where(x => x.Id == request.ClientId)
       .SingleAsync(cancellationToken: cancellationToken);
 
-    var consentedClaims = await _identityContext
+    var consentGrant = await _identityContext
       .Set<ConsentGrant>()
       .Where(x => x.User.Id == request.UserId)
       .Where(x => x.Client.Id == request.ClientId)
-      .SelectMany(x => x.ConsentedClaims)
-      .Select(x => x.Name)
-      .ToListAsync(cancellationToken: cancellationToken);
+      .Include(x => x.ConsentedClaims)
+      .Include(x => x.ConsentedScopes)
+      .SingleAsync(cancellationToken: cancellationToken);
 
     var claims = ClaimsHelper
       .MapToClaims(request.Scope.Split(' '))
       .Select(x => new ClaimDto
       {
         Name = x,
-        IsConsented = consentedClaims.Contains(x)
+        IsConsented = consentGrant.ConsentedClaims.Any(y => y.Name == x)
+      });
+
+    var scopes = consentGrant.ConsentedScopes
+      .Select(x => new ScopeDto
+      {
+        Name = x.Name
       });
 
     return new GetConsentModelResponse(HttpStatusCode.OK)
     {
       Claims = claims,
+      Scopes = scopes,
       ClientName = client.Name,
       GivenName = user.FirstName,
       PolicyUri = client.PolicyUri,
-      TosUri = client.TosUri
+      TosUri = client.TosUri,
+      LogoUri = client.LogoUri
     };
   }
 }

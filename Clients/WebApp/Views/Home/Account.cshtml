@@ -1,0 +1,10 @@
+﻿@model App.Models.WeatherModel
+
+<p>Hello, @User.Identity?.Name</p>
+<br />
+
+@foreach (var claim in User.Claims)
+{
+    <p>ClaimType: @claim.Type, ClaimValue: @claim.Value</p>
+    <br />
+}

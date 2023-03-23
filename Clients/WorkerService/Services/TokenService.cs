@@ -26,7 +26,9 @@ public class TokenService : ITokenService
   public async Task<string?> GetToken(string scope, CancellationToken cancellationToken = default)
   {
     if (_fetchedAt.AddSeconds(_expiresIn) > DateTime.UtcNow && _token != null)
+    {
       return _token;
+    }
 
     var tokenClientOptions = new TokenClientOptions
     {

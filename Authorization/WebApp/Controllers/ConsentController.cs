@@ -159,10 +159,12 @@ public class ConsentController : OAuthControllerBase
     return View("Index", new ConsentViewModel
     {
       Claims = response.Claims,
+      Scopes = response.Scopes,
       ClientName = response.ClientName,
       GivenName = response.GivenName,
-      PolicyUri = response.PolicyUri,
+      PolicyUri = response.PolicyUri, 
       TosUri = response.TosUri,
+      LogoUri = response.LogoUri,
       FormMethod = method
     });
   }

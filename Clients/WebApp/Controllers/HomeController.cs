@@ -24,8 +24,14 @@ public class HomeController : Controller
   [Authorize]
   public async Task<IActionResult> Weather()
   {
-    var secret = await _weatherService.GetSecretAsync();
-    return View(new WeatherModel { Secret = secret });
+    var weatherDtos = await _weatherService.GetSecretAsync();
+    return View(new WeatherModel { WeatherDtos = weatherDtos });
+  }
+
+  [Authorize]
+  public async Task<IActionResult> Account()
+  {
+    return View();
   }
 
   public IActionResult Login()
@@ -37,6 +43,7 @@ public class HomeController : Controller
     return Challenge(OpenIdConnectDefaults.AuthenticationScheme);
   }
 
+  [Authorize]
   public async Task Logout()
   {
     await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

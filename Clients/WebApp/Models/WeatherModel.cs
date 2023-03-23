@@ -1,7 +1,9 @@
-﻿namespace App.Models;
+﻿using App.Contracts;
+
+namespace App.Models;
 
 #nullable disable
 public class WeatherModel
 {
-  public string Secret { get; set; }
+  public IEnumerable<WeatherDto> WeatherDtos { get; set; }
 }
