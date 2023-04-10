@@ -1,0 +1,1 @@
+import{m as e}from"./mermaid.core.93b20fcb.js";const r=!0,t={startOnLoad:!0,theme:"neutral",sequence:{mirrorActors:!1}};e.initialize(t);const a=Object.freeze(Object.defineProperty({__proto__:null,prerender:r},Symbol.toStringTag,{value:"Module"}));export{a as _,r as p};
