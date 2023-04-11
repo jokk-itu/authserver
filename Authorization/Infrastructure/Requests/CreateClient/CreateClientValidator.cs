@@ -237,7 +237,7 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
   {
     if (!string.IsNullOrWhiteSpace(command.TokenEndpointAuthMethod))
     {
-      return !TokenEndpointAuthMethodConstants.TokenEndpointAuthMethods.Contains(command.TokenEndpointAuthMethod);
+      return !TokenEndpointAuthMethodConstants.AuthMethods.Contains(command.TokenEndpointAuthMethod);
     }
 
     command.SubjectType = TokenEndpointAuthMethodConstants.ClientSecretPost;

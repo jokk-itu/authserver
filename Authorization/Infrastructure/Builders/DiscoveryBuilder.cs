@@ -5,6 +5,7 @@ using Infrastructure.Builders.Abstractions;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Text.Json.Serialization;
 
 namespace Infrastructure.Builders;
 
@@ -44,11 +45,15 @@ public class DiscoveryBuilder : IDiscoveryBuilder
       UserInfoEndpoint = $"{issuer}/connect/userinfo",
       JwksUri = $"{issuer}/.well-known/jwks",
       EndSessionEndpoint = $"{issuer}/connect/end-session",
+      IntrospectionEndpoint = $"{issuer}/connect/token/introspection",
+      RevocationEndpoint = $"{issuer}/connect/token/revocation",
       Scopes = scopes,
       GrantTypes = GrantTypeConstants.GrantTypes,
       ResponseTypes = ResponseTypeConstants.ResponseTypes,
-      TokenEndpointAuthMethods = TokenEndpointAuthMethodConstants.TokenEndpointAuthMethods,
-      TokenEndpointAuthSigningAlgValues = TokenEndpointSigningAlgConstants.TokenEndpointSigningAlgorithms,
+      TokenEndpointAuthMethods = TokenEndpointAuthMethodConstants.AuthMethods,
+      TokenEndpointAuthSigningAlgValues = TokenEndpointSigningAlgConstants.SigningAlgorithms,
+      IntrospectionEndpointAuthMethodsSupported = IntrospectionEndpointAuthMethodConstants.AuthMethods,
+      RevocationEndpointAuthMethodsSupported = RevocationEndpointAuthMethodConstants.AuthMethods,
       CodeChallengeMethods = CodeChallengeMethodConstants.CodeChallengeMethods,
       ResponseModes = ResponseModeConstants.ResponseModes,
       SubjectTypes = SubjectTypeConstants.SubjectTypes,
@@ -87,11 +92,15 @@ public class DiscoveryDocument
   public string UserInfoEndpoint { get; init; }
   public string JwksUri { get; init; }
   public string EndSessionEndpoint { get; init; }
+  public string IntrospectionEndpoint { get; init; }
+  public string RevocationEndpoint { get; init; }
   public IEnumerable<string> Scopes { get; init; }
   public IEnumerable<string> ResponseTypes { get; init; }
   public IEnumerable<string> GrantTypes { get; init; }
   public IEnumerable<string> TokenEndpointAuthMethods { get; init; }
   public IEnumerable<string> TokenEndpointAuthSigningAlgValues { get; init; }
+  public IEnumerable<string> IntrospectionEndpointAuthMethodsSupported { get; init; }
+  public IEnumerable<string> RevocationEndpointAuthMethodsSupported { get; init; }
   public IEnumerable<string> CodeChallengeMethods { get; init; }
   public IEnumerable<string> SubjectTypes { get; init; }
   public IEnumerable<string> IdTokenSigningAlgValues { get; init; }

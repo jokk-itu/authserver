@@ -55,4 +55,16 @@ public record GetDiscoveryDocumentResponse
 
   [JsonPropertyName("backchannel_logout_supported")]
   public bool BackChannelLogoutSupported { get; init; }
+
+  [JsonPropertyName("introspection_endpoint")]
+  public string IntrospectionEndpoint { get; init; }
+
+  [JsonPropertyName("introspection_endpoint_auth_methods_supported")]
+  public IEnumerable<string> IntrospectionEndpointAuthMethodsSupported { get; init; }
+
+  [JsonPropertyName("revocation_endpoint")]
+  public string RevocationEndpoint { get; init; }
+
+  [JsonPropertyName("revocation_endpoint_auth_methods_supported")]
+  public IEnumerable<string> RevocationEndpointAuthMethodsSupported { get; init; }
 }
