@@ -67,4 +67,7 @@ public record GetDiscoveryDocumentResponse
 
   [JsonPropertyName("revocation_endpoint_auth_methods_supported")]
   public IEnumerable<string> RevocationEndpointAuthMethodsSupported { get; init; }
+
+  [JsonPropertyName("registration_endpoint")]
+  public string RegistrationEndpoint { get; init; }
 }

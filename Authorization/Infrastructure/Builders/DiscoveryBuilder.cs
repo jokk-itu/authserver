@@ -47,6 +47,7 @@ public class DiscoveryBuilder : IDiscoveryBuilder
       EndSessionEndpoint = $"{issuer}/connect/end-session",
       IntrospectionEndpoint = $"{issuer}/connect/token/introspection",
       RevocationEndpoint = $"{issuer}/connect/token/revocation",
+      RegistrationEndpoint = $"{issuer}/client/register",
       Scopes = scopes,
       GrantTypes = GrantTypeConstants.GrantTypes,
       ResponseTypes = ResponseTypeConstants.ResponseTypes,
@@ -94,6 +95,7 @@ public class DiscoveryDocument
   public string EndSessionEndpoint { get; init; }
   public string IntrospectionEndpoint { get; init; }
   public string RevocationEndpoint { get; init; }
+  public string RegistrationEndpoint { get; init; }
   public IEnumerable<string> Scopes { get; init; }
   public IEnumerable<string> ResponseTypes { get; init; }
   public IEnumerable<string> GrantTypes { get; init; }
