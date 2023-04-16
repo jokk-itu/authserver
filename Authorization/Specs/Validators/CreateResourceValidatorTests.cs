@@ -1,5 +1,6 @@
 ﻿using Domain;
 using Domain.Constants;
+using Infrastructure.Helpers;
 using Infrastructure.Requests.CreateResource;
 using Xunit;
 
@@ -92,7 +93,8 @@ public class CreateResourceValidatorTests : BaseUnitTest
       .AddAsync(new Resource
       {
         Id = Guid.NewGuid().ToString(),
-        Name = "test"
+        Name = "test",
+        Secret = CryptographyHelper.GetRandomString(16)
       });
     await IdentityContext.SaveChangesAsync();
 
