@@ -71,7 +71,7 @@ public class DiscoveryBuilder : IDiscoveryBuilder
         KeyType = Algorithm,
         Use = Use,
         Alg = Algorithm,
-        KeyId = jwk.KeyId.ToString(),
+        KeyId = jwk.Id.ToString(),
         Modulus = Base64UrlEncoder.Encode(jwk.Modulus),
         Exponent = Base64UrlEncoder.Encode(jwk.Exponent)
       })

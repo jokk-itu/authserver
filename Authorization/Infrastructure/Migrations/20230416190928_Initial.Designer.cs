@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20230304232351_Initial")]
+    [Migration("20230416190928_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,7 +36,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("ConsentedClaimsId");
 
-                    b.ToTable("ConsentedGrantClaims", (string)null);
+                    b.ToTable("ClaimConsentGrant");
                 });
 
             modelBuilder.Entity("ClientContact", b =>
@@ -51,7 +51,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("ContactsId");
 
-                    b.ToTable("ClientContacts", (string)null);
+                    b.ToTable("ClientContact");
                 });
 
             modelBuilder.Entity("ClientGrantType", b =>
@@ -66,7 +66,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("GrantTypesId");
 
-                    b.ToTable("ClientGrantTypes", (string)null);
+                    b.ToTable("ClientGrantType");
                 });
 
             modelBuilder.Entity("ClientResponseType", b =>
@@ -81,7 +81,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("ResponseTypesId");
 
-                    b.ToTable("ClientResponseTypes", (string)null);
+                    b.ToTable("ClientResponseType");
                 });
 
             modelBuilder.Entity("ClientScope", b =>
@@ -96,7 +96,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("ScopesId");
 
-                    b.ToTable("ClientScopes", (string)null);
+                    b.ToTable("ClientScope");
                 });
 
             modelBuilder.Entity("ConsentGrantScope", b =>
@@ -111,7 +111,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("ConsentedScopesId");
 
-                    b.ToTable("ConsentedGrantScopes", (string)null);
+                    b.ToTable("ConsentGrantScope");
                 });
 
             modelBuilder.Entity("Domain.AuthorizationCode", b =>
@@ -138,7 +138,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("AuthorizationCodeGrantId");
 
-                    b.ToTable("AuthorizationCode", (string)null);
+                    b.ToTable("AuthorizationCode");
                 });
 
             modelBuilder.Entity("Domain.AuthorizationCodeGrant", b =>
@@ -167,7 +167,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("SessionId");
 
-                    b.ToTable("AuthorizationCodeGrants", (string)null);
+                    b.ToTable("AuthorizationCodeGrant");
                 });
 
             modelBuilder.Entity("Domain.Claim", b =>
@@ -183,7 +183,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Claims", (string)null);
+                    b.ToTable("Claim");
 
                     b.HasData(
                         new
@@ -242,6 +242,9 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("BackChannelLogoutUri")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ClientUri")
                         .HasColumnType("nvarchar(max)");
 
@@ -277,7 +280,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Clients", (string)null);
+                    b.ToTable("Client");
                 });
 
             modelBuilder.Entity("Domain.ConsentGrant", b =>
@@ -303,7 +306,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ConsentGrants", (string)null);
+                    b.ToTable("ConsentGrant");
                 });
 
             modelBuilder.Entity("Domain.Contact", b =>
@@ -319,7 +322,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Contacts", (string)null);
+                    b.ToTable("Contact");
                 });
 
             modelBuilder.Entity("Domain.GrantType", b =>
@@ -331,11 +334,12 @@ namespace Infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("GrantTypes", (string)null);
+                    b.ToTable("GrantType");
 
                     b.HasData(
                         new
@@ -357,11 +361,11 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Jwk", b =>
                 {
-                    b.Property<long>("KeyId")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("KeyId"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
                     b.Property<DateTime>("CreatedTimestamp")
                         .HasColumnType("datetime2");
@@ -375,9 +379,9 @@ namespace Infrastructure.Migrations
                     b.Property<byte[]>("PrivateKey")
                         .HasColumnType("varbinary(max)");
 
-                    b.HasKey("KeyId");
+                    b.HasKey("Id");
 
-                    b.ToTable("Jwks", (string)null);
+                    b.ToTable("Jwk");
                 });
 
             modelBuilder.Entity("Domain.Nonce", b =>
@@ -389,13 +393,14 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorizationCodeGrantId");
 
-                    b.ToTable("Nonce", (string)null);
+                    b.ToTable("Nonce");
                 });
 
             modelBuilder.Entity("Domain.RedirectUri", b =>
@@ -409,14 +414,19 @@ namespace Infrastructure.Migrations
                     b.Property<string>("ClientId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Uri")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("RedirectUris", (string)null);
+                    b.ToTable("RedirectUri");
                 });
 
             modelBuilder.Entity("Domain.Resource", b =>
@@ -425,14 +435,16 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Secret")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Resources", (string)null);
+                    b.ToTable("Resource");
                 });
 
             modelBuilder.Entity("Domain.ResponseType", b =>
@@ -444,11 +456,12 @@ namespace Infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("ResponseTypes", (string)null);
+                    b.ToTable("ResponseType");
 
                     b.HasData(
                         new
@@ -475,7 +488,7 @@ namespace Infrastructure.Migrations
                         .IsUnique()
                         .HasFilter("[Name] IS NOT NULL");
 
-                    b.ToTable("Scopes", (string)null);
+                    b.ToTable("Scope");
 
                     b.HasData(
                         new
@@ -520,7 +533,51 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Sessions", (string)null);
+                    b.ToTable("Session");
+                });
+
+            modelBuilder.Entity("Domain.Token", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Audience")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("IssuedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Issuer")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("NotBefore")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Reference")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Scope")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TokenType")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Token");
+
+                    b.HasDiscriminator<int>("TokenType");
                 });
 
             modelBuilder.Entity("Domain.User", b =>
@@ -537,17 +594,11 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsEmailVerified")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsPhoneNumberVerified")
-                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -563,7 +614,7 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -571,10 +622,16 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("PhoneNumber")
+                        .IsUnique();
+
                     b.HasIndex("UserName")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("ResourceScope", b =>
@@ -589,7 +646,31 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("ScopesId");
 
-                    b.ToTable("ResourceScopes", (string)null);
+                    b.ToTable("ResourceScope");
+                });
+
+            modelBuilder.Entity("Domain.GrantToken", b =>
+                {
+                    b.HasBaseType("Domain.Token");
+
+                    b.Property<string>("AuthorizationGrantId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasIndex("AuthorizationGrantId");
+                });
+
+            modelBuilder.Entity("Domain.AccessToken", b =>
+                {
+                    b.HasBaseType("Domain.GrantToken");
+
+                    b.HasDiscriminator().HasValue(1);
+                });
+
+            modelBuilder.Entity("Domain.RefreshToken", b =>
+                {
+                    b.HasBaseType("Domain.GrantToken");
+
+                    b.HasDiscriminator().HasValue(0);
                 });
 
             modelBuilder.Entity("ClaimConsentGrant", b =>
@@ -686,7 +767,8 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.AuthorizationCodeGrant", "AuthorizationCodeGrant")
                         .WithMany("AuthorizationCodes")
-                        .HasForeignKey("AuthorizationCodeGrantId");
+                        .HasForeignKey("AuthorizationCodeGrantId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("AuthorizationCodeGrant");
                 });
@@ -728,7 +810,8 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.AuthorizationCodeGrant", "AuthorizationCodeGrant")
                         .WithMany("Nonces")
-                        .HasForeignKey("AuthorizationCodeGrantId");
+                        .HasForeignKey("AuthorizationCodeGrantId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("AuthorizationCodeGrant");
                 });
@@ -748,7 +831,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.User", "User")
                         .WithMany("Sessions")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("User");
                 });
@@ -768,9 +851,21 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Domain.GrantToken", b =>
+                {
+                    b.HasOne("Domain.AuthorizationCodeGrant", "AuthorizationGrant")
+                        .WithMany("GrantTokens")
+                        .HasForeignKey("AuthorizationGrantId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("AuthorizationGrant");
+                });
+
             modelBuilder.Entity("Domain.AuthorizationCodeGrant", b =>
                 {
                     b.Navigation("AuthorizationCodes");
+
+                    b.Navigation("GrantTokens");
 
                     b.Navigation("Nonces");
                 });

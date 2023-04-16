@@ -7,6 +7,19 @@ internal class AuthorizationCodeGrantConfiguration : IEntityTypeConfiguration<Au
 {
   public void Configure(EntityTypeBuilder<AuthorizationCodeGrant> builder)
   {
-    builder.ToTable("AuthorizationCodeGrants");
+    builder
+      .HasMany(x => x.GrantTokens)
+      .WithOne(x => x.AuthorizationGrant)
+      .OnDelete(DeleteBehavior.Cascade);
+
+    builder
+      .HasMany(x => x.Nonces)
+      .WithOne(x => x.AuthorizationCodeGrant)
+      .OnDelete(DeleteBehavior.Cascade);
+
+    builder
+      .HasMany(x => x.AuthorizationCodes)
+      .WithOne(x => x.AuthorizationCodeGrant)
+      .OnDelete(DeleteBehavior.Cascade);
   }
 }

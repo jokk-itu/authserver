@@ -38,7 +38,5 @@ internal class ScopeConfiguration : IEntityTypeConfiguration<Scope>
         Id = 5,
         Name = ScopeConstants.Phone
       });
-
-    builder.ToTable("Scopes");
   }
 }

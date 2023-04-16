@@ -7,7 +7,5 @@ internal class JwkConfiguration : IEntityTypeConfiguration<Jwk>
 {
   public void Configure(EntityTypeBuilder<Jwk> builder)
   {
-    builder.HasKey(jwk => jwk.KeyId);
-    builder.ToTable("Jwks");
   }
 }

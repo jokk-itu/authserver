@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.DatabaseConfigurations;
-public class ClaimConfiguration : IEntityTypeConfiguration<Claim>
+internal class ClaimConfiguration : IEntityTypeConfiguration<Claim>
 {
   public void Configure(EntityTypeBuilder<Claim> builder)
   {
@@ -46,6 +46,5 @@ public class ClaimConfiguration : IEntityTypeConfiguration<Claim>
         Id = 9,
         Name = ClaimNameConstants.Role
       });
-    builder.ToTable("Claims");
   }
 }

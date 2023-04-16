@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.DatabaseConfigurations;
-internal class ContactConfiguration : IEntityTypeConfiguration<Contact>
+internal class GrantTokenConfiguration : IEntityTypeConfiguration<GrantToken>
 {
-  public void Configure(EntityTypeBuilder<Contact> builder)
+  public void Configure(EntityTypeBuilder<GrantToken> builder)
   {
   }
 }

@@ -25,7 +25,7 @@ public class JwkManager
     }
   }
 
-  public string KeyId => _current.KeyId.ToString();
+  public string KeyId => _current.Id.ToString();
 
   public JwkManager(IServiceProvider serviceProvider)
   {

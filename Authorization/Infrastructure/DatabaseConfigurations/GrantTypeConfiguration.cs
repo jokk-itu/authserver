@@ -9,7 +9,7 @@ internal class GrantTypeConfiguration : IEntityTypeConfiguration<Domain.GrantTyp
   {
     builder
       .Property(grant => grant.Name)
-      .HasConversion<string>();
+      .IsRequired();
 
     builder.HasData(
       new Domain.GrantType 
@@ -27,7 +27,5 @@ internal class GrantTypeConfiguration : IEntityTypeConfiguration<Domain.GrantTyp
         Id = 3,
         Name = GrantTypeConstants.ClientCredentials
       });
-
-    builder.ToTable("GrantTypes");
   }
 }

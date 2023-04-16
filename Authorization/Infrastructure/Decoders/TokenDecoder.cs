@@ -36,7 +36,7 @@ public class TokenDecoder : ITokenDecoder
       }
 
       var signingKeys = _jwkManager.Jwks
-          .Select(x => new RsaSecurityKey(_jwkManager.RsaCryptoServiceProvider) { KeyId = x.KeyId.ToString() })
+          .Select(x => new RsaSecurityKey(_jwkManager.RsaCryptoServiceProvider) { KeyId = x.Id.ToString() })
           .ToList();
 
         var tokenValidationParameters = new TokenValidationParameters
@@ -69,7 +69,7 @@ public class TokenDecoder : ITokenDecoder
       }
 
       var signingKeys = _jwkManager.Jwks
-        .Select(x => new RsaSecurityKey(_jwkManager.RsaCryptoServiceProvider) { KeyId = x.KeyId.ToString() })
+        .Select(x => new RsaSecurityKey(_jwkManager.RsaCryptoServiceProvider) { KeyId = x.Id.ToString() })
         .ToList();
       var encryptingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_identityConfiguration.EncryptingKeySecret));
 
