@@ -21,19 +21,20 @@ public class ValidatorBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest
 
   public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
   {
+    var requestName = typeof(TRequest).Name;
     var stopWatch = Stopwatch.StartNew();
     try
     {
       var validationResult = await _validator.ValidateAsync(request, cancellationToken);
       if (!validationResult.IsError())
       {
-        _logger.LogInformation("Validated {Request} successfully, took {ElapsedTime}", nameof(TRequest), stopWatch.ElapsedMilliseconds);
+        _logger.LogInformation("Validated {Request} successfully, took {ElapsedTime}", requestName, stopWatch.ElapsedMilliseconds);
         return await next();
       }
 
       _logger.LogInformation(
         "Validated {Request} with {ErrorCode} and {ErrorDescription}, took {ElapsedTime}",
-        nameof(TRequest),
+        requestName,
         validationResult.ErrorCode,
         validationResult.ErrorDescription,
         stopWatch.ElapsedMilliseconds);
@@ -46,14 +47,14 @@ public class ValidatorBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest
       {
         return response;
       }
-      throw new InvalidOperationException($"Error occurred instantiating {typeof(TResponse)}");
+      throw new InvalidOperationException($"Error occurred instantiating {requestName}");
     }
     catch (Exception e)
     {
       _logger.LogError(e, "Error occurred during validation, took {ElapsedTime}", stopWatch.ElapsedMilliseconds);
       if (Activator.CreateInstance(typeof(TResponse), HttpStatusCode.BadRequest) is not TResponse response)
       {
-        throw new AggregateException(e, new InvalidOperationException($"Error occurred instantiating {typeof(TResponse)}"));
+        throw new AggregateException(e, new InvalidOperationException($"Error occurred instantiating {requestName}"));
       }
 
       return response;
