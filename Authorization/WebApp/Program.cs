@@ -13,9 +13,10 @@ builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggerConfiguratio
 {
   loggerConfiguration
     .Enrich.FromLogContext()
-    .MinimumLevel.Information()
+    .MinimumLevel.Warning()
     .Enrich.WithProperty("Application", "AuthorizationServer")
-    .MinimumLevel.Override("Authorization", Serilog.Events.LogEventLevel.Information)
+    .MinimumLevel.Override("WebApp", Serilog.Events.LogEventLevel.Information)
+    .MinimumLevel.Override("Infrastructure", Serilog.Events.LogEventLevel.Information)
     .WriteTo.Console();
 });
 
