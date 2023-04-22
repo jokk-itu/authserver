@@ -11,6 +11,8 @@ public record IdentityConfiguration
 
   public virtual string CodeSecret { get; init; }
 
+  public virtual bool UseReferenceTokens { get; init; }
+
   /// <summary>
   /// Defined in seconds.
   /// </summary>
