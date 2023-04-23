@@ -53,7 +53,7 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
       {
         IsClientIdValid = x.Client.Id == value.ClientId,
         IsClientSecretValid = x.Client.Secret == value.ClientSecret,
-        HasClientSecret = x.Client.TokenEndpointAuthMethod == TokenEndpointAuthMethod.None,
+        HasClientSecret = x.Client.Secret  == null,
         IsClientAuthorized = x.Client.RedirectUris.Any(y => y.Uri == value.RedirectUri)
                              && x.Client.GrantTypes.Any(y => y.Name == GrantTypeConstants.AuthorizationCode),
         IsSessionValid = !x.Session.IsRevoked

@@ -48,7 +48,7 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
       {
         IsClientIdValid = x.Client.Id == value.ClientId,
         IsClientSecretValid = x.Client.Secret == value.ClientSecret,
-        IsClientNative = x.Client.ApplicationType == ApplicationType.Native,
+        HasClientSecret = x.Client.TokenEndpointAuthMethod == TokenEndpointAuthMethod.None,
         IsClientAuthorized = x.Client.GrantTypes.Any(y => y.Name == GrantTypeConstants.RefreshToken),
         IsSessionValid = !x.Session.IsRevoked && x.Session.Id == sessionId
       })
