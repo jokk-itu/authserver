@@ -80,6 +80,7 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       LogoUri = request.LogoUri,
       ClientUri = request.ClientUri,
       DefaultMaxAge = defaultMaxAge
+      BackChannelLogoutUri = request.BackChannelLogoutUri
     };
     await _identityContext
       .Set<Client>()
