@@ -108,66 +108,6 @@ public class TokenBuilderTests : BaseUnitTest
 
   [Fact]
   [Trait("Category", "Unit")]
-  public void BuildClientInitialAccessToken_ExpectInitialAccessToken()
-  {
-    //Arrange
-    var serviceProvider = BuildServiceProvider();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
-
-    // Act
-    var token = tokenBuilder.BuildClientInitialAccessToken();
-    var securityToken = tokenDecoder.DecodeSignedToken(token);
-
-    // Assert
-    Assert.NotEmpty(token);
-    Assert.NotNull(securityToken);
-    Assert.Contains(AudienceConstants.IdentityProvider, securityToken!.Audiences);
-    Assert.Equal(ScopeConstants.ClientRegistration, securityToken.Claims.Single(x => x.Type == ClaimNameConstants.Scope).Value);
-  }
-
-  [Fact]
-  [Trait("Category", "Unit")]
-  public void BuildScopeInitialAccessToken_ExpectInitialAccessToken()
-  {
-    //Arrange
-    var serviceProvider = BuildServiceProvider();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
-
-    // Act
-    var token = tokenBuilder.BuildScopeInitialAccessToken();
-    var securityToken = tokenDecoder.DecodeSignedToken(token);
-
-    // Assert
-    Assert.NotEmpty(token);
-    Assert.NotNull(securityToken);
-    Assert.Contains(AudienceConstants.IdentityProvider, securityToken!.Audiences);
-    Assert.Equal(ScopeConstants.ScopeRegistration, securityToken.Claims.Single(x => x.Type == ClaimNameConstants.Scope).Value);
-  }
-
-  [Fact]
-  [Trait("Category", "Unit")]
-  public void BuildResourceInitialAccessToken_ExpectInitialAccessToken()
-  {
-    //Arrange
-    var serviceProvider = BuildServiceProvider();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
-   
-    // Act
-    var token = tokenBuilder.BuildResourceInitialAccessToken();
-    var securityToken = tokenDecoder.DecodeSignedToken(token);
-
-    // Assert
-    Assert.NotEmpty(token);
-    Assert.NotNull(securityToken);
-    Assert.Contains(AudienceConstants.IdentityProvider, securityToken!.Audiences);
-    Assert.Equal(ScopeConstants.ResourceRegistration, securityToken.Claims.Single(x => x.Type == ClaimNameConstants.Scope).Value);
-  }
-
-  [Fact]
-  [Trait("Category", "Unit")]
   public void BuildResourceConfigurationAccessToken_ExpectConfigurationToken()
   {
     //Arrange

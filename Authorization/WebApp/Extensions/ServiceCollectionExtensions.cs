@@ -41,30 +41,15 @@ public static class ServiceCollectionExtensions
           return scope is not null && scope.Split(' ').Contains(ScopeConstants.UserInfo);
         });
       });
-      options.AddPolicy(AuthorizationConstants.ClientRegistration, policy =>
-      {
-        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
-        policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ClientRegistration);
-      });
       options.AddPolicy(AuthorizationConstants.ClientConfiguration, policy =>
       {
         policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
         policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ClientConfiguration);
       });
-      options.AddPolicy(AuthorizationConstants.ResourceRegistration, policy =>
-      {
-        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
-        policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ResourceRegistration);
-      });
       options.AddPolicy(AuthorizationConstants.ResourceConfiguration, policy =>
       {
         policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
         policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ResourceConfiguration);
-      });
-      options.AddPolicy(AuthorizationConstants.ScopeRegistration, policy =>
-      {
-        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
-        policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ScopeRegistration);
       });
       options.AddPolicy(AuthorizationConstants.ScopeConfiguration, policy =>
       {

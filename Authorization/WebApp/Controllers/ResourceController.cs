@@ -1,13 +1,8 @@
 ﻿using Application;
-using Infrastructure.Builders.Abstractions;
 using Infrastructure.Requests.CreateResource;
 using MediatR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebApp.Constants;
 using WebApp.Contracts;
-using WebApp.Contracts.GetResourceInitialAccessToken;
 using WebApp.Contracts.PostResource;
 using WebApp.Controllers.Abstracts;
 
@@ -17,31 +12,14 @@ namespace WebApp.Controllers;
 public class ResourceController : OAuthControllerBase
 {
   private readonly IMediator _mediator;
-  private readonly ITokenBuilder _tokenBuilder;
-
-  public ResourceController(IMediator mediator, ITokenBuilder tokenBuilder, IdentityConfiguration identityConfiguration) : base(identityConfiguration)
+  
+  public ResourceController(IMediator mediator, IdentityConfiguration identityConfiguration) : base(identityConfiguration)
   {
     _mediator = mediator;
-    _tokenBuilder = tokenBuilder;
-  }
-
-  [HttpGet]
-  [Route("initial-token")]
-  [AllowAnonymous]
-  [ProducesResponseType(typeof(GetResourceInitialAccessToken), StatusCodes.Status200OK)]
-  public IActionResult GeResourceInitialToken()
-  {
-    var token = _tokenBuilder.BuildResourceInitialAccessToken();
-    return Ok(new GetResourceInitialAccessToken
-    {
-      AccessToken = token,
-      ExpiresIn = 300
-    });
   }
 
   [HttpPost]
   [Route("register")]
-  [Authorize(Policy = AuthorizationConstants.ResourceRegistration, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   [ProducesResponseType(typeof(PostResourceRequest), StatusCodes.Status201Created)]
   [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> Post([FromBody] PostResourceRequest request, CancellationToken cancellationToken = default)

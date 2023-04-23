@@ -30,27 +30,6 @@ public class DeleteClientValidatorTests : BaseUnitTest
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task ValidateAsync_TokenWithoutClientIdScope_ExpectErrorResult()
-  {
-    // Arrange
-    var serviceProvider = BuildServiceProvider();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
-    var command = new DeleteClientCommand
-    {
-      ClientRegistrationToken = tokenBuilder.BuildClientInitialAccessToken()
-    };
-    var validator = new DeleteClientValidator(IdentityContext, tokenDecoder);
-
-    // Act
-    var validationResult = await validator.ValidateAsync(command);
-
-    // Assert
-    Assert.True(validationResult.IsError());
-  }
-
-  [Fact]
-  [Trait("Category", "Unit")]
   public async Task ValidateAsync_TokenWithInvalidClientId_ExpectErrorResult()
   {
     // Arrange

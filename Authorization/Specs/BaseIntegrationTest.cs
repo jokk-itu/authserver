@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Headers;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using Domain;
 using Domain.Constants;
 using Infrastructure;
@@ -7,8 +6,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Specs.Helpers.EntityBuilders;
-using WebApp.Contracts.GetClientInitialAccessToken;
-using WebApp.Contracts.GetScopeInitialAccessToken;
 using WebApp.Contracts.PostClient;
 using WebApp.Contracts.PostResource;
 using WebApp.Contracts.PostScope;
@@ -43,7 +40,6 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 
   protected async Task<PostScopeResponse> BuildScope(string scope)
   {
-    var getInitialToken = await GetClient().GetFromJsonAsync<GetScopeInitialAccessToken>("connect/scope/initial-token");
     var postScopeRequest = new PostScopeRequest
     {
       ScopeName = scope
@@ -52,7 +48,6 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     {
       Content = JsonContent.Create(postScopeRequest)
     };
-    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", getInitialToken!.AccessToken);
     var response = await GetClient().SendAsync(request);
     response.EnsureSuccessStatusCode();
     var postScopeResponse = await response.Content.ReadFromJsonAsync<PostScopeResponse>();
@@ -61,7 +56,6 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 
   protected async Task<PostResourceResponse> BuildResource(string scope, string name)
   {
-    var getInitialToken = await GetClient().GetFromJsonAsync<GetClientInitialAccessTokenResponse>("connect/resource/initial-token");
     var postResourceRequest = new PostResourceRequest
     {
       Scope = scope,
@@ -71,7 +65,6 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     {
       Content = JsonContent.Create(postResourceRequest)
     };
-    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", getInitialToken!.AccessToken);
     var response = await GetClient().SendAsync(request);
     response.EnsureSuccessStatusCode();
     var postResourceResponse = await response.Content.ReadFromJsonAsync<PostResourceResponse>();
@@ -128,12 +121,10 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 
   private async Task<PostClientResponse> BuildClient(PostClientRequest request)
   {
-    var getInitialToken = await GetClient().GetFromJsonAsync<GetClientInitialAccessTokenResponse>("connect/client/initial-token");
     var requestMessage = new HttpRequestMessage(HttpMethod.Post, "connect/client/register")
     {
       Content = JsonContent.Create(request)
     };
-    requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", getInitialToken!.AccessToken);
     var response = await GetClient().SendAsync(requestMessage);
     response.EnsureSuccessStatusCode();
     var postClientResponse = await response.Content.ReadFromJsonAsync<PostClientResponse>();
