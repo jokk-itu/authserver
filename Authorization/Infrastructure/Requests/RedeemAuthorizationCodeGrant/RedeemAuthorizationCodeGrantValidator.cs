@@ -53,7 +53,7 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
       {
         IsClientIdValid = x.Client.Id == value.ClientId,
         IsClientSecretValid = x.Client.Secret == value.ClientSecret,
-        IsClientNative = x.Client.ApplicationType == ApplicationType.Native,
+        HasClientSecret = x.Client.TokenEndpointAuthMethod == TokenEndpointAuthMethod.None,
         IsClientAuthorized = x.Client.RedirectUris.Any(y => y.Uri == value.RedirectUri)
                              && x.Client.GrantTypes.Any(y => y.Name == GrantTypeConstants.AuthorizationCode),
         IsSessionValid = !x.Session.IsRevoked
@@ -70,7 +70,7 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
       return new ValidationResult(ErrorCode.InvalidClient, "client_id is invalid", HttpStatusCode.BadRequest);
     }
 
-    if (!query.IsClientNative && !query.IsClientSecretValid)
+    if (!query.HasClientSecret && !query.IsClientSecretValid)
     {
       return new ValidationResult(ErrorCode.InvalidClient, "client_secret is invalid", HttpStatusCode.BadRequest);
     }
