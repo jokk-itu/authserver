@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Net;
+using Application;
 using Application.Validation;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -12,6 +13,8 @@ public class ValidatorBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest
 {
   private readonly IValidator<TRequest> _validator;
   private readonly ILogger<ValidatorBehavior<TRequest, TResponse>> _logger;
+
+  private const string ErrorDescription = "uncaught error occurred";
 
   public ValidatorBehavior(IValidator<TRequest> validator, ILogger<ValidatorBehavior<TRequest, TResponse>> logger)
   {
@@ -52,7 +55,7 @@ public class ValidatorBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest
     catch (Exception e)
     {
       _logger.LogError(e, "Error occurred during validation, took {ElapsedTime}", stopWatch.ElapsedMilliseconds);
-      if (Activator.CreateInstance(typeof(TResponse), HttpStatusCode.BadRequest) is not TResponse response)
+      if (Activator.CreateInstance(typeof(TResponse), ErrorCode.ServerError, ErrorDescription, HttpStatusCode.BadRequest) is not TResponse response)
       {
         throw new AggregateException(e, new InvalidOperationException($"Error occurred instantiating {requestName}"));
       }
