@@ -33,21 +33,22 @@ public class GetConsentModelHandler : IRequestHandler<GetConsentModelQuery, GetC
       .Where(x => x.Client.Id == request.ClientId)
       .Include(x => x.ConsentedClaims)
       .Include(x => x.ConsentedScopes)
-      .SingleAsync(cancellationToken: cancellationToken);
+      .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
     var claims = ClaimsHelper
       .MapToClaims(request.Scope.Split(' '))
       .Select(x => new ClaimDto
       {
         Name = x,
-        IsConsented = consentGrant.ConsentedClaims.Any(y => y.Name == x)
+        IsConsented = consentGrant?.ConsentedClaims.Any(y => y.Name == x) == true
       });
 
-    var scopes = consentGrant.ConsentedScopes
+    var scopes = consentGrant?.ConsentedScopes
       .Select(x => new ScopeDto
       {
         Name = x.Name
-      });
+      })
+      .ToList() ?? new List<ScopeDto>();
 
     return new GetConsentModelResponse(HttpStatusCode.OK)
     {
