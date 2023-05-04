@@ -7,13 +7,21 @@ using Application.Validation;
 using MediatR;
 using Infrastructure.Builders;
 using Infrastructure.Builders.Abstractions;
+using Infrastructure.Builders.Token.Abstractions;
+using Infrastructure.Builders.Token.ClientAccessToken;
+using Infrastructure.Builders.Token.GrantAccessToken;
+using Infrastructure.Builders.Token.IdToken;
+using Infrastructure.Builders.Token.LogoutToken;
+using Infrastructure.Builders.Token.RefreshToken;
+using Infrastructure.Builders.Token.RegistrationToken;
 using Infrastructure.Decoders;
 using Infrastructure.Decoders.Abstractions;
+using Infrastructure.Decoders.Token;
+using Infrastructure.Decoders.Token.Abstractions;
 using Infrastructure.DelegatingHandlers;
 using Infrastructure.PipelineBehaviors;
 using Infrastructure.Services;
 using Infrastructure.Services.Abstract;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Http;
 
 namespace Infrastructure.Extensions;
@@ -65,6 +73,12 @@ public static class ServiceCollectionExtensions
   public static IServiceCollection AddBuilders(this IServiceCollection services)
   {
     services.AddTransient<ITokenBuilder, TokenBuilder>();
+    services.AddTransient<ITokenBuilder<IdTokenArguments>, IdTokenBuilder>();
+    services.AddTransient<ITokenBuilder<GrantAccessTokenArguments>, GrantAccessTokenBuilder>();
+    services.AddTransient<ITokenBuilder<ClientAccessTokenArguments>, ClientAccessTokenBuilder>();
+    services.AddTransient<ITokenBuilder<RefreshTokenArguments>, RefreshTokenBuilder>();
+    services.AddTransient<ITokenBuilder<RegistrationTokenArguments>, RegistrationTokenBuilder>();
+    services.AddTransient<ITokenBuilder<LogoutTokenArguments>, LogoutTokenBuilder>();
     services.AddTransient<ICodeBuilder, CodeBuilder>();
     services.AddTransient<IDiscoveryBuilder, DiscoveryBuilder>();
     return services;
@@ -74,6 +88,7 @@ public static class ServiceCollectionExtensions
   {
     services.AddTransient<ITokenDecoder, TokenDecoder>();
     services.AddTransient<ICodeDecoder, CodeDecoder>();
+    services.AddTransient<IStructuredTokenDecoder, StructuredTokenDecoder>();
     return services;
   }
 
