@@ -5,6 +5,8 @@ using Domain;
 using Domain.Constants;
 using Domain.Enums;
 using Infrastructure.Builders.Abstractions;
+using Infrastructure.Builders.Token.Abstractions;
+using Infrastructure.Builders.Token.IdToken;
 using Infrastructure.Helpers;
 using Infrastructure.Requests.SilentLogin;
 using MediatR;
@@ -27,15 +29,11 @@ public class SilentLoginHandlerTests : BaseUnitTest
     var client = await GetClient();
     var authorizationGrant = client.AuthorizationCodeGrants.Single();
     var handler = serviceProvider.GetRequiredService<IRequestHandler<SilentLoginCommand, SilentLoginResponse>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var idToken = await tokenBuilder.BuildIdToken(
-      authorizationGrant.Id,
-      client.Id,
-      new[] {ScopeConstants.OpenId},
-      authorizationGrant.Nonces.Single().Id,
-      authorizationGrant.Session.User.Id,
-      authorizationGrant.Session.Id,
-      authorizationGrant.AuthTime);
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
+    var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
+    {
+      AuthorizationGrantId = authorizationGrant.Id
+    });
 
     var command = new SilentLoginCommand
     {

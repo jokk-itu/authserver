@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
+using Infrastructure.Builders.Token.Abstractions;
+using Infrastructure.Builders.Token.RegistrationToken;
 using Infrastructure.Requests.CreateClient;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Moq;
@@ -33,11 +35,11 @@ public class CreateClientHandlerTests : BaseUnitTest
       LogoUri = "https://gravatar.com/avatar"
     };
     
-    var fakeTokenBuilder = new Mock<ITokenBuilder>();
+    var fakeTokenBuilder = new Mock<ITokenBuilder<RegistrationTokenArguments>>();
     const string token = "token";
     fakeTokenBuilder
-      .Setup(x => x.BuildClientRegistrationAccessToken(It.IsAny<string>()))
-      .Returns(token);
+      .Setup(x => x.BuildToken(It.IsAny<RegistrationTokenArguments>()))
+      .ReturnsAsync(token);
 
     var handler = new CreateClientHandler(IdentityContext, fakeTokenBuilder.Object);
 

@@ -4,7 +4,8 @@ using Application.Validation;
 using Domain;
 using Domain.Constants;
 using Domain.Enums;
-using Infrastructure.Builders.Abstractions;
+using Infrastructure.Builders.Token.Abstractions;
+using Infrastructure.Builders.Token.IdToken;
 using Infrastructure.Helpers;
 using Infrastructure.Requests.SilentLogin;
 using Microsoft.EntityFrameworkCore;
@@ -108,44 +109,6 @@ public class SilentLoginValidatorTests : BaseUnitTest
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task ValidateAsync_MismatchClientIdFromIdToken_ExpectInvalidClientId()
-  {
-    // Arrange
-    var serviceProvider = BuildServiceProvider();
-    var client = await GetClient();
-    var authorizationGrant = client.AuthorizationCodeGrants.Single();
-    var session = authorizationGrant.Session;
-
-    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var idToken = await tokenBuilder.BuildIdToken(
-      authorizationGrant.Id,
-      Guid.Empty.ToString(),
-      new[] {ScopeConstants.OpenId},
-      authorizationGrant.Nonces.Single().Id,
-      session.User.Id,
-      session.Id,
-      authorizationGrant.AuthTime);
-
-    var query = new SilentLoginCommand
-    {
-      ClientId = client.Id,
-      RedirectUri = "https://localhost:5001/callback",
-      State = CryptographyHelper.GetRandomString(16),
-      IdTokenHint = idToken
-    };
-
-    // Act
-    var validationResult = await validator.ValidateAsync(query);
-
-    // Assert
-    Assert.True(validationResult.IsError());
-    Assert.Equal(ErrorCode.AccessDenied, validationResult.ErrorCode);
-    Assert.Equal(HttpStatusCode.OK, validationResult.StatusCode);
-  }
-
-  [Fact]
-  [Trait("Category", "Unit")]
   public async Task ValidateAsync_NoOpenIdScope_InvalidScope()
   {
     // Arrange
@@ -155,15 +118,11 @@ public class SilentLoginValidatorTests : BaseUnitTest
     var session = authorizationGrant.Session;
 
     var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var idToken = await tokenBuilder.BuildIdToken(
-      authorizationGrant.Id,
-      client.Id,
-      new[] {ScopeConstants.OpenId},
-      authorizationGrant.Nonces.Single().Id,
-      session.User.Id,
-      session.Id,
-      authorizationGrant.AuthTime);
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
+    var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
+    {
+      AuthorizationGrantId = authorizationGrant.Id
+    });
 
     var query = new SilentLoginCommand
     {
@@ -193,15 +152,11 @@ public class SilentLoginValidatorTests : BaseUnitTest
     var session = authorizationGrant.Session;
 
     var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var idToken = await tokenBuilder.BuildIdToken(
-      authorizationGrant.Id,
-      client.Id,
-      new[] { ScopeConstants.OpenId },
-      authorizationGrant.Nonces.Single().Id,
-      session.User.Id,
-      session.Id,
-      authorizationGrant.AuthTime);
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
+    var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
+    {
+      AuthorizationGrantId = authorizationGrant.Id
+    });
 
     var query = new SilentLoginCommand
     {
@@ -232,15 +187,11 @@ public class SilentLoginValidatorTests : BaseUnitTest
     var session = authorizationGrant.Session;
 
     var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var idToken = await tokenBuilder.BuildIdToken(
-      authorizationGrant.Id,
-      client.Id,
-      new[] { ScopeConstants.OpenId },
-      authorizationGrant.Nonces.Single().Id,
-      session.User.Id,
-      session.Id,
-      authorizationGrant.AuthTime);
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
+    var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
+    {
+      AuthorizationGrantId = authorizationGrant.Id
+    });
 
     var query = new SilentLoginCommand
     {
@@ -268,18 +219,13 @@ public class SilentLoginValidatorTests : BaseUnitTest
     var serviceProvider = BuildServiceProvider();
     var client = await GetClient();
     var authorizationGrant = client.AuthorizationCodeGrants.Single();
-    var session = authorizationGrant.Session;
 
     var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var idToken = await tokenBuilder.BuildIdToken(
-      authorizationGrant.Id,
-      client.Id,
-      new[] { ScopeConstants.OpenId },
-      authorizationGrant.Nonces.Single().Id,
-      session.User.Id,
-      session.Id,
-      authorizationGrant.AuthTime);
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
+    var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
+    {
+      AuthorizationGrantId = authorizationGrant.Id
+    });
 
     var query = new SilentLoginCommand
     {
@@ -308,18 +254,13 @@ public class SilentLoginValidatorTests : BaseUnitTest
     var serviceProvider = BuildServiceProvider();
     var client = await GetClient();
     var authorizationGrant = client.AuthorizationCodeGrants.Single();
-    var session = authorizationGrant.Session;
 
     var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var idToken = await tokenBuilder.BuildIdToken(
-      authorizationGrant.Id,
-      client.Id,
-      new[] { ScopeConstants.OpenId },
-      authorizationGrant.Nonces.Single().Id,
-      session.User.Id,
-      session.Id,
-      authorizationGrant.AuthTime);
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
+    var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
+    {
+      AuthorizationGrantId = authorizationGrant.Id
+    });
 
     var query = new SilentLoginCommand
     {
@@ -352,15 +293,11 @@ public class SilentLoginValidatorTests : BaseUnitTest
     var session = authorizationGrant.Session;
 
     var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var idToken = await tokenBuilder.BuildIdToken(
-      authorizationGrant.Id,
-      client.Id,
-      new[] { ScopeConstants.OpenId },
-      authorizationGrant.Nonces.Single().Id,
-      session.User.Id,
-      session.Id,
-      authorizationGrant.AuthTime);
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
+    var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
+    {
+      AuthorizationGrantId = authorizationGrant.Id
+    });
 
     var query = new SilentLoginCommand
     {
@@ -393,19 +330,14 @@ public class SilentLoginValidatorTests : BaseUnitTest
     client.GrantTypes.Clear();
     await IdentityContext.SaveChangesAsync();
     var authorizationGrant = client.AuthorizationCodeGrants.Single();
-    var session = authorizationGrant.Session;
 
     var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var idToken = await tokenBuilder.BuildIdToken(
-      authorizationGrant.Id,
-      client.Id,
-      new[] { ScopeConstants.OpenId },
-      authorizationGrant.Nonces.Single().Id,
-      session.User.Id,
-      session.Id,
-      authorizationGrant.AuthTime);
-
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
+    var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
+    {
+      AuthorizationGrantId = authorizationGrant.Id
+    });
+    
     var query = new SilentLoginCommand
     {
       ClientId = client.Id,
@@ -438,18 +370,13 @@ public class SilentLoginValidatorTests : BaseUnitTest
     client.RedirectUris.Clear();
     await IdentityContext.SaveChangesAsync();
     var authorizationGrant = client.AuthorizationCodeGrants.Single();
-    var session = authorizationGrant.Session;
-
+    
     var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var idToken = await tokenBuilder.BuildIdToken(
-      authorizationGrant.Id,
-      client.Id,
-      new[] { ScopeConstants.OpenId },
-      authorizationGrant.Nonces.Single().Id,
-      session.User.Id,
-      session.Id,
-      authorizationGrant.AuthTime);
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
+    var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
+    {
+      AuthorizationGrantId = authorizationGrant.Id
+    });
 
     var query = new SilentLoginCommand
     {
@@ -483,18 +410,13 @@ public class SilentLoginValidatorTests : BaseUnitTest
     client.Scopes.Clear();
     await IdentityContext.SaveChangesAsync();
     var authorizationGrant = client.AuthorizationCodeGrants.Single();
-    var session = authorizationGrant.Session;
 
     var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var idToken = await tokenBuilder.BuildIdToken(
-      authorizationGrant.Id,
-      client.Id,
-      new[] { ScopeConstants.OpenId },
-      authorizationGrant.Nonces.Single().Id,
-      session.User.Id,
-      session.Id,
-      authorizationGrant.AuthTime);
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
+    var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
+    {
+      AuthorizationGrantId = authorizationGrant.Id
+    });
 
     var query = new SilentLoginCommand
     {
@@ -532,18 +454,13 @@ public class SilentLoginValidatorTests : BaseUnitTest
     client.Scopes.Add(profileScope);
     await IdentityContext.SaveChangesAsync();
     var authorizationGrant = client.AuthorizationCodeGrants.Single();
-    var session = authorizationGrant.Session;
 
     var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var idToken = await tokenBuilder.BuildIdToken(
-      authorizationGrant.Id,
-      client.Id,
-      new[] { ScopeConstants.OpenId },
-      authorizationGrant.Nonces.Single().Id,
-      session.User.Id,
-      session.Id,
-      authorizationGrant.AuthTime);
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
+    var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
+    {
+      AuthorizationGrantId = authorizationGrant.Id
+    });
 
     var query = new SilentLoginCommand
     {
@@ -577,18 +494,13 @@ public class SilentLoginValidatorTests : BaseUnitTest
     var authorizationGrant = client.AuthorizationCodeGrants.Single();
     authorizationGrant.MaxAge = 0;
     await IdentityContext.SaveChangesAsync();
-    var session = authorizationGrant.Session;
 
     var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var idToken = await tokenBuilder.BuildIdToken(
-      authorizationGrant.Id,
-      client.Id,
-      new[] {ScopeConstants.OpenId},
-      authorizationGrant.Nonces.Single().Id,
-      session.User.Id,
-      session.Id,
-      authorizationGrant.AuthTime);
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
+    var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
+    {
+      AuthorizationGrantId = authorizationGrant.Id
+    });
 
     var query = new SilentLoginCommand
     {
@@ -625,15 +537,11 @@ public class SilentLoginValidatorTests : BaseUnitTest
     await IdentityContext.SaveChangesAsync();
 
     var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var idToken = await tokenBuilder.BuildIdToken(
-      authorizationGrant.Id,
-      client.Id,
-      new[] {ScopeConstants.OpenId},
-      authorizationGrant.Nonces.Single().Id,
-      session.User.Id,
-      session.Id,
-      authorizationGrant.AuthTime);
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
+    var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
+    {
+      AuthorizationGrantId = authorizationGrant.Id
+    });
 
     var query = new SilentLoginCommand
     {
@@ -665,18 +573,13 @@ public class SilentLoginValidatorTests : BaseUnitTest
     var serviceProvider = BuildServiceProvider();
     var client = await GetClient();
     var authorizationGrant = client.AuthorizationCodeGrants.Single();
-    var session = authorizationGrant.Session;
 
     var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var idToken = await tokenBuilder.BuildIdToken(
-      authorizationGrant.Id,
-      client.Id,
-      new[] {ScopeConstants.OpenId},
-      authorizationGrant.Nonces.Single().Id,
-      session.User.Id,
-      session.Id,
-      authorizationGrant.AuthTime);
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
+    var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
+    {
+      AuthorizationGrantId = authorizationGrant.Id
+    });
 
     var query = new SilentLoginCommand
     {

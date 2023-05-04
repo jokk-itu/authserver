@@ -4,6 +4,8 @@ using Application.Validation;
 using Domain;
 using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
+using Infrastructure.Builders.Token.Abstractions;
+using Infrastructure.Builders.Token.RefreshToken;
 using Infrastructure.Helpers;
 using Infrastructure.Requests.RedeemRefreshTokenGrant;
 using MediatR;
@@ -17,29 +19,6 @@ using Xunit;
 namespace Specs.Handlers;
 public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
 {
-  [Fact]
-  public async Task Handle_TokenDecodeError()
-  {
-    // Arrange
-    var validator = new Mock<IValidator<RedeemRefreshTokenGrantCommand>>();
-    validator
-      .Setup(x => 
-        x.ValidateAsync(It.IsAny<RedeemRefreshTokenGrantCommand>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(new ValidationResult(HttpStatusCode.OK));
-
-    var serviceProvider = BuildServiceProvider(services => 
-      services.AddTransient(_ => validator.Object));
-
-    var handler = serviceProvider.GetRequiredService<IRequestHandler<RedeemRefreshTokenGrantCommand, RedeemRefreshTokenGrantResponse>>();
-    var command = new RedeemRefreshTokenGrantCommand
-    {
-      RefreshToken = string.Empty,
-    };
-    
-    // Act & Assert
-    await Assert.ThrowsAsync<SecurityTokenException>(() => handler.Handle(command, CancellationToken.None));
-  }
-
   [Fact]
   public async Task Handle_Ok()
   {
@@ -66,7 +45,7 @@ public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
       .AddRedeemed()
       .Build();
 
-    var authorizationCodeGrant = AuthorizationCodeGrantBuilder
+    var authorizationGrant = AuthorizationCodeGrantBuilder
       .Instance(Guid.NewGuid().ToString())
       .AddAuthorizationCode(authorizationCode)
       .AddNonce(nonce)
@@ -75,7 +54,7 @@ public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
 
     var session = SessionBuilder
       .Instance()
-      .AddAuthorizationCodeGrant(authorizationCodeGrant)
+      .AddAuthorizationCodeGrant(authorizationGrant)
       .Build();
 
     var user = UserBuilder
@@ -87,16 +66,21 @@ public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
     await IdentityContext.Set<User>().AddAsync(user);
     await IdentityContext.SaveChangesAsync();
 
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<RefreshTokenArguments>>();
     var scopes = new[] { ScopeConstants.OpenId };
-    var refreshToken = await tokenBuilder.BuildRefreshToken(authorizationCodeGrant.Id, client.Id, scopes, user.Id, session.Id);
+    var refreshToken = await tokenBuilder.BuildToken(new RefreshTokenArguments
+    {
+      Scope = scopes.ToString(),
+      AuthorizationGrantId = authorizationGrant.Id
+    });
     var handler = serviceProvider.GetRequiredService<IRequestHandler<RedeemRefreshTokenGrantCommand, RedeemRefreshTokenGrantResponse>>();
     var command = new RedeemRefreshTokenGrantCommand
     {
       ClientId = client.Id,
       ClientSecret = client.Secret,
       RefreshToken = refreshToken,
-      GrantType = GrantTypeConstants.RefreshToken
+      GrantType = GrantTypeConstants.RefreshToken,
+      Scope = scopes.ToString()
     };
 
     // Act
