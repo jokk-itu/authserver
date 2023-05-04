@@ -12,4 +12,6 @@ public class RedeemRefreshTokenGrantCommand : IRequest<RedeemRefreshTokenGrantRe
   public string RefreshToken { get; init; }
 
   public string GrantType { get; init; }
+
+  public string Scope { get; init; }
 }
