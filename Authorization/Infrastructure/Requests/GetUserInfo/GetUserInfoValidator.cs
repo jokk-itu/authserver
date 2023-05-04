@@ -3,17 +3,22 @@ using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
+using Infrastructure.Decoders;
 using Infrastructure.Decoders.Abstractions;
+using Infrastructure.Decoders.Token;
+using Infrastructure.Decoders.Token.Abstractions;
+using Infrastructure.Helpers;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.GetUserInfo;
 public class GetUserInfoValidator : IValidator<GetUserInfoQuery>
 {
-  private readonly ITokenDecoder _tokenDecoder;
+  private readonly IStructuredTokenDecoder _tokenDecoder;
   private readonly IdentityContext _identityContext;
 
   public GetUserInfoValidator(
-    ITokenDecoder tokenDecoder,
+    IStructuredTokenDecoder tokenDecoder,
     IdentityContext identityContext)
   {
     _tokenDecoder = tokenDecoder;
@@ -22,23 +27,45 @@ public class GetUserInfoValidator : IValidator<GetUserInfoQuery>
 
   public async Task<ValidationResult> ValidateAsync(GetUserInfoQuery value, CancellationToken cancellationToken = default)
   {
-    var token = _tokenDecoder.DecodeSignedToken(value.AccessToken);
-    if (token is null)
+    string authorizationGrantId;
+    if (TokenHelper.IsStructuredToken(value.AccessToken))
     {
-      return new ValidationResult(ErrorCode.InvalidRequest, "access_token is invalid", HttpStatusCode.BadRequest);
+      var token = await _tokenDecoder.Decode(value.AccessToken, new StructuredTokenDecoderArguments
+      {
+        ValidateAudience = false,
+        ValidateLifetime = true
+      });
+      authorizationGrantId = token.Claims.Single(x => x.Type == ClaimNameConstants.GrantId).Value;
+    }
+    else
+    {
+      authorizationGrantId = await _identityContext
+        .Set<GrantToken>()
+        .Where(x => x.Reference == value.AccessToken)
+        .Select(x => x.AuthorizationGrant.Id)
+        .SingleAsync(cancellationToken: cancellationToken);
     }
 
-    var userId = token.Claims.Single(x => x.Type == ClaimNameConstants.Sub).Value;
-    var clientId = token.Claims.Single(x => x.Type == ClaimNameConstants.ClientId).Value;
+    var query = await _identityContext
+      .Set<AuthorizationCodeGrant>()
+      .Where(x => x.Id == authorizationGrantId)
+      .Select(x => new
+      {
+        UserId = x.Session.User.Id,
+        ClientId = x.Client.Id
+      })
+      .SingleAsync(cancellationToken: cancellationToken);
+
+
     var isUserValid = await _identityContext
       .Set<ConsentGrant>()
-      .Where(cg => cg.Client.Id == clientId)
-      .Where(cg => cg.User.Id == userId)
+      .Where(cg => cg.Client.Id == query.ClientId)
+      .Where(cg => cg.User.Id == query.UserId)
       .Select(cg => cg.User)
       .SelectMany(u => u.Sessions)
       .Where(x => !x.IsRevoked)
       .SelectMany(s => s.AuthorizationCodeGrants)
-      .Where(g => g.Client.Id == clientId)
+      .Where(g => g.Client.Id == query.ClientId)
       .Where(AuthorizationCodeGrant.IsMaxAgeValid)
       .AnyAsync(cancellationToken: cancellationToken);
 
