@@ -37,6 +37,11 @@ internal class ScopeConfiguration : IEntityTypeConfiguration<Scope>
       {
         Id = 5,
         Name = ScopeConstants.Phone
+      },
+      new Scope
+      {
+        Id = 6,
+        Name = ScopeConstants.UserInfo
       });
   }
 }
