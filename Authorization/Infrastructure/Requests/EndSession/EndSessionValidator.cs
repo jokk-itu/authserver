@@ -2,20 +2,20 @@
 using Application;
 using Application.Validation;
 using Domain;
-using Domain.Constants;
 using Domain.Enums;
-using Infrastructure.Decoders.Abstractions;
+using Infrastructure.Decoders.Token;
+using Infrastructure.Decoders.Token.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.EndSession;
 public class EndSessionValidator : IValidator<EndSessionCommand>
 {
   private readonly IdentityContext _identityContext;
-  private readonly ITokenDecoder _tokenDecoder;
+  private readonly IStructuredTokenDecoder _tokenDecoder;
 
   public EndSessionValidator(
     IdentityContext identityContext,
-    ITokenDecoder tokenDecoder)
+    IStructuredTokenDecoder tokenDecoder)
   {
     _identityContext = identityContext;
     _tokenDecoder = tokenDecoder;
@@ -23,22 +23,19 @@ public class EndSessionValidator : IValidator<EndSessionCommand>
 
   public async Task<ValidationResult> ValidateAsync(EndSessionCommand value, CancellationToken cancellationToken = default)
   {
-    // TODO Ignore the exp claim
-    var token = _tokenDecoder.DecodeSignedToken(value.IdTokenHint);
-    if (token is null)
+    try
+    {
+      await _tokenDecoder.Decode(value.IdTokenHint, new StructuredTokenDecoderArguments
+      {
+        ClientId = value.ClientId,
+        Audiences = new[] { value.ClientId },
+        ValidateAudience = true,
+        ValidateLifetime = false
+      });
+    }
+    catch (Exception)
     {
       return new ValidationResult(ErrorCode.AccessDenied, "id_token_hint is invalid", HttpStatusCode.BadRequest);
-    }
-
-    if (string.IsNullOrWhiteSpace(value.ClientId))
-    {
-      return new ValidationResult(ErrorCode.InvalidRequest, "client_id is required", HttpStatusCode.BadRequest);
-    }
-
-    var clientId = token.Claims.Single(x => x.Type == ClaimNameConstants.Aud).Value;
-    if (value.ClientId != clientId)
-    {
-      return new ValidationResult(ErrorCode.AccessDenied, "audience in id_token_hint does not match client_id", HttpStatusCode.BadRequest);
     }
 
     if (!string.IsNullOrWhiteSpace(value.PostLogoutRedirectUri))

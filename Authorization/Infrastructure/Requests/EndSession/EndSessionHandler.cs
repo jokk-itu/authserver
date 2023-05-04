@@ -1,9 +1,10 @@
 ﻿using System.Net;
-using Application;
 using Domain;
 using Domain.Constants;
-using Infrastructure.Builders.Abstractions;
-using Infrastructure.Decoders.Abstractions;
+using Infrastructure.Builders.Token.Abstractions;
+using Infrastructure.Builders.Token.LogoutToken;
+using Infrastructure.Decoders.Token;
+using Infrastructure.Decoders.Token.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,30 +12,29 @@ namespace Infrastructure.Requests.EndSession;
 
 public class EndSessionHandler : IRequestHandler<EndSessionCommand, EndSessionResponse>
 {
-  private readonly ITokenDecoder _tokenDecoder;
   private readonly IdentityContext _identityContext;
   private readonly IHttpClientFactory _httpClientFactory;
-  private readonly ITokenBuilder _tokenBuilder;
+  private readonly ITokenBuilder<LogoutTokenArguments> _tokenBuilder;
+  private readonly IStructuredTokenDecoder _tokenDecoder;
 
   public EndSessionHandler(
-    ITokenDecoder tokenDecoder,
     IdentityContext identityContext,
     IHttpClientFactory httpClientFactory,
-    ITokenBuilder tokenBuilder)
+    ITokenBuilder<LogoutTokenArguments> tokenBuilder,
+    IStructuredTokenDecoder tokenDecoder)
   {
-    _tokenDecoder = tokenDecoder;
     _identityContext = identityContext;
     _httpClientFactory = httpClientFactory;
     _tokenBuilder = tokenBuilder;
+    _tokenDecoder = tokenDecoder;
   }
 
   public async Task<EndSessionResponse> Handle(EndSessionCommand request, CancellationToken cancellationToken)
   {
-    var idToken = _tokenDecoder.DecodeSignedToken(request.IdTokenHint);
-    if (idToken is null)
+    var idToken = await _tokenDecoder.Decode(request.IdTokenHint, new StructuredTokenDecoderArguments
     {
-      return new EndSessionResponse(ErrorCode.ServerError, "something went wrong", HttpStatusCode.BadRequest);
-    }
+      ClientId = request.ClientId,
+    });
 
     var sessionId = idToken.Claims.Single(x => x.Type == ClaimNameConstants.Sid).Value;
     var userId = idToken.Claims.Single(x => x.Type == ClaimNameConstants.Sub).Value;
@@ -56,7 +56,12 @@ public class EndSessionHandler : IRequestHandler<EndSessionCommand, EndSessionRe
     await Parallel.ForEachAsync(clients, cancellationToken, async (client, requestCancellationToken) =>
     {
       using var httpClient = _httpClientFactory.CreateClient();
-      var logoutToken = _tokenBuilder.BuildLogoutToken(client.ClientId, sessionId, userId, requestCancellationToken);
+      var logoutToken = await _tokenBuilder.BuildToken(new LogoutTokenArguments
+      {
+        ClientId = request.ClientId,
+        SessionId = sessionId,
+        UserId = userId
+      });
       var formBody = new Dictionary<string, string>
       {
         { "logout_token", logoutToken }
