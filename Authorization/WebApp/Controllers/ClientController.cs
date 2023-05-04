@@ -35,14 +35,16 @@ public class ClientController : OAuthControllerBase
   [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> Post([FromBody] PostClientRequest request, CancellationToken cancellationToken = default)
   {
-    var response = await _mediator.Send(request.Adapt<CreateClientCommand>(), cancellationToken: cancellationToken);
+    var command = request.Adapt<CreateClientCommand>();
+    var response = await _mediator.Send(command, cancellationToken: cancellationToken);
 
     if (response.IsError())
     {
       return BadOAuthResult(response.ErrorCode, response.ErrorDescription);
     }
 
-    return CreatedOAuthResult("connect/client/configuration", response.Adapt<PostClientResponse>());
+    var createdResponse = response.Adapt<PostClientResponse>();
+    return CreatedOAuthResult("connect/client/configuration", createdResponse);
   }
 
   [HttpDelete]
