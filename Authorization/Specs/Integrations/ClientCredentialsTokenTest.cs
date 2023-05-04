@@ -27,7 +27,7 @@ public class ClientCredentialsTokenTest : BaseIntegrationTest
       .AddClientSecret(client.ClientSecret)
       .AddGrantType(GrantTypeConstants.ClientCredentials)
       .AddScope(scope)
-      .BuildRedeemClientCredentials(GetClient());
+      .BuildRedeemClientCredentials(GetHttpClient());
     
     Assert.NotNull(tokens);
     Assert.NotEmpty(tokens.AccessToken);

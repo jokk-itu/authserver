@@ -15,7 +15,6 @@ namespace Specs;
 public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<Program>>
 {
   private readonly WebApplicationFactory<Program> _factory;
-  protected const string UserInfoScope = "identityprovider:userinfo";
 
   protected BaseIntegrationTest(WebApplicationFactory<Program> factory)
   {
@@ -26,11 +25,10 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
       var identityContext = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<IdentityContext>();
       identityContext.Database.EnsureDeleted();
       identityContext.Database.EnsureCreated();
-      BuildScope(UserInfoScope).GetAwaiter().GetResult();
-      BuildResource(UserInfoScope, "identityprovider").GetAwaiter().GetResult();
+      BuildResource(ScopeConstants.UserInfo, "identityprovider").GetAwaiter().GetResult();
   }
 
-  protected HttpClient GetClient()
+  protected HttpClient GetHttpClient()
   {
     return _factory.CreateClient(new WebApplicationFactoryClientOptions
     {
@@ -48,7 +46,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     {
       Content = JsonContent.Create(postScopeRequest)
     };
-    var response = await GetClient().SendAsync(request);
+    var response = await GetHttpClient().SendAsync(request);
     response.EnsureSuccessStatusCode();
     var postScopeResponse = await response.Content.ReadFromJsonAsync<PostScopeResponse>();
     return postScopeResponse!;
@@ -65,7 +63,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     {
       Content = JsonContent.Create(postResourceRequest)
     };
-    var response = await GetClient().SendAsync(request);
+    var response = await GetHttpClient().SendAsync(request);
     response.EnsureSuccessStatusCode();
     var postResourceResponse = await response.Content.ReadFromJsonAsync<PostResourceResponse>();
     return postResourceResponse!;
@@ -125,7 +123,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     {
       Content = JsonContent.Create(request)
     };
-    var response = await GetClient().SendAsync(requestMessage);
+    var response = await GetHttpClient().SendAsync(requestMessage);
     response.EnsureSuccessStatusCode();
     var postClientResponse = await response.Content.ReadFromJsonAsync<PostClientResponse>();
     return postClientResponse!;

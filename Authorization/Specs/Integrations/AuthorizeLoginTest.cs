@@ -33,7 +33,7 @@ public class AuthorizeLoginTest : BaseIntegrationTest
       .AddMaxAge("0")
       .AddCodeChallenge(ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge)
       .AddPrompt($"{PromptConstants.Login} {PromptConstants.Consent}")
-      .BuildLoginAndConsent(GetClient());
+      .BuildLoginAndConsent(GetHttpClient());
 
     var secondLoginWithoutConsent = await AuthorizeEndpointBuilder
       .Instance()
@@ -44,7 +44,7 @@ public class AuthorizeLoginTest : BaseIntegrationTest
       .AddMaxAge("0")
       .AddCodeChallenge(ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge)
       .AddPrompt($"{PromptConstants.Login}")
-      .BuildLogin(GetClient());
+      .BuildLogin(GetHttpClient());
 
     Assert.NotEmpty(firstLoginWithConsent);
     Assert.NotEmpty(secondLoginWithoutConsent);
@@ -68,7 +68,7 @@ public class AuthorizeLoginTest : BaseIntegrationTest
       .AddMaxAge("0")
       .AddCodeChallenge(ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge)
       .AddPrompt($"{PromptConstants.Login} {PromptConstants.Consent}")
-      .BuildLoginAndConsent(GetClient());
+      .BuildLoginAndConsent(GetHttpClient());
 
     var secondLoginWithoutConsent = await AuthorizeEndpointBuilder
       .Instance()
@@ -79,7 +79,7 @@ public class AuthorizeLoginTest : BaseIntegrationTest
       .AddMaxAge("0")
       .AddCodeChallenge(ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge)
       .AddPrompt($"{PromptConstants.Login}")
-      .BuildLogin(GetClient());
+      .BuildLogin(GetHttpClient());
 
     Assert.NotEmpty(firstLoginWithConsent);
     Assert.NotEmpty(secondLoginWithoutConsent);

@@ -19,7 +19,7 @@ public class UserInfoTest : BaseIntegrationTest
   [Trait("Category", "Integration")]
   public async Task ConfidentialClient_UserInfo()
   {
-    const string scope = $"{ScopeConstants.OpenId} {ScopeConstants.Profile} {ScopeConstants.Email} {ScopeConstants.Phone} {UserInfoScope}";
+    const string scope = $"{ScopeConstants.OpenId} {ScopeConstants.Profile} {ScopeConstants.Email} {ScopeConstants.Phone} {ScopeConstants.UserInfo}";
     var password = CryptographyHelper.GetRandomString(32);
     var user = await BuildUserAsync(password);
     var client = await BuildAuthorizationGrantWebClient("webapp", scope);
@@ -32,7 +32,7 @@ public class UserInfoTest : BaseIntegrationTest
       .AddPrompt($"{PromptConstants.Login} {PromptConstants.Consent}")
       .AddRedirectUri(client.RedirectUris.First())
       .AddUser(user.UserName, password)
-      .BuildLoginAndConsent(GetClient());
+      .BuildLoginAndConsent(GetHttpClient());
 
     var tokenResponse = await TokenEndpointBuilder
       .Instance()
@@ -43,12 +43,12 @@ public class UserInfoTest : BaseIntegrationTest
       .AddCode(code)
       .AddGrantType(GrantTypeConstants.AuthorizationCode)
       .AddRedirectUri(client.RedirectUris.First())
-      .BuildRedeemAuthorizationCode(GetClient());
+      .BuildRedeemAuthorizationCode(GetHttpClient());
 
     var userInfo = await UserInfoEndpointBuilder
       .Instance()
       .AddAccessToken(tokenResponse.AccessToken)
-      .BuildUserInfo(GetClient());
+      .BuildUserInfo(GetHttpClient());
 
     Assert.NotEmpty(userInfo);
   }
@@ -57,7 +57,7 @@ public class UserInfoTest : BaseIntegrationTest
   [Trait("Category", "Integration")]
   public async Task NativeClient_UserInfo()
   {
-    const string scope = $"{ScopeConstants.OpenId} {ScopeConstants.Profile} {ScopeConstants.Email} {ScopeConstants.Phone} {UserInfoScope}";
+    const string scope = $"{ScopeConstants.OpenId} {ScopeConstants.Profile} {ScopeConstants.Email} {ScopeConstants.Phone} {ScopeConstants.UserInfo}";
     var password = CryptographyHelper.GetRandomString(32);
     var user = await BuildUserAsync(password);
     var client = await BuildAuthorizationGrantNativeClient("nativeapp", scope);
@@ -70,7 +70,7 @@ public class UserInfoTest : BaseIntegrationTest
       .AddPrompt($"{PromptConstants.Login} {PromptConstants.Consent}")
       .AddRedirectUri(client.RedirectUris.First())
       .AddUser(user.UserName, password)
-      .BuildLoginAndConsent(GetClient());
+      .BuildLoginAndConsent(GetHttpClient());
 
     var tokenResponse = await TokenEndpointBuilder
       .Instance()
@@ -80,12 +80,12 @@ public class UserInfoTest : BaseIntegrationTest
       .AddCode(code)
       .AddGrantType(GrantTypeConstants.AuthorizationCode)
       .AddRedirectUri(client.RedirectUris.First())
-      .BuildRedeemAuthorizationCode(GetClient());
+      .BuildRedeemAuthorizationCode(GetHttpClient());
 
     var userInfo = await UserInfoEndpointBuilder
       .Instance()
       .AddAccessToken(tokenResponse.AccessToken)
-      .BuildUserInfo(GetClient());
+      .BuildUserInfo(GetHttpClient());
 
     Assert.NotEmpty(userInfo);
   }
