@@ -2,5 +2,7 @@
 public enum TokenType
 {
   RefreshToken,
-  AccessToken
+  ClientAccessToken,
+  GrantAccessToken,
+  RegistrationToken
 }

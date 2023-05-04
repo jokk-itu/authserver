@@ -10,12 +10,10 @@ internal class TokenConfiguration : IEntityTypeConfiguration<Token>
   {
     builder
       .HasDiscriminator(x => x.TokenType)
-      .HasValue<AccessToken>(TokenType.AccessToken)
-      .HasValue<RefreshToken>(TokenType.RefreshToken);
-
-    builder
-      .Property(x => x.Scope)
-      .IsRequired();
+      .HasValue<GrantAccessToken>(TokenType.GrantAccessToken)
+      .HasValue<ClientAccessToken>(TokenType.ClientAccessToken)
+      .HasValue<RefreshToken>(TokenType.RefreshToken)
+      .HasValue<RegistrationToken>(TokenType.RegistrationToken);
 
     builder
       .Property(x => x.Audience)

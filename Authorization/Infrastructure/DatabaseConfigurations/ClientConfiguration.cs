@@ -55,5 +55,10 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
       .HasMany(x => x.ConsentGrants)
       .WithOne(x => x.Client)
       .OnDelete(DeleteBehavior.Cascade);
+
+    builder
+      .HasMany(x => x.ClientTokens)
+      .WithOne(x => x.Client)
+      .OnDelete(DeleteBehavior.NoAction);
   }
 }
