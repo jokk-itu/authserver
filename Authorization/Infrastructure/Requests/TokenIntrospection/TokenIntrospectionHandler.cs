@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Security.Cryptography.X509Certificates;
 using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -19,12 +18,11 @@ public class TokenIntrospectionHandler : IRequestHandler<TokenIntrospectionQuery
     var query = await _identityContext
       .Set<Token>()
       .Where(x => x.Reference == request.Token)
-      .OfType<GrantToken>()
       .Select(x => new
       {
         Token = x,
-        x.AuthorizationGrant.Session.User.UserName,
-        Subject = x.AuthorizationGrant.Session.User.Id
+        (x as GrantToken).AuthorizationGrant.Session.User.UserName,
+        Subject = (x as GrantToken).AuthorizationGrant.Session.User.Id
       })
       .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
@@ -41,7 +39,7 @@ public class TokenIntrospectionHandler : IRequestHandler<TokenIntrospectionQuery
       Active = query.Token.RevokedAt is null,
       JwtId = query.Token.Id.ToString(),
       ClientId = request.ClientId,
-      ExpiresAt = new DateTimeOffset(query.Token.ExpiresAt).ToUnixTimeSeconds(),
+      ExpiresAt = query.Token.ExpiresAt is null ? null : new DateTimeOffset(query.Token.ExpiresAt.Value).ToUnixTimeSeconds(),
       Issuer = query.Token.Issuer,
       Audience = query.Token.Audience.Split(' '),
       IssuedAt = new DateTimeOffset(query.Token.IssuedAt).ToUnixTimeSeconds(),

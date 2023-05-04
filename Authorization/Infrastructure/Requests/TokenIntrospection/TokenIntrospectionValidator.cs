@@ -43,13 +43,20 @@ public class TokenIntrospectionValidator : IValidator<TokenIntrospectionQuery>
 
     var token = await _identityContext
       .Set<Token>()
-      .OfType<GrantToken>()
       .Where(x => x.Reference == value.Token)
-      .Include(x => x.AuthorizationGrant)
+      .Include(x => (x as GrantAccessToken).AuthorizationGrant)
       .ThenInclude(x => x.Client)
+      .Include(x => (x as ClientAccessToken).Client)
       .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
-    if (token is not null && token.AuthorizationGrant.Client.Id != value.ClientId)
+    var clientId = token switch
+    {
+      GrantAccessToken grantAccessToken => grantAccessToken.AuthorizationGrant.Client.Id,
+      ClientAccessToken clientAccessToken => clientAccessToken.Client.Id,
+      _ => null
+    };
+
+    if (token is not null && clientId != value.ClientId)
     {
       return new ValidationResult(ErrorCode.UnauthorizedClient, "client_id does not match token", HttpStatusCode.BadRequest);
     }
