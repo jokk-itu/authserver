@@ -31,12 +31,12 @@ public class ValidatorBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest
       var validationResult = await _validator.ValidateAsync(request, cancellationToken);
       if (!validationResult.IsError())
       {
-        _logger.LogInformation("Validated {Request} successfully, took {ElapsedTime}", requestName, stopWatch.ElapsedMilliseconds);
+        _logger.LogInformation("Validated {Request} successfully, took {ElapsedTime} ms", requestName, stopWatch.ElapsedMilliseconds);
         return await next();
       }
 
       _logger.LogInformation(
-        "Validated {Request} with {ErrorCode} and {ErrorDescription}, took {ElapsedTime}",
+        "Validated {Request} with {ErrorCode} and {ErrorDescription}, took {ElapsedTime} ms",
         requestName,
         validationResult.ErrorCode,
         validationResult.ErrorDescription,
