@@ -5,7 +5,6 @@ using Infrastructure.Builders.Abstractions;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Text.Json.Serialization;
 
 namespace Infrastructure.Builders;
 
