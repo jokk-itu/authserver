@@ -12,7 +12,7 @@ public class RedeemAuthorizationCodeGrantResponse : Response
   }
 
   public string AccessToken { get; init; } = null!;
-  public string RefreshToken { get; init; } = null!;
+  public string? RefreshToken { get; init; }
   public string IdToken { get; init; } = null!;
   public int ExpiresIn { get; init; }
 }
