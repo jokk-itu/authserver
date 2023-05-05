@@ -7,6 +7,16 @@ internal class JwkConfiguration : IEntityTypeConfiguration<Jwk>
 {
   public void Configure(EntityTypeBuilder<Jwk> builder)
   {
-    throw new NotImplementedException();
+    builder
+      .Property(x => x.Exponent)
+      .IsRequired();
+
+    builder
+      .Property(x => x.Modulus)
+      .IsRequired();
+
+    builder
+      .Property(x => x.PrivateKey)
+      .IsRequired();
   }
 }
