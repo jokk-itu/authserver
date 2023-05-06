@@ -22,10 +22,6 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
       {
         builder.UseEnvironment("Integration");
       });
-      var identityContext = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<IdentityContext>();
-      identityContext.Database.EnsureDeleted();
-      identityContext.Database.EnsureCreated();
-      BuildResource(ScopeConstants.UserInfo, "identityprovider").GetAwaiter().GetResult();
   }
 
   protected HttpClient GetHttpClient()
@@ -34,6 +30,18 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     {
       AllowAutoRedirect = false
     });
+  }
+
+  protected async Task CreateDatabase()
+  {
+    var identityContext = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<IdentityContext>();
+    await identityContext.Database.EnsureDeletedAsync();
+    await identityContext.Database.EnsureCreatedAsync();
+  }
+
+  protected async Task CreateIdentityProviderResource()
+  {
+    await BuildResource(ScopeConstants.UserInfo, "identityprovider");
   }
 
   protected async Task<PostScopeResponse> BuildScope(string scope)

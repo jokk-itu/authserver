@@ -16,6 +16,8 @@ public class ClientCredentialsTokenTest : BaseIntegrationTest
   [Trait("Category", "Integration")]
   public async Task ClientCredentials()
   {
+    await CreateDatabase();
+    await CreateIdentityProviderResource();
     const string scope = "weather:read";
     await BuildScope(scope);
     await BuildResource(scope, "weatherservice");

@@ -19,6 +19,8 @@ public class UserInfoTest : BaseIntegrationTest
   [Trait("Category", "Integration")]
   public async Task ConfidentialClient_UserInfo()
   {
+    await CreateDatabase();
+    await CreateIdentityProviderResource();
     const string scope = $"{ScopeConstants.OpenId} {ScopeConstants.Profile} {ScopeConstants.Email} {ScopeConstants.Phone} {ScopeConstants.UserInfo}";
     var password = CryptographyHelper.GetRandomString(32);
     var user = await BuildUserAsync(password);
@@ -57,6 +59,8 @@ public class UserInfoTest : BaseIntegrationTest
   [Trait("Category", "Integration")]
   public async Task NativeClient_UserInfo()
   {
+    await CreateDatabase();
+    await CreateIdentityProviderResource();
     const string scope = $"{ScopeConstants.OpenId} {ScopeConstants.Profile} {ScopeConstants.Email} {ScopeConstants.Phone} {ScopeConstants.UserInfo}";
     var password = CryptographyHelper.GetRandomString(32);
     var user = await BuildUserAsync(password);

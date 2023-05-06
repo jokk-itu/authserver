@@ -18,6 +18,8 @@ public class AuthorizeNoneTest : BaseIntegrationTest
   [Trait("Category", "Integration")]
   public async Task ConfidentialClient_AuthorizeWithPromptNone()
   {
+    await CreateDatabase();
+    await CreateIdentityProviderResource();
     const string scope = $"{ScopeConstants.OpenId}";
     const string clientName = "webapp";
     var password = CryptographyHelper.GetRandomString(32);
@@ -65,6 +67,8 @@ public class AuthorizeNoneTest : BaseIntegrationTest
   [Trait("Category", "Integration")]
   public async Task NativeClient_AuthorizeWithPromptNone()
   {
+    await CreateDatabase();
+    await CreateIdentityProviderResource();
     const string scope = $"{ScopeConstants.OpenId}";
     const string clientName = "nativeapp";
     var password = CryptographyHelper.GetRandomString(32);

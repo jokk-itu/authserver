@@ -19,6 +19,8 @@ public class AuthorizeLoginTest : BaseIntegrationTest
   [Trait("Category", "Integration")]
   public async Task AuthorizeWithPromptLoginForConfidentialClient()
   {
+    await CreateDatabase();
+    await CreateIdentityProviderResource();
     const string scope = $"{ScopeConstants.OpenId}";
     const string clientName = "webapp";
     var password = CryptographyHelper.GetRandomString(32);
@@ -54,6 +56,8 @@ public class AuthorizeLoginTest : BaseIntegrationTest
   [Trait("Category", "Integration")]
   public async Task AuthorizeWithPromptLoginForNativeClient()
   {
+    await CreateDatabase();
+    await CreateIdentityProviderResource();
     const string scope = $"{ScopeConstants.OpenId}";
     const string clientName = "nativeapp";
     var password = CryptographyHelper.GetRandomString(32);
