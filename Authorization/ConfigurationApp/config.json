@@ -1,0 +1,26 @@
+﻿{
+  "ConnectionStrings": {
+    "SqlServer": "Server=localhost,1433;Initial Catalog=Identity;Trusted_Connection=False;User ID=sa;Password=Password12!"
+  },
+  "Resources": [
+    {
+      "Id": "D046B270-7F55-4358-B2D6-F7DB2152DAAD",
+      "Name": "Weather",
+      "Uri": "https://localhost:5001",
+      "Secret": "lskhpaehrgpidlfajh",
+      "Scopes": [ "weather" ]
+    },
+    {
+      "Id": "6608F749-80AD-4031-96F4-21233CF65577",
+      "Name": "IdentityProvider",
+      "Secret": "lapwahghrpghbgahgi",
+      "Uri": "https://localhost:5000",
+      "Scopes": [ "identityprovider:userinfo" ]
+    }
+  ],
+  "Scopes": [
+    {
+      "Name": "weather"
+    }
+  ]
+}

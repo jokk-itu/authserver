@@ -5,7 +5,7 @@ module.exports = {
     extend: {
       flexGrow: {
         3: 3
-      }
+      },
     },
   },
   plugins: [],
