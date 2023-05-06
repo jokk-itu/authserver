@@ -4,7 +4,7 @@
 </script>
 
 <div class="flex flew-row divide-x-2">
-     <div class="flex flex-col px-10 pt-4 flex-grow-0">
+     <div class="flex flex-col px-10 pt-4 flex-grow-0 flex-shrink-0">
          <p class="text-2xl">Authorization Server</p>
          <hr class="pb-4"/>
          <ul class="list-disc">
@@ -84,6 +84,12 @@
                          <a class="ref-link" href="{base}/resources/weather">Weather</a>
                     </li>
                </ul>
+             </li>
+             <li>
+               <a class="ref-link text-lg" href="{base}/introspection">Introspection</a>
+             </li>
+             <li>
+               <a class="ref-link text-lg" href="{base}/revocation">Revocation</a>
              </li>
           </ul>
      </div>
