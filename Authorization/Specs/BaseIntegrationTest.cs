@@ -2,13 +2,16 @@
 using Domain;
 using Domain.Constants;
 using Infrastructure;
+using Infrastructure.Helpers;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Specs.Helpers.EntityBuilders;
 using WebApp.Contracts.PostClient;
-using WebApp.Contracts.PostResource;
-using WebApp.Contracts.PostScope;
 using Xunit;
 
 namespace Specs;
@@ -22,6 +25,30 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
       {
         builder.UseEnvironment("Integration");
       });
+  }
+
+  protected TestServer CreateClientServer(int port)
+  {
+    var webHostBuilder = new WebHostBuilder()
+      .UseUrls($"http://localhost:{port}")
+      .ConfigureKestrel(options =>
+      {
+        options.AddServerHeader = false;
+      })
+      .ConfigureServices(services =>
+      {
+        services.AddRouting();
+      })
+      .Configure(app =>
+      {
+        app.UseRouting();
+        app.UseEndpoints(endpointBuilder =>
+        {
+          endpointBuilder.MapGet("oidc/backchannel-logout", context => Task.FromResult(Results.Ok()));
+        });
+      });
+
+    return new TestServer(webHostBuilder);
   }
 
   protected HttpClient GetHttpClient()
@@ -44,37 +71,33 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     await BuildResource(ScopeConstants.UserInfo, "identityprovider");
   }
 
-  protected async Task<PostScopeResponse> BuildScope(string scope)
+  protected async Task<Scope> BuildScope(string name)
   {
-    var postScopeRequest = new PostScopeRequest
+    var identityContext = _factory.Services.GetRequiredService<IdentityContext>();
+    var scope = new Scope
     {
-      ScopeName = scope
+      Name = name
     };
-    var request = new HttpRequestMessage(HttpMethod.Post, "connect/scope/register")
-    {
-      Content = JsonContent.Create(postScopeRequest)
-    };
-    var response = await GetHttpClient().SendAsync(request);
-    response.EnsureSuccessStatusCode();
-    var postScopeResponse = await response.Content.ReadFromJsonAsync<PostScopeResponse>();
-    return postScopeResponse!;
+    await identityContext.AddAsync(scope);
+    await identityContext.SaveChangesAsync();
+    return scope;
   }
 
-  protected async Task<PostResourceResponse> BuildResource(string scope, string name)
+  protected async Task<Resource> BuildResource(string scope, string name)
   {
-    var postResourceRequest = new PostResourceRequest
+    var identityContext = _factory.Services.GetRequiredService<IdentityContext>();
+    var scopes = scope.Split(' ');
+    var resource = new Resource
     {
-      Scope = scope,
-      ResourceName = name
+      Name = name,
+      Scopes = await identityContext
+        .Set<Scope>()
+        .Where(x => scopes.Contains(x.Name))
+        .ToListAsync()
     };
-    var request = new HttpRequestMessage(HttpMethod.Post, "connect/resource/register")
-    {
-      Content = JsonContent.Create(postResourceRequest)
-    };
-    var response = await GetHttpClient().SendAsync(request);
-    response.EnsureSuccessStatusCode();
-    var postResourceResponse = await response.Content.ReadFromJsonAsync<PostResourceResponse>();
-    return postResourceResponse!;
+    await identityContext.AddAsync(resource);
+    await identityContext.SaveChangesAsync();
+    return resource;
   }
 
   protected async Task<PostClientResponse> BuildAuthorizationGrantWebClient(string name, string scope)
