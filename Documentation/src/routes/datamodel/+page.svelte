@@ -10,6 +10,18 @@
 <Diagram>
     {`
         erDiagram
+        TOKEN {
+            guid Id PK
+            string Reference
+            string Scope
+            string TokenType
+            datetime ExpiresAt
+            datetime IssuedAt
+            datetime NotBefore
+            string Audience
+            string Issuer
+            datetime RevokedAt
+        }
         CLIENT {
             string Id PK
             string Name
@@ -170,5 +182,8 @@
         SCOPE ||--o{ CONSENTEDGRANTSCOPE : ""
         SCOPE ||--o{ CLIENTSCOPE : ""
         SCOPE ||--o{ RESOURCESCOPE : ""
+
+        TOKEN }o--|| CLIENT : ""
+        TOKEN }o--|| AUTHORIZATIONCODEGRANT : ""
     `}
     </Diagram>
