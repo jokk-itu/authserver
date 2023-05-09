@@ -4,8 +4,10 @@ using Domain.Constants;
 using Infrastructure;
 using Infrastructure.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 
 namespace WebApp.Options;
@@ -36,6 +38,7 @@ public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions
       options.Audience = AudienceConstants.IdentityProvider;
       options.Authority = _identityConfiguration.Issuer;
       options.ConfigurationManager = _internalConfigurationManager;
+      options.Challenge = OpenIdConnectDefaults.AuthenticationScheme;
       options.TokenValidationParameters = new TokenValidationParameters
       {
         ClockSkew = TimeSpan.FromMinutes(5),
@@ -64,7 +67,7 @@ public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions
         { 
           _logger.LogInformation("Challenge response returned"); 
           return Task.CompletedTask;
-        }, 
+        },
         OnMessageReceived = async context => 
         { 
           _logger.LogInformation("Initiating bearer validation");

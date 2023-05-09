@@ -22,7 +22,9 @@ public class TokenIntrospectionHandler : IRequestHandler<TokenIntrospectionQuery
       {
         Token = x,
         (x as GrantToken).AuthorizationGrant.Session.User.UserName,
-        Subject = (x as GrantToken).AuthorizationGrant.Session.User.Id
+        Subject = (x as GrantToken).AuthorizationGrant.Session.User.Id,
+        ClientIdFromGrantToken = (x as GrantToken).AuthorizationGrant.Client.Id,
+        ClientIdFromClientToken = (x as ClientToken).Client.Id
       })
       .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
@@ -34,11 +36,13 @@ public class TokenIntrospectionHandler : IRequestHandler<TokenIntrospectionQuery
       };
     }
 
+    var clientId = query.ClientIdFromClientToken ?? query.ClientIdFromGrantToken;
+
     return new TokenIntrospectionResponse(HttpStatusCode.OK)
     {
       Active = query.Token.RevokedAt is null,
       JwtId = query.Token.Id.ToString(),
-      ClientId = request.ClientId,
+      ClientId = clientId,
       ExpiresAt = query.Token.ExpiresAt is null ? null : new DateTimeOffset(query.Token.ExpiresAt.Value).ToUnixTimeSeconds(),
       Issuer = query.Token.Issuer,
       Audience = query.Token.Audience.Split(' '),
