@@ -1,7 +1,7 @@
 <script>
-    import Diagram from "../../../components/Diagram.svelte";
-    import PageTitle from "../../../components/PageTitle.svelte";
-    import Section from "../../../components/Section.svelte";
+    import PageTitle from "../../components/PageTitle.svelte";
+    import Section from "../../components/Section.svelte";
+    import Diagram from "../../components/Diagram.svelte";
 </script>
 
 <PageTitle title="Dynamic Client Registration" />
