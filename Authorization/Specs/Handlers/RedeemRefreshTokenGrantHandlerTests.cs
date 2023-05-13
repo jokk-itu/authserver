@@ -1,9 +1,6 @@
-﻿using System.Net;
-using Application;
-using Application.Validation;
+﻿using Application;
 using Domain;
 using Domain.Constants;
-using Infrastructure.Builders.Abstractions;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.RefreshToken;
 using Infrastructure.Helpers;
@@ -11,29 +8,93 @@ using Infrastructure.Requests.RedeemRefreshTokenGrant;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using Moq;
 using Specs.Helpers.EntityBuilders;
 using Xunit;
 
 namespace Specs.Handlers;
 public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
 {
-  [Fact]
-  public async Task Handle_Ok()
+  [Theory]
+  [InlineData(null)]
+  [InlineData($"{ScopeConstants.OpenId}")]
+  public async Task Handle_StructuredRefreshToken_Ok(string requestScope)
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
+    var authorizationGrant = await GetAuthorizationGrant();
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<RefreshTokenArguments>>();
+    var scopes = $"{ScopeConstants.OpenId}";
+    var refreshToken = await tokenBuilder.BuildToken(new RefreshTokenArguments
+    {
+      Scope = scopes,
+      AuthorizationGrantId = authorizationGrant.Id
+    });
+    var handler = serviceProvider.GetRequiredService<IRequestHandler<RedeemRefreshTokenGrantCommand, RedeemRefreshTokenGrantResponse>>();
+    var command = new RedeemRefreshTokenGrantCommand
+    {
+      ClientId = authorizationGrant.Client.Id,
+      ClientSecret = authorizationGrant.Client.Secret,
+      RefreshToken = refreshToken,
+      GrantType = GrantTypeConstants.RefreshToken,
+      Scope = requestScope
+    };
+
+    // Act
+    var response = await handler.Handle(command, CancellationToken.None);
+
+    // Assert
+    Assert.False(response.IsError());
+  }
+
+  [Theory]
+  [InlineData(null)]
+  [InlineData($"{ScopeConstants.OpenId}")]
+  public async Task Handle_ReferenceRefreshToken_Ok(string requestScope)
+  {
+    // Arrange
+    var serviceProvider = BuildServiceProvider();
+    serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
+    var authorizationGrant = await GetAuthorizationGrant();
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<RefreshTokenArguments>>();
+    var scopes = $"{ScopeConstants.OpenId}";
+    var refreshToken = await tokenBuilder.BuildToken(new RefreshTokenArguments
+    {
+      Scope = scopes,
+      AuthorizationGrantId = authorizationGrant.Id
+    });
+    await IdentityContext.SaveChangesAsync();
+    var handler = serviceProvider.GetRequiredService<IRequestHandler<RedeemRefreshTokenGrantCommand, RedeemRefreshTokenGrantResponse>>();
+    var command = new RedeemRefreshTokenGrantCommand
+    {
+      ClientId = authorizationGrant.Client.Id,
+      ClientSecret = authorizationGrant.Client.Secret,
+      RefreshToken = refreshToken,
+      GrantType = GrantTypeConstants.RefreshToken,
+      Scope = requestScope
+    };
+
+    // Act
+    var response = await handler.Handle(command, CancellationToken.None);
+
+    // Assert
+    Assert.False(response.IsError());
+  }
+
+  private async Task<AuthorizationCodeGrant> GetAuthorizationGrant()
+  {
     var consentGrant = ConsentGrantBuilder
       .Instance()
       .AddClaims(await IdentityContext.Set<Claim>().ToListAsync())
       .AddScopes(await IdentityContext.Set<Scope>().ToListAsync())
       .Build();
 
+    var refreshGrant =
+      await IdentityContext.Set<GrantType>().SingleAsync(x => x.Name == GrantTypeConstants.RefreshToken);
+
     var client = ClientBuilder
       .Instance()
       .AddConsentGrant(consentGrant)
-      .AddGrantType(await IdentityContext.Set<GrantType>().SingleAsync(x => x.Name == GrantTypeConstants.RefreshToken))
+      .AddGrantType(refreshGrant)
       .Build();
 
     var nonce = NonceBuilder
@@ -61,32 +122,12 @@ public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
       .Instance()
       .AddPassword(CryptographyHelper.GetRandomString(16))
       .AddSession(session)
+      .AddConsentGrant(consentGrant)
       .Build();
 
     await IdentityContext.Set<User>().AddAsync(user);
     await IdentityContext.SaveChangesAsync();
 
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<RefreshTokenArguments>>();
-    var scopes = new[] { ScopeConstants.OpenId };
-    var refreshToken = await tokenBuilder.BuildToken(new RefreshTokenArguments
-    {
-      Scope = scopes.ToString(),
-      AuthorizationGrantId = authorizationGrant.Id
-    });
-    var handler = serviceProvider.GetRequiredService<IRequestHandler<RedeemRefreshTokenGrantCommand, RedeemRefreshTokenGrantResponse>>();
-    var command = new RedeemRefreshTokenGrantCommand
-    {
-      ClientId = client.Id,
-      ClientSecret = client.Secret,
-      RefreshToken = refreshToken,
-      GrantType = GrantTypeConstants.RefreshToken,
-      Scope = scopes.ToString()
-    };
-
-    // Act
-    var response = await handler.Handle(command, CancellationToken.None);
-
-    // Assert
-    Assert.False(response.IsError());
+    return authorizationGrant;
   }
 }

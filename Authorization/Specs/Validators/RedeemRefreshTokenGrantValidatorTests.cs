@@ -4,16 +4,12 @@ using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
-using Domain.Enums;
-using Infrastructure.Builders.Abstractions;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.RefreshToken;
 using Infrastructure.Helpers;
-using Infrastructure.Requests.RedeemAuthorizationCodeGrant;
 using Infrastructure.Requests.RedeemRefreshTokenGrant;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Specs.Helpers;
 using Specs.Helpers.EntityBuilders;
 using Xunit;
 
@@ -430,8 +426,10 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     Assert.Equal(HttpStatusCode.BadRequest, validationResponse.StatusCode);
   }
 
-  [Fact]
-  public async Task Validate_WithStructuredToken_Ok()
+  [Theory]
+  [InlineData(null)]
+  [InlineData($"{ScopeConstants.OpenId}")]
+  public async Task Validate_WithStructuredToken_Ok(string requestScope)
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
@@ -450,7 +448,7 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
       ClientId = authorizationGrant.Client.Id,
       ClientSecret = authorizationGrant.Client.Secret,
       RefreshToken = token,
-      Scope = $"{ScopeConstants.OpenId}"
+      Scope = requestScope
     };
     
     // Act
@@ -460,8 +458,10 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     Assert.False(validationResponse.IsError());
   }
 
-  [Fact]
-  public async Task Validate_WithReferenceToken_Ok()
+  [Theory]
+  [InlineData(null)]
+  [InlineData($"{ScopeConstants.OpenId}")]
+  public async Task Validate_WithReferenceToken_Ok(string requestScope)
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
@@ -483,7 +483,7 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
       ClientId = authorizationGrant.Client.Id,
       ClientSecret = authorizationGrant.Client.Secret,
       RefreshToken = token,
-      Scope = $"{ScopeConstants.OpenId}"
+      Scope = requestScope
     };
     
     // Act

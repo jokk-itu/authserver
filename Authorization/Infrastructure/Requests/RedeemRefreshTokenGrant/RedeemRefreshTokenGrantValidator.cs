@@ -100,7 +100,11 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
       return new ValidationResult(ErrorCode.ConsentRequired, "consent is required", HttpStatusCode.BadRequest);
     }
 
-    if (value.Scope.Split(' ').Except(consentGrant.ConsentedScopes.Select(x => x.Name)).Any())
+    if (!string.IsNullOrWhiteSpace(value.Scope)
+        && value.Scope
+          .Split(' ')
+          .Except(consentGrant.ConsentedScopes.Select(x => x.Name))
+          .Any())
     {
       return new ValidationResult(ErrorCode.InvalidScope, "scope exceeds consented scope", HttpStatusCode.BadRequest);
     }

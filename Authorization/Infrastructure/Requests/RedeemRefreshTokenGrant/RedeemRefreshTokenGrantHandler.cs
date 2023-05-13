@@ -2,18 +2,15 @@
 using Application;
 using Domain;
 using Domain.Constants;
-using Infrastructure.Builders.Abstractions;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.GrantAccessToken;
 using Infrastructure.Builders.Token.IdToken;
 using Infrastructure.Builders.Token.RefreshToken;
-using Infrastructure.Decoders.Abstractions;
 using Infrastructure.Decoders.Token;
 using Infrastructure.Decoders.Token.Abstractions;
 using Infrastructure.Repositories;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Infrastructure.Requests.RedeemRefreshTokenGrant;
 public class RedeemRefreshTokenGrantHandler : IRequestHandler<RedeemRefreshTokenGrantCommand, RedeemRefreshTokenGrantResponse>
@@ -46,14 +43,27 @@ public class RedeemRefreshTokenGrantHandler : IRequestHandler<RedeemRefreshToken
 
   public async Task<RedeemRefreshTokenGrantResponse> Handle(RedeemRefreshTokenGrantCommand request, CancellationToken cancellationToken)
   {
-    var token = await _tokenDecoder.Decode(request.RefreshToken, new StructuredTokenDecoderArguments
+    string authorizationGrantId;
+    if (request.RefreshToken.Split('.').Length == 3)
     {
-      ClientId = request.ClientId
-    });
+      authorizationGrantId = await ValidateStructuredToken(request);
+    }
+    else
+    {
+      authorizationGrantId = await ValidateReferenceToken(request, cancellationToken);
+    }
 
-    var authorizationGrantId = token.Claims.Single(x => x.Type == ClaimNameConstants.GrantId).Value;
-    // TODO get the consented scopes from the ConsentGrant if the request.Scope is null
-    var scope = request.Scope ?? "";
+    string scope;
+    if (string.IsNullOrWhiteSpace(request.Scope))
+    {
+      var consentedScopes = await GetConsentedScopes(authorizationGrantId, cancellationToken); 
+      scope = string.Join(' ', consentedScopes.Select(x => x.Name));
+    }
+    else
+    {
+      scope = request.Scope;
+    }
+
     var resources = await _resourceManager.ReadResourcesAsync(scope.Split(' '), cancellationToken: cancellationToken);
 
     var accessToken = await _accessTokenBuilder.BuildToken(new GrantAccessTokenArguments
@@ -79,7 +89,53 @@ public class RedeemRefreshTokenGrantHandler : IRequestHandler<RedeemRefreshToken
       AccessToken = accessToken,
       RefreshToken = refreshToken,
       IdToken = idToken,
-      ExpiresIn = _identityConfiguration.RefreshTokenExpiration
+      ExpiresIn = _identityConfiguration.AccessTokenExpiration
     };
+  }
+
+  private async Task<string> ValidateReferenceToken(RedeemRefreshTokenGrantCommand value, CancellationToken cancellationToken)
+  {
+    var authorizationGrantId = await _identityContext
+      .Set<RefreshToken>()
+      .Where(x => x.Reference == value.RefreshToken)
+      .Select(x => x.AuthorizationGrant.Id)
+      .SingleAsync(cancellationToken: cancellationToken);
+
+    return authorizationGrantId;
+  }
+
+  private async Task<string> ValidateStructuredToken(RedeemRefreshTokenGrantCommand value)
+  {
+    var token = await _tokenDecoder.Decode(value.RefreshToken, new StructuredTokenDecoderArguments
+      {
+        ClientId = value.ClientId,
+      });
+    var authorizationGrantId = token.Claims.Single(x => x.Type == ClaimNameConstants.GrantId).Value;
+    return authorizationGrantId;
+  }
+
+  private async Task<IEnumerable<Scope>> GetConsentedScopes(string authorizationGrantId, CancellationToken cancellationToken)
+  {
+    var consentedScopes = await _identityContext
+      .Set<AuthorizationCodeGrant>()
+      .Where(x => x.Id == authorizationGrantId)
+      .Select(x => new
+      {
+        UserId = x.Session.User.Id,
+        ClientId = x.Client.Id
+      })
+      .Join(
+        _identityContext.Set<ConsentGrant>(),
+        outer => outer,
+        inner => new
+        {
+          UserId = inner.User.Id,
+          ClientId = inner.Client.Id
+        },
+        (inner, outer) => outer)
+      .Select(x => x.ConsentedScopes)
+      .SingleAsync(cancellationToken: cancellationToken);
+
+    return consentedScopes;
   }
 }
