@@ -145,7 +145,7 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
     {
         // Arrange
         var serviceProvider = BuildServiceProvider();
-        var authorizationCodeGrant = await GetAuthorizationCodeGrant(ApplicationType.Web, new List<string>());
+        var authorizationCodeGrant = await GetAuthorizationGrant(ApplicationType.Web, new List<string>());
         var codeBuilder = serviceProvider.GetRequiredService<ICodeBuilder>();
         var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
         var code = await codeBuilder.BuildAuthorizationCodeAsync(
@@ -180,7 +180,7 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
     {
       // Arrange
       var serviceProvider = BuildServiceProvider();
-      var authorizationCodeGrant = await GetAuthorizationCodeGrant(ApplicationType.Web, new List<string>());
+      var authorizationCodeGrant = await GetAuthorizationGrant(ApplicationType.Web, new List<string>());
       var codeBuilder = serviceProvider.GetRequiredService<ICodeBuilder>();
       var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
       var code = await codeBuilder.BuildAuthorizationCodeAsync(
@@ -215,7 +215,7 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
     {
         // Arrange
         var serviceProvider = BuildServiceProvider();
-        var authorizationCodeGrant = await GetAuthorizationCodeGrant(ApplicationType.Web, new List<string>());
+        var authorizationCodeGrant = await GetAuthorizationGrant(ApplicationType.Web, new List<string>());
         var codeBuilder = serviceProvider.GetRequiredService<ICodeBuilder>();
         var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
         var code = await codeBuilder.BuildAuthorizationCodeAsync(
@@ -250,7 +250,7 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
     {
         // Arrange
         var serviceProvider = BuildServiceProvider();
-        var authorizationCodeGrant = await GetAuthorizationCodeGrant(ApplicationType.Web, new List<string>());
+        var authorizationCodeGrant = await GetAuthorizationGrant(ApplicationType.Web, new List<string>());
         authorizationCodeGrant.Session.IsRevoked = true;
         await IdentityContext.SaveChangesAsync();
         var codeBuilder = serviceProvider.GetRequiredService<ICodeBuilder>();
@@ -288,7 +288,7 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
     {
       // Arrange
       var serviceProvider = BuildServiceProvider();
-      var authorizationCodeGrant = await GetAuthorizationCodeGrant(ApplicationType.Web, new List<string>());
+      var authorizationCodeGrant = await GetAuthorizationGrant(ApplicationType.Web, new List<string>());
       authorizationCodeGrant.Client.ConsentGrants.Clear();
       authorizationCodeGrant.Session.User.ConsentGrants.Clear();
       await IdentityContext.SaveChangesAsync();
@@ -327,7 +327,7 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
     {
       // Arrange
       var serviceProvider = BuildServiceProvider();
-      var authorizationCodeGrant = await GetAuthorizationCodeGrant(ApplicationType.Web, new List<string>());
+      var authorizationCodeGrant = await GetAuthorizationGrant(ApplicationType.Web, new List<string>());
       await IdentityContext.SaveChangesAsync();
       var codeBuilder = serviceProvider.GetRequiredService<ICodeBuilder>();
       var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
@@ -364,7 +364,7 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
     {
         // Arrange
         var serviceProvider = BuildServiceProvider();
-        var authorizationCodeGrant = await GetAuthorizationCodeGrant(ApplicationType.Web, new[] {ScopeConstants.OpenId});
+        var authorizationCodeGrant = await GetAuthorizationGrant(ApplicationType.Web, new[] {ScopeConstants.OpenId});
         var codeBuilder = serviceProvider.GetRequiredService<ICodeBuilder>();
         var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
         var code = await codeBuilder.BuildAuthorizationCodeAsync(
@@ -394,7 +394,7 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
         Assert.False(validationResult.IsError());
     }
 
-    private async Task<AuthorizationCodeGrant> GetAuthorizationCodeGrant(ApplicationType applicationType, ICollection<string> scopes)
+    private async Task<AuthorizationCodeGrant> GetAuthorizationGrant(ApplicationType applicationType, ICollection<string> scopes)
     {
       var consentedScopes = await IdentityContext
         .Set<Scope>()

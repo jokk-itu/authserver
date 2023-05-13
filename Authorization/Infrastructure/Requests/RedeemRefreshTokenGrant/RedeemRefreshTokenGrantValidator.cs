@@ -6,7 +6,6 @@ using Domain.Constants;
 using Infrastructure.Decoders.Token;
 using Infrastructure.Decoders.Token.Abstractions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace Infrastructure.Requests.RedeemRefreshTokenGrant;
 public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGrantCommand>
@@ -59,7 +58,8 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
         IsClientSecretValid = x.Client.Secret == value.ClientSecret,
         HasClientSecret = x.Client.Secret != null,
         IsClientAuthorized = x.Client.GrantTypes.Any(y => y.Name == GrantTypeConstants.RefreshToken),
-        IsSessionValid = !x.Session.IsRevoked
+        IsSessionValid = !x.Session.IsRevoked,
+        UserId = x.Session.User.Id
       })
       .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
@@ -67,8 +67,6 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
     {
       return new ValidationResult(ErrorCode.LoginRequired, "authorization grant is invalid", HttpStatusCode.BadRequest);
     }
-
-    // TODO verify value.Scope that it is within the ConsentedGrant
 
     if (!query.IsClientIdValid)
     {
@@ -88,6 +86,23 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
     if (!query.IsSessionValid)
     {
       return new ValidationResult(ErrorCode.LoginRequired, "session is invalid", HttpStatusCode.BadRequest);
+    }
+
+    var consentGrant = await _identityContext
+      .Set<ConsentGrant>()
+      .Where(x => x.User.Id == query.UserId)
+      .Where(x => x.Client.Id == value.ClientId)
+      .Include(x => x.ConsentedScopes)
+      .SingleOrDefaultAsync(cancellationToken: cancellationToken);
+
+    if (consentGrant is null)
+    {
+      return new ValidationResult(ErrorCode.ConsentRequired, "consent is required", HttpStatusCode.BadRequest);
+    }
+
+    if (value.Scope.Split(' ').Except(consentGrant.ConsentedScopes.Select(x => x.Name)).Any())
+    {
+      return new ValidationResult(ErrorCode.InvalidScope, "scope exceeds consented scope", HttpStatusCode.BadRequest);
     }
 
     return new ValidationResult(HttpStatusCode.OK);
