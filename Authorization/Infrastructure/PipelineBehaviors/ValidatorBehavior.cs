@@ -36,7 +36,7 @@ public class ValidatorBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest
       }
 
       _logger.LogInformation(
-        "Validated {Request} with {ErrorCode} and {ErrorDescription}, took {ElapsedTime} ms",
+        "Validated {Request} with error {ErrorCode} and description {ErrorDescription}, took {ElapsedTime} ms",
         requestName,
         validationResult.ErrorCode,
         validationResult.ErrorDescription,

@@ -7,6 +7,8 @@ using Specs.Helpers;
 using Xunit;
 
 namespace Specs.Integrations;
+
+[Collection("Integration")]
 public class EndSessionTest : BaseIntegrationTest
 {
   public EndSessionTest(WebApplicationFactory<Program> factory) : base(factory)

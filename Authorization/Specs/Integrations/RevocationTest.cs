@@ -7,9 +7,12 @@ using Specs.Helpers.EndpointBuilders;
 using Xunit;
 
 namespace Specs.Integrations;
+
+[Collection("Integration")]
 public class RevocationTest : BaseIntegrationTest
 {
-  public RevocationTest(WebApplicationFactory<Program> factory) : base(factory)
+  public RevocationTest(WebApplicationFactory<Program> factory)
+    : base(factory)
   {
   }
 
