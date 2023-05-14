@@ -7,7 +7,10 @@ public class EndSessionContextAccessor : IContextAccessor<EndSessionContext>
 {
   public async Task<EndSessionContext> GetContext(HttpContext httpContext)
   {
-    var context = httpContext.Request.Method == HttpMethod.Get.ToString() ? GetContextFromQuery(httpContext) : await GetContextFromBody(httpContext);
+    var context = httpContext.Request.Method == HttpMethod.Get.ToString()
+      ? GetContextFromQuery(httpContext)
+      : await GetContextFromBody(httpContext);
+
     return context;
   }
 

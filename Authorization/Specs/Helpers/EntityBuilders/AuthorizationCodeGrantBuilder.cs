@@ -24,6 +24,12 @@ public class AuthorizationCodeGrantBuilder
     return _authorizationCodeGrant;
   }
 
+  public AuthorizationCodeGrantBuilder AddToken(GrantToken token)
+  {
+    _authorizationCodeGrant.GrantTokens.Add(token);
+    return this;
+  } 
+
   public AuthorizationCodeGrantBuilder AddRevoked()
   {
     _authorizationCodeGrant.IsRevoked = true;

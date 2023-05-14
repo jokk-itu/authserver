@@ -1,9 +1,7 @@
 ﻿using System.Net;
-using Application;
 using Domain;
 using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
-using Infrastructure.Decoders.Abstractions;
 using Infrastructure.Decoders.Token;
 using Infrastructure.Decoders.Token.Abstractions;
 using MediatR;

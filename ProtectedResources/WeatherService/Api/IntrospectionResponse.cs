@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Xml.Linq;
 
 namespace Api;
 public class IntrospectionResponse

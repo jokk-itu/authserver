@@ -6,7 +6,6 @@ using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
-using Domain.Enums;
 using Infrastructure.Decoders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

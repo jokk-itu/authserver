@@ -5,7 +5,6 @@ using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
-using Infrastructure.Decoders.Abstractions;
 using Infrastructure.Decoders.Token;
 using Infrastructure.Decoders.Token.Abstractions;
 using Microsoft.EntityFrameworkCore;

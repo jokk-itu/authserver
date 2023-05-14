@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
@@ -8,7 +9,7 @@ public class WeatherController : ControllerBase
 {
   private static readonly string[] _weatherTypes = { "Freezing", "Cold", "Mild", "Hot", "Scorching" };
 
-  [Authorize]
+  [Authorize(AuthenticationSchemes = OpenIdConnectDefaults.AuthenticationScheme, Policy = "Weather")]
   [HttpGet]
   public IActionResult Get()
   {

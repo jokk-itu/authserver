@@ -1,13 +1,10 @@
 ﻿using System.Net.Http.Json;
+using Application;
 using Domain;
 using Domain.Constants;
 using Infrastructure;
-using Infrastructure.Helpers;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Specs.Helpers.EntityBuilders;
@@ -27,36 +24,17 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
       });
   }
 
-  protected TestServer CreateClientServer(int port)
-  {
-    var webHostBuilder = new WebHostBuilder()
-      .UseUrls($"http://localhost:{port}")
-      .ConfigureKestrel(options =>
-      {
-        options.AddServerHeader = false;
-      })
-      .ConfigureServices(services =>
-      {
-        services.AddRouting();
-      })
-      .Configure(app =>
-      {
-        app.UseRouting();
-        app.UseEndpoints(endpointBuilder =>
-        {
-          endpointBuilder.MapGet("oidc/backchannel-logout", context => Task.FromResult(Results.Ok()));
-        });
-      });
-
-    return new TestServer(webHostBuilder);
-  }
-
   protected HttpClient GetHttpClient()
   {
     return _factory.CreateClient(new WebApplicationFactoryClientOptions
     {
       AllowAutoRedirect = false
     });
+  }
+
+  protected void UseReferenceTokens()
+  {
+    _factory.Services.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
   }
 
   protected async Task CreateDatabase()
@@ -111,7 +89,9 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
       GrantTypes = new[] { GrantTypeConstants.AuthorizationCode, GrantTypeConstants.RefreshToken },
       RedirectUris = new[] { "https://localhost:5002/callback" },
       SubjectType = SubjectTypeConstants.Public,
-      ResponseTypes = new[] { ResponseTypeConstants.Code }
+      ResponseTypes = new[] { ResponseTypeConstants.Code },
+      BackChannelLogoutUri = "https://localhost:5002/backchannel-logout",
+      PostLogoutRedirectUris = new[] { "https://localhost:5002/post-logout" }
     };
     return await BuildClient(postClientRequest);
   }
@@ -127,7 +107,9 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
       GrantTypes = new[] { GrantTypeConstants.AuthorizationCode, GrantTypeConstants.RefreshToken },
       RedirectUris = new[] { "https://localhost:5003/callback" },
       SubjectType = SubjectTypeConstants.Public,
-      ResponseTypes = new[] { ResponseTypeConstants.Code }
+      ResponseTypes = new[] { ResponseTypeConstants.Code },
+      BackChannelLogoutUri = "https://localhost:5002/backchannel-logout",
+      PostLogoutRedirectUris = new[] { "https://localhost:5002/post-logout" }
     };
     return await BuildClient(postClientRequest);
   }
