@@ -83,7 +83,7 @@ public class RedeemRefreshTokenGrantHandler : IRequestHandler<RedeemRefreshToken
     {
       AuthorizationGrantId = authorizationGrantId
     });
-
+    await _identityContext.SaveChangesAsync(cancellationToken: cancellationToken);
     return new RedeemRefreshTokenGrantResponse(HttpStatusCode.OK)
     {
       AccessToken = accessToken,

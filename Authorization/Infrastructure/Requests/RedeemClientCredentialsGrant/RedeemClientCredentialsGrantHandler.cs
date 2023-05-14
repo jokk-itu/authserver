@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using Application;
-using Infrastructure.Builders.Abstractions;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.ClientAccessToken;
 using Infrastructure.Repositories;
@@ -12,15 +11,18 @@ public class RedeemClientCredentialsGrantHandler : IRequestHandler<RedeemClientC
   private readonly ITokenBuilder<ClientAccessTokenArguments> _tokenBuilder;
   private readonly IdentityConfiguration _identityConfiguration;
   private readonly ResourceManager _resourceManager;
+  private readonly IdentityContext _identityContext;
 
   public RedeemClientCredentialsGrantHandler(
     ITokenBuilder<ClientAccessTokenArguments> tokenBuilder,
     IdentityConfiguration identityConfiguration,
-    ResourceManager resourceManager)
+    ResourceManager resourceManager,
+    IdentityContext identityContext)
   {
     _tokenBuilder = tokenBuilder;
     _identityConfiguration = identityConfiguration;
     _resourceManager = resourceManager;
+    _identityContext = identityContext;
   }
 
   public async Task<RedeemClientCredentialsGrantResponse> Handle(RedeemClientCredentialsGrantCommand request,
@@ -34,6 +36,7 @@ public class RedeemClientCredentialsGrantHandler : IRequestHandler<RedeemClientC
         ResourceNames = resources.Select(x => x.Name),
         Scope = request.Scope
       });
+    await _identityContext.SaveChangesAsync(cancellationToken: cancellationToken);
     return new RedeemClientCredentialsGrantResponse(HttpStatusCode.OK)
     {
       AccessToken = accessToken,

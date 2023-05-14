@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Domain;
+using Domain.Extensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -50,7 +51,7 @@ public class TokenIntrospectionHandler : IRequestHandler<TokenIntrospectionQuery
       NotBefore = new DateTimeOffset(query.Token.NotBefore).ToUnixTimeSeconds(),
       Scope = query.Token.Scope,
       Subject = query.Subject,
-      TokenType = query.Token.TokenType.ToString(),
+      TokenType = query.Token.TokenType.GetDescription(),
       UserName = query.UserName
     };
   }
