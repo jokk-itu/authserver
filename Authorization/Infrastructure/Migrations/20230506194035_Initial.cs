@@ -78,9 +78,9 @@ namespace Infrastructure.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CreatedTimestamp = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PrivateKey = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    Modulus = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    Exponent = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
+                    PrivateKey = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    Modulus = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    Exponent = table.Column<byte[]>(type: "varbinary(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -455,14 +455,15 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Reference = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Scope = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Scope = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TokenType = table.Column<int>(type: "int", nullable: false),
-                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IssuedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     NotBefore = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Audience = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Issuer = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RevokedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     AuthorizationGrantId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
@@ -474,6 +475,11 @@ namespace Infrastructure.Migrations
                         principalTable: "AuthorizationCodeGrant",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Token_Client_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "Client",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.InsertData(
@@ -516,7 +522,8 @@ namespace Infrastructure.Migrations
                     { 2, "email" },
                     { 3, "profile" },
                     { 4, "offline_access" },
-                    { 5, "phone" }
+                    { 5, "phone" },
+                    { 6, "identityprovider:userinfo" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -605,6 +612,11 @@ namespace Infrastructure.Migrations
                 name: "IX_Token_AuthorizationGrantId",
                 table: "Token",
                 column: "AuthorizationGrantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Token_ClientId",
+                table: "Token",
+                column: "ClientId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_User_Email",

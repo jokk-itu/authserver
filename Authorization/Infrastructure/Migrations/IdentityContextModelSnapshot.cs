@@ -369,12 +369,15 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<byte[]>("Exponent")
+                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<byte[]>("Modulus")
+                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<byte[]>("PrivateKey")
+                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.HasKey("Id");
@@ -513,6 +516,11 @@ namespace Infrastructure.Migrations
                         {
                             Id = 5,
                             Name = "phone"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "identityprovider:userinfo"
                         });
                 });
 
@@ -544,7 +552,7 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("ExpiresAt")
+                    b.Property<DateTime?>("ExpiresAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("IssuedAt")
@@ -565,7 +573,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Scope")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("TokenType")
@@ -647,6 +654,16 @@ namespace Infrastructure.Migrations
                     b.ToTable("ResourceScope");
                 });
 
+            modelBuilder.Entity("Domain.ClientToken", b =>
+                {
+                    b.HasBaseType("Domain.Token");
+
+                    b.Property<string>("ClientId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasIndex("ClientId");
+                });
+
             modelBuilder.Entity("Domain.GrantToken", b =>
                 {
                     b.HasBaseType("Domain.Token");
@@ -657,11 +674,18 @@ namespace Infrastructure.Migrations
                     b.HasIndex("AuthorizationGrantId");
                 });
 
-            modelBuilder.Entity("Domain.AccessToken", b =>
+            modelBuilder.Entity("Domain.ClientAccessToken", b =>
+                {
+                    b.HasBaseType("Domain.ClientToken");
+
+                    b.HasDiscriminator().HasValue(1);
+                });
+
+            modelBuilder.Entity("Domain.GrantAccessToken", b =>
                 {
                     b.HasBaseType("Domain.GrantToken");
 
-                    b.HasDiscriminator().HasValue(1);
+                    b.HasDiscriminator().HasValue(2);
                 });
 
             modelBuilder.Entity("Domain.RefreshToken", b =>
@@ -669,6 +693,13 @@ namespace Infrastructure.Migrations
                     b.HasBaseType("Domain.GrantToken");
 
                     b.HasDiscriminator().HasValue(0);
+                });
+
+            modelBuilder.Entity("Domain.RegistrationToken", b =>
+                {
+                    b.HasBaseType("Domain.ClientToken");
+
+                    b.HasDiscriminator().HasValue(3);
                 });
 
             modelBuilder.Entity("ClaimConsentGrant", b =>
@@ -849,6 +880,16 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Domain.ClientToken", b =>
+                {
+                    b.HasOne("Domain.Client", "Client")
+                        .WithMany("ClientTokens")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("Client");
+                });
+
             modelBuilder.Entity("Domain.GrantToken", b =>
                 {
                     b.HasOne("Domain.AuthorizationCodeGrant", "AuthorizationGrant")
@@ -871,6 +912,8 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Client", b =>
                 {
                     b.Navigation("AuthorizationCodeGrants");
+
+                    b.Navigation("ClientTokens");
 
                     b.Navigation("ConsentGrants");
 
