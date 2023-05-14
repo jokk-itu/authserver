@@ -4,7 +4,6 @@ using Application.Validation;
 using Domain;
 using Domain.Constants;
 using Domain.Enums;
-using Infrastructure.Builders.Abstractions;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.IdToken;
 using Infrastructure.Helpers;

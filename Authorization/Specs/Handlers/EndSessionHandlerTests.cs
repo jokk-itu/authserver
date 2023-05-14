@@ -95,6 +95,8 @@ public class EndSessionHandlerTests : BaseUnitTest
 
     // Assert
     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    Assert.Collection(await IdentityContext.Set<Session>().ToListAsync(), session => Assert.True(session.IsRevoked));
+    Assert.Collection(await IdentityContext.Set<AuthorizationCodeGrant>().ToListAsync(), grant => Assert.True(grant.IsRevoked));
   }
 
   private async Task<AuthorizationCodeGrant> GetAuthorizationGrant()
@@ -103,6 +105,16 @@ public class EndSessionHandlerTests : BaseUnitTest
       .Set<Scope>()
       .SingleAsync(x => x.Name == ScopeConstants.OpenId);
 
+    var weatherScope = ScopeBuilder
+      .Instance()
+      .AddName("weather:read")
+      .Build();
+
+    var resource = ResourceBuilder
+      .Instance()
+      .AddScope(weatherScope)
+      .Build();
+
     var client = ClientBuilder
       .Instance()
       .AddRedirectUri("https://localhost:5001/callback")
@@ -110,6 +122,7 @@ public class EndSessionHandlerTests : BaseUnitTest
       .AddBackChannelLogoutUri("https://localhost:5001/logout")
       .AddTokenEndpointAuthMethod(TokenEndpointAuthMethod.ClientSecretPost)
       .AddScope(openIdScope)
+      .AddScope(weatherScope)
       .Build();
 
     var nonce = NonceBuilder
@@ -120,16 +133,25 @@ public class EndSessionHandlerTests : BaseUnitTest
       .Instance(Guid.NewGuid().ToString())
       .Build();
 
-    var authorizationCodeGrant = AuthorizationCodeGrantBuilder
+    var grantAccessToken = GrantAccessTokenBuilder
+      .Instance()
+      .AddAudience(resource.Name)
+      .AddExpiresAt(DateTime.UtcNow.AddHours(1))
+      .AddIssuer("https://localhost:5000")
+      .AddScope($"weatherScope.Name {openIdScope.Name}")
+      .Build() as GrantAccessToken;
+
+    var authorizationGrant = AuthorizationCodeGrantBuilder
       .Instance(Guid.NewGuid().ToString())
       .AddClient(client)
+      .AddToken(grantAccessToken)
       .AddNonce(nonce)
       .AddAuthorizationCode(authorizationCode)
       .Build();
 
     var session = SessionBuilder
       .Instance()
-      .AddAuthorizationCodeGrant(authorizationCodeGrant)
+      .AddAuthorizationCodeGrant(authorizationGrant)
       .Build();
 
     var user = UserBuilder
@@ -138,8 +160,9 @@ public class EndSessionHandlerTests : BaseUnitTest
       .AddSession(session)
       .Build();
 
+    await IdentityContext.AddAsync(resource);
     await IdentityContext.AddAsync(user);
     await IdentityContext.SaveChangesAsync();
-    return authorizationCodeGrant;
+    return authorizationGrant;
   }
 }
