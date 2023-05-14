@@ -6,6 +6,8 @@ using WebApp.Options;
 using WebApp.Context.Abstract;
 using WebApp.Context.AuthorizeContext;
 using WebApp.Context.EndSessionContext;
+using WebApp.Context.IntrospectionContext;
+using WebApp.Context.RevocationContext;
 using WebApp.Context.TokenContext;
 
 namespace WebApp.Extensions;
@@ -90,6 +92,8 @@ public static class ServiceCollectionExtensions
     services.AddScoped<IContextAccessor<TokenContext>, TokenContextAccessor>();
     services.AddScoped<IContextAccessor<AuthorizeContext>, AuthorizeContextAccessor>();
     services.AddScoped<IContextAccessor<EndSessionContext>, EndSessionContextAccessor>();
+    services.AddScoped<IContextAccessor<IntrospectionContext>, IntrospectionContextAccessor>();
+    services.AddScoped<IContextAccessor<RevocationContext>, RevocationContextAccessor>();
     return services;
   }
 }
