@@ -5,7 +5,8 @@ using Microsoft.Extensions.Configuration;
 
 var builder = new ConfigurationBuilder()
   .SetBasePath(Directory.GetCurrentDirectory())
-  .AddJsonFile("config.json", optional: false);
+  .AddJsonFile("config.json", optional: false)
+  .AddEnvironmentVariables();
 
 var config = builder.Build();
 var sqliteConnectionString = config.GetConnectionString("Sqlite");
