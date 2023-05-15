@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="../../favicon.png" />
+		<meta name="viewport" content="width=device-width" />
+		<meta http-equiv="content-security-policy" content="">
+		<link href="../../_app/immutable/assets/_layout-f1c12d17.css" rel="stylesheet">
+		<link rel="modulepreload" href="../../_app/immutable/start-a4f6f139.js">
+		<link rel="modulepreload" href="../../_app/immutable/chunks/index-86aa8d89.js">
+		<link rel="modulepreload" href="../../_app/immutable/chunks/singletons-04e7d2d3.js">
+		<link rel="modulepreload" href="../../_app/immutable/chunks/paths-7973a8bd.js">
+		<link rel="modulepreload" href="../../_app/immutable/chunks/preload-helper-41c905a7.js">
+		<link rel="modulepreload" href="../../_app/immutable/components/pages/_layout.svelte-5eef1308.js">
+		<link rel="modulepreload" href="../../_app/immutable/modules/pages/_layout.ts-acfb44a6.js">
+		<link rel="modulepreload" href="../../_app/immutable/chunks/mermaid.core-63fba6d8.js">
+		<link rel="modulepreload" href="../../_app/immutable/chunks/_layout-838b24c6.js">
+		<link rel="modulepreload" href="../../_app/immutable/components/pages/grants/authorizationcode/_page.svelte-6d3481ee.js">
+		<link rel="modulepreload" href="../../_app/immutable/chunks/Diagram-a4d00bce.js">
+		<link rel="modulepreload" href="../../_app/immutable/chunks/PageTitle-cc378c43.js">
+		<link rel="modulepreload" href="../../_app/immutable/chunks/Section-4061cb73.js">
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">
+
+
+<div class="flex flew-row divide-x-2"><div class="flex flex-col px-10 pt-4 flex-grow-0 flex-shrink-0"><p class="text-2xl">Authorization Server</p>
+         <hr class="pb-4">
+         <ul class="list-disc"><li><a class="ref-link text-lg" href="/authserver">Introduction</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/architecture">Architecture</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/configurationapp">Configuration App</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/authorize">Authorize</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/token">Token</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/datamodel">DataModel</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/grants">Grants</a>
+               <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/grants/authorizationcode">AuthorizationCode
+                         </a></li>
+                    <li><a class="ref-link" href="/authserver/grants/clientcredentials">Client Credentials
+                         </a></li>
+                    <li><a class="ref-link" href="/authserver/grants/refreshtoken">Refresh Token
+                         </a></li></ul></li>
+             <li><a class="ref-link text-lg" href="/authserver/dynamicclientregistration">Dynamic Client Registration</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/logout">Logout</a>
+               <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/logout/backchannel">Backchannel</a></li>
+                    <li><a class="ref-link" href="/authserver/logout/rpinitiated">RP Initiated</a></li></ul></li>
+             <li><a class="ref-link text-lg" href="/authserver/userinfo">UserInfo</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/discovery">Discovery</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/clients">Clients</a>
+               <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/clients/blazor-bff">Blazor.BFF</a></li>
+                    <li><a class="ref-link" href="/authserver/clients/worker">Worker</a></li>
+                    <li><a class="ref-link" href="/authserver/clients/webapp">WebApp</a></li></ul></li>
+             <li><a class="ref-link text-lg" href="/authserver/resources">Resources</a>
+               <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/resources/weather">Weather</a></li></ul></li>
+             <li><a class="ref-link text-lg" href="/authserver/introspection">Introspection</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/revocation">Revocation</a></li></ul></div>
+ 
+     <div class="px-12 pt-4 flex-grow-3"><h1 class="text-4xl mb-2">AuthorizationCode</h1>
+<hr class="mb-4">
+<div class="mb-4" id="introduction"><div class="inline-flex"><a class="ref-link" href="#introduction"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"></path></svg></a>
+        <h3 class="text-xl">Introduction</h3></div>
+    <hr class="mb-4">
+    <p>The standard grant type and preferred in all use cases when using OIDC.
+    In short the client redirects the user to the authorize endpoint,
+    after login an authorization code is sent back to the client,
+    at last the client requests the token endpoint for tokens.
+    </p></div>
+
+<div class="mb-4" id="specification"><div class="inline-flex"><a class="ref-link" href="#specification"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"></path></svg></a>
+        <h3 class="text-xl">Specification</h3></div>
+    <hr class="mb-4">
+    <ul class="list-disc"><li><a href="https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">OpenId Connect v1.0</a></li>
+        <li><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-05">OAuth 2.1</a></li></ul></div>
+
+<div class="mb-4" id="authorization code"><div class="inline-flex"><a class="ref-link" href="#authorization code"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"></path></svg></a>
+        <h3 class="text-xl">Authorization Code</h3></div>
+    <hr class="mb-4">
+    <pre class="mermaid">    
+sequenceDiagram
+actor EndUser
+participant RelyingParty as RP
+participant OpenIDProvider as OP
+RelyingParty->>OpenIDProvider: Authorize endpoint
+EndUser->>OpenIDProvider: Login
+OpenIDProvider->>RelyingParty: Formpost authorization code
+RelyingParty->>OpenIDProvider: Post token endpoint
+OpenIDProvider->>RelyingParty: Ok 200 with tokens
+
+</pre></div></div></div>
+
+
+		<script type="module" data-sveltekit-hydrate="u2lph3">
+			import { start } from "../../_app/immutable/start-a4f6f139.js";
+
+			start({
+				assets: "",
+				env: {},
+				target: document.querySelector('[data-sveltekit-hydrate="u2lph3"]').parentNode,
+				version: "1684170938876",
+				hydrate: {
+					node_ids: [0, 14],
+					data: [null,null],
+					form: null,
+					error: null
+				}
+			});
+		</script>
+	</div>
+	</body>
+</html>

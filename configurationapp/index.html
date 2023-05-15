@@ -2,21 +2,22 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" href="./favicon.png" />
+		<link rel="icon" href="../favicon.png" />
 		<meta name="viewport" content="width=device-width" />
 		<meta http-equiv="content-security-policy" content="">
-		<link href="./_app/immutable/assets/_layout-f1c12d17.css" rel="stylesheet">
-		<link rel="modulepreload" href="./_app/immutable/start-a4f6f139.js">
-		<link rel="modulepreload" href="./_app/immutable/chunks/index-86aa8d89.js">
-		<link rel="modulepreload" href="./_app/immutable/chunks/singletons-04e7d2d3.js">
-		<link rel="modulepreload" href="./_app/immutable/chunks/paths-7973a8bd.js">
-		<link rel="modulepreload" href="./_app/immutable/chunks/preload-helper-41c905a7.js">
-		<link rel="modulepreload" href="./_app/immutable/components/pages/_layout.svelte-5eef1308.js">
-		<link rel="modulepreload" href="./_app/immutable/modules/pages/_layout.ts-acfb44a6.js">
-		<link rel="modulepreload" href="./_app/immutable/chunks/mermaid.core-63fba6d8.js">
-		<link rel="modulepreload" href="./_app/immutable/chunks/_layout-838b24c6.js">
-		<link rel="modulepreload" href="./_app/immutable/components/pages/_page.svelte-f8c755ab.js">
-		<link rel="modulepreload" href="./_app/immutable/chunks/PageTitle-cc378c43.js">
+		<link href="../_app/immutable/assets/_layout-f1c12d17.css" rel="stylesheet">
+		<link rel="modulepreload" href="../_app/immutable/start-a4f6f139.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/index-86aa8d89.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/singletons-04e7d2d3.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/paths-7973a8bd.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/preload-helper-41c905a7.js">
+		<link rel="modulepreload" href="../_app/immutable/components/pages/_layout.svelte-5eef1308.js">
+		<link rel="modulepreload" href="../_app/immutable/modules/pages/_layout.ts-acfb44a6.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/mermaid.core-63fba6d8.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/_layout-838b24c6.js">
+		<link rel="modulepreload" href="../_app/immutable/components/pages/configurationapp/_page.svelte-1e1beb23.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/PageTitle-cc378c43.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/Section-4061cb73.js">
 	</head>
 	<body data-sveltekit-preload-data="hover">
 		<div style="display: contents">
@@ -52,24 +53,32 @@
              <li><a class="ref-link text-lg" href="/authserver/introspection">Introspection</a></li>
              <li><a class="ref-link text-lg" href="/authserver/revocation">Revocation</a></li></ul></div>
  
-     <div class="px-12 pt-4 flex-grow-3"><h1 class="text-4xl mb-2">Introduction</h1>
+     <div class="px-12 pt-4 flex-grow-3"><h1 class="text-4xl mb-2">ConfigurationApp</h1>
 <hr class="mb-4">
+<div class="mb-4" id="configurationapp"><div class="inline-flex"><a class="ref-link" href="#configurationapp"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"></path></svg></a>
+        <h3 class="text-xl">ConfigurationApp</h3></div>
+    <hr class="mb-4">
+    <p>The console app is built as a tool to provide for quick actions given a command.
+</p></div>
+<div class="mb-4" id="commands"><div class="inline-flex"><a class="ref-link" href="#commands"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"></path></svg></a>
+        <h3 class="text-xl">Commands</h3></div>
+    <hr class="mb-4">
+    <b>resource</b> is used to insert resources defined in the app and supposed to be run when creating a fresh database.
+    <b>scope</b> is used to insert scopes defined in the app and supposed to be run when creating a fresh database.
+    <b>rotate</b> is used to rotate JWK used for signing, it does so by inserting one new JWK in the database.
+</div></div></div>
 
-<p>AuthorizationServer is a system implementing the OAuth 2.1
-and OIDC 1.0 specifications.
-</p></div></div>
 
-
-		<script type="module" data-sveltekit-hydrate="fsah99">
-			import { start } from "./_app/immutable/start-a4f6f139.js";
+		<script type="module" data-sveltekit-hydrate="5bbq1r">
+			import { start } from "../_app/immutable/start-a4f6f139.js";
 
 			start({
 				assets: "",
 				env: {},
-				target: document.querySelector('[data-sveltekit-hydrate="fsah99"]').parentNode,
+				target: document.querySelector('[data-sveltekit-hydrate="5bbq1r"]').parentNode,
 				version: "1684170938876",
 				hydrate: {
-					node_ids: [0, 2],
+					node_ids: [0, 9],
 					data: [null,null],
 					form: null,
 					error: null

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="../favicon.png" />
+		<meta name="viewport" content="width=device-width" />
+		<meta http-equiv="content-security-policy" content="">
+		<link href="../_app/immutable/assets/_layout-f1c12d17.css" rel="stylesheet">
+		<link rel="modulepreload" href="../_app/immutable/start-a4f6f139.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/index-86aa8d89.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/singletons-04e7d2d3.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/paths-7973a8bd.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/preload-helper-41c905a7.js">
+		<link rel="modulepreload" href="../_app/immutable/components/pages/_layout.svelte-5eef1308.js">
+		<link rel="modulepreload" href="../_app/immutable/modules/pages/_layout.ts-acfb44a6.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/mermaid.core-63fba6d8.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/_layout-838b24c6.js">
+		<link rel="modulepreload" href="../_app/immutable/components/pages/revocation/_page.svelte-4dee285c.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/PageTitle-cc378c43.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/Section-4061cb73.js">
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">
+
+
+<div class="flex flew-row divide-x-2"><div class="flex flex-col px-10 pt-4 flex-grow-0 flex-shrink-0"><p class="text-2xl">Authorization Server</p>
+         <hr class="pb-4">
+         <ul class="list-disc"><li><a class="ref-link text-lg" href="/authserver">Introduction</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/architecture">Architecture</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/configurationapp">Configuration App</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/authorize">Authorize</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/token">Token</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/datamodel">DataModel</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/grants">Grants</a>
+               <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/grants/authorizationcode">AuthorizationCode
+                         </a></li>
+                    <li><a class="ref-link" href="/authserver/grants/clientcredentials">Client Credentials
+                         </a></li>
+                    <li><a class="ref-link" href="/authserver/grants/refreshtoken">Refresh Token
+                         </a></li></ul></li>
+             <li><a class="ref-link text-lg" href="/authserver/dynamicclientregistration">Dynamic Client Registration</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/logout">Logout</a>
+               <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/logout/backchannel">Backchannel</a></li>
+                    <li><a class="ref-link" href="/authserver/logout/rpinitiated">RP Initiated</a></li></ul></li>
+             <li><a class="ref-link text-lg" href="/authserver/userinfo">UserInfo</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/discovery">Discovery</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/clients">Clients</a>
+               <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/clients/blazor-bff">Blazor.BFF</a></li>
+                    <li><a class="ref-link" href="/authserver/clients/worker">Worker</a></li>
+                    <li><a class="ref-link" href="/authserver/clients/webapp">WebApp</a></li></ul></li>
+             <li><a class="ref-link text-lg" href="/authserver/resources">Resources</a>
+               <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/resources/weather">Weather</a></li></ul></li>
+             <li><a class="ref-link text-lg" href="/authserver/introspection">Introspection</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/revocation">Revocation</a></li></ul></div>
+ 
+     <div class="px-12 pt-4 flex-grow-3"><h1 class="text-4xl mb-2">Revocation</h1>
+<hr class="mb-4">
+<div class="mb-4" id="introduction"><div class="inline-flex"><a class="ref-link" href="#introduction"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"></path></svg></a>
+        <h3 class="text-xl">Introduction</h3></div>
+    <hr class="mb-4">
+    <p>It is used to revoke a reference accesstoken or a refresh token. It is
+        used by clients when it wants to revoke a token, if it should not be
+        used any longer.
+    </p></div>
+<div class="mb-4" id="specifications"><div class="inline-flex"><a class="ref-link" href="#specifications"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"></path></svg></a>
+        <h3 class="text-xl">Specifications</h3></div>
+    <hr class="mb-4">
+    <ul class="list-disc"><li><a href="https://www.rfc-editor.org/rfc/rfc7009">OAuth Revocation</a></li></ul></div>
+<div class="mb-4" id="revocation"><div class="inline-flex"><a class="ref-link" href="#revocation"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"></path></svg></a>
+        <h3 class="text-xl">Revocation</h3></div>
+    <hr class="mb-4">
+    <div class="relative overflow-x-auto"><table><thead><tr><th>Parameter</th>
+                    <th>Data type</th>
+                    <th>Description</th>
+                    <th>Example</th></tr></thead>
+            <tbody><tr class="border-b"><td>token</td>
+                    <td>string</td>
+                    <td>A token</td>
+                    <td>wæonvowbvobewvowe</td></tr>
+                <tr class="border-b"><td>token_type_hint</td>
+                    <td>string</td>
+                    <td>A hint of the token. Can be access_token or
+                        refresh_token.</td>
+                    <td>access_token</td></tr>
+                <tr class="border-b"><td>client_id</td>
+                    <td>string</td>
+                    <td>Id of the client</td>
+                    <td>ec1ff293-1629-4a97-9164-a6e7da4e4b9e</td></tr>
+                <tr class="border-b"><td>client_secret</td>
+                    <td>string</td>
+                    <td>Secret of the client</td>
+                    <td>kbogwnbogwne</td></tr></tbody></table></div></div></div></div>
+
+
+		<script type="module" data-sveltekit-hydrate="zdq0w5">
+			import { start } from "../_app/immutable/start-a4f6f139.js";
+
+			start({
+				assets: "",
+				env: {},
+				target: document.querySelector('[data-sveltekit-hydrate="zdq0w5"]').parentNode,
+				version: "1684170938876",
+				hydrate: {
+					node_ids: [0, 23],
+					data: [null,null],
+					form: null,
+					error: null
+				}
+			});
+		</script>
+	</div>
+	</body>
+</html>
