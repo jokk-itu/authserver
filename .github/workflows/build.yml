@@ -28,7 +28,7 @@ jobs:
   sonarscan:
     name: SonarScan
     needs: build
-    if: github.event_name == 'pull_request' || github.ref_name == 'master' && github.success()
+    if: github.event_name == 'pull_request' || github.ref_name == 'master'
     runs-on: windows-latest
     steps:
       - name: Set up JDK 11
