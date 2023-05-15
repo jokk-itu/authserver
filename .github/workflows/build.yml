@@ -6,7 +6,6 @@ on:
   
 env:
   DOTNET_NOLOGO: true
-  ConnectionStrings__SqlServer: ${{ secrets.CONNECTIONSTRING }}
 
 jobs:
   build:
@@ -29,7 +28,7 @@ jobs:
   sonarscan:
     name: SonarScan
     needs: build
-    if: github.event_name == 'pull_request' && success()
+    if: github.event_name == 'pull_request' || github.ref.name == 'master' && github. success()
     runs-on: windows-latest
     steps:
       - name: Set up JDK 11
