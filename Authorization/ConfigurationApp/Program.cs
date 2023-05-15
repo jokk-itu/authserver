@@ -47,6 +47,10 @@ else if (args[0] == "rotate")
 {
   throw new NotImplementedException();
 }
+else if (args[0] == "migration")
+{
+  await identityContext.Database.MigrateAsync();
+}
 else
 {
   throw new NotSupportedException();
