@@ -19,7 +19,9 @@ public class AuthorizationCodeTokenTest : BaseIntegrationTest
   [Trait("Category", "Integration")]
   public async Task ConfidentialClient_AuthorizationGrant()
   {
-    const string scope = $"{ScopeConstants.OpenId} {ScopeConstants.Profile} {ScopeConstants.Email} {ScopeConstants.Phone} {UserInfoScope}";
+    await CreateDatabase();
+    await CreateIdentityProviderResource();
+    const string scope = $"{ScopeConstants.OpenId} {ScopeConstants.Profile} {ScopeConstants.Email} {ScopeConstants.Phone} {ScopeConstants.UserInfo}";
     var password = CryptographyHelper.GetRandomString(32);
     var user = await BuildUserAsync(password);
     var client = await BuildAuthorizationGrantWebClient("webapp", scope);
@@ -32,7 +34,7 @@ public class AuthorizationCodeTokenTest : BaseIntegrationTest
       .AddPrompt($"{PromptConstants.Login} {PromptConstants.Consent}")
       .AddRedirectUri(client.RedirectUris.First())
       .AddUser(user.UserName, password)
-      .BuildLoginAndConsent(GetClient());
+      .BuildLoginAndConsent(GetHttpClient());
 
     var tokenResponse = await TokenEndpointBuilder
       .Instance()
@@ -43,7 +45,7 @@ public class AuthorizationCodeTokenTest : BaseIntegrationTest
       .AddCode(code)
       .AddGrantType(GrantTypeConstants.AuthorizationCode)
       .AddRedirectUri(client.RedirectUris.First())
-      .BuildRedeemAuthorizationCode(GetClient());
+      .BuildRedeemAuthorizationCode(GetHttpClient());
 
     Assert.NotNull(tokenResponse);
   }
@@ -52,7 +54,9 @@ public class AuthorizationCodeTokenTest : BaseIntegrationTest
   [Trait("Category", "Integration")]
   public async Task NativeClient_AuthorizationGrant()
   {
-    const string scope = $"{ScopeConstants.OpenId} {ScopeConstants.Profile} {ScopeConstants.Email} {ScopeConstants.Phone} {UserInfoScope}";
+    await CreateDatabase();
+    await CreateIdentityProviderResource();
+    const string scope = $"{ScopeConstants.OpenId} {ScopeConstants.Profile} {ScopeConstants.Email} {ScopeConstants.Phone} {ScopeConstants.UserInfo}";
     var password = CryptographyHelper.GetRandomString(32);
     var user = await BuildUserAsync(password);
     var client = await BuildAuthorizationGrantNativeClient("webapp", scope);
@@ -65,7 +69,7 @@ public class AuthorizationCodeTokenTest : BaseIntegrationTest
       .AddPrompt($"{PromptConstants.Login} {PromptConstants.Consent}")
       .AddRedirectUri(client.RedirectUris.First())
       .AddUser(user.UserName, password)
-      .BuildLoginAndConsent(GetClient());
+      .BuildLoginAndConsent(GetHttpClient());
 
     var tokenResponse = await TokenEndpointBuilder
       .Instance()
@@ -75,7 +79,7 @@ public class AuthorizationCodeTokenTest : BaseIntegrationTest
       .AddCode(code)
       .AddGrantType(GrantTypeConstants.AuthorizationCode)
       .AddRedirectUri(client.RedirectUris.First())
-      .BuildRedeemAuthorizationCode(GetClient());
+      .BuildRedeemAuthorizationCode(GetHttpClient());
 
     Assert.NotNull(tokenResponse);
   }

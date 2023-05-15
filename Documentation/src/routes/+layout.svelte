@@ -4,11 +4,13 @@
 </script>
 
 <div class="flex flew-row divide-x-2">
-     <div class="flex flex-col px-10 pt-4 flex-grow-0">
+     <div class="flex flex-col px-10 pt-4 flex-grow-0 flex-shrink-0">
          <p class="text-2xl">Authorization Server</p>
          <hr class="pb-4"/>
          <ul class="list-disc">
-             <li><a class="ref-link text-lg" href="{base}/">Introduction</a></li>
+             <li><a class="ref-link text-lg" href="{base}">Introduction</a></li>
+             <li><a class="ref-link text-lg" href="{base}/architecture">Architecture</a></li>
+             <li><a class="ref-link text-lg" href="{base}/configurationapp">Configuration App</a></li>
              <li><a class="ref-link text-lg" href="{base}/authorize">Authorize</a></li>
              <li><a class="ref-link text-lg" href="{base}/token">Token</a></li>
              <li><a class="ref-link text-lg" href="{base}/datamodel">DataModel</a></li>
@@ -33,18 +35,7 @@
                </ul>
              </li>
              <li>
-               <a class="ref-link text-lg" href="{base}/dynamicregistration">Dynamic Registration</a>
-               <ul class="pl-4 list-disc">
-                    <li>
-                         <a class="ref-link" href="{base}/dynamicregistration/client">Client</a>
-                    </li>
-                    <li>
-                         <a class="ref-link" href="{base}/dynamicregistration/scope">Scope</a>
-                    </li>
-                    <li>
-                         <a class="ref-link" href="{base}/dynamicregistration/resource">Resource</a>
-                    </li>
-               </ul>
+               <a class="ref-link text-lg" href="{base}/dynamicclientregistration">Dynamic Client Registration</a>
              </li>
              <li>
                <a class="ref-link text-lg" href="{base}/logout">Logout</a>
@@ -84,6 +75,12 @@
                          <a class="ref-link" href="{base}/resources/weather">Weather</a>
                     </li>
                </ul>
+             </li>
+             <li>
+               <a class="ref-link text-lg" href="{base}/introspection">Introspection</a>
+             </li>
+             <li>
+               <a class="ref-link text-lg" href="{base}/revocation">Revocation</a>
              </li>
           </ul>
      </div>

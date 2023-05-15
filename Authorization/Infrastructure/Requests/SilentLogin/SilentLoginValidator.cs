@@ -1,21 +1,23 @@
-﻿using System.Net;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Text.RegularExpressions;
 using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
-using Infrastructure.Decoders.Abstractions;
+using Infrastructure.Decoders.Token;
+using Infrastructure.Decoders.Token.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.SilentLogin;
 public class SilentLoginValidator : IValidator<SilentLoginCommand>
 {
   private readonly IdentityContext _identityContext;
-  private readonly ITokenDecoder _tokenDecoder;
+  private readonly IStructuredTokenDecoder _tokenDecoder;
 
   public SilentLoginValidator(
     IdentityContext identityContext,
-    ITokenDecoder tokenDecoder)
+    IStructuredTokenDecoder tokenDecoder)
   {
     _identityContext = identityContext;
     _tokenDecoder = tokenDecoder;
@@ -38,12 +40,21 @@ public class SilentLoginValidator : IValidator<SilentLoginCommand>
       return new ValidationResult(ErrorCode.InvalidRequest, "state is invalid", HttpStatusCode.BadRequest);
     }
 
-    var token = _tokenDecoder.DecodeSignedToken(value.IdTokenHint);
-    if (token is null)
+    JwtSecurityToken token;
+    try
+    {
+      token = await _tokenDecoder.Decode(value.IdTokenHint, new StructuredTokenDecoderArguments
+      {
+        ClientId = value.ClientId,
+        Audiences = new[] { value.ClientId },
+        ValidateAudience = true,
+        ValidateLifetime = true
+      });
+    }
+    catch (Exception)
     {
       return new ValidationResult(ErrorCode.InvalidRequest, "id_token_hint is invalid", HttpStatusCode.OK);
     }
-
 
     var aud = token.Claims.Single(x => x.Type == ClaimNameConstants.Aud).Value;
     if (value.ClientId != aud)

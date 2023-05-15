@@ -2,7 +2,8 @@
 using Domain.Enums;
 using Domain;
 using Domain.Constants;
-using Infrastructure.Builders.Abstractions;
+using Infrastructure.Builders.Token.Abstractions;
+using Infrastructure.Builders.Token.IdToken;
 using Infrastructure.Helpers;
 using Infrastructure.Requests.EndSession;
 using MediatR;
@@ -21,27 +22,23 @@ public class EndSessionHandlerTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationCodeGrant = await GetAuthorizationCodeGrant();
-    authorizationCodeGrant.Session.IsRevoked = true;
+    var authorizationGrant = await GetAuthorizationGrant();
+    authorizationGrant.Session.IsRevoked = true;
     await IdentityContext.SaveChangesAsync();
 
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var idToken = await tokenBuilder.BuildIdToken(
-      authorizationCodeGrant.Id,
-      authorizationCodeGrant.Client.Id,
-      new[] { $"{ScopeConstants.OpenId}" },
-      authorizationCodeGrant.Nonces.Single().Value,
-      authorizationCodeGrant.Session.User.Id,
-      authorizationCodeGrant.Session.Id,
-      DateTime.UtcNow);
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
+    var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
+    {
+      AuthorizationGrantId = authorizationGrant.Id
+    });
 
-    var postLogoutRedirectUri = authorizationCodeGrant.Client.RedirectUris
+    var postLogoutRedirectUri = authorizationGrant.Client.RedirectUris
       .Single(x => x.Type == RedirectUriType.PostLogoutRedirectUri).Uri;
 
     var command = new EndSessionCommand
     {
       IdTokenHint = idToken,
-      ClientId = authorizationCodeGrant.Id,
+      ClientId = authorizationGrant.Id,
       PostLogoutRedirectUri = postLogoutRedirectUri,
       State = CryptographyHelper.GetRandomString(16)
     };
@@ -77,22 +74,18 @@ public class EndSessionHandlerTests : BaseUnitTest
       x.AddSingletonMock(httpClientFactoryMock);
     });
 
-    var authorizationCodeGrant = await GetAuthorizationCodeGrant();
+    var authorizationGrant = await GetAuthorizationGrant();
 
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var idToken = await tokenBuilder.BuildIdToken(
-      authorizationCodeGrant.Id,
-      authorizationCodeGrant.Client.Id,
-      new[] { $"{ScopeConstants.OpenId}" },
-      authorizationCodeGrant.Nonces.Single().Value,
-      authorizationCodeGrant.Session.User.Id,
-      authorizationCodeGrant.Session.Id,
-      DateTime.UtcNow);
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
+    var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
+    {
+      AuthorizationGrantId = authorizationGrant.Id
+    });
 
     var command = new EndSessionCommand
     {
       IdTokenHint = idToken,
-      ClientId = authorizationCodeGrant.Id
+      ClientId = authorizationGrant.Id
     };
 
     var handler = serviceProvider.GetRequiredService<IRequestHandler<EndSessionCommand, EndSessionResponse>>();
@@ -102,13 +95,25 @@ public class EndSessionHandlerTests : BaseUnitTest
 
     // Assert
     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    Assert.Collection(await IdentityContext.Set<Session>().ToListAsync(), session => Assert.True(session.IsRevoked));
+    Assert.Collection(await IdentityContext.Set<AuthorizationCodeGrant>().ToListAsync(), grant => Assert.True(grant.IsRevoked));
   }
 
-  private async Task<AuthorizationCodeGrant> GetAuthorizationCodeGrant()
+  private async Task<AuthorizationCodeGrant> GetAuthorizationGrant()
   {
     var openIdScope = await IdentityContext
       .Set<Scope>()
       .SingleAsync(x => x.Name == ScopeConstants.OpenId);
+
+    var weatherScope = ScopeBuilder
+      .Instance()
+      .AddName("weather:read")
+      .Build();
+
+    var resource = ResourceBuilder
+      .Instance()
+      .AddScope(weatherScope)
+      .Build();
 
     var client = ClientBuilder
       .Instance()
@@ -117,6 +122,7 @@ public class EndSessionHandlerTests : BaseUnitTest
       .AddBackChannelLogoutUri("https://localhost:5001/logout")
       .AddTokenEndpointAuthMethod(TokenEndpointAuthMethod.ClientSecretPost)
       .AddScope(openIdScope)
+      .AddScope(weatherScope)
       .Build();
 
     var nonce = NonceBuilder
@@ -127,16 +133,25 @@ public class EndSessionHandlerTests : BaseUnitTest
       .Instance(Guid.NewGuid().ToString())
       .Build();
 
-    var authorizationCodeGrant = AuthorizationCodeGrantBuilder
+    var grantAccessToken = GrantAccessTokenBuilder
+      .Instance()
+      .AddAudience(resource.Name)
+      .AddExpiresAt(DateTime.UtcNow.AddHours(1))
+      .AddIssuer("https://localhost:5000")
+      .AddScope($"weatherScope.Name {openIdScope.Name}")
+      .Build() as GrantAccessToken;
+
+    var authorizationGrant = AuthorizationCodeGrantBuilder
       .Instance(Guid.NewGuid().ToString())
       .AddClient(client)
+      .AddToken(grantAccessToken)
       .AddNonce(nonce)
       .AddAuthorizationCode(authorizationCode)
       .Build();
 
     var session = SessionBuilder
       .Instance()
-      .AddAuthorizationCodeGrant(authorizationCodeGrant)
+      .AddAuthorizationCodeGrant(authorizationGrant)
       .Build();
 
     var user = UserBuilder
@@ -145,8 +160,9 @@ public class EndSessionHandlerTests : BaseUnitTest
       .AddSession(session)
       .Build();
 
+    await IdentityContext.AddAsync(resource);
     await IdentityContext.AddAsync(user);
     await IdentityContext.SaveChangesAsync();
-    return authorizationCodeGrant;
+    return authorizationGrant;
   }
 }

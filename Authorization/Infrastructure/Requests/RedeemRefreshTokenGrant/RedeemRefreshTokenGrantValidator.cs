@@ -3,17 +3,19 @@ using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
-using Domain.Enums;
-using Infrastructure.Decoders.Abstractions;
+using Infrastructure.Decoders.Token;
+using Infrastructure.Decoders.Token.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.RedeemRefreshTokenGrant;
 public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGrantCommand>
 {
   private readonly IdentityContext _identityContext;
-  private readonly ITokenDecoder _tokenDecoder;
+  private readonly IStructuredTokenDecoder _tokenDecoder;
 
-  public RedeemRefreshTokenGrantValidator(IdentityContext identityContext, ITokenDecoder tokenDecoder)
+  public RedeemRefreshTokenGrantValidator(
+    IdentityContext identityContext,
+    IStructuredTokenDecoder tokenDecoder)
   {
     _identityContext = identityContext;
     _tokenDecoder = tokenDecoder;
@@ -21,8 +23,22 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
 
   public async Task<ValidationResult> ValidateAsync(RedeemRefreshTokenGrantCommand value, CancellationToken cancellationToken = default)
   {
-    var refreshToken = _tokenDecoder.DecodeSignedToken(value.RefreshToken);
-    if (refreshToken is null)
+    if (string.IsNullOrWhiteSpace(value.RefreshToken))
+    {
+      return new ValidationResult(ErrorCode.InvalidRequest, "refresh_token is invalid", HttpStatusCode.BadRequest);
+    }
+
+    string? authorizationGrantId;
+    if (value.RefreshToken.Split('.').Length == 3)
+    {
+      authorizationGrantId = await ValidateStructuredToken(value, cancellationToken);
+    }
+    else
+    {
+      authorizationGrantId = await ValidateReferenceToken(value, cancellationToken);
+    }
+
+    if (string.IsNullOrWhiteSpace(authorizationGrantId))
     {
       return new ValidationResult(ErrorCode.InvalidRequest, "refresh_token is invalid", HttpStatusCode.BadRequest);
     }
@@ -30,14 +46,6 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
     if (value.GrantType != GrantTypeConstants.RefreshToken)
     {
       return new ValidationResult(ErrorCode.InvalidGrant, "grant_type must be refresh_token", HttpStatusCode.BadRequest);
-    }
-    var clientId = refreshToken.Claims.Single(x => x.Type == ClaimNameConstants.ClientId).Value;
-    var sessionId = refreshToken.Claims.Single(x => x.Type == ClaimNameConstants.Sid).Value;
-    var authorizationGrantId = refreshToken.Claims.Single(x => x.Type == ClaimNameConstants.GrantId).Value;
-
-    if (clientId != value.ClientId)
-    {
-      return new ValidationResult(ErrorCode.AccessDenied, "client_id does not match client_id in refresh_token", HttpStatusCode.BadRequest);
     }
 
     var query = await _identityContext
@@ -48,9 +56,10 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
       {
         IsClientIdValid = x.Client.Id == value.ClientId,
         IsClientSecretValid = x.Client.Secret == value.ClientSecret,
-        IsClientNative = x.Client.ApplicationType == ApplicationType.Native,
+        HasClientSecret = x.Client.Secret != null,
         IsClientAuthorized = x.Client.GrantTypes.Any(y => y.Name == GrantTypeConstants.RefreshToken),
-        IsSessionValid = !x.Session.IsRevoked && x.Session.Id == sessionId
+        IsSessionValid = !x.Session.IsRevoked,
+        UserId = x.Session.User.Id
       })
       .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
@@ -64,7 +73,7 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
       return new ValidationResult(ErrorCode.InvalidClient, "client_id is invalid", HttpStatusCode.BadRequest);
     }
 
-    if (!query.IsClientNative && !query.IsClientSecretValid)
+    if (query.HasClientSecret && !query.IsClientSecretValid)
     {
       return new ValidationResult(ErrorCode.InvalidClient, "client_secret is invalid", HttpStatusCode.BadRequest);
     }
@@ -79,6 +88,73 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
       return new ValidationResult(ErrorCode.LoginRequired, "session is invalid", HttpStatusCode.BadRequest);
     }
 
+    var consentGrant = await _identityContext
+      .Set<ConsentGrant>()
+      .Where(x => x.User.Id == query.UserId)
+      .Where(x => x.Client.Id == value.ClientId)
+      .Include(x => x.ConsentedScopes)
+      .SingleOrDefaultAsync(cancellationToken: cancellationToken);
+
+    if (consentGrant is null)
+    {
+      return new ValidationResult(ErrorCode.ConsentRequired, "consent is required", HttpStatusCode.BadRequest);
+    }
+
+    if (!string.IsNullOrWhiteSpace(value.Scope)
+        && value.Scope
+          .Split(' ')
+          .Except(consentGrant.ConsentedScopes.Select(x => x.Name))
+          .Any())
+    {
+      return new ValidationResult(ErrorCode.InvalidScope, "scope exceeds consented scope", HttpStatusCode.BadRequest);
+    }
+
     return new ValidationResult(HttpStatusCode.OK);
+  }
+
+  private async Task<string?> ValidateReferenceToken(RedeemRefreshTokenGrantCommand value, CancellationToken cancellationToken)
+  {
+    var authorizationGrantId = await _identityContext
+      .Set<RefreshToken>()
+      .Where(x => x.Reference == value.RefreshToken)
+      .Where(x => x.RevokedAt == null)
+      .Where(x => x.ExpiresAt > DateTime.UtcNow)
+      .Select(x => x.AuthorizationGrant.Id)
+      .SingleOrDefaultAsync(cancellationToken: cancellationToken);
+
+    return authorizationGrantId;
+  }
+
+  private async Task<string?> ValidateStructuredToken(RedeemRefreshTokenGrantCommand value, CancellationToken cancellationToken)
+  {
+    try
+    {
+      var token = await _tokenDecoder.Decode(value.RefreshToken, new StructuredTokenDecoderArguments
+      {
+        ClientId = value.ClientId,
+        Audiences = new[] { value.ClientId },
+        ValidateAudience = true,
+        ValidateLifetime = true
+      });
+      var authorizationGrantId = token.Claims.Single(x => x.Type == ClaimNameConstants.GrantId).Value;
+      var jti = Guid.Parse(token.Claims.Single(x => x.Type == ClaimNameConstants.Jti).Value);
+
+      var isRevoked = await _identityContext
+        .Set<RefreshToken>()
+        .Where(x => x.Id == jti)
+        .Where(x => x.RevokedAt != null)
+        .AnyAsync(cancellationToken: cancellationToken);
+
+      if (isRevoked)
+      {
+        return null;
+      }
+
+      return authorizationGrantId;
+    }
+    catch (Exception)
+    {
+      return null;
+    }
   }
 }

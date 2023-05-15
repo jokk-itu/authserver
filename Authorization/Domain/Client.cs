@@ -23,4 +23,5 @@ public class Client
   public ICollection<Contact> Contacts { get; set; } = new List<Contact>();
   public ICollection<ResponseType> ResponseTypes { get; set; } = new List<ResponseType>();
   public ICollection<AuthorizationCodeGrant> AuthorizationCodeGrants { get; set; } = new List<AuthorizationCodeGrant>();
+  public ICollection<ClientToken> ClientTokens { get; set; } = new List<ClientToken>();
 }

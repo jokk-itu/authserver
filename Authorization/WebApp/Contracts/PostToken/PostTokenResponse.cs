@@ -2,20 +2,19 @@
 using WebApp.Constants;
 
 namespace WebApp.Contracts.PostToken;
-#nullable disable
 public record PostTokenResponse
 {
   [JsonPropertyName(ParameterNames.AccessToken)]
-  public string AccessToken { get; init; }
+  public string AccessToken { get; init; } = null!;
 
   [JsonPropertyName(ParameterNames.RefreshToken)]
-  public string RefreshToken { get; init; }
+  public string? RefreshToken { get; init; }
 
   [JsonPropertyName(ParameterNames.IdToken)]
-  public string IdToken { get; init; }
+  public string? IdToken { get; init; }
 
   [JsonPropertyName(ParameterNames.TokenType)]
-  public const string TokenType = "Bearer";
+  public string TokenType { get; init; } = "Bearer";
 
   [JsonPropertyName(ParameterNames.ExpiresIn)]
   public int ExpiresIn { get; init; }

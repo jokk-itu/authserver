@@ -1,35 +1,62 @@
 ﻿using System.Net;
-using System.Security;
+using Domain;
 using Domain.Constants;
-using Infrastructure.Decoders.Abstractions;
+using Infrastructure.Decoders.Token;
+using Infrastructure.Decoders.Token.Abstractions;
+using Infrastructure.Helpers;
 using Infrastructure.Services.Abstract;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.GetUserInfo;
 public class GetUserInfoHandler : IRequestHandler<GetUserInfoQuery, GetUserInfoResponse>
 {
-  private readonly ITokenDecoder _tokenDecoder;
+  private readonly IStructuredTokenDecoder _tokenDecoder;
   private readonly IClaimService _claimService;
+  private readonly IdentityContext _identityContext;
 
   public GetUserInfoHandler(
-    ITokenDecoder tokenDecoder,
-    IClaimService claimService)
+    IStructuredTokenDecoder tokenDecoder,
+    IClaimService claimService,
+    IdentityContext identityContext)
   {
     _tokenDecoder = tokenDecoder;
     _claimService = claimService;
+    _identityContext = identityContext;
   }
 
   public async Task<GetUserInfoResponse> Handle(GetUserInfoQuery request, CancellationToken cancellationToken)
   {
-    var token = _tokenDecoder.DecodeSignedToken(request.AccessToken);
-    if (token is null)
+    string authorizationGrantId;
+    if (TokenHelper.IsStructuredToken(request.AccessToken))
     {
-      throw new SecurityException("token must be valid");
+      var token = await _tokenDecoder.Decode(request.AccessToken, new StructuredTokenDecoderArguments
+      {
+        ValidateAudience = false,
+        ValidateLifetime = false
+      });
+      authorizationGrantId = token.Claims.Single(x => x.Type == ClaimNameConstants.GrantId).Value;
+    }
+    else
+    {
+      authorizationGrantId = await _identityContext
+        .Set<GrantToken>()
+        .Where(x => x.Reference == request.AccessToken)
+        .Select(x => x.AuthorizationGrant.Id)
+        .SingleAsync(cancellationToken: cancellationToken);
     }
 
-    var userId = token.Claims.Single(x => x.Type == ClaimNameConstants.Sub).Value;
-    var clientId = token.Claims.Single(x => x.Type == ClaimNameConstants.ClientId).Value;
-    var userInfo = await _claimService.GetClaimsFromConsentGrant(userId, clientId, cancellationToken: cancellationToken);
+    var query = await _identityContext
+      .Set<AuthorizationCodeGrant>()
+      .Where(x => x.Id == authorizationGrantId)
+      .Select(x => new
+      {
+        UserId = x.Session.User.Id,
+        ClientId = x.Client.Id
+      })
+      .SingleAsync(cancellationToken: cancellationToken);
+
+    var userInfo = await _claimService.GetClaimsFromConsentGrant(query.UserId, query.ClientId, cancellationToken: cancellationToken);
     return new GetUserInfoResponse(HttpStatusCode.OK)
     {
       UserInfo = userInfo

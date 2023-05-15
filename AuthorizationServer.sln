@@ -61,6 +61,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{52AE7B64
 		Tools\RunMigrationLocal.ps1 = Tools\RunMigrationLocal.ps1
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationApp", "Authorization\ConfigurationApp\ConfigurationApp.csproj", "{E4795AE4-B5A7-4063-87D5-B752B0F645F5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -119,6 +121,10 @@ Global
 		{CED14AD3-6058-443B-9823-5922E821CF30}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CED14AD3-6058-443B-9823-5922E821CF30}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CED14AD3-6058-443B-9823-5922E821CF30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4795AE4-B5A7-4063-87D5-B752B0F645F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4795AE4-B5A7-4063-87D5-B752B0F645F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4795AE4-B5A7-4063-87D5-B752B0F645F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4795AE4-B5A7-4063-87D5-B752B0F645F5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -142,6 +148,7 @@ Global
 		{3B2F9A07-D144-4854-B32D-72D32CC29F3F} = {39434E92-EAC6-49B0-B1F1-258329AFC6CC}
 		{B04DA1CA-F9D2-40C2-9EFF-34FDDCAFB05F} = {3B2F9A07-D144-4854-B32D-72D32CC29F3F}
 		{CED14AD3-6058-443B-9823-5922E821CF30} = {B44A3096-FBE8-4066-9E93-94D351CC6934}
+		{E4795AE4-B5A7-4063-87D5-B752B0F645F5} = {F2A561FD-5A71-4A2E-9B89-AC175662E834}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {35950B1F-C5E1-4227-8946-7874424B4A16}

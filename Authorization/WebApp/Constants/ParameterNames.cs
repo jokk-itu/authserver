@@ -61,4 +61,13 @@ public static class ParameterNames
   public const string PostLogoutRedirectUri = "post_logout_redirect_uri";
   public const string PostLogoutRedirectUris = "post_logout_redirect_uris";
   public const string BackChannelLogoutUri = "backchannel_logout_uri";
+  public const string Token = "token";
+  public const string TokenTypeHint = "token_type_hint";
+  public const string Active = "active";
+  public const string IssuedAt = "iat";
+  public const string Expires = "exp";
+  public const string JwtId = "jti";
+  public const string NotBefore = "nbf";
+  public const string Subject = "sub";
+  public const string Audience = "aud";
 }

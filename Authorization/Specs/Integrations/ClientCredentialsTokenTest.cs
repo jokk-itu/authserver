@@ -16,6 +16,8 @@ public class ClientCredentialsTokenTest : BaseIntegrationTest
   [Trait("Category", "Integration")]
   public async Task ClientCredentials()
   {
+    await CreateDatabase();
+    await CreateIdentityProviderResource();
     const string scope = "weather:read";
     await BuildScope(scope);
     await BuildResource(scope, "weatherservice");
@@ -27,7 +29,7 @@ public class ClientCredentialsTokenTest : BaseIntegrationTest
       .AddClientSecret(client.ClientSecret)
       .AddGrantType(GrantTypeConstants.ClientCredentials)
       .AddScope(scope)
-      .BuildRedeemClientCredentials(GetClient());
+      .BuildRedeemClientCredentials(GetHttpClient());
     
     Assert.NotNull(tokens);
     Assert.NotEmpty(tokens.AccessToken);

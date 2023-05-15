@@ -1,3 +1,5 @@
+using System.Net.Http.Headers;
+using Api;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Logging;
@@ -18,6 +20,12 @@ builder.WebHost.ConfigureServices(services =>
   services.AddControllers();
   services.AddEndpointsApiExplorer();
   services.AddSwaggerGen();
+  services.AddHttpClient("IdP", (serviceProvider, client) =>
+  {
+    var config = serviceProvider.GetRequiredService<IConfiguration>();
+    var baseAddress = config.GetSection("Identity")["Authority"];
+    client.BaseAddress = new Uri(baseAddress);
+  });
   services
   .AddAuthentication(authenticationOptions =>
   {
@@ -47,13 +55,54 @@ builder.WebHost.ConfigureServices(services =>
       {
         Log.Error("User does not have authorization");
         return Task.CompletedTask;
-      }
+      },
+      OnMessageReceived = async context =>
+      {
+        Log.Information("Initiating bearer validation");
+        var isStructuredToken = context.Token?.Split('.').Length is 3 or 5;
+        if (!string.IsNullOrWhiteSpace(context.Token) && !isStructuredToken)
+        {
+          var configuration = context.HttpContext.RequestServices
+            .GetRequiredService<IConfiguration>()
+            .GetSection("Identity");
+
+          var httpClientFactory = context.HttpContext.RequestServices.GetRequiredService<IHttpClientFactory>();
+          var httpClient = httpClientFactory.CreateClient("IdP");
+          var request = new HttpRequestMessage();
+          request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.Token);
+          var content = new Dictionary<string, object>
+          {
+            {"client_id", configuration["ClientId"]},
+            {"client_secret", configuration["ClientSecret"]},
+            {"token", context.Token}
+          };
+          var response = await httpClient.PostAsJsonAsync("connect/token/introspection",
+            content, context.HttpContext.RequestAborted);
+
+          response.EnsureSuccessStatusCode();
+          var token = await response.Content.ReadFromJsonAsync<IntrospectionResponse>();
+          if (token?.Active ?? false)
+          {
+            context.Success();
+          }
+        }
+      },
     };
     jwtBearerOptions.IncludeErrorDetails = true;
     jwtBearerOptions.SaveToken = true;
     jwtBearerOptions.Validate();
   });
-  services.AddAuthorization();
+  services.AddAuthorization(options =>
+  {
+    options.AddPolicy("Weather", policyBuilder =>
+    {
+      policyBuilder.RequireAssertion(authorizationContext =>
+      {
+        var scope = authorizationContext.User.Claims.SingleOrDefault(x => x.Type == "scope");
+        return scope is not null && scope.Value.Contains("weather");
+      });
+    });
+  });
 });
 
 Log.Logger = new LoggerConfiguration()

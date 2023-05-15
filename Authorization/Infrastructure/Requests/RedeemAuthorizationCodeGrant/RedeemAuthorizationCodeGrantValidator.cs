@@ -6,7 +6,6 @@ using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
-using Domain.Enums;
 using Infrastructure.Decoders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -53,10 +52,11 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
       {
         IsClientIdValid = x.Client.Id == value.ClientId,
         IsClientSecretValid = x.Client.Secret == value.ClientSecret,
-        IsClientNative = x.Client.ApplicationType == ApplicationType.Native,
+        HasClientSecret = x.Client.Secret != null,
         IsClientAuthorized = x.Client.RedirectUris.Any(y => y.Uri == value.RedirectUri)
                              && x.Client.GrantTypes.Any(y => y.Name == GrantTypeConstants.AuthorizationCode),
-        IsSessionValid = !x.Session.IsRevoked
+        IsSessionValid = !x.Session.IsRevoked,
+        UserId = x.Session.User.Id
       })
       .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
@@ -70,7 +70,7 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
       return new ValidationResult(ErrorCode.InvalidClient, "client_id is invalid", HttpStatusCode.BadRequest);
     }
 
-    if (!query.IsClientNative && !query.IsClientSecretValid)
+    if (query.HasClientSecret && !query.IsClientSecretValid)
     {
       return new ValidationResult(ErrorCode.InvalidClient, "client_secret is invalid", HttpStatusCode.BadRequest);
     }
@@ -85,13 +85,33 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
       return new ValidationResult(ErrorCode.InvalidGrant, "grant is invalid", HttpStatusCode.BadRequest);
     }
 
+    var consentGrant = await _identityContext
+      .Set<ConsentGrant>()
+      .Where(x => x.User.Id == query.UserId)
+      .Where(x => x.Client.Id == value.ClientId)
+      .Include(x => x.ConsentedScopes)
+      .SingleOrDefaultAsync(cancellationToken: cancellationToken);
+
+    if (consentGrant is null)
+    {
+      return new ValidationResult(ErrorCode.ConsentRequired, "consent is required", HttpStatusCode.BadRequest);
+    }
+
+    if (value.Scope.Split(' ').Except(consentGrant.ConsentedScopes.Select(x => x.Name)).Any())
+    {
+      return new ValidationResult(ErrorCode.InvalidScope, "scope exceeds consented scope", HttpStatusCode.BadRequest);
+    }
+
     return new ValidationResult(HttpStatusCode.OK);
   }
 
   private static bool IsCodeVerifierInvalid(RedeemAuthorizationCodeGrantCommand command, string codeChallenge)
   {
     var isCodeVerifierInvalid = string.IsNullOrWhiteSpace(command.CodeVerifier) ||
-                              !Regex.IsMatch(command.CodeVerifier, "^[0-9a-zA-Z-_~.]{43,128}$");
+                              !Regex.IsMatch(command.CodeVerifier,
+                                "^[0-9a-zA-Z-_~.]{43,128}$",
+                                RegexOptions.None,
+                                TimeSpan.FromSeconds(1));
 
     if (isCodeVerifierInvalid)
     {

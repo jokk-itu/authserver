@@ -114,4 +114,10 @@ public static class ErrorCode
   /// The OP does not support the registration parameter
   /// </summary>
   public const string RegistrationNotSupported = "registration_not_supported";
+
+  /// <summary>
+  /// The OP does not recognize the token type.
+  /// Used in revocation and introspection.
+  /// </summary>
+  public const string UnsupportedTokenType = "unsupported_token_type";
 }

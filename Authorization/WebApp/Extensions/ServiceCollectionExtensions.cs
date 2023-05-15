@@ -6,6 +6,8 @@ using WebApp.Options;
 using WebApp.Context.Abstract;
 using WebApp.Context.AuthorizeContext;
 using WebApp.Context.EndSessionContext;
+using WebApp.Context.IntrospectionContext;
+using WebApp.Context.RevocationContext;
 using WebApp.Context.TokenContext;
 
 namespace WebApp.Extensions;
@@ -41,30 +43,15 @@ public static class ServiceCollectionExtensions
           return scope is not null && scope.Split(' ').Contains(ScopeConstants.UserInfo);
         });
       });
-      options.AddPolicy(AuthorizationConstants.ClientRegistration, policy =>
-      {
-        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
-        policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ClientRegistration);
-      });
       options.AddPolicy(AuthorizationConstants.ClientConfiguration, policy =>
       {
         policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
         policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ClientConfiguration);
       });
-      options.AddPolicy(AuthorizationConstants.ResourceRegistration, policy =>
-      {
-        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
-        policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ResourceRegistration);
-      });
       options.AddPolicy(AuthorizationConstants.ResourceConfiguration, policy =>
       {
         policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
         policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ResourceConfiguration);
-      });
-      options.AddPolicy(AuthorizationConstants.ScopeRegistration, policy =>
-      {
-        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
-        policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ScopeRegistration);
       });
       options.AddPolicy(AuthorizationConstants.ScopeConfiguration, policy =>
       {
@@ -105,6 +92,8 @@ public static class ServiceCollectionExtensions
     services.AddScoped<IContextAccessor<TokenContext>, TokenContextAccessor>();
     services.AddScoped<IContextAccessor<AuthorizeContext>, AuthorizeContextAccessor>();
     services.AddScoped<IContextAccessor<EndSessionContext>, EndSessionContextAccessor>();
+    services.AddScoped<IContextAccessor<IntrospectionContext>, IntrospectionContextAccessor>();
+    services.AddScoped<IContextAccessor<RevocationContext>, RevocationContextAccessor>();
     return services;
   }
 }

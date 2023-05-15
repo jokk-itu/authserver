@@ -1,8 +1,13 @@
 ﻿using System.Net;
 using Application;
 using Domain;
-using Infrastructure.Builders.Abstractions;
+using Domain.Constants;
+using Infrastructure.Builders.Token.Abstractions;
+using Infrastructure.Builders.Token.GrantAccessToken;
+using Infrastructure.Builders.Token.IdToken;
+using Infrastructure.Builders.Token.RefreshToken;
 using Infrastructure.Decoders.Abstractions;
+using Infrastructure.Repositories;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,26 +15,35 @@ namespace Infrastructure.Requests.RedeemAuthorizationCodeGrant;
 public class RedeemAuthorizationCodeGrantHandler : IRequestHandler<RedeemAuthorizationCodeGrantCommand, RedeemAuthorizationCodeGrantResponse>
 {
   private readonly IdentityContext _identityContext;
-  private readonly ITokenBuilder _tokenBuilder;
   private readonly IdentityConfiguration _identityConfiguration;
   private readonly ICodeDecoder _codeDecoder;
+  private readonly ITokenBuilder<GrantAccessTokenArguments> _accessTokenBuilder;
+  private readonly ITokenBuilder<RefreshTokenArguments> _refreshTokenBuilder;
+  private readonly ITokenBuilder<IdTokenArguments> _idTokenBuilder;
+  private readonly ResourceManager _resourceManager;
 
   public RedeemAuthorizationCodeGrantHandler(
     IdentityContext identityContext,
-    ITokenBuilder tokenBuilder,
     IdentityConfiguration identityConfiguration,
-    ICodeDecoder codeDecoder)
+    ICodeDecoder codeDecoder,
+    ITokenBuilder<GrantAccessTokenArguments> accessTokenBuilder,
+    ITokenBuilder<RefreshTokenArguments> refreshTokenBuilder,
+    ITokenBuilder<IdTokenArguments> idTokenBuilder,
+    ResourceManager resourceManager)
   {
     _identityContext = identityContext;
-    _tokenBuilder = tokenBuilder;
     _identityConfiguration = identityConfiguration;
     _codeDecoder = codeDecoder;
+    _accessTokenBuilder = accessTokenBuilder;
+    _refreshTokenBuilder = refreshTokenBuilder;
+    _idTokenBuilder = idTokenBuilder;
+    _resourceManager = resourceManager;
   }
 
   public async Task<RedeemAuthorizationCodeGrantResponse> Handle(RedeemAuthorizationCodeGrantCommand request, CancellationToken cancellationToken)
   {
     var code = _codeDecoder.DecodeAuthorizationCode(request.Code);
-
+    var resources = await _resourceManager.ReadResourcesAsync(request.Scope.Split(' '), cancellationToken: cancellationToken);
     var query = await _identityContext
       .Set<AuthorizationCodeGrant>()
       .Where(x => x.Id == code.AuthorizationGrantId)
@@ -39,16 +53,35 @@ public class RedeemAuthorizationCodeGrantHandler : IRequestHandler<RedeemAuthori
         SessionId = x.Session.Id.ToString(),
         UserId = x.Session.User.Id,
         AuthorizationCode = x.AuthorizationCodes.Single(y => y.Id == code.AuthorizationCodeId),
-        Nonce = x.Nonces.Single(y => y.Id == code.NonceId)
+        Nonce = x.Nonces.Single(y => y.Id == code.NonceId),
+        IsAuthorizedToRefresh = x.Client.GrantTypes.Any(y => y.Name == GrantTypeConstants.RefreshToken)
       })
       .SingleAsync(cancellationToken: cancellationToken);
 
     query.AuthorizationCode.IsRedeemed = true;
     query.AuthorizationCode.RedeemedAt = DateTime.UtcNow;
 
-    var accessToken = await _tokenBuilder.BuildAccessToken(request.ClientId, code.Scopes, query.UserId, query.SessionId, cancellationToken: cancellationToken);
-    var refreshToken = await _tokenBuilder.BuildRefreshToken(code.AuthorizationGrantId, request.ClientId, code.Scopes, query.UserId, query.SessionId, cancellationToken: cancellationToken);
-    var idToken = await _tokenBuilder.BuildIdToken(query.AuthorizationCodeGrant.Id, request.ClientId, code.Scopes, query.Nonce.Value, query.UserId, query.SessionId, query.AuthorizationCodeGrant.AuthTime, cancellationToken: cancellationToken);
+    string? refreshToken = null;
+    if (query.IsAuthorizedToRefresh)
+    {
+      refreshToken = await _refreshTokenBuilder.BuildToken(new RefreshTokenArguments
+      {
+        AuthorizationGrantId = query.AuthorizationCodeGrant.Id,
+        Scope = request.Scope
+      });
+    }
+
+    var accessToken = await _accessTokenBuilder.BuildToken(new GrantAccessTokenArguments
+    {
+      AuthorizationGrantId = query.AuthorizationCodeGrant.Id,
+      Scope = request.Scope,
+      ResourceNames = resources.Select(x => x.Name)
+    });
+
+    var idToken = await _idTokenBuilder.BuildToken(new IdTokenArguments
+    {
+      AuthorizationGrantId = query.AuthorizationCodeGrant.Id
+    });
 
     await _identityContext.SaveChangesAsync(cancellationToken: cancellationToken);
     return new RedeemAuthorizationCodeGrantResponse(HttpStatusCode.OK)

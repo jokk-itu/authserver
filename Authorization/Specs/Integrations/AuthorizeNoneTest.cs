@@ -18,6 +18,8 @@ public class AuthorizeNoneTest : BaseIntegrationTest
   [Trait("Category", "Integration")]
   public async Task ConfidentialClient_AuthorizeWithPromptNone()
   {
+    await CreateDatabase();
+    await CreateIdentityProviderResource();
     const string scope = $"{ScopeConstants.OpenId}";
     const string clientName = "webapp";
     var password = CryptographyHelper.GetRandomString(32);
@@ -32,7 +34,7 @@ public class AuthorizeNoneTest : BaseIntegrationTest
       .AddUser(user.UserName, password)
       .AddCodeChallenge(pkce.CodeChallenge)
       .AddPrompt($"{PromptConstants.Login} {PromptConstants.Consent}")
-      .BuildLoginAndConsent(GetClient());
+      .BuildLoginAndConsent(GetHttpClient());
 
     var token = await TokenEndpointBuilder
       .Instance()
@@ -43,7 +45,7 @@ public class AuthorizeNoneTest : BaseIntegrationTest
       .AddScope(scope)
       .AddCode(code)
       .AddCodeVerifier(pkce.CodeVerifier)
-      .BuildRedeemAuthorizationCode(GetClient());
+      .BuildRedeemAuthorizationCode(GetHttpClient());
 
     var none = await AuthorizeEndpointBuilder
       .Instance()
@@ -54,7 +56,7 @@ public class AuthorizeNoneTest : BaseIntegrationTest
       .AddPrompt($"{PromptConstants.None}")
       .AddIdTokenHint(token.IdToken)
       .AddCodeChallenge(ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge)
-      .BuildNone(GetClient());
+      .BuildNone(GetHttpClient());
 
     Assert.NotEmpty(code);
     Assert.NotNull(token);
@@ -65,6 +67,8 @@ public class AuthorizeNoneTest : BaseIntegrationTest
   [Trait("Category", "Integration")]
   public async Task NativeClient_AuthorizeWithPromptNone()
   {
+    await CreateDatabase();
+    await CreateIdentityProviderResource();
     const string scope = $"{ScopeConstants.OpenId}";
     const string clientName = "nativeapp";
     var password = CryptographyHelper.GetRandomString(32);
@@ -79,7 +83,7 @@ public class AuthorizeNoneTest : BaseIntegrationTest
       .AddUser(user.UserName, password)
       .AddCodeChallenge(pkce.CodeChallenge)
       .AddPrompt($"{PromptConstants.Login} {PromptConstants.Consent}")
-      .BuildLoginAndConsent(GetClient());
+      .BuildLoginAndConsent(GetHttpClient());
 
     var token = await TokenEndpointBuilder
       .Instance()
@@ -90,7 +94,7 @@ public class AuthorizeNoneTest : BaseIntegrationTest
       .AddScope(scope)
       .AddCode(code)
       .AddCodeVerifier(pkce.CodeVerifier)
-      .BuildRedeemAuthorizationCode(GetClient());
+      .BuildRedeemAuthorizationCode(GetHttpClient());
 
     var none = await AuthorizeEndpointBuilder
       .Instance()
@@ -101,7 +105,7 @@ public class AuthorizeNoneTest : BaseIntegrationTest
       .AddPrompt($"{PromptConstants.None}")
       .AddIdTokenHint(token.IdToken)
       .AddCodeChallenge(ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge)
-      .BuildNone(GetClient());
+      .BuildNone(GetHttpClient());
 
     Assert.NotEmpty(code);
     Assert.NotNull(token);

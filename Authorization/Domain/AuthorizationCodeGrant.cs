@@ -13,6 +13,7 @@ public class AuthorizationCodeGrant
   public Client Client { get; set; }
   public ICollection<AuthorizationCode> AuthorizationCodes { get; set; } = new List<AuthorizationCode>();
   public ICollection<Nonce> Nonces { get; set; } = new List<Nonce>();
+  public ICollection<GrantToken> GrantTokens { get; set; } = new List<GrantToken>();
 
   public static Expression<Func<AuthorizationCodeGrant, bool>> IsAuthorizationCodeValid(string authorizationCodeId) =>
     a => a.AuthorizationCodes.Any()

@@ -4,7 +4,7 @@ function GetInitialToken([Parameter(Mandatory)][string]$Uri) {
     return $token
 }
 
-function PostScope([Parameter(Mandatory)][string]$Uri, [Parameter(Mandatory)][string]$Token,[Parameter(Mandatory)][string]$ScopeName) {
+function PostScope([Parameter(Mandatory)][string]$Uri, [Parameter(Mandatory)][string]$Token, [Parameter(Mandatory)][string]$ScopeName) {
     $body = @{
         'scope_name' = $ScopeName
     }

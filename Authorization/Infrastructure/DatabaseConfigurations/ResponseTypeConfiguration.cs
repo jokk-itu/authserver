@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.DatabaseConfigurations;
-public class ResponseTypeConfiguration : IEntityTypeConfiguration<ResponseType>
+internal class ResponseTypeConfiguration : IEntityTypeConfiguration<ResponseType>
 {
   public void Configure(EntityTypeBuilder<ResponseType> builder)
   {
@@ -14,6 +14,8 @@ public class ResponseTypeConfiguration : IEntityTypeConfiguration<ResponseType>
       Name = ResponseTypeConstants.Code
     });
 
-    builder.ToTable("ResponseTypes");
+    builder
+      .Property(x => x.Name)
+      .IsRequired();
   }
 }

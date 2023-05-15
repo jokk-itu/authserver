@@ -7,6 +7,12 @@ internal class RedirectUriConfiguration : IEntityTypeConfiguration<RedirectUri>
 {
   public void Configure(EntityTypeBuilder<RedirectUri> builder)
   {
-    builder.ToTable("RedirectUris");
+    builder
+      .Property(x => x.Uri)
+      .IsRequired();
+
+    builder
+      .Property(x => x.Type)
+      .HasConversion<string>();
   }
 }

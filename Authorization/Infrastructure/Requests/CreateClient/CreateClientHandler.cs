@@ -2,7 +2,8 @@
 using Domain;
 using Domain.Enums;
 using Domain.Extensions;
-using Infrastructure.Builders.Abstractions;
+using Infrastructure.Builders.Token.Abstractions;
+using Infrastructure.Builders.Token.RegistrationToken;
 using Infrastructure.Helpers;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -12,11 +13,11 @@ namespace Infrastructure.Requests.CreateClient;
 public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateClientResponse>
 {
   private readonly IdentityContext _identityContext;
-  private readonly ITokenBuilder _tokenBuilder;
+  private readonly ITokenBuilder<RegistrationTokenArguments> _tokenBuilder;
 
   public CreateClientHandler(
     IdentityContext identityContext,
-    ITokenBuilder tokenBuilder)
+    ITokenBuilder<RegistrationTokenArguments> tokenBuilder)
   {
     _identityContext = identityContext;
     _tokenBuilder = tokenBuilder;
@@ -35,30 +36,26 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       .Where(x => request.GrantTypes.Contains(x.Name))
       .ToListAsync(cancellationToken: cancellationToken);
 
-    var redirectUris = request.RedirectUris
+    var redirectUris =  request.RedirectUris
       .Select(x => new RedirectUri { Uri = x, Type = RedirectUriType.AuthorizeRedirectUri })
+      .Concat(request.PostLogoutRedirectUris
+        .Select(x => new RedirectUri { Uri = x, Type = RedirectUriType.PostLogoutRedirectUri }))
       .ToList();
-
-    var postLogoutRedirectUris = request.PostLogoutRedirectUris
-      .Select(x => new RedirectUri { Uri = x, Type = RedirectUriType.PostLogoutRedirectUri })
-      .ToList();
-
-    redirectUris.AddRange(postLogoutRedirectUris);
 
     var responseTypes = await _identityContext
       .Set<ResponseType>()
       .Where(x => request.ResponseTypes.Contains(x.Name))
       .ToListAsync(cancellationToken: cancellationToken);
 
-    var contacts = request.Contacts?
+    var contacts = request.Contacts
       .Select(email => new Contact
       {
         Email = email
       })
-      .ToList() ?? new List<Contact>();
+      .ToList();
 
     long? defaultMaxAge = string.IsNullOrWhiteSpace(request.DefaultMaxAge) ? null : long.Parse(request.DefaultMaxAge);
-    var secret = request.ApplicationType.GetEnum<ApplicationType>() == ApplicationType.Native
+    var secret = request.TokenEndpointAuthMethod.GetEnum<TokenEndpointAuthMethod>() == TokenEndpointAuthMethod.None
       ? null
       : CryptographyHelper.GetRandomString(32);
 
@@ -79,11 +76,17 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       InitiateLoginUri = request.InitiateLoginUri,
       LogoUri = request.LogoUri,
       ClientUri = request.ClientUri,
-      DefaultMaxAge = defaultMaxAge
+      DefaultMaxAge = defaultMaxAge,
+      BackChannelLogoutUri = request.BackChannelLogoutUri
     };
     await _identityContext
       .Set<Client>()
       .AddAsync(client, cancellationToken: cancellationToken);
+
+    var registrationToken = await _tokenBuilder.BuildToken(new RegistrationTokenArguments
+    {
+      Client = client
+    });
 
     await _identityContext.SaveChangesAsync(cancellationToken: cancellationToken);
 
@@ -95,15 +98,21 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       ClientName = client.Name,
       ClientSecret = client.Secret,
       Scope = string.Join(' ', client.Scopes.Select(x => x.Name)),
-      RedirectUris = client.RedirectUris.Where(x => x.Type == RedirectUriType.AuthorizeRedirectUri).Select(x => x.Uri).ToList(),
-      PostLogoutRedirectUris = client.RedirectUris.Where(x => x.Type == RedirectUriType.PostLogoutRedirectUri).Select(x => x.Uri).ToList(),
+      RedirectUris = client.RedirectUris
+        .Where(x => x.Type == RedirectUriType.AuthorizeRedirectUri)
+        .Select(x => x.Uri)
+        .ToList(),
+      PostLogoutRedirectUris = client.RedirectUris
+        .Where(x => x.Type == RedirectUriType.PostLogoutRedirectUri)
+        .Select(x => x.Uri)
+        .ToList(),
       SubjectType = request.SubjectType,
       TosUri = client.TosUri,
       Contacts = client.Contacts.Select(x => x.Email).ToList(),
       PolicyUri = client.PolicyUri,
       TokenEndpointAuthMethod = request.TokenEndpointAuthMethod,
       ResponseTypes = client.ResponseTypes.Select(x => x.Name).ToList(),
-      RegistrationAccessToken = _tokenBuilder.BuildClientRegistrationAccessToken(client.Id),
+      RegistrationAccessToken = registrationToken,
       ClientSecretExpiresAt = 0,
       ClientUri = request.ClientUri,
       DefaultMaxAge = defaultMaxAge,

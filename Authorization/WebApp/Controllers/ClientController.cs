@@ -1,6 +1,5 @@
 ﻿using Application;
 using Domain.Constants;
-using Infrastructure.Builders.Abstractions;
 using Infrastructure.Requests.CreateClient;
 using Infrastructure.Requests.DeleteClient;
 using Infrastructure.Requests.ReadClient;
@@ -12,7 +11,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Constants;
 using WebApp.Contracts;
-using WebApp.Contracts.GetResourceInitialAccessToken;
 using WebApp.Contracts.PostClient;
 using WebApp.Controllers.Abstracts;
 using GetClientResponse = WebApp.Contracts.GetClient.GetClientResponse;
@@ -23,46 +21,30 @@ namespace WebApp.Controllers;
 public class ClientController : OAuthControllerBase
 {
   private readonly IMediator _mediator;
-  private readonly ITokenBuilder _tokenBuilder;
 
   public ClientController(
     IMediator mediator,
-    ITokenBuilder tokenBuilder,
     IdentityConfiguration identityConfiguration) : base(identityConfiguration)
   {
     _mediator = mediator;
-    _tokenBuilder = tokenBuilder;
-  }
-
-  [HttpGet]
-  [Route("initial-token")]
-  [AllowAnonymous]
-  [ProducesResponseType(typeof(GetResourceInitialAccessToken), StatusCodes.Status200OK)]
-  public IActionResult GetClientInitialToken()
-  {
-    var token = _tokenBuilder.BuildClientInitialAccessToken();
-    return Ok(new GetResourceInitialAccessToken
-    {
-      AccessToken = token,
-      ExpiresIn = 300
-    });
   }
 
   [HttpPost]
-  [Authorize(Policy = AuthorizationConstants.ClientRegistration, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   [Route("register")]
   [ProducesResponseType(typeof(PostClientResponse), StatusCodes.Status201Created)]
   [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> Post([FromBody] PostClientRequest request, CancellationToken cancellationToken = default)
   {
-    var response = await _mediator.Send(request.Adapt<CreateClientCommand>(), cancellationToken: cancellationToken);
+    var command = request.Adapt<CreateClientCommand>();
+    var response = await _mediator.Send(command, cancellationToken: cancellationToken);
 
     if (response.IsError())
     {
       return BadOAuthResult(response.ErrorCode, response.ErrorDescription);
     }
 
-    return CreatedOAuthResult("connect/client/configuration", response.Adapt<PostClientResponse>());
+    var createdResponse = response.Adapt<PostClientResponse>();
+    return CreatedOAuthResult("connect/client/configuration", createdResponse);
   }
 
   [HttpDelete]

@@ -19,6 +19,8 @@ public class AuthorizeLoginTest : BaseIntegrationTest
   [Trait("Category", "Integration")]
   public async Task AuthorizeWithPromptLoginForConfidentialClient()
   {
+    await CreateDatabase();
+    await CreateIdentityProviderResource();
     const string scope = $"{ScopeConstants.OpenId}";
     const string clientName = "webapp";
     var password = CryptographyHelper.GetRandomString(32);
@@ -33,7 +35,7 @@ public class AuthorizeLoginTest : BaseIntegrationTest
       .AddMaxAge("0")
       .AddCodeChallenge(ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge)
       .AddPrompt($"{PromptConstants.Login} {PromptConstants.Consent}")
-      .BuildLoginAndConsent(GetClient());
+      .BuildLoginAndConsent(GetHttpClient());
 
     var secondLoginWithoutConsent = await AuthorizeEndpointBuilder
       .Instance()
@@ -44,7 +46,7 @@ public class AuthorizeLoginTest : BaseIntegrationTest
       .AddMaxAge("0")
       .AddCodeChallenge(ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge)
       .AddPrompt($"{PromptConstants.Login}")
-      .BuildLogin(GetClient());
+      .BuildLogin(GetHttpClient());
 
     Assert.NotEmpty(firstLoginWithConsent);
     Assert.NotEmpty(secondLoginWithoutConsent);
@@ -54,6 +56,8 @@ public class AuthorizeLoginTest : BaseIntegrationTest
   [Trait("Category", "Integration")]
   public async Task AuthorizeWithPromptLoginForNativeClient()
   {
+    await CreateDatabase();
+    await CreateIdentityProviderResource();
     const string scope = $"{ScopeConstants.OpenId}";
     const string clientName = "nativeapp";
     var password = CryptographyHelper.GetRandomString(32);
@@ -68,7 +72,7 @@ public class AuthorizeLoginTest : BaseIntegrationTest
       .AddMaxAge("0")
       .AddCodeChallenge(ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge)
       .AddPrompt($"{PromptConstants.Login} {PromptConstants.Consent}")
-      .BuildLoginAndConsent(GetClient());
+      .BuildLoginAndConsent(GetHttpClient());
 
     var secondLoginWithoutConsent = await AuthorizeEndpointBuilder
       .Instance()
@@ -79,7 +83,7 @@ public class AuthorizeLoginTest : BaseIntegrationTest
       .AddMaxAge("0")
       .AddCodeChallenge(ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge)
       .AddPrompt($"{PromptConstants.Login}")
-      .BuildLogin(GetClient());
+      .BuildLogin(GetHttpClient());
 
     Assert.NotEmpty(firstLoginWithConsent);
     Assert.NotEmpty(secondLoginWithoutConsent);

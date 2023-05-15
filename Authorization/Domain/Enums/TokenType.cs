@@ -1,14 +1,17 @@
-﻿namespace Domain.Enums;
+﻿using System.ComponentModel;
+using Domain.Constants;
+
+namespace Domain.Enums;
 public enum TokenType
 {
-  Token,
-  IdToken,
+  [Description(TokenTypeConstants.RefreshToken)]
   RefreshToken,
-  AccessToken,
-  ScopeInitialToken,
-  ScopeRegistrationToken,
-  ResourceInitialToken,
-  ResourceRegistrationToken,
-  ClientInitialToken,
-  ClientRegistrationToken
+
+  [Description(TokenTypeConstants.AccessToken)]
+  ClientAccessToken,
+
+  [Description(TokenTypeConstants.AccessToken)]
+  GrantAccessToken,
+
+  RegistrationToken
 }

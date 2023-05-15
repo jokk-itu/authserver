@@ -6,10 +6,7 @@ public interface ITokenBuilder
     Task<string> BuildRefreshToken(string authorizationGrantId, string clientId, ICollection<string> scopes, string userId, string sessionId, CancellationToken cancellationToken = default);
     Task<string> BuildIdToken(string authorizationGrantId, string clientId, ICollection<string> scopes, string nonce, string userId, string sessionId, DateTime authTime, CancellationToken cancellationToken = default);
     string BuildLogoutToken(string clientId, string sessionId, string userId, CancellationToken cancellationToken = default);
-    string BuildResourceInitialAccessToken();
-    string BuildClientInitialAccessToken();
     string BuildClientRegistrationAccessToken(string clientId);
-    string BuildResourceRegistrationAccessToken(string resourceId); 
-    string BuildScopeInitialAccessToken();
+    string BuildResourceRegistrationAccessToken(string resourceId);
     string BuildScopeRegistrationAccessToken(string scopeId);
 }

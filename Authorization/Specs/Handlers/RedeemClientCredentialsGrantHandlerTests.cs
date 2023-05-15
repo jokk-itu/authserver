@@ -1,5 +1,4 @@
-﻿using Application;
-using Application.Validation;
+﻿using Application.Validation;
 using Infrastructure.Requests.RedeemClientCredentialsGrant;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;

@@ -1,8 +1,13 @@
-﻿using System.Security.Claims;
-using Application;
+﻿using Application;
+using Domain;
 using Domain.Constants;
+using Infrastructure;
+using Infrastructure.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace WebApp.Options;
 
@@ -32,6 +37,11 @@ public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions
       options.Audience = AudienceConstants.IdentityProvider;
       options.Authority = _identityConfiguration.Issuer;
       options.ConfigurationManager = _internalConfigurationManager;
+      options.Challenge = OpenIdConnectDefaults.AuthenticationScheme;
+      options.TokenValidationParameters = new TokenValidationParameters
+      {
+        ClockSkew = TimeSpan.FromMinutes(5),
+      };
       options.SaveToken = true;
       options.Events = new JwtBearerEvents
       {
@@ -56,11 +66,24 @@ public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions
         { 
           _logger.LogInformation("Challenge response returned"); 
           return Task.CompletedTask;
-        }, 
-        OnMessageReceived = _ => 
+        },
+        OnMessageReceived = async context => 
         { 
-          _logger.LogInformation("Initiating bearer validation"); 
-          return Task.CompletedTask;
+          _logger.LogInformation("Initiating bearer validation");
+          if (!string.IsNullOrWhiteSpace(context.Token) && !TokenHelper.IsStructuredToken(context.Token))
+          {
+            var identityContext = context.HttpContext.RequestServices.GetRequiredService<IdentityContext>();
+            var isValidReferenceToken = await identityContext
+              .Set<Token>()
+              .Where(x => x.Reference == context.Token)
+              .Where(x => x.RevokedAt == null)
+              .AnyAsync(context.HttpContext.RequestAborted);
+
+            if (isValidReferenceToken)
+            {
+              context.Success();
+            }
+          }
         }
       };
       options.Validate();

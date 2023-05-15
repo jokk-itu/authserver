@@ -45,6 +45,7 @@ public abstract class BaseUnitTest
         CodeSecret = CryptographyHelper.GetRandomString(32),
         PrivateKeySecret = CryptographyHelper.GetRandomString(32),
         Issuer = "auth-server",
+        UseReferenceTokens = false,
       })
       .AddScoped(_ => IdentityContext)
       .AddLogging()

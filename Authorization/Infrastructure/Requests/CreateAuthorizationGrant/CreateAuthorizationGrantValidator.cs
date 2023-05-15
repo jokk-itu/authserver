@@ -19,160 +19,95 @@ public class CreateAuthorizationGrantValidator : IValidator<CreateAuthorizationG
 
   public async Task<ValidationResult> ValidateAsync(CreateAuthorizationGrantCommand value, CancellationToken cancellationToken = default)
   {
-    if (await IsClientIdInvalidAsync(value))
-      return new ValidationResult(ErrorCode.InvalidRequest, "client_id is invalid", HttpStatusCode.BadRequest);
-
-    if (IsRedirectUriInvalid(value))
-      return new ValidationResult(ErrorCode.InvalidRequest, "redirect_uri is invalid", HttpStatusCode.BadRequest);
-
-    if (IsStateInvalid(value))
-      return new ValidationResult(ErrorCode.InvalidRequest, "state is invalid", HttpStatusCode.BadRequest);
-
-    if (await IsClientUnauthorized(value))
-      return new ValidationResult(ErrorCode.UnauthorizedClient, "client is unauthorized", HttpStatusCode.OK);
-
-    if (IsResponseTypeInvalid(value))
-      return new ValidationResult(ErrorCode.UnsupportedResponseType, "response_type must be code", HttpStatusCode.OK);
-
-    if (IsCodeChallengeInvalid(value))
-      return new ValidationResult(ErrorCode.InvalidRequest, "code_challenge is invalid", HttpStatusCode.OK);
-
-    if (IsCodeChallengeMethodInvalid(value))
-      return new ValidationResult(ErrorCode.InvalidRequest, "code_challenge_method must be S256", HttpStatusCode.OK);
-
-    if (await IsNonceInvalidAsync(value))
-      return new ValidationResult(ErrorCode.InvalidRequest, "nonce is invalid", HttpStatusCode.OK);
-
-    if (await IsScopeInvalidAsync(value))
-      return new ValidationResult(ErrorCode.InvalidRequest, "scope is invalid", HttpStatusCode.OK);
-
-    if (IsMaxAgeInvalid(value))
-      return new ValidationResult(ErrorCode.InvalidRequest, "max_age is invalid", HttpStatusCode.OK);
-
-    if (await IsConsentGrantInvalid(value))
-      return new ValidationResult(ErrorCode.ConsentRequired, "consent is required", HttpStatusCode.OK);
-    
-    return new ValidationResult(HttpStatusCode.OK);
-  }
-
-  private async Task<bool> IsClientIdInvalidAsync(CreateAuthorizationGrantCommand command)
-  {
-    if (string.IsNullOrWhiteSpace(command.ClientId))
-      return true;
-
-    var client = await _identityContext
+    var query = await _identityContext
       .Set<Client>()
-      .SingleOrDefaultAsync(x => x.Id == command.ClientId);
-
-    return client is null;
-  }
-
-  private static bool IsRedirectUriInvalid(CreateAuthorizationGrantCommand command)
-  {
-    return string.IsNullOrWhiteSpace(command.RedirectUri);
-  }
-
-  private async Task<bool> IsClientUnauthorized(CreateAuthorizationGrantCommand command)
-  {
-    var client = await _identityContext
-      .Set<Client>()
-      .Include(x => x.GrantTypes)
-      .Include(x => x.RedirectUris)
-      .Include(x => x.Scopes)
-      .SingleAsync(x => x.Id == command.ClientId);
-
-    if (client.RedirectUris.All(x => x.Uri != command.RedirectUri))
-    {
-      return true;
-    }
-
-    if (client.GrantTypes.All(x => x.Name != GrantTypeConstants.AuthorizationCode))
-    {
-      return true;
-    }
-
-    return command.Scope.Split(' ').All(x => client.Scopes.All(y => y.Name != x));
-  }
-
-  private static bool IsResponseTypeInvalid(CreateAuthorizationGrantCommand command)
-  {
-    return command.ResponseType != ResponseTypeConstants.Code;
-  }
-
-  private static bool IsCodeChallengeInvalid(CreateAuthorizationGrantCommand command)
-  {
-    if (string.IsNullOrWhiteSpace(command.CodeChallenge))
-      return true;
-
-    return !Regex.IsMatch(command.CodeChallenge, @"^[0-9a-zA-Z-_~.]{43,128}$");
-  }
-
-  private static bool IsCodeChallengeMethodInvalid(CreateAuthorizationGrantCommand command)
-  {
-    return command.CodeChallengeMethod != CodeChallengeMethodConstants.S256;
-  }
-
-  private static bool IsStateInvalid(CreateAuthorizationGrantCommand command)
-  {
-    return string.IsNullOrWhiteSpace(command.State);
-  }
-
-  private async Task<bool> IsNonceInvalidAsync(CreateAuthorizationGrantCommand command)
-  {
-    if (string.IsNullOrWhiteSpace(command.Nonce))
-    {
-      return true;
-    }
-
-    return await _identityContext
-      .Set<Nonce>()
-      .AnyAsync(x => x.Value == command.Nonce);
-  }
-
-  private async Task<bool> IsScopeInvalidAsync(CreateAuthorizationGrantCommand command)
-  {
-    var scopes = command.Scope.Split(' ');
-    if (scopes.All(x => x != ScopeConstants.OpenId))
-    {
-      return true;
-    }
-
-    foreach (var scope in scopes)
-    {
-      if (!await _identityContext.Set<Scope>().AnyAsync(x => x.Name == scope))
+      .Where(x => x.Id == value.ClientId)
+      .Select(x => new
       {
-        return true;
-      }
+        Client = x,
+        IsRedirectUriAuthorized = x.RedirectUris.Any(y => y.Uri == value.RedirectUri),
+        IsGrantTypeAuthorized = x.GrantTypes.Any(y => y.Name == GrantTypeConstants.AuthorizationCode),
+        x.Scopes,
+      })
+      .SingleOrDefaultAsync(cancellationToken: cancellationToken);
+
+    if (query is null)
+    {
+      return new ValidationResult(ErrorCode.InvalidRequest, "client_id is invalid", HttpStatusCode.BadRequest);
     }
 
-    return false;
-  }
+    if (string.IsNullOrWhiteSpace(value.RedirectUri))
+    {
+      return new ValidationResult(ErrorCode.InvalidRequest, "redirect_uri is invalid", HttpStatusCode.BadRequest);
+    }
 
-  private async Task<bool> IsConsentGrantInvalid(CreateAuthorizationGrantCommand command)
-  {
+    if (string.IsNullOrWhiteSpace(value.State))
+    {
+      return new ValidationResult(ErrorCode.InvalidRequest, "state is invalid", HttpStatusCode.BadRequest);
+    }
+
+    var scope = value.Scope?.Split(' ') ?? Array.Empty<string>();
+    var isScopeAuthorized = !scope.Except(query.Scopes.Select(x => x.Name)).Any();
+    if (!scope.Contains(ScopeConstants.OpenId) || !isScopeAuthorized)
+    {
+      return new ValidationResult(ErrorCode.InvalidScope, "scope is invalid", HttpStatusCode.OK);
+    }
+
+    if (!query.IsGrantTypeAuthorized || !query.IsRedirectUriAuthorized)
+    {
+      return new ValidationResult(ErrorCode.UnauthorizedClient, "client is unauthorized", HttpStatusCode.OK);
+    }
+
+    if (value.ResponseType != ResponseTypeConstants.Code)
+    {
+      return new ValidationResult(ErrorCode.UnsupportedResponseType, "response_type must be code", HttpStatusCode.OK);
+    }
+
+    if (string.IsNullOrWhiteSpace(value.CodeChallenge) ||
+        !Regex.IsMatch(
+          value.CodeChallenge,
+          @"^[0-9a-zA-Z-_~.]{43,128}$",
+          RegexOptions.None,
+          TimeSpan.FromSeconds(1)))
+    {
+      return new ValidationResult(ErrorCode.InvalidRequest, "code_challenge is invalid", HttpStatusCode.OK);
+    }
+
+    if (value.CodeChallengeMethod != CodeChallengeMethodConstants.S256)
+    {
+      return new ValidationResult(ErrorCode.InvalidRequest, "code_challenge_method must be S256", HttpStatusCode.OK);
+    }
+
+    var isDuplicateNonce = await _identityContext
+      .Set<Nonce>()
+      .AnyAsync(x => x.Value == value.Nonce, cancellationToken: cancellationToken);
+
+    if (isDuplicateNonce)
+    {
+      return new ValidationResult(ErrorCode.InvalidRequest, "nonce is invalid", HttpStatusCode.OK);
+    }
+
+    if (!string.IsNullOrWhiteSpace(value.MaxAge)
+        && !(long.TryParse(value.MaxAge, out var maxAge)
+        && maxAge > -1))
+    {
+      return new ValidationResult(ErrorCode.InvalidRequest, "max_age is invalid", HttpStatusCode.OK);;
+    }
+    
     var consentGrant = await _identityContext
       .Set<ConsentGrant>()
       .Include(x => x.ConsentedScopes)
-      .Where(x => x.Client.Id == command.ClientId && x.User.Id == command.UserId)
-      .SingleOrDefaultAsync();
+      .Where(x => x.Client.Id == value.ClientId)
+      .Where(x=> x.User.Id == value.UserId)
+      .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
-    if (consentGrant is null)
+    var hasScopeConsent = !scope.Except(consentGrant?.ConsentedScopes.Select(x => x.Name) ?? Array.Empty<string>()).Any();
+
+    if (consentGrant is null || !hasScopeConsent)
     {
-      return true;
+      return new ValidationResult(ErrorCode.ConsentRequired, "consent is required", HttpStatusCode.OK);
     }
 
-    return consentGrant.ConsentedScopes.Any(scope => !command.Scope.Split(' ').Contains(scope.Name));
-  }
-
-  private static bool IsMaxAgeInvalid(CreateAuthorizationGrantCommand command)
-  {
-    if (!string.IsNullOrWhiteSpace(command.MaxAge)
-        && !long.TryParse(command.MaxAge, out var maxAge)
-        && maxAge > -1)
-    {
-      return true;
-    }
-
-    return false;
+    return new ValidationResult(HttpStatusCode.OK);
   }
 }

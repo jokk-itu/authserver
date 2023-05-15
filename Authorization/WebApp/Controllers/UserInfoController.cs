@@ -26,6 +26,7 @@ public class UserInfoController : OAuthControllerBase
   }
 
   [HttpGet]
+  [HttpPost]
   [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = AuthorizationConstants.UserInfo)]
   [SecurityHeader]
   [ProducesResponseType(StatusCodes.Status200OK)]

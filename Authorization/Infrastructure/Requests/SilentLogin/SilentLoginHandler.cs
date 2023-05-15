@@ -1,36 +1,35 @@
 ﻿using System.Net;
-using Application;
 using Domain;
 using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
-using Infrastructure.Decoders.Abstractions;
+using Infrastructure.Decoders.Token;
+using Infrastructure.Decoders.Token.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.SilentLogin;
 public class SilentLoginHandler : IRequestHandler<SilentLoginCommand, SilentLoginResponse>
 {
-  private readonly ITokenDecoder _tokenDecoder;
   private readonly IdentityContext _identityContext;
   private readonly ICodeBuilder _codeBuilder;
+  private readonly IStructuredTokenDecoder _tokenDecoder;
 
   public SilentLoginHandler(
-    ITokenDecoder tokenDecoder,
     IdentityContext identityContext,
-    ICodeBuilder codeBuilder)
+    ICodeBuilder codeBuilder,
+    IStructuredTokenDecoder tokenDecoder)
   {
-    _tokenDecoder = tokenDecoder;
     _identityContext = identityContext;
     _codeBuilder = codeBuilder;
+    _tokenDecoder = tokenDecoder;
   }
 
   public async Task<SilentLoginResponse> Handle(SilentLoginCommand request, CancellationToken cancellationToken)
   {
-    var token = _tokenDecoder.DecodeSignedToken(request.IdTokenHint);
-    if (token is null)
+    var token = await _tokenDecoder.Decode(request.IdTokenHint, new StructuredTokenDecoderArguments
     {
-      return new SilentLoginResponse(ErrorCode.ServerError, "something went wrong", HttpStatusCode.OK);
-    }
+      ClientId = request.ClientId
+    });
 
     var authorizationGrantId = token.Claims.Single(x => x.Type == ClaimNameConstants.GrantId).Value;
     var authorizationCodeId = Guid.NewGuid().ToString();

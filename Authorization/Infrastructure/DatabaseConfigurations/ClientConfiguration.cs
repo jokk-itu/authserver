@@ -10,6 +10,10 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
     builder.HasKey(client => client.Id);
 
     builder
+      .Property(x => x.Name)
+      .IsRequired();
+
+    builder
       .Property(client => client.ApplicationType)
       .HasConversion<string>();
 
@@ -28,23 +32,19 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
 
     builder
       .HasMany(client => client.Scopes)
-      .WithMany(scope => scope.Clients)
-      .UsingEntity(link => link.ToTable("ClientScopes"));
+      .WithMany(scope => scope.Clients);
 
     builder
       .HasMany(client => client.GrantTypes)
-      .WithMany(grant => grant.Clients)
-      .UsingEntity(link => link.ToTable("ClientGrantTypes"));
+      .WithMany(grant => grant.Clients);
 
     builder
       .HasMany(client => client.Contacts)
-      .WithMany(contact => contact.Clients)
-      .UsingEntity(link => link.ToTable("ClientContacts"));
+      .WithMany(contact => contact.Clients);
 
     builder
       .HasMany(client => client.ResponseTypes)
-      .WithMany(contact => contact.Clients)
-      .UsingEntity(link => link.ToTable("ClientResponseTypes"));
+      .WithMany(contact => contact.Clients);
 
     builder
       .HasMany(x => x.AuthorizationCodeGrants)
@@ -56,6 +56,9 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
       .WithOne(x => x.Client)
       .OnDelete(DeleteBehavior.Cascade);
 
-    builder.ToTable("Clients");
+    builder
+      .HasMany(x => x.ClientTokens)
+      .WithOne(x => x.Client)
+      .OnDelete(DeleteBehavior.NoAction);
   }
 }

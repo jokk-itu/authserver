@@ -9,9 +9,14 @@ internal class ResourceConfiguration : IEntityTypeConfiguration<Resource>
   {
     builder
       .HasMany(resource => resource.Scopes)
-      .WithMany(scope => scope.Resources)
-      .UsingEntity(link => link.ToTable("ResourceScopes"));
+      .WithMany(scope => scope.Resources);
 
-    builder.ToTable("Resources");
+    builder
+      .Property(x => x.Name)
+      .IsRequired();
+
+    builder
+      .Property(x => x.Secret)
+      .IsRequired();
   }
 }

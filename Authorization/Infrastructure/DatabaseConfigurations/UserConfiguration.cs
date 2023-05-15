@@ -7,11 +7,52 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
 {
   public void Configure(EntityTypeBuilder<User> builder)
   {
-    builder.Property(x => x.UserName).IsRequired();
-    builder.Property(x => x.Password).IsRequired();
+    builder
+      .Property(x => x.UserName)
+      .IsRequired();
 
-    builder.HasIndex(x => x.UserName).IsUnique();
+    builder
+      .Property(x => x.Password)
+      .IsRequired();
 
-    builder.ToTable("Users");
+    builder
+      .Property(x => x.PhoneNumber)
+      .IsRequired();
+
+    builder.Property(x => x.Email)
+      .IsRequired();
+
+    builder
+      .Property(x => x.Address)
+      .IsRequired();
+
+    builder
+      .Property(x => x.LastName)
+      .IsRequired();
+
+    builder
+      .Property(x => x.FirstName)
+      .IsRequired();
+
+    builder
+      .Property(x => x.Locale)
+      .IsRequired();
+
+    builder
+      .HasMany(x => x.Sessions)
+      .WithOne(x => x.User)
+      .OnDelete(DeleteBehavior.Cascade);
+
+    builder
+      .HasIndex(x => x.UserName)
+      .IsUnique();
+
+    builder
+      .HasIndex(x => x.Email)
+      .IsUnique();
+
+    builder
+      .HasIndex(x => x.PhoneNumber)
+      .IsUnique();
   }
 }

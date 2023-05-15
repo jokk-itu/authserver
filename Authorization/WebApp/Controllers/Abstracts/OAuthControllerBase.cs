@@ -2,8 +2,6 @@
 using Application;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.Extensions.Primitives;
 using WebApp.Constants;
 using WebApp.Contracts;
 

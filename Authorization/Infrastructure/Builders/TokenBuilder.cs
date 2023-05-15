@@ -139,17 +139,6 @@ public class TokenBuilder : ITokenBuilder
       return GetSignedToken(claims, expires, tokenType: "logout+jwt");
     }
 
-    public string BuildResourceInitialAccessToken()
-    {
-        var expires = DateTime.UtcNow.AddSeconds(300);
-        var claims = new Dictionary<string, object>
-        {
-          { ClaimNameConstants.Aud, AudienceConstants.IdentityProvider },
-          { ClaimNameConstants.Scope, string.Join(' ', ScopeConstants.ResourceRegistration) },
-        };
-        return GetSignedToken(claims, expires);
-    }
-
     public string BuildResourceRegistrationAccessToken(string resourceId)
     {
         var expires = DateTime.UnixEpoch.AddSeconds(2145993506);
@@ -158,17 +147,6 @@ public class TokenBuilder : ITokenBuilder
           { ClaimNameConstants.Aud, AudienceConstants.IdentityProvider },
           { ClaimNameConstants.Scope, string.Join(' ', ScopeConstants.ResourceConfiguration) },
           { ClaimNameConstants.ResourceId, resourceId }
-        };
-        return GetSignedToken(claims, expires);
-    }
-
-    public string BuildClientInitialAccessToken()
-    {
-        var expires = DateTime.UtcNow.AddSeconds(300);
-        var claims = new Dictionary<string, object>
-        {
-          { ClaimNameConstants.Aud, AudienceConstants.IdentityProvider },
-          { ClaimNameConstants.Scope, string.Join(' ', ScopeConstants.ClientRegistration) },
         };
         return GetSignedToken(claims, expires);
     }
@@ -183,17 +161,6 @@ public class TokenBuilder : ITokenBuilder
           { ClaimNameConstants.ClientId, clientId }
         };
         return GetSignedToken(claims, expires);
-    }
-
-    public string BuildScopeInitialAccessToken()
-    {
-      var expires = DateTime.UtcNow.AddSeconds(300);
-      var claims = new Dictionary<string, object>
-      {
-        { ClaimNameConstants.Aud, AudienceConstants.IdentityProvider },
-        { ClaimNameConstants.Scope, string.Join(' ', ScopeConstants.ScopeRegistration) },
-      };
-      return GetSignedToken(claims, expires);
     }
 
     public string BuildScopeRegistrationAccessToken(string scopeId)
@@ -230,7 +197,7 @@ public class TokenBuilder : ITokenBuilder
         };
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(tokenDescriptor);
-        
+
         return tokenHandler.WriteToken(token);
     }
 

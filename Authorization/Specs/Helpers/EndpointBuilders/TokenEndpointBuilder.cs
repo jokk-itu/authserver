@@ -99,7 +99,8 @@ public class TokenEndpointBuilder
       { ParameterNames.ClientId, _clientId },
       { ParameterNames.ClientSecret, _clientSecret },
       { ParameterNames.GrantType, _grantType },
-      { ParameterNames.RefreshToken, _refreshToken }
+      { ParameterNames.RefreshToken, _refreshToken },
+      { ParameterNames.Scope, _scope }
     });
 
     var refreshTokenRequest = new HttpRequestMessage(HttpMethod.Post, "connect/token")

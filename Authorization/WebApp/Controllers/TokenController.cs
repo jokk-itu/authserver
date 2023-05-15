@@ -57,7 +57,8 @@ public class TokenController : OAuthControllerBase
       GrantType = context.GrantType,
       ClientId = context.ClientId,
       ClientSecret = context.ClientSecret,
-      RefreshToken = context.RefreshToken
+      RefreshToken = context.RefreshToken,
+      Scope = context.Scope
     };
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
     if (response.IsError())

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Net;
+using Application;
 using Application.Validation;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -13,6 +14,8 @@ public class ValidatorBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest
   private readonly IValidator<TRequest> _validator;
   private readonly ILogger<ValidatorBehavior<TRequest, TResponse>> _logger;
 
+  private const string ErrorDescription = "uncaught error occurred";
+
   public ValidatorBehavior(IValidator<TRequest> validator, ILogger<ValidatorBehavior<TRequest, TResponse>> logger)
   {
     _validator = validator;
@@ -21,19 +24,20 @@ public class ValidatorBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest
 
   public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
   {
+    var requestName = typeof(TRequest).Name;
     var stopWatch = Stopwatch.StartNew();
     try
     {
       var validationResult = await _validator.ValidateAsync(request, cancellationToken);
       if (!validationResult.IsError())
       {
-        _logger.LogInformation("Validated {Request} successfully, took {ElapsedTime}", nameof(TRequest), stopWatch.ElapsedMilliseconds);
+        _logger.LogInformation("Validated {Request} successfully, took {ElapsedTime} ms", requestName, stopWatch.ElapsedMilliseconds);
         return await next();
       }
 
       _logger.LogInformation(
-        "Validated {Request} with {ErrorCode} and {ErrorDescription}, took {ElapsedTime}",
-        nameof(TRequest),
+        "Validated {Request} with error {ErrorCode} and description {ErrorDescription}, took {ElapsedTime} ms",
+        requestName,
         validationResult.ErrorCode,
         validationResult.ErrorDescription,
         stopWatch.ElapsedMilliseconds);
@@ -46,14 +50,14 @@ public class ValidatorBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest
       {
         return response;
       }
-      throw new InvalidOperationException($"Error occurred instantiating {typeof(TResponse)}");
+      throw new InvalidOperationException($"Error occurred instantiating {requestName}");
     }
     catch (Exception e)
     {
       _logger.LogError(e, "Error occurred during validation, took {ElapsedTime}", stopWatch.ElapsedMilliseconds);
-      if (Activator.CreateInstance(typeof(TResponse), HttpStatusCode.BadRequest) is not TResponse response)
+      if (Activator.CreateInstance(typeof(TResponse), ErrorCode.ServerError, ErrorDescription, HttpStatusCode.BadRequest) is not TResponse response)
       {
-        throw new AggregateException(e, new InvalidOperationException($"Error occurred instantiating {typeof(TResponse)}"));
+        throw new AggregateException(e, new InvalidOperationException($"Error occurred instantiating {requestName}"));
       }
 
       return response;
