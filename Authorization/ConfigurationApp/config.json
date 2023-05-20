@@ -2,6 +2,9 @@
   "ConnectionStrings": {
     "SqlServer": "Server=localhost,1433;Initial Catalog=Identity;Trusted_Connection=False;User ID=sa;Password=Password12!"
   },
+  "IdentityConfiguration": {
+    "PrivateKey": "nhwiuhiuvwhriwherwierybwiyriwrqvwrt9w8ry9ytjur76r5r7r65e"
+  },
   "Resources": [
     {
       "Id": "D046B270-7F55-4358-B2D6-F7DB2152DAAD",

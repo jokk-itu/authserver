@@ -8,7 +8,7 @@ env:
   DOTNET_NOLOGO: true
 
 jobs:
-  build:
+  build_solution:
     name: Build and Test
     runs-on: ubuntu-latest
     
@@ -25,6 +25,18 @@ jobs:
     - name: Test
       run: dotnet test AuthorizationServer.sln --no-build --verbosity normal
   
+  build_documentation:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: action/checkout@v3
+      - name: Install and Build
+        run: |
+          cd Documentation
+          npm ci
+          npm run build
+
   sonarscan:
     name: SonarScan
     needs: build

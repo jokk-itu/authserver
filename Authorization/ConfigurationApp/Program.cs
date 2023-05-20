@@ -1,4 +1,6 @@
-﻿using Domain;
+﻿using System.Security.Cryptography;
+using System.Text;
+using Domain;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -45,7 +47,21 @@ else if (args[0] == "scope")
 }
 else if (args[0] == "rotate")
 {
-  throw new NotImplementedException();
+  using var rsa = new RSACryptoServiceProvider(4096);
+  var privateKey = config.GetSection("IdentityConfiguration").GetValue<string>("PrivateKey");
+  var password = Encoding.Default.GetBytes(privateKey);
+  var pbeParameters = new PbeParameters(PbeEncryptionAlgorithm.TripleDes3KeyPkcs12, HashAlgorithmName.SHA256, 10);
+  var encryptedPrivateKey = rsa.ExportEncryptedPkcs8PrivateKey(password, pbeParameters);
+  var publicKey = rsa.ExportParameters(false);
+  var jwk = new Jwk
+  {
+    PrivateKey = encryptedPrivateKey,
+    Modulus = publicKey.Modulus!,
+    Exponent = publicKey.Exponent!,
+    CreatedTimestamp = DateTime.UtcNow
+  };
+  await identityContext.Set<Jwk>().AddAsync(jwk);
+  await identityContext.SaveChangesAsync();
 }
 else if (args[0] == "migration")
 {

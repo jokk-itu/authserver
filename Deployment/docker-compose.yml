@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+  authserver:
+    image: jokk-itu/authserver
+    ports:
+      - 5000:80
+    container_name: 'authserver'
+    volumes:
+      - ./Identity.db:/app/
+    environment:
+      - CONNECTIONSTRINGS__SQLite=Data Source=./Identity.db
+  
+  webapp:
+    image: jokk-itu/webapp
+    ports:
+      - 5001:80
+    container_name: 'webapp'
+
+  configurationapp:
+    image: jokk-itu/configurationapp
+    container_name: 'configurationapp'
+    environment:
+      - CONNECTIONSTRINGS__SQLite=Data Source=./Identity.db
+    volumes:
+      - ./Identity.db:/app/
+  
+  nginx:
+    image: 'nginx/nginx'
+    restart: on-failure
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./conf.d:/etc/nginx/conf.d
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot

@@ -1,0 +1,38 @@
+worker_processes  5;
+events {
+  worker_connections  4096;
+}
+
+http {
+
+	server {
+		listen 80;
+		server_name idp.authserver.dk app.authserver.dk;
+		location /.well-known/acme-challenge/ {
+    		root /var/www/certbot;
+		}
+		location / {
+			return 301 https://$host$request_uri;
+		}
+	}
+
+	server {
+		listen  443 ssl;
+		ssl_certificate /etc/letsencrypt/live/authserver.dk/fullchain.pem;
+		ssl_certificate_key /etc/letsencrypt/live/authserver.dk/privkey.pem;
+		server_name idp.authserver.dk;
+		location / {
+			proxy_pass http://127.0.0.1:5000;
+		}
+	}
+
+	server {
+		listen 443 ssl;
+		ssl_certificate /etc/letsencrypt/live/authserver.dk/fullchain.pem;
+		ssl_certificate_key /etc/letsencrypt/live/authserver.dk/privkey.pem;
+		server_name app.authserver.dk;
+		location / {
+			proxy_pass http://127.0.0.1:5001;
+		}
+	}
+}
