@@ -39,7 +39,9 @@ jobs:
 
   sonarscan:
     name: SonarScan
-    needs: build
+    needs:
+      - build_solution
+      - build_documentation
     if: github.event_name == 'pull_request' || github.ref_name == 'master'
     runs-on: windows-latest
     steps:
