@@ -34,7 +34,7 @@ jobs:
       - name: Install and Build
         run: |
           cd Documentation
-          npm ci
+          npm install
           npm run build
 
   sonarscan:
