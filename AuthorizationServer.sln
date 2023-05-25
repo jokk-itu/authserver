@@ -55,12 +55,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{52AE7B64
 	ProjectSection(SolutionItems) = preProject
 		Tools\CreateClients.ps1 = Tools\CreateClients.ps1
 		Tools\CreateMigration.ps1 = Tools\CreateMigration.ps1
-		Tools\CreateResources.ps1 = Tools\CreateResources.ps1
-		Tools\CreateScopes.ps1 = Tools\CreateScopes.ps1
-		NewServer.sh = NewServer.sh
 		Tools\RemoveMigration.ps1 = Tools\RemoveMigration.ps1
 		Tools\RunMigrationLocal.ps1 = Tools\RunMigrationLocal.ps1
-		SetCronJob.sh = SetCronJob.sh
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigurationApp", "Authorization\ConfigurationApp\ConfigurationApp.csproj", "{E4795AE4-B5A7-4063-87D5-B752B0F645F5}"
