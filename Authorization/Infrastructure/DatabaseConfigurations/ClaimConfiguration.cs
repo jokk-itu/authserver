@@ -8,6 +8,10 @@ internal class ClaimConfiguration : IEntityTypeConfiguration<Claim>
 {
   public void Configure(EntityTypeBuilder<Claim> builder)
   {
+    builder
+      .Property(x => x.Name)
+      .HasMaxLength(32);
+
     builder.HasData(
       new Claim
       {

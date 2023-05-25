@@ -13,9 +13,9 @@ namespace Infrastructure.Migrations
                 name: "Claim",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 32, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -26,19 +26,19 @@ namespace Infrastructure.Migrations
                 name: "Client",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Secret = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TosUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PolicyUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClientUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LogoUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    InitiateLoginUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    BackChannelLogoutUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DefaultMaxAge = table.Column<long>(type: "bigint", nullable: true),
-                    ApplicationType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TokenEndpointAuthMethod = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SubjectType = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    Secret = table.Column<string>(type: "TEXT", nullable: true),
+                    TosUri = table.Column<string>(type: "TEXT", nullable: true),
+                    PolicyUri = table.Column<string>(type: "TEXT", nullable: true),
+                    ClientUri = table.Column<string>(type: "TEXT", nullable: true),
+                    LogoUri = table.Column<string>(type: "TEXT", nullable: true),
+                    InitiateLoginUri = table.Column<string>(type: "TEXT", nullable: true),
+                    BackChannelLogoutUri = table.Column<string>(type: "TEXT", nullable: true),
+                    DefaultMaxAge = table.Column<long>(type: "INTEGER", nullable: true),
+                    ApplicationType = table.Column<string>(type: "TEXT", nullable: false),
+                    TokenEndpointAuthMethod = table.Column<string>(type: "TEXT", nullable: false),
+                    SubjectType = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -49,9 +49,9 @@ namespace Infrastructure.Migrations
                 name: "Contact",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Email = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -62,9 +62,9 @@ namespace Infrastructure.Migrations
                 name: "GrantType",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -75,12 +75,12 @@ namespace Infrastructure.Migrations
                 name: "Jwk",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CreatedTimestamp = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PrivateKey = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    Modulus = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    Exponent = table.Column<byte[]>(type: "varbinary(max)", nullable: false)
+                    Id = table.Column<long>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    CreatedTimestamp = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    PrivateKey = table.Column<byte[]>(type: "BLOB", nullable: false),
+                    Modulus = table.Column<byte[]>(type: "BLOB", nullable: false),
+                    Exponent = table.Column<byte[]>(type: "BLOB", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -91,9 +91,9 @@ namespace Infrastructure.Migrations
                 name: "Resource",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Secret = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    Secret = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -104,9 +104,9 @@ namespace Infrastructure.Migrations
                 name: "ResponseType",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -117,9 +117,9 @@ namespace Infrastructure.Migrations
                 name: "Scope",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -130,16 +130,16 @@ namespace Infrastructure.Migrations
                 name: "User",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Birthdate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Locale = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    UserName = table.Column<string>(type: "TEXT", nullable: false),
+                    Password = table.Column<string>(type: "TEXT", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "TEXT", nullable: false),
+                    Email = table.Column<string>(type: "TEXT", nullable: false),
+                    Address = table.Column<string>(type: "TEXT", nullable: false),
+                    LastName = table.Column<string>(type: "TEXT", nullable: false),
+                    FirstName = table.Column<string>(type: "TEXT", nullable: false),
+                    Birthdate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Locale = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -150,11 +150,11 @@ namespace Infrastructure.Migrations
                 name: "RedirectUri",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Uri = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Uri = table.Column<string>(type: "TEXT", nullable: false),
+                    Type = table.Column<string>(type: "TEXT", nullable: false),
+                    ClientId = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -171,8 +171,8 @@ namespace Infrastructure.Migrations
                 name: "ClientContact",
                 columns: table => new
                 {
-                    ClientsId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ContactsId = table.Column<int>(type: "int", nullable: false)
+                    ClientsId = table.Column<string>(type: "TEXT", nullable: false),
+                    ContactsId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -195,8 +195,8 @@ namespace Infrastructure.Migrations
                 name: "ClientGrantType",
                 columns: table => new
                 {
-                    ClientsId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    GrantTypesId = table.Column<int>(type: "int", nullable: false)
+                    ClientsId = table.Column<string>(type: "TEXT", nullable: false),
+                    GrantTypesId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -219,8 +219,8 @@ namespace Infrastructure.Migrations
                 name: "ClientResponseType",
                 columns: table => new
                 {
-                    ClientsId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ResponseTypesId = table.Column<int>(type: "int", nullable: false)
+                    ClientsId = table.Column<string>(type: "TEXT", nullable: false),
+                    ResponseTypesId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -243,8 +243,8 @@ namespace Infrastructure.Migrations
                 name: "ClientScope",
                 columns: table => new
                 {
-                    ClientsId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ScopesId = table.Column<int>(type: "int", nullable: false)
+                    ClientsId = table.Column<string>(type: "TEXT", nullable: false),
+                    ScopesId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -267,8 +267,8 @@ namespace Infrastructure.Migrations
                 name: "ResourceScope",
                 columns: table => new
                 {
-                    ResourcesId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ScopesId = table.Column<int>(type: "int", nullable: false)
+                    ResourcesId = table.Column<string>(type: "TEXT", nullable: false),
+                    ScopesId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -291,11 +291,11 @@ namespace Infrastructure.Migrations
                 name: "ConsentGrant",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Updated = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Updated = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    ClientId = table.Column<string>(type: "TEXT", nullable: true),
+                    UserId = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -317,9 +317,9 @@ namespace Infrastructure.Migrations
                 name: "Session",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    IsRevoked = table.Column<bool>(type: "bit", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    IsRevoked = table.Column<bool>(type: "INTEGER", nullable: false),
+                    UserId = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -336,8 +336,8 @@ namespace Infrastructure.Migrations
                 name: "ClaimConsentGrant",
                 columns: table => new
                 {
-                    ConsentGrantsId = table.Column<int>(type: "int", nullable: false),
-                    ConsentedClaimsId = table.Column<int>(type: "int", nullable: false)
+                    ConsentGrantsId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ConsentedClaimsId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -360,8 +360,8 @@ namespace Infrastructure.Migrations
                 name: "ConsentGrantScope",
                 columns: table => new
                 {
-                    ConsentGrantsId = table.Column<int>(type: "int", nullable: false),
-                    ConsentedScopesId = table.Column<int>(type: "int", nullable: false)
+                    ConsentGrantsId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ConsentedScopesId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -384,12 +384,12 @@ namespace Infrastructure.Migrations
                 name: "AuthorizationCodeGrant",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    AuthTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    MaxAge = table.Column<long>(type: "bigint", nullable: true),
-                    IsRevoked = table.Column<bool>(type: "bit", nullable: false),
-                    SessionId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    AuthTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    MaxAge = table.Column<long>(type: "INTEGER", nullable: true),
+                    IsRevoked = table.Column<bool>(type: "INTEGER", nullable: false),
+                    SessionId = table.Column<string>(type: "TEXT", nullable: true),
+                    ClientId = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -412,12 +412,12 @@ namespace Infrastructure.Migrations
                 name: "AuthorizationCode",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsRedeemed = table.Column<bool>(type: "bit", nullable: false),
-                    IssuedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    RedeemedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    AuthorizationCodeGrantId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    Value = table.Column<string>(type: "TEXT", nullable: true),
+                    IsRedeemed = table.Column<bool>(type: "INTEGER", nullable: false),
+                    IssuedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    RedeemedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    AuthorizationCodeGrantId = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -434,9 +434,9 @@ namespace Infrastructure.Migrations
                 name: "Nonce",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AuthorizationCodeGrantId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    Value = table.Column<string>(type: "TEXT", nullable: false),
+                    AuthorizationCodeGrantId = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -453,18 +453,18 @@ namespace Infrastructure.Migrations
                 name: "Token",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Reference = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Scope = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TokenType = table.Column<int>(type: "int", nullable: false),
-                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IssuedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    NotBefore = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Audience = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Issuer = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RevokedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ClientId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    AuthorizationGrantId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Reference = table.Column<string>(type: "TEXT", nullable: false),
+                    Scope = table.Column<string>(type: "TEXT", nullable: true),
+                    TokenType = table.Column<int>(type: "INTEGER", nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    IssuedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    NotBefore = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Audience = table.Column<string>(type: "TEXT", nullable: false),
+                    Issuer = table.Column<string>(type: "TEXT", nullable: false),
+                    RevokedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    ClientId = table.Column<string>(type: "TEXT", nullable: true),
+                    AuthorizationGrantId = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -485,28 +485,62 @@ namespace Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "Claim",
                 columns: new[] { "Id", "Name" },
-                values: new object[,]
-                {
-                    { 1, "name" },
-                    { 2, "given_name" },
-                    { 3, "family_name" },
-                    { 4, "phone" },
-                    { 5, "email" },
-                    { 6, "address" },
-                    { 7, "birthdate" },
-                    { 8, "locale" },
-                    { 9, "role" }
-                });
+                values: new object[] { 1, "name" });
+
+            migrationBuilder.InsertData(
+                table: "Claim",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 2, "given_name" });
+
+            migrationBuilder.InsertData(
+                table: "Claim",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 3, "family_name" });
+
+            migrationBuilder.InsertData(
+                table: "Claim",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 4, "phone" });
+
+            migrationBuilder.InsertData(
+                table: "Claim",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 5, "email" });
+
+            migrationBuilder.InsertData(
+                table: "Claim",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 6, "address" });
+
+            migrationBuilder.InsertData(
+                table: "Claim",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 7, "birthdate" });
+
+            migrationBuilder.InsertData(
+                table: "Claim",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 8, "locale" });
+
+            migrationBuilder.InsertData(
+                table: "Claim",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 9, "role" });
 
             migrationBuilder.InsertData(
                 table: "GrantType",
                 columns: new[] { "Id", "Name" },
-                values: new object[,]
-                {
-                    { 1, "authorization_code" },
-                    { 2, "refresh_token" },
-                    { 3, "client_credentials" }
-                });
+                values: new object[] { 1, "authorization_code" });
+
+            migrationBuilder.InsertData(
+                table: "GrantType",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 2, "refresh_token" });
+
+            migrationBuilder.InsertData(
+                table: "GrantType",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 3, "client_credentials" });
 
             migrationBuilder.InsertData(
                 table: "ResponseType",
@@ -516,15 +550,32 @@ namespace Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "Scope",
                 columns: new[] { "Id", "Name" },
-                values: new object[,]
-                {
-                    { 1, "openid" },
-                    { 2, "email" },
-                    { 3, "profile" },
-                    { 4, "offline_access" },
-                    { 5, "phone" },
-                    { 6, "identityprovider:userinfo" }
-                });
+                values: new object[] { 1, "openid" });
+
+            migrationBuilder.InsertData(
+                table: "Scope",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 2, "email" });
+
+            migrationBuilder.InsertData(
+                table: "Scope",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 3, "profile" });
+
+            migrationBuilder.InsertData(
+                table: "Scope",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 4, "offline_access" });
+
+            migrationBuilder.InsertData(
+                table: "Scope",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 5, "phone" });
+
+            migrationBuilder.InsertData(
+                table: "Scope",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 6, "identityprovider:userinfo" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AuthorizationCode_AuthorizationCodeGrantId",
@@ -600,8 +651,7 @@ namespace Infrastructure.Migrations
                 name: "IX_Scope_Name",
                 table: "Scope",
                 column: "Name",
-                unique: true,
-                filter: "[Name] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Session_UserId",

@@ -12,15 +12,10 @@ var builder = new ConfigurationBuilder()
 
 var config = builder.Build();
 var sqliteConnectionString = config.GetConnectionString("Sqlite");
-var sqlServerConnectionString = config.GetConnectionString("SqlServer");
 var dbContextOptionsBuilder = new DbContextOptionsBuilder<IdentityContext>();
 if (!string.IsNullOrWhiteSpace(sqliteConnectionString))
 {
   dbContextOptionsBuilder.UseSqlite(sqliteConnectionString);
-}
-else if (!string.IsNullOrWhiteSpace(sqlServerConnectionString))
-{
-  dbContextOptionsBuilder.UseSqlServer(sqlServerConnectionString);
 }
 
 var identityContext = new IdentityContext(dbContextOptionsBuilder.Options);
@@ -50,7 +45,7 @@ else if (args[0] == "rotate")
   using var rsa = new RSACryptoServiceProvider(4096);
   var privateKey = config.GetSection("IdentityConfiguration").GetValue<string>("PrivateKey");
   var password = Encoding.Default.GetBytes(privateKey);
-  var pbeParameters = new PbeParameters(PbeEncryptionAlgorithm.TripleDes3KeyPkcs12, HashAlgorithmName.SHA256, 10);
+  var pbeParameters = new PbeParameters(PbeEncryptionAlgorithm.Aes256Cbc, HashAlgorithmName.SHA256, 10);
   var encryptedPrivateKey = rsa.ExportEncryptedPkcs8PrivateKey(password, pbeParameters);
   var publicKey = rsa.ExportParameters(false);
   var jwk = new Jwk
@@ -69,5 +64,5 @@ else if (args[0] == "migration")
 }
 else
 {
-  throw new NotSupportedException();
+  throw new NotSupportedException($"Argument is not supported: {args[0]}");
 }
