@@ -1,10 +1,11 @@
 #! bin/sh
 
-docker compose down authserver webapp
+docker compose down authorizationserver webapp
 rm Identity.db
-docker compose run --rm configurationapp dotnet ConfiguratonApp.dll migration
-docker compose run --rm configurationapp dotnet ConfiguratonApp.dll scope
-docker compose run --rm configurationapp dotnet ConfiguratonApp.dll resource
-docker compose run --rm configurationapp dotnet ConfiguratonApp.dll rotate
+touch Identity.db
+docker compose run --rm configurationapp migration
+docker compose run --rm configurationapp scope
+docker compose run --rm configurationapp resource
+docker compose run --rm configurationapp rotate
 docker compose pull
-docker compose up -d authserver webapp
+docker compose up -d authorizationserver webapp
