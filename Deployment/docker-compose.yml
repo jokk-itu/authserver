@@ -1,29 +1,29 @@
 version: '3.9'
 
 services:
-  authserver:
-    image: jokk-itu/authserver
+  authorizationserver:
+    image: jokk/authorizationserver
     ports:
       - 5000:80
-    container_name: 'authserver'
+    container_name: 'authorizationserver'
     volumes:
-      - ./Identity.db:/app/
+      - ./Identity.db:/app/Identity.db:ro
     environment:
       - CONNECTIONSTRINGS__SQLite=Data Source=./Identity.db
   
   webapp:
-    image: jokk-itu/webapp
+    image: jokk/webapp
     ports:
       - 5001:80
     container_name: 'webapp'
 
   configurationapp:
-    image: jokk-itu/configurationapp
+    image: jokk/configurationapp
     container_name: 'configurationapp'
     environment:
       - CONNECTIONSTRINGS__SQLite=Data Source=./Identity.db
     volumes:
-      - ./Identity.db:/app/
+      - ./Identity.db:/app/Identity.db:rw
   
   nginx:
     image: 'nginx/nginx'
