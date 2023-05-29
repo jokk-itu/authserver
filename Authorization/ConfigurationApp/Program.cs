@@ -6,9 +6,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
+var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+  ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")
+  ?? "Development";
+
 var builder = new ConfigurationBuilder()
   .SetBasePath(Directory.GetCurrentDirectory())
-  .AddJsonFile("config.json", optional: false)
+  .AddJsonFile($"appsettings.{environment}.json", optional: false)
   .AddEnvironmentVariables();
 
 Log.Logger = new LoggerConfiguration()
@@ -32,11 +36,14 @@ if (args[0] == "resource")
   foreach (var resource in resources)
   {
     Log.Information("Inserting resource {@resource}", resource);
-    foreach (var scopeName in resource.Scopes.Select(x => x.Name))
+    var scopes = resource.Scopes.Select(x => x.Name).ToList();
+    resource.Scopes.Clear();
+    foreach (var scopeName in scopes)
     {
       var scope = await identityContext
         .Set<Scope>()
-        .SingleOrDefaultAsync(y => y.Name == scopeName);
+        .SingleAsync(y => y.Name == scopeName);
+
       resource.Scopes.Add(scope);
     }
     await identityContext.AddAsync(resource);
@@ -61,7 +68,7 @@ else if (args[0] == "rotate")
 {
   Log.Information("Rotating JWK");
   using var rsa = new RSACryptoServiceProvider(4096);
-  var privateKey = config.GetSection("IdentityConfiguration").GetValue<string>("PrivateKey");
+  var privateKey = config.GetSection("Identity").GetValue<string>("PrivateKey");
   var password = Encoding.Default.GetBytes(privateKey);
   var pbeParameters = new PbeParameters(PbeEncryptionAlgorithm.Aes256Cbc, HashAlgorithmName.SHA256, 10);
   var encryptedPrivateKey = rsa.ExportEncryptedPkcs8PrivateKey(password, pbeParameters);
@@ -75,7 +82,7 @@ else if (args[0] == "rotate")
   };
   await identityContext.Set<Jwk>().AddAsync(jwk);
   await identityContext.SaveChangesAsync();
-  Log.Information("Rotating JWK");
+  Log.Information("Rotated JWK");
 }
 else if (args[0] == "migration")
 {

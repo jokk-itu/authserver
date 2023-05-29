@@ -15,11 +15,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="$(ProjectDir)config.json" CopyToOutputDirectory="Always" />
+	  <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+	  <None Update="appsettings.Development.json" CopyToOutputDirectory="Always" />
 	</ItemGroup>
 
 </Project>
