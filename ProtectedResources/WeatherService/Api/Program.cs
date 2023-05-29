@@ -85,6 +85,10 @@ builder.WebHost.ConfigureServices(services =>
           {
             context.Success();
           }
+          else
+          {
+            context.Fail("token is not active");
+          }
         }
       },
     };
@@ -99,7 +103,7 @@ builder.WebHost.ConfigureServices(services =>
       policyBuilder.RequireAssertion(authorizationContext =>
       {
         var scope = authorizationContext.User.Claims.SingleOrDefault(x => x.Type == "scope");
-        return scope is not null && scope.Value.Contains("weather");
+        return scope is not null && scope.Value.Contains("weather:read");
       });
     });
   });
