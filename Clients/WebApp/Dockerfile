@@ -5,6 +5,7 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["Clients/WebApp", "App/"]
+COPY ["OIDC/OIDC.Client", "OIDC.Client/"]
 RUN dotnet restore "App/App.csproj"
 WORKDIR "/src/App"
 RUN dotnet build "App.csproj" -c Release -o /app/build
