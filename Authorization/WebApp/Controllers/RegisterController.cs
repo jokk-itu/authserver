@@ -1,59 +1,98 @@
 ﻿using Application;
-using Domain;
-using Infrastructure;
-using Infrastructure.Helpers;
+using Domain.Constants;
+using Infrastructure.Requests.CreateClient;
+using Infrastructure.Requests.DeleteClient;
+using Infrastructure.Requests.ReadClient;
+using Mapster;
+using MediatR;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebApp.Attributes;
 using WebApp.Constants;
-using WebApp.Contracts.PostRegisterUser;
+using WebApp.Contracts;
+using WebApp.Contracts.PostClient;
 using WebApp.Controllers.Abstracts;
+using GetClientResponse = WebApp.Contracts.GetClient.GetClientResponse;
 
 namespace WebApp.Controllers;
-
-[Route("connect/[controller]")]
+[Route("/connect/[controller]")]
 public class RegisterController : OAuthControllerBase
 {
-  private readonly IdentityContext _identityContext;
+  private readonly IMediator _mediator;
 
   public RegisterController(
-    IdentityContext identityContext,
+    IMediator mediator,
     IdentityConfiguration identityConfiguration) : base(identityConfiguration)
   {
-    _identityContext = identityContext;
-  }
-
-  [HttpGet]
-  [SecurityHeader]
-  public IActionResult Index()
-  {
-    return View();
+    _mediator = mediator;
   }
 
   [HttpPost]
-  [ValidateAntiForgeryToken]
-  [SecurityHeader]
-  [Consumes(MimeTypeConstants.FormUrlEncoded)]
-  [ProducesResponseType(StatusCodes.Status400BadRequest)]
-  [ProducesResponseType(StatusCodes.Status200OK)]
-  public async Task<IActionResult> Post(PostRegisterUserRequest request)
+  [ProducesResponseType(typeof(PostClientResponse), StatusCodes.Status201Created)]
+  [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+  public async Task<IActionResult> Post([FromBody] PostClientRequest request, CancellationToken cancellationToken = default)
   {
-    var user = new User
+    var command = request.Adapt<CreateClientCommand>();
+    var response = await _mediator.Send(command, cancellationToken: cancellationToken);
+
+    if (response.IsError())
     {
-      Id = Guid.NewGuid().ToString(),
-      FirstName = request.GivenName,
-      LastName = request.FamilyName,
-      Address = request.Address,
-      Locale = request.Locale,
-      Birthdate = request.BirthDate,
-      UserName = request.Username,
-      Email = request.Email,
-      PhoneNumber = request.PhoneNumber
+      return BadOAuthResult(response.ErrorCode, response.ErrorDescription);
+    }
+
+    var createdResponse = response.Adapt<PostClientResponse>();
+    return CreatedOAuthResult($"connect/register?{response.ClientId}", createdResponse);
+  }
+
+  [HttpDelete("{clientId}")]
+  [Authorize(Policy = AuthorizationConstants.ClientConfiguration, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  public async Task<IActionResult> Delete(string clientId, CancellationToken cancellationToken = default)
+  {
+    var token = await HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, TokenTypeConstants.AccessToken);
+    var command = new DeleteClientCommand
+    {
+      ClientRegistrationToken = token
     };
-    var salt = BCrypt.GenerateSalt();
-    var hashedPassword = BCrypt.HashPassword(request.Password, salt);
-    user.Password = hashedPassword;
-    await _identityContext.Set<User>().AddAsync(user);
-    await _identityContext.SaveChangesAsync();
-    return Ok();
+    var response = await _mediator.Send(command, cancellationToken: cancellationToken);
+
+    if (response.IsError())
+    {
+      return BadOAuthResult(response.ErrorCode, response.ErrorDescription);
+    }
+
+    return NoContent();
+  }
+
+  [HttpGet("{clientId}")]
+  [Authorize(Policy = AuthorizationConstants.ClientConfiguration)]
+  [ProducesResponseType(typeof(GetClientResponse), StatusCodes.Status200OK)]
+  public async Task<IActionResult> Get(string clientId, CancellationToken cancellationToken = default)
+  {
+    var token = await HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, TokenTypeConstants.AccessToken);
+    var response = await _mediator.Send(new ReadClientQuery(token), cancellationToken);
+
+    if (response.IsError())
+    {
+      return BadOAuthResult(response.ErrorCode, response.ErrorDescription);
+    }
+
+    return Ok(new GetClientResponse
+    {
+      ApplicationType = response.ApplicationType,
+      ResponseTypes = response.ResponseTypes,
+      Scope = response.Scope,
+      TokenEndpointAuthMethod = response.TokenEndpointAuthMethod,
+      RedirectUris = response.RedirectUris,
+      SubjectType = response.SubjectType,
+      Contacts = response.Contacts,
+      PolicyUri = response.PolicyUri,
+      ClientId = response.ClientId,
+      GrantTypes = response.GrantTypes,
+      ClientName = response.ClientName,
+      ClientSecret = response.ClientSecret,
+      TosUri = response.TosUri
+    });
   }
 }

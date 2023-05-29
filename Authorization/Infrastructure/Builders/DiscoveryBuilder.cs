@@ -46,7 +46,7 @@ public class DiscoveryBuilder : IDiscoveryBuilder
       EndSessionEndpoint = $"{issuer}/connect/end-session",
       IntrospectionEndpoint = $"{issuer}/connect/token/introspection",
       RevocationEndpoint = $"{issuer}/connect/token/revocation",
-      RegistrationEndpoint = $"{issuer}/client/register",
+      RegistrationEndpoint = $"{issuer}/connect/register",
       Scopes = scopes,
       GrantTypes = GrantTypeConstants.GrantTypes,
       ResponseTypes = ResponseTypeConstants.ResponseTypes,
