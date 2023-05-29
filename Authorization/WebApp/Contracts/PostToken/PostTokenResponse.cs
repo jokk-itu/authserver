@@ -17,5 +17,5 @@ public record PostTokenResponse
   public string TokenType { get; init; } = "Bearer";
 
   [JsonPropertyName(ParameterNames.ExpiresIn)]
-  public int ExpiresIn { get; init; }
+  public long ExpiresIn { get; init; }
 }
