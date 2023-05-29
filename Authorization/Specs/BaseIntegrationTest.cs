@@ -46,7 +46,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 
   protected async Task CreateIdentityProviderResource()
   {
-    await BuildResource(ScopeConstants.UserInfo, "identityprovider");
+    await BuildResource(ScopeConstants.UserInfo, "IdentityProvider");
   }
 
   protected async Task<Scope> BuildScope(string name)
@@ -132,7 +132,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 
   private async Task<PostClientResponse> BuildClient(PostClientRequest request)
   {
-    var requestMessage = new HttpRequestMessage(HttpMethod.Post, "connect/client/register")
+    var requestMessage = new HttpRequestMessage(HttpMethod.Post, "connect/register")
     {
       Content = JsonContent.Create(request)
     };
