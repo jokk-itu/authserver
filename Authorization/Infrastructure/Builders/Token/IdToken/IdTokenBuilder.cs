@@ -34,11 +34,13 @@ public class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
     var query = await _identityContext
       .Set<AuthorizationCodeGrant>()
       .Where(x => x.Id == arguments.AuthorizationGrantId)
+      .Include(x => x.Nonces)
       .Select(x => new
       {
         ClientId = x.Client.Id,
         SessionId = x.Session.Id,
         UserId = x.Session.User.Id,
+        Nonce = x.Nonces.OrderBy(y => y.Id).First().Value
       })
       .SingleAsync();
 
@@ -48,7 +50,8 @@ public class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
       { ClaimNameConstants.Sid, query.SessionId },
       { ClaimNameConstants.Sub, query.UserId },
       { ClaimNameConstants.Jti, Guid.NewGuid() },
-      { ClaimNameConstants.GrantId, arguments.AuthorizationGrantId }
+      { ClaimNameConstants.GrantId, arguments.AuthorizationGrantId },
+      { ClaimNameConstants.Nonce, query.Nonce }
     };
     var now = DateTime.UtcNow;
     // TODO deduce encryption and signing from IdToken
