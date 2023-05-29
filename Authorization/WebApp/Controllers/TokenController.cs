@@ -85,7 +85,6 @@ public class TokenController : OAuthControllerBase
       ClientId = context.ClientId,
       ClientSecret = context.ClientSecret,
       RedirectUri = context.RedirectUri,
-      Scope = context.Scope,
       CodeVerifier = context.CodeVerifier,
       Code = context.Code
     };

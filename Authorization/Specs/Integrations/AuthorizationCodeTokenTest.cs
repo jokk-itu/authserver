@@ -40,7 +40,6 @@ public class AuthorizationCodeTokenTest : BaseIntegrationTest
       .Instance()
       .AddClientId(client.ClientId)
       .AddClientSecret(client.ClientSecret)
-      .AddScope(scope)
       .AddCodeVerifier(pkce.CodeVerifier)
       .AddCode(code)
       .AddGrantType(GrantTypeConstants.AuthorizationCode)
@@ -74,7 +73,6 @@ public class AuthorizationCodeTokenTest : BaseIntegrationTest
     var tokenResponse = await TokenEndpointBuilder
       .Instance()
       .AddClientId(client.ClientId)
-      .AddScope(scope)
       .AddCodeVerifier(pkce.CodeVerifier)
       .AddCode(code)
       .AddGrantType(GrantTypeConstants.AuthorizationCode)

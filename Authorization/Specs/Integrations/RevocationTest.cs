@@ -71,7 +71,6 @@ public class RevocationTest : BaseIntegrationTest
       .Instance()
       .AddClientId(client.ClientId)
       .AddClientSecret(client.ClientSecret)
-      .AddScope(scope)
       .AddCodeVerifier(pkce.CodeVerifier)
       .AddCode(code)
       .AddGrantType(GrantTypeConstants.AuthorizationCode)

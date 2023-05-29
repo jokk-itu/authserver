@@ -43,7 +43,7 @@ public class RedeemAuthorizationCodeGrantHandler : IRequestHandler<RedeemAuthori
   public async Task<RedeemAuthorizationCodeGrantResponse> Handle(RedeemAuthorizationCodeGrantCommand request, CancellationToken cancellationToken)
   {
     var code = _codeDecoder.DecodeAuthorizationCode(request.Code);
-    var resources = await _resourceManager.ReadResourcesAsync(request.Scope.Split(' '), cancellationToken: cancellationToken);
+    var resources = await _resourceManager.ReadResourcesAsync(code.Scopes, cancellationToken: cancellationToken);
     var query = await _identityContext
       .Set<AuthorizationCodeGrant>()
       .Where(x => x.Id == code.AuthorizationGrantId)
@@ -67,14 +67,14 @@ public class RedeemAuthorizationCodeGrantHandler : IRequestHandler<RedeemAuthori
       refreshToken = await _refreshTokenBuilder.BuildToken(new RefreshTokenArguments
       {
         AuthorizationGrantId = query.AuthorizationCodeGrant.Id,
-        Scope = request.Scope
+        Scope = string.Join(' ', code.Scopes)
       });
     }
 
     var accessToken = await _accessTokenBuilder.BuildToken(new GrantAccessTokenArguments
     {
       AuthorizationGrantId = query.AuthorizationCodeGrant.Id,
-      Scope = request.Scope,
+      Scope = string.Join(' ', code.Scopes),
       ResourceNames = resources.Select(x => x.Name)
     });
 
