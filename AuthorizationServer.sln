@@ -53,7 +53,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "Clients\Blazor.BF
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{52AE7B64-7117-43CF-994B-CF0AD4820390}"
 	ProjectSection(SolutionItems) = preProject
-		Tools\CreateClients.ps1 = Tools\CreateClients.ps1
 		Tools\CreateMigration.ps1 = Tools\CreateMigration.ps1
 		Tools\RemoveMigration.ps1 = Tools\RemoveMigration.ps1
 		Tools\RunMigrationLocal.ps1 = Tools\RunMigrationLocal.ps1
@@ -66,6 +65,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Nginx", "Nginx", "{28D2326A
 		nginx.conf = nginx.conf
 		SetupNginx.sh = SetupNginx.sh
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OIDC", "OIDC", "{783C72C2-AEE7-4A48-B737-D2B100614395}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OIDC.Client", "OIDC\OIDC.Client\OIDC.Client.csproj", "{2E4CD87B-017F-4476-8173-1CBC7D387A5A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OIDC.Resource", "OIDC\OIDC.Resource\OIDC.Resource.csproj", "{AB31B52A-ADE7-42AB-BD5A-2F9B44E2382C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -129,6 +134,14 @@ Global
 		{E4795AE4-B5A7-4063-87D5-B752B0F645F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E4795AE4-B5A7-4063-87D5-B752B0F645F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E4795AE4-B5A7-4063-87D5-B752B0F645F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E4CD87B-017F-4476-8173-1CBC7D387A5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E4CD87B-017F-4476-8173-1CBC7D387A5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E4CD87B-017F-4476-8173-1CBC7D387A5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E4CD87B-017F-4476-8173-1CBC7D387A5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB31B52A-ADE7-42AB-BD5A-2F9B44E2382C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB31B52A-ADE7-42AB-BD5A-2F9B44E2382C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB31B52A-ADE7-42AB-BD5A-2F9B44E2382C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB31B52A-ADE7-42AB-BD5A-2F9B44E2382C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -154,6 +167,8 @@ Global
 		{CED14AD3-6058-443B-9823-5922E821CF30} = {B44A3096-FBE8-4066-9E93-94D351CC6934}
 		{E4795AE4-B5A7-4063-87D5-B752B0F645F5} = {F2A561FD-5A71-4A2E-9B89-AC175662E834}
 		{28D2326A-9209-48BD-B65A-C2EA2CC407B5} = {52AE7B64-7117-43CF-994B-CF0AD4820390}
+		{2E4CD87B-017F-4476-8173-1CBC7D387A5A} = {783C72C2-AEE7-4A48-B737-D2B100614395}
+		{AB31B52A-ADE7-42AB-BD5A-2F9B44E2382C} = {783C72C2-AEE7-4A48-B737-D2B100614395}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {35950B1F-C5E1-4227-8946-7874424B4A16}
