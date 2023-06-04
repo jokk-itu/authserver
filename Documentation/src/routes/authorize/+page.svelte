@@ -6,7 +6,7 @@
 <PageTitle title="Authorize Endpoint" />
 <Section title="Introduction">
   <p>
-    The authorize endpoint is used to authenticate an enduser. It only supports
+    The authorize endpoint is used to authenticate an end user. It only supports
     the GET method.
   </p>
 </Section>
@@ -39,10 +39,8 @@
         <tr class="border-b">
           <td>scope</td>
           <td>space delimited string</td>
-          <td
-            >Used to assess the usage of the access token. Must include openid.</td
-          >
-          <td>openid identityprovider:userinfo weather:write</td>
+          <td>Used to assess the usage of the access token. Must include openid.</td>
+          <td>openid identityprovider:userinfo</td>
         </tr>
         <tr class="border-b">
           <td>id_token_hint</td>

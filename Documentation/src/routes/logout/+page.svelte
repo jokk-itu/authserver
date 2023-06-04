@@ -1,7 +1,7 @@
 <script>
     import PageTitle from "../../components/PageTitle.svelte";
 </script>
-<PageTitle title="Grants"/>
+<PageTitle title="Logout"/>
 
 <p>
 Logout can be achieved by the RelyingParty initiating it
