@@ -1,28 +1,24 @@
 ﻿using System.Text.Json.Serialization;
 using WebApp.Constants;
 
-namespace WebApp.Contracts.PostClient;
-
+namespace WebApp.Contracts;
 #nullable disable
-public class PostClientRequest
+public class ClientResponse
 {
   [JsonPropertyName(ParameterNames.RedirectUris)]
-  public ICollection<string> RedirectUris { get; set; } = new List<string>();
-
-  [JsonPropertyName(ParameterNames.PostLogoutRedirectUris)]
-  public ICollection<string> PostLogoutRedirectUris { get; set; } = new List<string>();
+  public ICollection<string> RedirectUris { get; init; }
 
   [JsonPropertyName(ParameterNames.ResponseTypes)]
-  public ICollection<string> ResponseTypes { get; init; } = new List<string>();
+  public ICollection<string> ResponseTypes { get; init; }
 
   [JsonPropertyName(ParameterNames.GrantTypes)]
-  public ICollection<string> GrantTypes { get; init; } = new List<string>();
+  public ICollection<string> GrantTypes { get; init; }
 
   [JsonPropertyName(ParameterNames.ApplicationType)]
   public string ApplicationType { get; init; }
 
   [JsonPropertyName(ParameterNames.Contacts)]
-  public ICollection<string> Contacts { get; init; } = new List<string>();
+  public ICollection<string> Contacts { get; init; }
 
   [JsonPropertyName(ParameterNames.ClientName)]
   public string ClientName { get; init; }
@@ -42,6 +38,21 @@ public class PostClientRequest
   [JsonPropertyName(ParameterNames.Scope)]
   public string Scope { get; init; }
 
+  [JsonPropertyName(ParameterNames.ClientId)]
+  public string ClientId { get; init; }
+
+  [JsonPropertyName(ParameterNames.ClientSecret)]
+  public string ClientSecret { get; init; }
+
+  [JsonPropertyName(ParameterNames.ClientSecretExpiresAt)]
+  public int ClientSecretExpiresAt { get; init; }
+
+  [JsonPropertyName(ParameterNames.RegistrationAccessToken)]
+  public string RegistrationAccessToken { get; init; }
+
+  [JsonPropertyName(ParameterNames.RegistrationClientUri)]
+  public string RegistrationClientUri { get; init; }
+
   [JsonPropertyName(ParameterNames.DefaultMaxAge)]
   public string DefaultMaxAge { get; init; }
 
@@ -54,6 +65,12 @@ public class PostClientRequest
   [JsonPropertyName(ParameterNames.ClientUri)]
   public string ClientUri { get; init; }
 
+  [JsonPropertyName(ParameterNames.PostLogoutRedirectUris)]
+  public ICollection<string> PostLogoutRedirectUris { get; init; }
+
   [JsonPropertyName(ParameterNames.BackChannelLogoutUri)]
   public string BackChannelLogoutUri { get; init; }
+
+  [JsonPropertyName(ParameterNames.ClientIdIssuedAt)]
+  public long ClientIdIssuedAt { get; init; }
 }

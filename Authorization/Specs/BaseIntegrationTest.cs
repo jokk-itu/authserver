@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Specs.Helpers.EntityBuilders;
-using WebApp.Contracts.PostClient;
+using WebApp.Contracts;
 using Xunit;
 
 namespace Specs;
@@ -78,9 +78,9 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     return resource;
   }
 
-  protected async Task<PostClientResponse> BuildAuthorizationGrantWebClient(string name, string scope)
+  protected async Task<ClientResponse> BuildAuthorizationGrantWebClient(string name, string scope)
   {
-    var postClientRequest = new PostClientRequest
+    var postClientRequest = new
     {
       ApplicationType = ApplicationTypeConstants.Web,
       TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
@@ -96,9 +96,9 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     return await BuildClient(postClientRequest);
   }
 
-  protected async Task<PostClientResponse> BuildAuthorizationGrantNativeClient(string name, string scope)
+  protected async Task<ClientResponse> BuildAuthorizationGrantNativeClient(string name, string scope)
   {
-    var postClientRequest = new PostClientRequest
+    var postClientRequest = new
     {
       ApplicationType = ApplicationTypeConstants.Native,
       TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.None,
@@ -114,9 +114,9 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     return await BuildClient(postClientRequest);
   }
 
-  protected async Task<PostClientResponse> BuildClientCredentialsWebClient(string name, string scope)
+  protected async Task<ClientResponse> BuildClientCredentialsWebClient(string name, string scope)
   {
-    var postClientRequest = new PostClientRequest
+    var postClientRequest = new
     {
       ApplicationType = ApplicationTypeConstants.Web,
       TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
@@ -130,7 +130,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     return await BuildClient(postClientRequest);
   }
 
-  private async Task<PostClientResponse> BuildClient(PostClientRequest request)
+  private async Task<ClientResponse> BuildClient(object request)
   {
     var requestMessage = new HttpRequestMessage(HttpMethod.Post, "connect/register")
     {
@@ -138,7 +138,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     };
     var response = await GetHttpClient().SendAsync(requestMessage);
     response.EnsureSuccessStatusCode();
-    var postClientResponse = await response.Content.ReadFromJsonAsync<PostClientResponse>();
+    var postClientResponse = await response.Content.ReadFromJsonAsync<ClientResponse>();
     return postClientResponse!;
   }
 
