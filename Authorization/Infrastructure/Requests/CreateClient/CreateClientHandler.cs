@@ -114,6 +114,7 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       ResponseTypes = client.ResponseTypes.Select(x => x.Name).ToList(),
       RegistrationAccessToken = registrationToken,
       ClientSecretExpiresAt = 0,
+      ClientIdIssuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
       ClientUri = request.ClientUri,
       DefaultMaxAge = defaultMaxAge,
       LogoUri = request.LogoUri,

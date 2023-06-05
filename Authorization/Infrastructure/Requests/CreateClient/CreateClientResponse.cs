@@ -9,7 +9,7 @@ public class CreateClientResponse : Response
   public ICollection<string> GrantTypes { get; init; } = new List<string>();
   public string ApplicationType { get; init; } = null!;
   public ICollection<string> Contacts { get; init; } = new List<string>();
-  public string ClientName { get; init; }= null!;
+  public string ClientName { get; init; } = null!;
   public string? PolicyUri { get; init; }
   public string? TosUri { get; init; }
   public string SubjectType { get; init; } = null!;
@@ -23,6 +23,7 @@ public class CreateClientResponse : Response
   public string? LogoUri { get; init; }
   public string? ClientUri { get; init; }
   public int ClientSecretExpiresAt { get; init; }
+  public long ClientIdIssuedAt { get; init; }
 
   public CreateClientResponse(HttpStatusCode statusCode) : base(statusCode)
   {
