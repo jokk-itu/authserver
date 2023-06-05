@@ -62,7 +62,6 @@ public static class ServiceCollectionExtensions
 
   public static IServiceCollection AddBuilders(this IServiceCollection services)
   {
-    services.AddTransient<ITokenBuilder, TokenBuilder>();
     services.AddTransient<ITokenBuilder<IdTokenArguments>, IdTokenBuilder>();
     services.AddTransient<ITokenBuilder<GrantAccessTokenArguments>, GrantAccessTokenBuilder>();
     services.AddTransient<ITokenBuilder<ClientAccessTokenArguments>, ClientAccessTokenBuilder>();
@@ -76,7 +75,6 @@ public static class ServiceCollectionExtensions
 
   public static IServiceCollection AddDecoders(this IServiceCollection services)
   {
-    services.AddTransient<ITokenDecoder, TokenDecoder>();
     services.AddTransient<ICodeDecoder, CodeDecoder>();
     services.AddTransient<IStructuredTokenDecoder, StructuredTokenDecoder>();
     return services;

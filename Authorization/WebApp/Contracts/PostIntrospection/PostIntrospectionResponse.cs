@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using WebApp.Constants;
-
-#nullable enable
 
 namespace WebApp.Contracts.PostIntrospection;
 
