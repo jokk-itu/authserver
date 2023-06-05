@@ -10,15 +10,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Specs.Helpers.EntityBuilders;
 using WebApp.Contracts;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Specs;
 public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<Program>>
 {
+  private readonly ITestOutputHelper _testOutputHelper;
   private readonly WebApplicationFactory<Program> _factory;
 
-  protected BaseIntegrationTest(WebApplicationFactory<Program> factory)
+  protected BaseIntegrationTest(WebApplicationFactory<Program> factory, ITestOutputHelper testOutputHelper)
   {
-      _factory = factory.WithWebHostBuilder(builder =>
+    _testOutputHelper = testOutputHelper;
+    _factory = factory.WithWebHostBuilder(builder =>
       {
         builder.UseEnvironment("Integration");
       });
@@ -149,6 +152,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
       .Instance()
       .AddPassword(password)
       .Build();
+
     await identityContext.Set<User>().AddAsync(user);
     await identityContext.SaveChangesAsync();
     return user;

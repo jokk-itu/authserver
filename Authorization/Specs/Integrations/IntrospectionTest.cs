@@ -2,14 +2,15 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using Specs.Helpers.EndpointBuilders;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Specs.Integrations;
 
 [Collection("Integration")]
 public class IntrospectionTest : BaseIntegrationTest
 {
-  public IntrospectionTest(WebApplicationFactory<Program> factory)
-    : base(factory)
+  public IntrospectionTest(WebApplicationFactory<Program> factory, ITestOutputHelper testOutputHelper)
+    : base(factory, testOutputHelper)
   {
   }
 

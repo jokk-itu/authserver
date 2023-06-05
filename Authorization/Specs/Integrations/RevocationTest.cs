@@ -5,14 +5,15 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Specs.Helpers;
 using Specs.Helpers.EndpointBuilders;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Specs.Integrations;
 
 [Collection("Integration")]
 public class RevocationTest : BaseIntegrationTest
 {
-  public RevocationTest(WebApplicationFactory<Program> factory)
-    : base(factory)
+  public RevocationTest(WebApplicationFactory<Program> factory, ITestOutputHelper testOutputHelper)
+    : base(factory, testOutputHelper)
   {
   }
 

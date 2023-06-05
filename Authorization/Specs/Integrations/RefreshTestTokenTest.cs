@@ -4,14 +4,15 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Specs.Helpers;
 using Xunit;
 using Specs.Helpers.EndpointBuilders;
+using Xunit.Abstractions;
 
 namespace Specs.Integrations;
 
 [Collection("Integration")]
 public class RefreshTestTokenTest : BaseIntegrationTest
 {
-  public RefreshTestTokenTest(WebApplicationFactory<Program> factory)
-    : base(factory)
+  public RefreshTestTokenTest(WebApplicationFactory<Program> factory, ITestOutputHelper testOutputHelper)
+    : base(factory, testOutputHelper)
   {
   }
 

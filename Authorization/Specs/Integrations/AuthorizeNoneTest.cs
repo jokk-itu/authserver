@@ -4,13 +4,15 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Specs.Helpers.EndpointBuilders;
 using Specs.Helpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Specs.Integrations;
 
 [Collection("Integration")]
 public class AuthorizeNoneTest : BaseIntegrationTest
 {
-  public AuthorizeNoneTest(WebApplicationFactory<Program> factory) : base(factory)
+  public AuthorizeNoneTest(WebApplicationFactory<Program> factory, ITestOutputHelper testOutputHelper)
+    : base(factory, testOutputHelper)
   {
   }
 
