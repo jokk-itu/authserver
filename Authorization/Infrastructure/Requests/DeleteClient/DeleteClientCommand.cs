@@ -3,7 +3,4 @@
 namespace Infrastructure.Requests.DeleteClient;
 
 #nullable disable
-public class DeleteClientCommand : IRequest<DeleteClientResponse>
-{
-  public string ClientRegistrationToken { get; init; }
-}
+public record DeleteClientCommand(string ClientId, string Token) : IRequest<DeleteClientResponse>;
