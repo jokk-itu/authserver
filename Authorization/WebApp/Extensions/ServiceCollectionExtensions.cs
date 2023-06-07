@@ -5,6 +5,7 @@ using WebApp.Constants;
 using WebApp.Options;
 using WebApp.Context.Abstract;
 using WebApp.Context.AuthorizeContext;
+using WebApp.Context.ClientContext;
 using WebApp.Context.EndSessionContext;
 using WebApp.Context.IntrospectionContext;
 using WebApp.Context.RevocationContext;
@@ -84,6 +85,7 @@ public static class ServiceCollectionExtensions
     services.AddScoped<IContextAccessor<EndSessionContext>, EndSessionContextAccessor>();
     services.AddScoped<IContextAccessor<IntrospectionContext>, IntrospectionContextAccessor>();
     services.AddScoped<IContextAccessor<RevocationContext>, RevocationContextAccessor>();
+    services.AddScoped<IContextAccessor<ClientContext>, ClientContextAccessor>();
     return services;
   }
 }

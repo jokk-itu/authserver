@@ -20,6 +20,7 @@ services:
       - authorizationserver
     environment:
       - Identity__Authority=https://idp.authserver.dk
+      - Identity__ClientUri=https://app.authserver.dk
       - ASPNETCORE_ENVIRONMENT=Production
 
   configurationapp:
