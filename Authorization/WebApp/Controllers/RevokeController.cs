@@ -8,13 +8,13 @@ using WebApp.Controllers.Abstracts;
 
 namespace WebApp.Controllers;
 
-[Route("connect/token/[controller]")]
-public class RevocationController : OAuthControllerBase
+[Route("connect/[controller]")]
+public class RevokeController : OAuthControllerBase
 {
   private readonly IMediator _mediator;
   private readonly IContextAccessor<RevocationContext> _contextAccessor;
 
-  public RevocationController(
+  public RevokeController(
     IdentityConfiguration identityConfiguration,
     IMediator mediator,
     IContextAccessor<RevocationContext> contextAccessor)

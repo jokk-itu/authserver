@@ -5,6 +5,8 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.TokenIntrospection;
+
+#nullable disable
 public class TokenIntrospectionHandler : IRequestHandler<TokenIntrospectionQuery, TokenIntrospectionResponse>
 {
   private readonly IdentityContext _identityContext;

@@ -10,9 +10,9 @@ using Xunit.Abstractions;
 namespace Specs.Integrations;
 
 [Collection("Integration")]
-public class RevocationTest : BaseIntegrationTest
+public class RevokeTest : BaseIntegrationTest
 {
-  public RevocationTest(WebApplicationFactory<Program> factory, ITestOutputHelper testOutputHelper)
+  public RevokeTest(WebApplicationFactory<Program> factory, ITestOutputHelper testOutputHelper)
     : base(factory, testOutputHelper)
   {
   }
@@ -36,13 +36,13 @@ public class RevocationTest : BaseIntegrationTest
       .AddScope(scope)
       .BuildRedeemClientCredentials(GetHttpClient());
 
-    var revocation = await RevocationEndpointBuilder
+    var revocation = await RevokeEndpointBuilder
       .Instance()
       .AddClientId(client.ClientId)
       .AddClientSecret(client.ClientSecret)
       .AddToken(tokens.AccessToken)
       .AddTokenTypeHint(TokenTypeConstants.AccessToken)
-      .BuildRevocation(GetHttpClient());
+      .BuildRevoke(GetHttpClient());
 
     Assert.Equal(HttpStatusCode.OK, revocation);
   }
@@ -78,13 +78,13 @@ public class RevocationTest : BaseIntegrationTest
       .AddRedirectUri(client.RedirectUris.First())
       .BuildRedeemAuthorizationCode(GetHttpClient());
 
-    var revocation = await RevocationEndpointBuilder
+    var revocation = await RevokeEndpointBuilder
       .Instance()
       .AddClientId(client.ClientId)
       .AddClientSecret(client.ClientSecret)
       .AddToken(tokenResponse.RefreshToken)
       .AddTokenTypeHint(TokenTypeConstants.RefreshToken)
-      .BuildRevocation(GetHttpClient());
+      .BuildRevoke(GetHttpClient());
 
     Assert.Equal(HttpStatusCode.OK, revocation);
   }
