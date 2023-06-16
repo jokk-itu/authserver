@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Application;
 using Domain;
 using Domain.Enums;
 using Domain.Extensions;
@@ -14,13 +15,16 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
 {
   private readonly IdentityContext _identityContext;
   private readonly ITokenBuilder<RegistrationTokenArguments> _tokenBuilder;
+  private readonly IdentityConfiguration _identityConfiguration;
 
   public CreateClientHandler(
     IdentityContext identityContext,
-    ITokenBuilder<RegistrationTokenArguments> tokenBuilder)
+    ITokenBuilder<RegistrationTokenArguments> tokenBuilder,
+    IdentityConfiguration identityConfiguration)
   {
     _identityContext = identityContext;
     _tokenBuilder = tokenBuilder;
+    _identityConfiguration = identityConfiguration;
   }
 
   public async Task<CreateClientResponse> Handle(CreateClientCommand request, CancellationToken cancellationToken)
@@ -113,6 +117,7 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       TokenEndpointAuthMethod = request.TokenEndpointAuthMethod,
       ResponseTypes = client.ResponseTypes.Select(x => x.Name).ToList(),
       RegistrationAccessToken = registrationToken,
+      RegistrationClientUri = $"{_identityConfiguration.Issuer}/register?clientId={client.Id}",
       ClientSecretExpiresAt = 0,
       ClientIdIssuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
       ClientUri = request.ClientUri,

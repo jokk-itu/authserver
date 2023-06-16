@@ -18,6 +18,7 @@ public class CreateClientResponse : Response
   public string ClientId { get; init; } = null!;
   public string? ClientSecret { get; init; }
   public string RegistrationAccessToken { get; init; } = null!;
+  public string RegistrationClientUri { get; init; } = null!;
   public long? DefaultMaxAge { get; init; }
   public string? InitiateLoginUri { get; init; }
   public string? LogoUri { get; init; }
