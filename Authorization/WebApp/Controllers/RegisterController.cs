@@ -50,17 +50,6 @@ public class RegisterController : OAuthControllerBase
     return CreatedOAuthResult($"connect/register?{response.ClientId}", createdResponse);
   }
 
-  [HttpPut("{clientId}")]
-  [Authorize(Policy = AuthorizationConstants.ClientConfiguration,
-    AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-  [ProducesResponseType(StatusCodes.Status200OK)]
-  [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-  public async Task<IActionResult> Put(string clientId, CancellationToken cancellationToken = default)
-  {
-    var context = await _contextAccessor.GetContext(HttpContext);
-    return Ok();
-  }
-
   [HttpDelete("{clientId}")]
   [Authorize(Policy = AuthorizationConstants.ClientConfiguration, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
