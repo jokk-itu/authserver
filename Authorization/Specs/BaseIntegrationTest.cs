@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Specs.Helpers.EntityBuilders;
+using WebApp.Constants;
 using WebApp.Contracts;
 using Xunit;
 using Xunit.Abstractions;
@@ -83,52 +84,52 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 
   protected async Task<ClientResponse> BuildAuthorizationGrantWebClient(string name, string scope)
   {
-    var postClientRequest = new
+    var postClientRequest = new Dictionary<string, object>
     {
-      ApplicationType = ApplicationTypeConstants.Web,
-      TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
-      Scope = scope,
-      ClientName = name,
-      GrantTypes = new[] { GrantTypeConstants.AuthorizationCode, GrantTypeConstants.RefreshToken },
-      RedirectUris = new[] { "https://localhost:5002/callback" },
-      SubjectType = SubjectTypeConstants.Public,
-      ResponseTypes = new[] { ResponseTypeConstants.Code },
-      BackChannelLogoutUri = "https://localhost:5002/backchannel-logout",
-      PostLogoutRedirectUris = new[] { "https://localhost:5002/post-logout" }
+      { ParameterNames.ApplicationType , ApplicationTypeConstants.Web },
+      { ParameterNames.TokenEndpointAuthMethod, TokenEndpointAuthMethodConstants.ClientSecretPost },
+      { ParameterNames.Scope, scope },
+      { ParameterNames.ClientName, name },
+      { ParameterNames.GrantTypes, new[] { GrantTypeConstants.AuthorizationCode, GrantTypeConstants.RefreshToken } },
+      { ParameterNames.RedirectUris, new[] { "http://localhost:5002/callback" } },
+      { ParameterNames.SubjectType, SubjectTypeConstants.Public },
+      { ParameterNames.ResponseTypes, new[] { ResponseTypeConstants.Code } },
+      { ParameterNames.BackChannelLogoutUri, "https://localhost:5002/backchannel-logout" },
+      { ParameterNames.PostLogoutRedirectUris, new[] { "https://localhost:5002/post-logout" } }
     };
     return await BuildClient(postClientRequest);
   }
 
   protected async Task<ClientResponse> BuildAuthorizationGrantNativeClient(string name, string scope)
   {
-    var postClientRequest = new
+    var postClientRequest = new Dictionary<string, object>
     {
-      ApplicationType = ApplicationTypeConstants.Native,
-      TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.None,
-      Scope = scope,
-      ClientName = name,
-      GrantTypes = new[] { GrantTypeConstants.AuthorizationCode, GrantTypeConstants.RefreshToken },
-      RedirectUris = new[] { "https://localhost:5003/callback" },
-      SubjectType = SubjectTypeConstants.Public,
-      ResponseTypes = new[] { ResponseTypeConstants.Code },
-      BackChannelLogoutUri = "https://localhost:5002/backchannel-logout",
-      PostLogoutRedirectUris = new[] { "https://localhost:5002/post-logout" }
+      { ParameterNames.ApplicationType , ApplicationTypeConstants.Native },
+      { ParameterNames.TokenEndpointAuthMethod, TokenEndpointAuthMethodConstants.None },
+      { ParameterNames.Scope, scope },
+      { ParameterNames.ClientName, name },
+      { ParameterNames.GrantTypes, new[] { GrantTypeConstants.AuthorizationCode, GrantTypeConstants.RefreshToken } },
+      { ParameterNames.RedirectUris, new[] { "http://localhost:5002/callback" } },
+      { ParameterNames.SubjectType, SubjectTypeConstants.Public },
+      { ParameterNames.ResponseTypes, new[] { ResponseTypeConstants.Code } },
+      { ParameterNames.BackChannelLogoutUri, "https://localhost:5002/backchannel-logout" },
+      { ParameterNames.PostLogoutRedirectUris, new[] { "https://localhost:5002/post-logout" } }
     };
     return await BuildClient(postClientRequest);
   }
 
   protected async Task<ClientResponse> BuildClientCredentialsWebClient(string name, string scope)
   {
-    var postClientRequest = new
+    var postClientRequest = new Dictionary<string, object>
     {
-      ApplicationType = ApplicationTypeConstants.Web,
-      TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretPost,
-      Scope = scope,
-      ClientName = name,
-      GrantTypes = new[] { GrantTypeConstants.ClientCredentials },
-      RedirectUris = new[] { "http://localhost:5002/callback" },
-      SubjectType = SubjectTypeConstants.Public,
-      ResponseTypes = new[] { ResponseTypeConstants.Code }
+      { ParameterNames.ApplicationType , ApplicationTypeConstants.Web },
+      { ParameterNames.TokenEndpointAuthMethod, TokenEndpointAuthMethodConstants.ClientSecretPost },
+      { ParameterNames.Scope, scope },
+      { ParameterNames.ClientName, name },
+      { ParameterNames.GrantTypes, new[] { GrantTypeConstants.ClientCredentials } },
+      { ParameterNames.RedirectUris, new[] { "http://localhost:5002/callback" } },
+      { ParameterNames.SubjectType, SubjectTypeConstants.Public },
+      { ParameterNames.ResponseTypes, new[] { ResponseTypeConstants.Code } }
     };
     return await BuildClient(postClientRequest);
   }
