@@ -1,4 +1,5 @@
-﻿using Infrastructure.Builders.Abstractions;
+﻿using System.Text.Json;
+using Infrastructure.Builders.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Contracts.GetDiscoveryDocument;
 using Mapster;
@@ -33,6 +34,10 @@ public class DiscoveryController : ControllerBase
   public async Task<IActionResult> GetJwksDocument()
   {
     var document = await _builder.BuildJwkDocument();
-    return Ok(document.Adapt<GetJwksDocumentResponse>());
+    var response = JsonSerializer.Serialize(document.Adapt<GetJwksDocumentResponse>(), new JsonSerializerOptions
+    {
+      WriteIndented = true
+    });
+    return Ok(response);
   }
 }
