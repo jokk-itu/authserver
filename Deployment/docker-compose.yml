@@ -23,6 +23,15 @@ services:
       - Identity__ClientUri=https://app.authserver.dk
       - ASPNETCORE_ENVIRONMENT=Production
 
+  weatherservice:
+    image: jokk/weatherservice
+    restart: on-failure
+    container_name: weatherservice
+    depends_on: authorizationserver
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Identity__Authority=https://idp.authserver.dk    
+
   configurationapp:
     image: jokk/configurationapp
     container_name: 'configurationapp'
