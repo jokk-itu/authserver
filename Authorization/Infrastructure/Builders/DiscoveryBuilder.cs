@@ -42,7 +42,7 @@ public class DiscoveryBuilder : IDiscoveryBuilder
       AuthorizationEndpoint = $"{issuer}/connect/authorize",
       TokenEndpoint = $"{issuer}/connect/token",
       UserInfoEndpoint = $"{issuer}/connect/userinfo",
-      JwksUri = $"{issuer}/.well-known/jwks.json",
+      JwksUri = $"{issuer}/.well-known/jwks",
       EndSessionEndpoint = $"{issuer}/connect/end-session",
       IntrospectionEndpoint = $"{issuer}/connect/introspection",
       RevocationEndpoint = $"{issuer}/connect/revoke",
