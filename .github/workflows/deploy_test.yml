@@ -1,9 +1,10 @@
-name: CD
+name: CD Test Environment
 
 on:
   push:
     branches:
       - master
+      - feature/deploy
 
 permissions:
   contents: write
@@ -52,23 +53,7 @@ jobs:
       - name: Run deploy script
         uses: appleboy/ssh-action@v0.1.10
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: ~/Deployment/run.sh
-
-  deploy_documentation_app:
-    name: Deploy Pages
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install and Build
-        run: |
-          cd Documentation
-          npm install
-          npm run build
-
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: Documentation/build
