@@ -20,6 +20,7 @@
 
 	<ItemGroup>
 	  <None Update="appsettings.Development.json" CopyToOutputDirectory="Always" />
+	  <None Update="appsettings.Production.json" CopyToOutputDirectory="Always" />
 	</ItemGroup>
 
 </Project>
