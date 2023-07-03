@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Serilog;
 using Microsoft.IdentityModel.Logging;
 using App.Services;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Options;
 using OIDC.Client.Configure;
 using OIDC.Client.Handlers;
@@ -66,6 +67,13 @@ builder.WebHost.ConfigureServices(services =>
 
   services.AddHttpContextAccessor();
   services.AddTransient<PopulateAccessTokenDelegatingHandler>();
+
+  builder.Services.Configure<ForwardedHeadersOptions>(options =>
+  {
+    options.ForwardedHeaders = ForwardedHeaders.All;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+  });
 });
 
 var app = builder.Build();
@@ -80,8 +88,9 @@ if (app.Environment.IsDevelopment())
   IdentityModelEventSource.ShowPII = true;
 }
 
-app.UseHttpsRedirection();
+app.UseForwardedHeaders();
 app.UseHsts();
+app.UseHttpsRedirection();
 app.UseSerilogRequestLogging();
 app.UseStaticFiles();
 

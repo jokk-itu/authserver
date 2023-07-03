@@ -28,7 +28,3 @@ echo 'Installing dotnet-sdk'
 sudo apt-get install -y dotnet-sdk-6.0
 dotnet tool install --global dotnet-ef --version 6.0.16
 echo 'Installed dotnet-sdk with version $(dotnet -v)'
-
-echo 'Installing certificate'
-docker compose run --rm  certbot certonly --webroot --webroot-path /var/www/certbot/ -d *.authserver.dk
-echo 'Installed certificate'

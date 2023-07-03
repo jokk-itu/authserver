@@ -1,8 +1,8 @@
 using Application;
 using Infrastructure.Extensions;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Logging;
 using Serilog;
-using WebApp;
 using WebApp.Constants;
 using WebApp.Extensions;
 
@@ -23,12 +23,7 @@ builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggerConfiguratio
 
 builder.WebHost.ConfigureServices(services =>
 {
-  services.AddControllersWithViews()
-    .AddJsonOptions(options =>
-    {
-      options.JsonSerializerOptions.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
-    });
-
+  services.AddControllersWithViews();
   services.AddEndpointsApiExplorer();
   var identityConfiguration = builder.Configuration.GetSection("Identity").Get<IdentityConfiguration>();
   services.AddSingleton(identityConfiguration);
@@ -53,6 +48,13 @@ builder.WebHost.ConfigureServices(services =>
     antiForgeryOptions.FormFieldName = AntiForgeryConstants.AntiForgeryField;
     antiForgeryOptions.Cookie.Name = AntiForgeryConstants.AntiForgeryCookie;
   });
+
+  builder.Services.Configure<ForwardedHeadersOptions>(options =>
+  {
+    options.ForwardedHeaders = ForwardedHeaders.All;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+  });
 });
 
 var app = builder.Build();
@@ -67,6 +69,8 @@ if (app.Environment.IsDevelopment())
   IdentityModelEventSource.ShowPII = true;
 }
 
+
+app.UseForwardedHeaders();
 app.UseHsts();
 app.UseSerilogRequestLogging();
 app.UseStaticFiles();

@@ -35,7 +35,7 @@ services:
   nginx:
     image: 'nginx'
     restart: on-failure
-    container_name: nginx
+    container_name: 'nginx'
     ports:
       - 80:80
       - 443:443
