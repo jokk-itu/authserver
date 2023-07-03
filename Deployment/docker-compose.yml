@@ -5,6 +5,8 @@ services:
     image: jokk/authorizationserver
     restart: on-failure
     container_name: 'authorizationserver'
+    ports:
+      - 5000:80
     volumes:
       - ./Identity.db:/app/Identity.db:rw
     environment:
@@ -16,11 +18,14 @@ services:
     image: jokk/webapp
     restart: on-failure
     container_name: 'webapp'
+    ports:
+      - 5001:80
     depends_on:
       - authorizationserver
     environment:
       - Identity__Authority=https://idp.authserver.dk
       - Identity__ClientUri=https://app.authserver.dk
+      - WeatherService__Url=https://weather.authserver.dk
       - ASPNETCORE_ENVIRONMENT=Production
 
   weatherservice:
@@ -28,6 +33,8 @@ services:
     restart: on-failure
     container_name: weatherservice
     depends_on: authorizationserver
+    ports:
+      - 5002:80
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - Identity__Authority=https://idp.authserver.dk    
