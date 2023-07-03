@@ -1,20 +1,23 @@
 ﻿using System;
-using System.Linq;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using OIDC.Client.Handlers.Abstract;
 using OIDC.Client.Settings;
 
 namespace OIDC.Client.Configure;
 public class ConfigureOpenIdConnectOptions : IConfigureNamedOptions<OpenIdConnectOptions>
 {
     private readonly IOptions<IdentityProviderSettings> _identityProviderOptions;
+    private readonly IOpenIdConnectEventHandler _openIdConnectEventHandler;
 
     public ConfigureOpenIdConnectOptions(
-      IOptions<IdentityProviderSettings> identityProviderOptions)
+      IOptions<IdentityProviderSettings> identityProviderOptions,
+      IOpenIdConnectEventHandler openIdConnectEventHandler)
     {
-        _identityProviderOptions = identityProviderOptions;
+      _identityProviderOptions = identityProviderOptions;
+      _openIdConnectEventHandler = openIdConnectEventHandler;
     }
 
     public void Configure(OpenIdConnectOptions options)
@@ -24,7 +27,7 @@ public class ConfigureOpenIdConnectOptions : IConfigureNamedOptions<OpenIdConnec
         options.GetClaimsFromUserInfoEndpoint = true;
         options.DisableTelemetry = true;
         options.ResponseType = OpenIdConnectResponseType.Code;
-
+    
         options.Prompt = string.Join(' ', _identityProviderOptions.Value.Prompt);
         foreach (var scope in _identityProviderOptions.Value.Scope)
         {
@@ -52,6 +55,11 @@ public class ConfigureOpenIdConnectOptions : IConfigureNamedOptions<OpenIdConnec
             SecurePolicy = CookieSecurePolicy.Always,
             IsEssential = true,
             HttpOnly = true
+        };
+
+        options.Events = new OpenIdConnectEvents
+        {
+          OnRedirectToIdentityProviderForSignOut = _openIdConnectEventHandler.SetClientIdOnRedirect
         };
     }
 

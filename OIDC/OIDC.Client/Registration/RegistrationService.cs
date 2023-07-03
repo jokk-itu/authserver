@@ -33,7 +33,7 @@ public class RegistrationService : IRegistrationService
       var authority = new Uri(_identityProviderSettings.Value.ClientUri, UriKind.Absolute);
       var backChannelLogOutUri = new Uri(authority, options.RemoteSignOutPath.Value);
       var redirectUri = new Uri(authority, options.CallbackPath);
-      var postLogOutRedirectUri = new Uri(authority, options.SignedOutRedirectUri);
+      var postLogOutRedirectUri = new Uri(authority, options.SignedOutCallbackPath);
 
       var request = new RegistrationRequest
       {
