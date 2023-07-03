@@ -58,7 +58,7 @@ public class StructuredTokenDecoder : IStructuredTokenDecoder
 
     var tokenValidationParameters = new TokenValidationParameters
     {
-      ClockSkew = TimeSpan.FromMinutes(5),
+      ClockSkew = new TimeSpan(0),
       ValidTypes = new []
       {
         "access+jwt", "id+jwt", "refresh+jwt"

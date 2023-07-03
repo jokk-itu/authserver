@@ -49,7 +49,7 @@ public class IntrospectionEndpointBuilder
       { ParameterNames.ClientSecret, _clientSecret }
     });
 
-    var refreshTokenRequest = new HttpRequestMessage(HttpMethod.Post, "connect/token/introspection")
+    var refreshTokenRequest = new HttpRequestMessage(HttpMethod.Post, "connect/introspection")
     {
       Content = tokenContent
     };

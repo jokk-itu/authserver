@@ -2,13 +2,15 @@
 using Domain.Constants;
 using Specs.Helpers.EndpointBuilders;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Specs.Integrations;
 
 [Collection("Integration")]
 public class ClientCredentialsTokenTest : BaseIntegrationTest
 {
-  public ClientCredentialsTokenTest(WebApplicationFactory<Program> factory) : base(factory)
+  public ClientCredentialsTokenTest(WebApplicationFactory<Program> factory, ITestOutputHelper testOutputHelper)
+    : base(factory, testOutputHelper)
   {
   }
 

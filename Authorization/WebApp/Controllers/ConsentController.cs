@@ -1,8 +1,11 @@
-﻿using Application;
+﻿using System.IdentityModel.Tokens.Jwt;
+using Application;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using Domain.Constants;
+using Infrastructure.Decoders.Token;
+using Infrastructure.Decoders.Token.Abstractions;
 using Infrastructure.Requests.CreateAuthorizationGrant;
 using Infrastructure.Requests.CreateOrUpdateConsentGrant;
 using Microsoft.AspNetCore.Authentication;
@@ -11,7 +14,6 @@ using Microsoft.AspNetCore.Authorization;
 using WebApp.Constants;
 using WebApp.ViewModels;
 using WebApp.Attributes;
-using Infrastructure.Decoders.Abstractions;
 using Infrastructure.Requests.GetConsentModel;
 using WebApp.Controllers.Abstracts;
 using WebApp.Context.Abstract;
@@ -23,19 +25,19 @@ namespace WebApp.Controllers;
 public class ConsentController : OAuthControllerBase
 {
   private readonly IMediator _mediator;
-  private readonly ITokenDecoder _tokenDecoder;
   private readonly IContextAccessor<AuthorizeContext> _contextAccessor;
+  private readonly IStructuredTokenDecoder _tokenDecoder;
 
   public ConsentController(
     IMediator mediator,
     IdentityConfiguration identityConfiguration,
-    ITokenDecoder tokenDecoder,
-    IContextAccessor<AuthorizeContext> contextAccessor)
+    IContextAccessor<AuthorizeContext> contextAccessor,
+    IStructuredTokenDecoder tokenDecoder)
   : base (identityConfiguration)
   {
     _mediator = mediator;
-    _tokenDecoder = tokenDecoder;
     _contextAccessor = contextAccessor;
+    _tokenDecoder = tokenDecoder;
   }
 
   [HttpGet("create")]
@@ -53,8 +55,18 @@ public class ConsentController : OAuthControllerBase
   public async Task<IActionResult> UpdateConsent(CancellationToken cancellationToken = default)
   {
     var context = await _contextAccessor.GetContext(HttpContext);
-    var token = _tokenDecoder.DecodeSignedToken(context.IdTokenHint);
-    if (token is null)
+    JwtSecurityToken token;
+    try
+    {
+      token = await _tokenDecoder.Decode(context.IdTokenHint, new StructuredTokenDecoderArguments
+      {
+        ClientId = context.ClientId,
+        Audiences = new [] { context.ClientId },
+        ValidateAudience = true,
+        ValidateLifetime = true
+      });
+    }
+    catch
     {
       return ErrorFormPostResult(context.RedirectUri, context.State, ErrorCode.LoginRequired, "login is required");
     }
@@ -119,8 +131,18 @@ public class ConsentController : OAuthControllerBase
   public async Task<IActionResult> Put(CancellationToken cancellationToken = default)
   {
     var context = await _contextAccessor.GetContext(HttpContext);
-    var token = _tokenDecoder.DecodeSignedToken(context.IdTokenHint);
-    if (token is null)
+    JwtSecurityToken token;
+    try
+    {
+      token = await _tokenDecoder.Decode(context.IdTokenHint, new StructuredTokenDecoderArguments
+      {
+        ClientId = context.ClientId,
+        Audiences = new [] { context.ClientId },
+        ValidateAudience = true,
+        ValidateLifetime = true
+      });
+    }
+    catch
     {
       return BadOAuthResult(ErrorCode.LoginRequired, "login is required");
     }

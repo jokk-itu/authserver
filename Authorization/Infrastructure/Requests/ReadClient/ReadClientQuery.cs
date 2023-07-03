@@ -2,4 +2,4 @@
 
 namespace Infrastructure.Requests.ReadClient;
 
-public record ReadClientQuery(string Token) : IRequest<ReadClientResponse>;
+public record ReadClientQuery(string ClientId, string Token) : IRequest<ReadClientResponse>;

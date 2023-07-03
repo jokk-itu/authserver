@@ -5,6 +5,7 @@ using WebApp.Constants;
 using WebApp.Options;
 using WebApp.Context.Abstract;
 using WebApp.Context.AuthorizeContext;
+using WebApp.Context.ClientContext;
 using WebApp.Context.EndSessionContext;
 using WebApp.Context.IntrospectionContext;
 using WebApp.Context.RevocationContext;
@@ -48,16 +49,6 @@ public static class ServiceCollectionExtensions
         policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
         policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ClientConfiguration);
       });
-      options.AddPolicy(AuthorizationConstants.ResourceConfiguration, policy =>
-      {
-        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
-        policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ResourceConfiguration);
-      });
-      options.AddPolicy(AuthorizationConstants.ScopeConfiguration, policy =>
-      {
-        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
-        policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ScopeConfiguration);
-      });
     });
     return services;
   }
@@ -94,6 +85,7 @@ public static class ServiceCollectionExtensions
     services.AddScoped<IContextAccessor<EndSessionContext>, EndSessionContextAccessor>();
     services.AddScoped<IContextAccessor<IntrospectionContext>, IntrospectionContextAccessor>();
     services.AddScoped<IContextAccessor<RevocationContext>, RevocationContextAccessor>();
+    services.AddScoped<IContextAccessor<ClientContext>, ClientContextAccessor>();
     return services;
   }
 }

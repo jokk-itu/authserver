@@ -1,8 +1,9 @@
 ﻿using System.Net;
 using Domain;
-using Infrastructure.Builders.Abstractions;
-using Infrastructure.Decoders.Abstractions;
+using Infrastructure.Builders.Token.Abstractions;
+using Infrastructure.Builders.Token.RegistrationToken;
 using Infrastructure.Requests.DeleteClient;
+using MediatR;
 using Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Specs.Helpers.EntityBuilders;
@@ -23,15 +24,15 @@ public class DeleteClientHandlerTests : BaseUnitTest
       .AddAsync(client);
     await IdentityContext.SaveChangesAsync();
 
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder>();
-    var tokenDecoder = serviceProvider.GetRequiredService<ITokenDecoder>();
-
-    var token = tokenBuilder.BuildClientRegistrationAccessToken(client.Id);
-    var command = new DeleteClientCommand
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<RegistrationTokenArguments>>();
+    var token = await tokenBuilder.BuildToken(new RegistrationTokenArguments
     {
-      ClientRegistrationToken = token
-    };
-    var handler = new DeleteClientHandler(IdentityContext, tokenDecoder);
+      Client = client
+    });
+    await IdentityContext.SaveChangesAsync();
+
+    var command = new DeleteClientCommand(client.Id, token);
+    var handler = serviceProvider.GetRequiredService<IRequestHandler<DeleteClientCommand, DeleteClientResponse>>();
 
     // Act
     var response = await handler.Handle(command, CancellationToken.None);

@@ -8,7 +8,7 @@
          <p class="text-2xl">Authorization Server</p>
          <hr class="pb-4"/>
          <ul class="list-disc">
-             <li><a class="ref-link text-lg" href="{base}">Introduction</a></li>
+             <li><a class="ref-link text-lg" href="{base}/">Introduction</a></li>
              <li><a class="ref-link text-lg" href="{base}/architecture">Architecture</a></li>
              <li><a class="ref-link text-lg" href="{base}/configurationapp">Configuration App</a></li>
              <li><a class="ref-link text-lg" href="{base}/authorize">Authorize</a></li>

@@ -33,11 +33,6 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
       return new ValidationResult(ErrorCode.InvalidRequest, "code_verifier is invalid", HttpStatusCode.BadRequest);
     }
 
-    if (!string.IsNullOrWhiteSpace(value.Scope) && value.Scope.Split(' ').Except(code.Scopes).Any())
-    { 
-      return new ValidationResult(ErrorCode.InvalidScope, "scope is not equal to grant", HttpStatusCode.BadRequest);
-    }
-
     if (value.GrantType != GrantTypeConstants.AuthorizationCode)
     {
       return new ValidationResult(ErrorCode.InvalidRequest, "grant_type must be authorization_code",
@@ -97,7 +92,7 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
       return new ValidationResult(ErrorCode.ConsentRequired, "consent is required", HttpStatusCode.BadRequest);
     }
 
-    if (value.Scope.Split(' ').Except(consentGrant.ConsentedScopes.Select(x => x.Name)).Any())
+    if (code.Scopes.Except(consentGrant.ConsentedScopes.Select(x => x.Name)).Any())
     {
       return new ValidationResult(ErrorCode.InvalidScope, "scope exceeds consented scope", HttpStatusCode.BadRequest);
     }

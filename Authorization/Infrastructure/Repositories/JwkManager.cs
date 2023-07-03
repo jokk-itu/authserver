@@ -56,7 +56,7 @@ public class JwkManager
   {
     using var rsa = new RSACryptoServiceProvider(KeySize);
     var password = Encoding.Default.GetBytes(_identityConfiguration.PrivateKeySecret);
-    var pbeParameters = new PbeParameters(PbeEncryptionAlgorithm.Aes128Cbc, HashAlgorithmName.SHA256, 10);
+    var pbeParameters = new PbeParameters(PbeEncryptionAlgorithm.Aes256Cbc, HashAlgorithmName.SHA256, 10);
     var privateKey = rsa.ExportEncryptedPkcs8PrivateKey(password, pbeParameters);
     var publicKey = rsa.ExportParameters(false);
     var jwk = new Jwk

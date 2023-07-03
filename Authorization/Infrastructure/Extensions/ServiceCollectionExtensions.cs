@@ -35,21 +35,11 @@ public static class ServiceCollectionExtensions
     services.AddDbContext<IdentityContext>(options =>
     {
       var sqliteConnection = configuration.GetConnectionString("SQLite");
-      var sqlServerConnection = configuration.GetConnectionString("SqlServer");
 
       if (!string.IsNullOrWhiteSpace(sqliteConnection))
       {
         options.UseSqlite(sqliteConnection, optionsBuilder =>
         {
-          optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
-          optionsBuilder.MigrationsAssembly(typeof(IdentityContext).Namespace);
-        });
-      }
-      else if (!string.IsNullOrWhiteSpace(sqlServerConnection))
-      {
-        options.UseSqlServer(sqlServerConnection, optionsBuilder =>
-        {
-          optionsBuilder.EnableRetryOnFailure(5, TimeSpan.FromSeconds(2), null);
           optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
           optionsBuilder.MigrationsAssembly(typeof(IdentityContext).Namespace);
         });
@@ -72,7 +62,6 @@ public static class ServiceCollectionExtensions
 
   public static IServiceCollection AddBuilders(this IServiceCollection services)
   {
-    services.AddTransient<ITokenBuilder, TokenBuilder>();
     services.AddTransient<ITokenBuilder<IdTokenArguments>, IdTokenBuilder>();
     services.AddTransient<ITokenBuilder<GrantAccessTokenArguments>, GrantAccessTokenBuilder>();
     services.AddTransient<ITokenBuilder<ClientAccessTokenArguments>, ClientAccessTokenBuilder>();
@@ -86,7 +75,6 @@ public static class ServiceCollectionExtensions
 
   public static IServiceCollection AddDecoders(this IServiceCollection services)
   {
-    services.AddTransient<ITokenDecoder, TokenDecoder>();
     services.AddTransient<ICodeDecoder, CodeDecoder>();
     services.AddTransient<IStructuredTokenDecoder, StructuredTokenDecoder>();
     return services;

@@ -9,3 +9,4 @@ node_modules
 package-lock.json
 /Volumes/
 /RunMigrationIntegration.ps1
+AuthorizationServer.DotSettings.sln

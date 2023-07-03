@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net.Http.Headers;
+using System.Text;
 using WebApp.Constants;
 using WebApp.Context.Abstract;
 
@@ -9,7 +10,6 @@ public class IntrospectionContextAccessor : IContextAccessor<IntrospectionContex
   public async Task<IntrospectionContext> GetContext(HttpContext httpContext)
   {
     var context = new IntrospectionContext();
-    var basicAuthorization = httpContext.Request.Headers.Authorization;
     var body = await httpContext.Request.ReadFormAsync();
     if (body.TryGetValue(ParameterNames.Token, out var token))
     {
@@ -27,9 +27,13 @@ public class IntrospectionContextAccessor : IContextAccessor<IntrospectionContex
     {
       context.ClientSecret = clientSecret;
     }
-    if (basicAuthorization.FirstOrDefault() == "Basic" && basicAuthorization.Count == 2)
+
+    var isBasicAuthentication = AuthenticationHeaderValue.TryParse(httpContext.Request.Headers.Authorization, out var authenticationHeader);
+    if (isBasicAuthentication
+        && authenticationHeader?.Scheme == "Basic"
+        && !string.IsNullOrWhiteSpace(authenticationHeader.Parameter))
     {
-      var decodedBytes = Convert.FromBase64String(basicAuthorization[1]);
+      var decodedBytes = Convert.FromBase64String(authenticationHeader.Parameter);
       var decoded = Encoding.UTF8.GetString(decodedBytes).Split(":");
       if (decoded.Length == 2)
       {

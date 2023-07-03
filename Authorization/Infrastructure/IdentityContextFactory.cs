@@ -7,22 +7,12 @@ public class IdentityContextFactory : IDesignTimeDbContextFactory<IdentityContex
   public IdentityContext CreateDbContext(string[] args)
   {
     var optionsBuilder = new DbContextOptionsBuilder<IdentityContext>();
-    if (args.Length != 2)
+    if (args.Length != 1)
     {
-      throw new ArgumentException("datastore provider and connectionstring are missing", nameof(args));
+      throw new ArgumentException("connectionstring is missing", nameof(args));
     }
 
-    switch (args[0])
-    {
-      case "SQLite":
-        optionsBuilder.UseSqlite(args[1]);
-        break;
-      case "SqlServer":
-        optionsBuilder.UseSqlServer(args[1]);
-        break;
-      default:
-        throw new ArgumentException("datastore provider is unknown", nameof(args));
-    }
+    optionsBuilder.UseSqlite(args[0]);
 
     return new IdentityContext(optionsBuilder.Options);
   }

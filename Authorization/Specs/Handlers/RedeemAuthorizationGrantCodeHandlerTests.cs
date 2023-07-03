@@ -86,7 +86,6 @@ public class RedeemAuthorizationGrantCodeHandlerTests : BaseUnitTest
       ClientSecret = client.Secret,
       RedirectUri = uri,
       GrantType = GrantTypeConstants.AuthorizationCode,
-      Scope = ScopeConstants.OpenId,
       Code = code,
       CodeVerifier = pkce.CodeVerifier
     };

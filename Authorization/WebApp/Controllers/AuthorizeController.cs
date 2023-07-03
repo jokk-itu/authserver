@@ -40,7 +40,7 @@ public class AuthorizeController : OAuthControllerBase
     var routeValues = HttpContext.Request.Query.ToRouteValueDictionary();
     if (prompts.Contains(PromptConstants.Create))
     {
-      return RedirectToAction(controllerName: "Register", actionName: "Index", routeValues: routeValues);
+      return RedirectToAction(controllerName: "SignUp", actionName: "Index", routeValues: routeValues);
     }
 
     if (prompts.Contains(PromptConstants.Login))

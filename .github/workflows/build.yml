@@ -8,7 +8,7 @@ env:
   DOTNET_NOLOGO: true
 
 jobs:
-  build:
+  build_solution:
     name: Build and Test
     runs-on: ubuntu-latest
     
@@ -25,9 +25,37 @@ jobs:
     - name: Test
       run: dotnet test AuthorizationServer.sln --no-build --verbosity normal
   
+  build_documentation:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install and Build
+        run: |
+          cd Documentation
+          npm install
+          npm run build
+
+  build_dockerfiles:
+    name: Build Dockerfiles
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build Images
+      run: |
+        docker build . -f Authorization/WebApp/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/authorizationserver:latest
+        docker build . -f Authorization/ConfigurationApp/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/configurationapp:latest
+        docker build . -f Clients/WebApp/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/webapp:latest
+        docker build . -f ProtectedResources/WeatherService/Api/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/weatherservice:latest
+
   sonarscan:
     name: SonarScan
-    needs: build
+    needs:
+      - build_solution
+      - build_documentation
+      - build_dockerfiles
     if: github.event_name == 'pull_request' || github.ref_name == 'master'
     runs-on: windows-latest
     steps:
@@ -35,7 +63,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.11
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Cache SonarCloud packages

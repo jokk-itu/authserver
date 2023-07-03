@@ -2,42 +2,35 @@
 using Application;
 using Application.Validation;
 using Domain;
-using Domain.Constants;
-using Infrastructure.Decoders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.DeleteClient;
 public class DeleteClientValidator : IValidator<DeleteClientCommand>
 {
   private readonly IdentityContext _identityContext;
-  private readonly ITokenDecoder _tokenDecoder;
 
-  public DeleteClientValidator(IdentityContext identityContext, ITokenDecoder tokenDecoder)
+  public DeleteClientValidator(IdentityContext identityContext)
   {
     _identityContext = identityContext;
-    _tokenDecoder = tokenDecoder;
   }
 
   public async Task<ValidationResult> ValidateAsync(DeleteClientCommand value, CancellationToken cancellationToken = default)
   {
-    if (await IsClientRegistrationTokenInvalid(value))
-      return new ValidationResult(ErrorCode.InvalidClientMetadata, "token is invalid", HttpStatusCode.BadRequest);
+    var isAuthenticated = await _identityContext
+      .Set<Client>()
+      .Where(x => x.Id == value.ClientId)
+      .SelectMany(x => x.ClientTokens)
+      .OfType<RegistrationToken>()
+      .Where(x => x.Reference == value.Token)
+      .Where(x => x.RevokedAt == null)
+      .AnyAsync(cancellationToken: cancellationToken);
+
+    if (!isAuthenticated)
+    {
+      // TODO revoke
+      return new ValidationResult(ErrorCode.InvalidClientMetadata, "request is invalid", HttpStatusCode.Unauthorized);
+    }
 
     return new ValidationResult(HttpStatusCode.OK);
-  }
-
-  private async Task<bool> IsClientRegistrationTokenInvalid(DeleteClientCommand command)
-  {
-    if (string.IsNullOrWhiteSpace(command.ClientRegistrationToken))
-      return true;
-
-    var clientId = _tokenDecoder.DecodeSignedToken(command.ClientRegistrationToken)?.Claims?
-      .SingleOrDefault(x => x.Type == ClaimNameConstants.ClientId)?.Value;
-    if (clientId is null)
-      return true;
-    if (!await _identityContext.Set<Client>().AnyAsync(x => x.Id == clientId))
-      return true;
-
-    return false;
   }
 }

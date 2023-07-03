@@ -1,8 +1,10 @@
 ﻿using System.Net;
-using System.Security;
 using Domain;
-using Domain.Constants;
-using Infrastructure.Decoders.Abstractions;
+using Domain.Enums;
+using Domain.Extensions;
+using Infrastructure.Builders.Token.Abstractions;
+using Infrastructure.Builders.Token.RegistrationToken;
+using Infrastructure.Helpers;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,30 +12,60 @@ namespace Infrastructure.Requests.ReadClient;
 public class ReadClientHandler : IRequestHandler<ReadClientQuery, ReadClientResponse>
 {
   private readonly IdentityContext _identityContext;
-  private readonly ITokenDecoder _tokenDecoder;
+  private readonly ITokenBuilder<RegistrationTokenArguments> _tokenBuilder;
 
   public ReadClientHandler(
     IdentityContext identityContext,
-    ITokenDecoder tokenDecoder)
+    ITokenBuilder<RegistrationTokenArguments> tokenBuilder)
   {
     _identityContext = identityContext;
-    _tokenDecoder = tokenDecoder;
+    _tokenBuilder = tokenBuilder;
   }
 
   public async Task<ReadClientResponse> Handle(ReadClientQuery request, CancellationToken cancellationToken)
   {
-    var configurationToken = _tokenDecoder.DecodeSignedToken(request.Token);
-    if (configurationToken is null)
-      throw new SecurityException("configuration token is invalid after validation");
-
-    var clientId = configurationToken.Claims.Single(x => x.Type == ClaimNameConstants.ClientId).Value;
-
     var client = await _identityContext
       .Set<Client>()
-      .SingleAsync(x => x.Id == clientId, cancellationToken: cancellationToken);
+      .Where(x => x.Id == request.ClientId)
+      .Where(x => x.ClientTokens
+        .AsQueryable()
+        .Where(y => y.Reference == request.Token)
+        .Where(y => y.RevokedAt == null)
+        .OfType<RegistrationToken>()
+        .Any())
+      .Include(x => x.Scopes)
+      .Include(x => x.Contacts)
+      .Include(x => x.GrantTypes)
+      .Include(x => x.RedirectUris)
+      .Include(x => x.RedirectUris)
+      .SingleAsync(cancellationToken: cancellationToken);
+
+    client.Secret = client.TokenEndpointAuthMethod == TokenEndpointAuthMethod.None
+      ? null
+      : CryptographyHelper.GetRandomString(32);
+
+    client.ClientTokens.Single().RevokedAt = DateTime.UtcNow;
+    var registrationToken = await _tokenBuilder.BuildToken(new RegistrationTokenArguments
+    {
+      Client = client
+    });
+    await _identityContext.SaveChangesAsync(cancellationToken: cancellationToken);
 
     return new ReadClientResponse(HttpStatusCode.OK)
     {
+      ClientId = client.Id,
+      ClientSecret = client.Secret,
+      ClientName = client.Name,
+      ApplicationType = client.ApplicationType.ToString(),
+      SubjectType = client.SubjectType.ToString(),
+      TokenEndpointAuthMethod = client.TokenEndpointAuthMethod.ToString(),
+      RegistrationAccessToken = registrationToken,
+      ClientUri = client.ClientUri,
+      TosUri = client.TosUri,
+      PolicyUri = client.PolicyUri,
+      LogoUri = client.LogoUri,
+      InitiateLoginUri = client.InitiateLoginUri,
+      DefaultMaxAge = client.DefaultMaxAge
     };
   }
 }

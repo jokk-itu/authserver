@@ -25,8 +25,8 @@ It allows for a single sign out functionality and it is more secure since it occ
 sequenceDiagram
 participant RelyingParty as RP
 participant OpenIDProvider as OP
-OpenIDProvider-->RelyingParty Requests backchannel endpoint
-RelyingParty-->OpenIDProvider Response 200
+OpenIDProvider->>RelyingParty: Requests backchannel logout uri
+RelyingParty->>OpenIDProvider: Response 200
 `}
 </Diagram>
 </Section>

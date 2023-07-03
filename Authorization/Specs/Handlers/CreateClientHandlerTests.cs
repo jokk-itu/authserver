@@ -3,6 +3,8 @@ using Domain.Constants;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.RegistrationToken;
 using Infrastructure.Requests.CreateClient;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Moq;
 using Xunit;
@@ -15,6 +17,17 @@ public class CreateClientHandlerTests : BaseUnitTest
   public async Task Handle_CreateClient_ExpectCreatedResult()
   {
     // Arrange
+    var serviceProvider = BuildServiceProvider(services =>
+    {
+      var fakeTokenBuilder = new Mock<ITokenBuilder<RegistrationTokenArguments>>();
+      const string token = "token";
+      fakeTokenBuilder
+        .Setup(x => x.BuildToken(It.IsAny<RegistrationTokenArguments>()))
+        .ReturnsAsync(token);
+
+      services.AddScopedMock(fakeTokenBuilder);
+    });
+
     var command = new CreateClientCommand
     {
       ApplicationType = "web",
@@ -31,16 +44,12 @@ public class CreateClientHandlerTests : BaseUnitTest
       ClientUri = "https://localhost:5002",
       DefaultMaxAge = "120",
       InitiateLoginUri = "https://localhost:5002/login",
-      LogoUri = "https://gravatar.com/avatar"
+      LogoUri = "https://gravatar.com/avatar",
+      BackChannelLogoutUri = "https://localhost:5002/backchannel-logout",
+      PostLogoutRedirectUris = new [] { "https://localhost:5002/postlogout" }
     };
-    
-    var fakeTokenBuilder = new Mock<ITokenBuilder<RegistrationTokenArguments>>();
-    const string token = "token";
-    fakeTokenBuilder
-      .Setup(x => x.BuildToken(It.IsAny<RegistrationTokenArguments>()))
-      .ReturnsAsync(token);
 
-    var handler = new CreateClientHandler(IdentityContext, fakeTokenBuilder.Object);
+    var handler = serviceProvider.GetRequiredService<IRequestHandler<CreateClientCommand, CreateClientResponse>>();
 
     // Act
     var response = await handler.Handle(command, CancellationToken.None);

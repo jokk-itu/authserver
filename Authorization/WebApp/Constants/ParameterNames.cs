@@ -30,12 +30,9 @@ public static class ParameterNames
   public const string SubjectType = "subject_type";
   public const string TokenEndpointAuthMethod = "token_endpoint_auth_method";
   public const string ClientSecretExpiresAt = "client_secret_expires_at";
+  public const string ClientIdIssuedAt = "client_id_issued_at";
   public const string RegistrationAccessToken = "registration_access_token";
   public const string RegistrationClientUri = "registration_client_uri";
-  public const string ResourceName = "resource_name";
-  public const string ResourceId = "resource_id";
-  public const string RegistrationResourceUri = "registration_resource_uri";
-  public const string ResourceSecret = "resource_secret";
   public const string Error = "error";
   public const string ErrorDescription = "error_description";
   public const string Prompt = "prompt";
@@ -52,7 +49,6 @@ public static class ParameterNames
   public const string Firstname = "firstname";
   public const string Birthdate = "birthdate";
   public const string Locale = "locale";
-  public const string ScopeName = "scope_name";
   public const string Issuer = "iss";
   public const string DefaultMaxAge = "default_max_age";
   public const string InitiateLoginUri = "initiate_login_uri";

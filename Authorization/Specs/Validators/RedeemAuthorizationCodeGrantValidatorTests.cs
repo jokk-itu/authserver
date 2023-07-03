@@ -46,37 +46,6 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
     }
 
     [Fact]
-    public async Task ValidateAsync_ExpectInvalidScope()
-    {
-        // Arrange
-        var serviceProvider = BuildServiceProvider();
-        var codeBuilder = serviceProvider.GetRequiredService<ICodeBuilder>();
-        var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
-        var code = await codeBuilder.BuildAuthorizationCodeAsync(
-          Guid.NewGuid().ToString(),
-          Guid.NewGuid().ToString(),
-          Guid.NewGuid().ToString(),
-          pkce.CodeChallenge,
-          CodeChallengeMethodConstants.S256,
-          new[] { ScopeConstants.OpenId });
-
-        var validator = serviceProvider.GetRequiredService<IValidator<RedeemAuthorizationCodeGrantCommand>>();
-        var command = new RedeemAuthorizationCodeGrantCommand
-        {
-            Code = code,
-            CodeVerifier = pkce.CodeVerifier,
-            Scope = "invalid_scope"
-        };
-
-        // Act
-        var validationResult = await validator.ValidateAsync(command, CancellationToken.None);
-
-        // Assert
-        Assert.True(validationResult.IsError());
-        Assert.Equal(ErrorCode.InvalidScope, validationResult.ErrorCode);
-    }
-
-    [Fact]
     public async Task ValidateAsync_ExpectInvalidGrantType()
     {
         // Arrange
@@ -96,7 +65,6 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
         {
             Code = code,
             CodeVerifier = pkce.CodeVerifier,
-            Scope = $"{ScopeConstants.OpenId}",
             GrantType = string.Empty
         };
 
@@ -128,7 +96,6 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
         {
             Code = code,
             CodeVerifier = pkce.CodeVerifier,
-            Scope = $"{ScopeConstants.OpenId}",
             GrantType = GrantTypeConstants.AuthorizationCode
         };
 
@@ -161,7 +128,6 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
         {
             Code = code,
             CodeVerifier = pkce.CodeVerifier,
-            Scope = $"{ScopeConstants.OpenId}",
             GrantType = GrantTypeConstants.AuthorizationCode,
             ClientId = string.Empty,
             ClientSecret = authorizationCodeGrant.Client.Secret
@@ -196,7 +162,6 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
       {
         Code = code,
         CodeVerifier = pkce.CodeVerifier,
-        Scope = $"{ScopeConstants.OpenId}",
         GrantType = GrantTypeConstants.AuthorizationCode,
         ClientId = authorizationCodeGrant.Client.Id,
         ClientSecret = string.Empty
@@ -231,7 +196,6 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
         {
             Code = code,
             CodeVerifier = pkce.CodeVerifier,
-            Scope = $"{ScopeConstants.OpenId}",
             GrantType = GrantTypeConstants.AuthorizationCode,
             ClientId = authorizationCodeGrant.Client.Id,
             ClientSecret = authorizationCodeGrant.Client.Secret
@@ -268,7 +232,6 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
         {
             Code = code,
             CodeVerifier = pkce.CodeVerifier,
-            Scope = $"{ScopeConstants.OpenId}",
             GrantType = GrantTypeConstants.AuthorizationCode,
             ClientId = authorizationCodeGrant.Client.Id,
             ClientSecret = authorizationCodeGrant.Client.Secret,
@@ -307,7 +270,6 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
       {
         Code = code,
         CodeVerifier = pkce.CodeVerifier,
-        Scope = $"{ScopeConstants.OpenId}",
         GrantType = GrantTypeConstants.AuthorizationCode,
         ClientId = authorizationCodeGrant.Client.Id,
         ClientSecret = authorizationCodeGrant.Client.Secret,
@@ -344,7 +306,6 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
       {
         Code = code,
         CodeVerifier = pkce.CodeVerifier,
-        Scope = $"{ScopeConstants.OpenId}",
         GrantType = GrantTypeConstants.AuthorizationCode,
         ClientId = authorizationCodeGrant.Client.Id,
         ClientSecret = authorizationCodeGrant.Client.Secret,
@@ -380,7 +341,6 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
         {
             Code = code,
             CodeVerifier = pkce.CodeVerifier,
-            Scope = $"{ScopeConstants.OpenId}",
             GrantType = GrantTypeConstants.AuthorizationCode,
             ClientId = authorizationCodeGrant.Client.Id,
             ClientSecret = authorizationCodeGrant.Client.Secret,

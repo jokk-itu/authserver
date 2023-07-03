@@ -9,7 +9,7 @@ using WebApp.Contracts.PostIntrospection;
 
 namespace WebApp.Controllers;
 
-[Route("connect/token/[controller]")]
+[Route("connect/[controller]")]
 public class IntrospectionController : OAuthControllerBase
 {
   private readonly IMediator _mediator;

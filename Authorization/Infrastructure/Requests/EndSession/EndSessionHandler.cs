@@ -37,7 +37,7 @@ public class EndSessionHandler : IRequestHandler<EndSessionCommand, EndSessionRe
   {
     var idToken = await _tokenDecoder.Decode(request.IdTokenHint, new StructuredTokenDecoderArguments
     {
-      ClientId = request.ClientId,
+      ClientId = request.ClientId
     });
 
     var sessionId = idToken.Claims.Single(x => x.Type == ClaimNameConstants.Sid).Value;

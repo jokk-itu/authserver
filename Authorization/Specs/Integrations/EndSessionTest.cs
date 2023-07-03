@@ -5,13 +5,15 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Specs.Helpers.EndpointBuilders;
 using Specs.Helpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Specs.Integrations;
 
 [Collection("Integration")]
 public class EndSessionTest : BaseIntegrationTest
 {
-  public EndSessionTest(WebApplicationFactory<Program> factory) : base(factory)
+  public EndSessionTest(WebApplicationFactory<Program> factory, ITestOutputHelper testOutputHelper)
+    : base(factory, testOutputHelper)
   {
   }
 
@@ -40,7 +42,6 @@ public class EndSessionTest : BaseIntegrationTest
       .Instance()
       .AddClientId(client.ClientId)
       .AddClientSecret(client.ClientSecret)
-      .AddScope(scope)
       .AddCodeVerifier(pkce.CodeVerifier)
       .AddCode(code)
       .AddGrantType(GrantTypeConstants.AuthorizationCode)
@@ -84,7 +85,6 @@ public class EndSessionTest : BaseIntegrationTest
       .Instance()
       .AddClientId(client.ClientId)
       .AddClientSecret(client.ClientSecret)
-      .AddScope(scope)
       .AddCodeVerifier(pkce.CodeVerifier)
       .AddCode(code)
       .AddGrantType(GrantTypeConstants.AuthorizationCode)

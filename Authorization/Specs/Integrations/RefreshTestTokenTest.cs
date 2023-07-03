@@ -4,14 +4,15 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Specs.Helpers;
 using Xunit;
 using Specs.Helpers.EndpointBuilders;
+using Xunit.Abstractions;
 
 namespace Specs.Integrations;
 
 [Collection("Integration")]
 public class RefreshTestTokenTest : BaseIntegrationTest
 {
-  public RefreshTestTokenTest(WebApplicationFactory<Program> factory)
-    : base(factory)
+  public RefreshTestTokenTest(WebApplicationFactory<Program> factory, ITestOutputHelper testOutputHelper)
+    : base(factory, testOutputHelper)
   {
   }
 
@@ -40,7 +41,6 @@ public class RefreshTestTokenTest : BaseIntegrationTest
       .Instance()
       .AddClientId(client.ClientId)
       .AddClientSecret(client.ClientSecret)
-      .AddScope(scope)
       .AddCodeVerifier(pkce.CodeVerifier)
       .AddCode(code)
       .AddGrantType(GrantTypeConstants.AuthorizationCode)
@@ -83,7 +83,6 @@ public class RefreshTestTokenTest : BaseIntegrationTest
     var tokenResponse = await TokenEndpointBuilder
       .Instance()
       .AddClientId(client.ClientId)
-      .AddScope(scope)
       .AddCodeVerifier(pkce.CodeVerifier)
       .AddCode(code)
       .AddGrantType(GrantTypeConstants.AuthorizationCode)
