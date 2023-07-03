@@ -2,8 +2,10 @@ using System.Net.Http.Headers;
 using Api;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Logging;
 using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +13,9 @@ builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggerConfiguratio
 {
   loggerConfiguration
     .Enrich.FromLogContext()
+    .MinimumLevel.Warning()
     .Enrich.WithProperty("Application", "WeatherService")
+    .MinimumLevel.Override("Api", LogEventLevel.Information)
     .WriteTo.Console();
 });
 
@@ -107,6 +111,13 @@ builder.WebHost.ConfigureServices(services =>
       });
     });
   });
+
+  services.Configure<ForwardedHeadersOptions>(options =>
+  {
+    options.ForwardedHeaders = ForwardedHeaders.All;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+  });
 });
 
 Log.Logger = new LoggerConfiguration()
@@ -117,10 +128,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
   IdentityModelEventSource.ShowPII = true;
-  app.UseSwagger();
-  app.UseSwaggerUI();
 }
 
+app.UseForwardedHeaders();
+app.UseHsts();
+app.UseHttpsRedirection();
 app.UseSerilogRequestLogging();
 app.UseAuthentication();
 app.UseAuthorization();
