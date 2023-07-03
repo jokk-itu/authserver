@@ -1,10 +1,9 @@
-name: CD Test Environment
+name: CD Container Registry
 
 on:
   push:
     branches:
       - master
-      - feature/deploy
 
 permissions:
   contents: write
@@ -33,27 +32,3 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/authorizationserver:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/configurationapp:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/webapp:latest
-  
-  deploy_containers:
-    name: Deploy Containers on Test environment
-    runs-on: ubuntu-latest
-    environment:
-      name: test
-      url: https://app.authserver.dk
-    steps:
-      - uses: actions/checkout@v3
-      - name: Copy scripts to Test environment
-        uses: garygrossgarten/github-action-scp@v0.8.0
-        with:
-          local: Deployment
-          remote: ${{ vars.SCRIPT_FOLDER }}
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          privateKey: ${{ secrets.SSH_KEY }}
-      - name: Run deploy script
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          script: ~/Deployment/run.sh
