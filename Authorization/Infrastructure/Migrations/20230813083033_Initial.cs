@@ -34,7 +34,7 @@ namespace Infrastructure.Migrations
                     ClientUri = table.Column<string>(type: "TEXT", nullable: true),
                     LogoUri = table.Column<string>(type: "TEXT", nullable: true),
                     InitiateLoginUri = table.Column<string>(type: "TEXT", nullable: true),
-                    BackChannelLogoutUri = table.Column<string>(type: "TEXT", nullable: true),
+                    BackchannelLogoutUri = table.Column<string>(type: "TEXT", nullable: true),
                     DefaultMaxAge = table.Column<long>(type: "INTEGER", nullable: true),
                     ApplicationType = table.Column<string>(type: "TEXT", nullable: false),
                     TokenEndpointAuthMethod = table.Column<string>(type: "TEXT", nullable: false),

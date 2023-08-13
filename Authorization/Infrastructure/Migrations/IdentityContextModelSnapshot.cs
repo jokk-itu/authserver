@@ -234,7 +234,7 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("BackChannelLogoutUri")
+                    b.Property<string>("BackchannelLogoutUri")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ClientUri")

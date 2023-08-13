@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20230524201437_Initial")]
+    [Migration("20230813083033_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -236,7 +236,7 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("BackChannelLogoutUri")
+                    b.Property<string>("BackchannelLogoutUri")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ClientUri")
