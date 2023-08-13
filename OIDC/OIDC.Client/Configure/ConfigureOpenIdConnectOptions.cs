@@ -7,64 +7,70 @@ using OIDC.Client.Handlers.Abstract;
 using OIDC.Client.Settings;
 
 namespace OIDC.Client.Configure;
+
 public class ConfigureOpenIdConnectOptions : IConfigureNamedOptions<OpenIdConnectOptions>
 {
-    private readonly IOptions<IdentityProviderSettings> _identityProviderOptions;
-    private readonly IOpenIdConnectEventHandler _openIdConnectEventHandler;
+  private readonly IOptions<IdentityProviderSettings> _identityProviderOptions;
+  private readonly IOpenIdConnectEventHandler _openIdConnectEventHandler;
 
-    public ConfigureOpenIdConnectOptions(
-      IOptions<IdentityProviderSettings> identityProviderOptions,
-      IOpenIdConnectEventHandler openIdConnectEventHandler)
+  public ConfigureOpenIdConnectOptions(
+    IOptions<IdentityProviderSettings> identityProviderOptions,
+    IOpenIdConnectEventHandler openIdConnectEventHandler)
+  {
+    _identityProviderOptions = identityProviderOptions;
+    _openIdConnectEventHandler = openIdConnectEventHandler;
+  }
+
+  public void Configure(OpenIdConnectOptions options)
+  {
+    options.Authority = _identityProviderOptions.Value.Authority;
+    options.TokenValidationParameters.ValidIssuer = _identityProviderOptions.Value.Authority;
+    options.TokenValidationParameters.ValidAudience = _identityProviderOptions.Value.ClientId;
+    options.GetClaimsFromUserInfoEndpoint = true;
+    options.DisableTelemetry = true;
+    options.ResponseType = OpenIdConnectResponseType.Code;
+
+    options.ClientId = _identityProviderOptions.Value.ClientId;
+    options.ClientSecret = _identityProviderOptions.Value.ClientSecret;
+
+    foreach (var scope in _identityProviderOptions.Value.Scope)
     {
-      _identityProviderOptions = identityProviderOptions;
-      _openIdConnectEventHandler = openIdConnectEventHandler;
+      options.Scope.Add(scope);
     }
 
-    public void Configure(OpenIdConnectOptions options)
+    options.ResponseMode = _identityProviderOptions.Value.ResponseMode;
+    if (_identityProviderOptions.Value.MaxAge.HasValue)
     {
-        options.Authority = _identityProviderOptions.Value.Authority;
-        options.TokenValidationParameters.ValidIssuer = _identityProviderOptions.Value.Authority;
-        options.GetClaimsFromUserInfoEndpoint = true;
-        options.DisableTelemetry = true;
-        options.ResponseType = OpenIdConnectResponseType.Code;
-    
-        options.Prompt = string.Join(' ', _identityProviderOptions.Value.Prompt);
-        foreach (var scope in _identityProviderOptions.Value.Scope)
-        {
-          options.Scope.Add(scope);
-        }
-        options.ResponseMode = _identityProviderOptions.Value.ResponseMode;
-        if (_identityProviderOptions.Value.MaxAge.HasValue)
-        {
-          options.MaxAge = TimeSpan.FromSeconds(_identityProviderOptions.Value.MaxAge.Value);
-        }
-        options.SaveTokens = true;
-
-        options.NonceCookie = new CookieBuilder
-        {
-            Name = $"{_identityProviderOptions.Value.ClientName}-OIDC-Nonce",
-            SameSite = SameSiteMode.Strict,
-            SecurePolicy = CookieSecurePolicy.Always,
-            IsEssential = true,
-            HttpOnly = true
-        };
-        options.CorrelationCookie = new CookieBuilder
-        {
-            Name = $"{_identityProviderOptions.Value.ClientName}-OIDC-Correlation",
-            SameSite = SameSiteMode.Strict,
-            SecurePolicy = CookieSecurePolicy.Always,
-            IsEssential = true,
-            HttpOnly = true
-        };
-
-        options.Events = new OpenIdConnectEvents
-        {
-          OnRedirectToIdentityProviderForSignOut = _openIdConnectEventHandler.SetClientIdOnRedirect
-        };
+      options.MaxAge = TimeSpan.FromSeconds(_identityProviderOptions.Value.MaxAge.Value);
     }
 
-    public void Configure(string name, OpenIdConnectOptions options)
+    options.SaveTokens = true;
+
+    options.NonceCookie = new CookieBuilder
     {
-      Configure(options);
-    }
+      Name = $"{_identityProviderOptions.Value.ClientName}-OIDC-Nonce",
+      SameSite = SameSiteMode.Strict,
+      SecurePolicy = CookieSecurePolicy.Always,
+      IsEssential = true,
+      HttpOnly = true
+    };
+    options.CorrelationCookie = new CookieBuilder
+    {
+      Name = $"{_identityProviderOptions.Value.ClientName}-OIDC-Correlation",
+      SameSite = SameSiteMode.Strict,
+      SecurePolicy = CookieSecurePolicy.Always,
+      IsEssential = true,
+      HttpOnly = true
+    };
+
+    options.Events = new OpenIdConnectEvents
+    {
+      OnRedirectToIdentityProviderForSignOut = _openIdConnectEventHandler.SetClientIdOnRedirect
+    };
+  }
+
+  public void Configure(string name, OpenIdConnectOptions options)
+  {
+    Configure(options);
+  }
 }

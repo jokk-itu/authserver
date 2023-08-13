@@ -9,7 +9,6 @@ using Microsoft.Extensions.Options;
 using OIDC.Client.Configure;
 using OIDC.Client.Handlers;
 using OIDC.Client.Handlers.Abstract;
-using OIDC.Client.Registration;
 using OIDC.Client.Settings;
 using Serilog.Events;
 
@@ -36,7 +35,6 @@ builder.WebHost.ConfigureServices(services =>
 
   services.AddTransient<ICookieAuthenticationEventHandler, CookieAuthenticationEventHandler>();
   services.AddTransient<IOpenIdConnectEventHandler, OpenIdConnectEventHandler>();
-  services.AddTransient<IRegistrationService, RegistrationService>();
 
   services.AddAuthentication(configureOptions => 
   {
@@ -45,8 +43,6 @@ builder.WebHost.ConfigureServices(services =>
   })
   .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
   .AddOpenIdConnect();
-
-  services.AddSingleton<IPostConfigureOptions<OpenIdConnectOptions>, PostConfigureOpenIdConnectOptions>();
 
   services.AddAuthorization();
   services.AddCookiePolicy(cookiePolicyOptions =>
