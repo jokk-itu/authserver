@@ -53,10 +53,15 @@ public static class ServiceCollectionExtensions
     return services;
   }
 
-  public static IServiceCollection AddDataServices(this IServiceCollection services)
+  public static IServiceCollection AddServices(this IServiceCollection services)
   {
-    services.AddTransient<IClaimService, ClaimService>();
-    services.AddTransient<IUserService, UserService>();
+    services.AddScoped<IClaimService, ClaimService>();
+    services.AddScoped<IUserService, UserService>();
+    services.AddScoped<IClientService, ClientService>();
+    services.AddScoped<INonceService, NonceService>();
+    services.AddScoped<IScopeService, ScopeService>();
+    services.AddScoped<IConsentGrantService, ConsentGrantService>();
+    services.AddScoped<IAuthorizationGrantService, AuthorizationGrantService>();
     return services;
   }
 
