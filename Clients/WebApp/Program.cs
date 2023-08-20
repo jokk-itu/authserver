@@ -24,7 +24,7 @@ builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggingConfigurati
     .WriteTo.Console();
 });
 
-builder.WebHost.ConfigureServices(services =>
+builder.WebHost.ConfigureServices((builderContext, services) =>
 {
   services.AddControllersWithViews();
 
@@ -41,7 +41,13 @@ builder.WebHost.ConfigureServices(services =>
     configureOptions.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     configureOptions.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
   })
-  .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+  .AddCookie(options =>
+  {
+    options.LoginPath = "/Home/Login";
+    options.LogoutPath = "/Home/Logout";
+    options.ReturnUrlParameter = "Home";
+    options.Cookie.Name = "IdentityCookie-WebApp";
+  })
   .AddOpenIdConnect();
 
   services.AddAuthorization();
@@ -53,12 +59,12 @@ builder.WebHost.ConfigureServices(services =>
   });
   services.AddHttpClient<WeatherService>(httpClient =>
   {
-    httpClient.BaseAddress = new Uri(builder.Configuration.GetSection("WeatherService")["Url"]);
+    httpClient.BaseAddress = new Uri(builderContext.Configuration.GetSection("WeatherService")["Url"]);
   }).AddHttpMessageHandler<PopulateAccessTokenDelegatingHandler>();
 
   services.AddHttpClient("IdentityProvider", httpClient =>
   {
-    httpClient.BaseAddress = new Uri(builder.Configuration.GetSection("Identity")["Authority"]);
+    httpClient.BaseAddress = new Uri(builderContext.Configuration.GetSection("Identity")["Authority"]);
   });
 
   services.AddHttpContextAccessor();

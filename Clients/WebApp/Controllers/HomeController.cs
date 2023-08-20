@@ -1,6 +1,5 @@
 ﻿using App.Models;
 using App.Services;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -29,7 +28,7 @@ public class HomeController : Controller
   }
 
   [Authorize]
-  public async Task<IActionResult> Account()
+  public IActionResult Account()
   {
     return View();
   }
@@ -44,9 +43,10 @@ public class HomeController : Controller
   }
 
   [Authorize]
-  public async Task Logout()
+  public IActionResult Logout()
   {
-    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    await HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme);
+    return SignOut(
+        CookieAuthenticationDefaults.AuthenticationScheme,
+        OpenIdConnectDefaults.AuthenticationScheme);
   }
 }

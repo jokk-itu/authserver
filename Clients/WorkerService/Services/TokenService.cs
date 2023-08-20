@@ -41,7 +41,8 @@ public class TokenService : ITokenService
     var tokenResponse = await tokenClient.RequestClientCredentialsTokenAsync(scope, cancellationToken: cancellationToken);
     if (tokenResponse.IsError)
     {
-      _logger.LogWarning("Error with {Status} occurred during call to token endpoint {Error} {ErrorDescription}", tokenResponse.HttpStatusCode, tokenResponse.Error, tokenResponse.ErrorDescription);
+      _logger.LogWarning("Error with {Status} occurred during call to token endpoint {Error} {ErrorDescription}",
+        tokenResponse.HttpStatusCode, tokenResponse.Error, tokenResponse.ErrorDescription);
       return null;
     }
 
