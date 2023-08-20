@@ -2,9 +2,16 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using System.Net.Http.Headers;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Yarp.ReverseProxy.Transforms;
 using Serilog;
+using Microsoft.Extensions.Options;
+using OIDC.Client.Configure;
+using OIDC.Client.Handlers;
+using OIDC.Client.Handlers.Abstract;
+using OIDC.Client.Settings;
+using Server;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,9 +26,23 @@ builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggerConfiguratio
 
 builder.WebHost.ConfigureServices((context, services) =>
 {
-  var identityConfiguration = context.Configuration.GetSection("Identity");
   services.AddControllersWithViews();
   services.AddRazorPages();
+  services.AddOptions();
+  services.Configure<ForwardedHeadersOptions>(options =>
+  {
+    options.ForwardedHeaders = ForwardedHeaders.All;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+  });
+
+  services.AddSingleton<IConfigureOptions<IdentityProviderSettings>, ConfigureIdentityProviderSettings>();
+  services.AddSingleton<IConfigureOptions<OpenIdConnectOptions>, ConfigureOpenIdConnectOptions>();
+  services.AddSingleton<IConfigureOptions<CookieAuthenticationOptions>, ConfigureCookieAuthenticationOptions>();
+
+  services.AddTransient<ICookieAuthenticationEventHandler, CookieAuthenticationEventHandler>();
+  services.AddTransient<IOpenIdConnectEventHandler, OpenIdConnectEventHandler>();
+
   services
     .AddAuthentication(options =>
     {
@@ -30,57 +51,30 @@ builder.WebHost.ConfigureServices((context, services) =>
     })
     .AddCookie(x =>
     {
-      x.LoginPath = "/api/login";
-      x.LogoutPath = "/api/logout";
+      x.LoginPath = "/api/user/login";
+      x.LogoutPath = "/api/user/logout";
       x.ReturnUrlParameter = "/";
+      x.Cookie.Name = "IdentityCookie-Wasm";
     })
-    .AddOpenIdConnect(options =>
-    {
-      options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-      options.Authority = identityConfiguration["Authority"];
-      options.ClientId = identityConfiguration["ClientId"];
-      options.ClientSecret = identityConfiguration["ClientSecret"];
-      options.MetadataAddress = $"{identityConfiguration["Authority"]}{identityConfiguration["MetaPath"]}";
-      options.CallbackPath = identityConfiguration["CallbackPath"];
-      options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-      options.ResponseType = OpenIdConnectResponseType.Code;
-      options.UsePkce = true;
-      options.SaveTokens = true;
-      options.Prompt = "login consent";
-      options.Scope.Add("profile");
-      options.Scope.Add("email");
-      options.Scope.Add("phone");
-      options.Scope.Add("openid");
-      options.Scope.Add("weather:read");
-      options.Scope.Add("identityprovider:userinfo");
-      options.MapInboundClaims = true;
-      options.GetClaimsFromUserInfoEndpoint = true;
-      options.RequireHttpsMetadata = true;
-      options.NonceCookie = new CookieBuilder
-      {
-        Name = "OpenId-Auth-Nonce-Wasm",
-        SameSite = SameSiteMode.None,
-        SecurePolicy = CookieSecurePolicy.Always,
-        IsEssential = true,
-        HttpOnly = true
-      };
-      options.CorrelationCookie = new CookieBuilder
-      {
-        Name = "OpenId-Auth-Correlation-Wasm",
-        SameSite = SameSiteMode.None,
-        SecurePolicy = CookieSecurePolicy.Always,
-        IsEssential = true,
-        HttpOnly = true
-      };
-    });
+    .AddOpenIdConnect();
 
-  services.AddAuthorization();
+  services.AddCookiePolicy(cookiePolicyOptions =>
+  {
+    cookiePolicyOptions.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
+    cookiePolicyOptions.MinimumSameSitePolicy = SameSiteMode.Strict;
+    cookiePolicyOptions.Secure = CookieSecurePolicy.Always;
+  });
 
   services.AddAuthorization(options => options.AddPolicy("CookieAuthenticationPolicy", policyBuilder =>
   {
     policyBuilder.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme);
     policyBuilder.RequireAuthenticatedUser();
   }));
+
+  services.AddHttpClient("IdentityProvider", httpClient =>
+  {
+    httpClient.BaseAddress = new Uri(context.Configuration.GetSection("Identity")["Authority"]);
+  });
 
   services
     .AddReverseProxy()
@@ -105,6 +99,7 @@ else
 }
 
 app.UseHttpsRedirection();
+app.UseForwardedHeaders();
 app.UseHsts();
 app.UseSerilogRequestLogging();
 app.UseBlazorFrameworkFiles();

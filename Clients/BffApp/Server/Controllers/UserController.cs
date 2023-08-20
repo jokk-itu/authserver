@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared;
 
@@ -9,15 +10,10 @@ namespace Server.Controllers;
 [Route("api/[controller]")]
 public class UserController : ControllerBase
 {
+  [Authorize]
   [HttpGet]
   public IActionResult Get()
   {
-    var isAuthenticated = HttpContext.User.Identity?.IsAuthenticated ?? false;
-    if (!isAuthenticated)
-    {
-      return Ok();
-    }
-
     var userDto = new UserDto
     {
       Claims = HttpContext.User.Claims.Select(x => new ClaimDto

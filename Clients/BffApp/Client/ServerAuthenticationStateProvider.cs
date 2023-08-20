@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Shared;
 
 namespace Client;
+
 public class ServerAuthenticationStateProvider : AuthenticationStateProvider
 {
   private readonly HttpClient _httpClient;
@@ -25,7 +26,7 @@ public class ServerAuthenticationStateProvider : AuthenticationStateProvider
 
       var identity = new ClaimsIdentity(
         userDto.Claims.Select(x => new Claim(x.Type, x.Value)),
-        "serverAuth");
+        "serverAuth", "name", "role");
 
       return new AuthenticationState(new ClaimsPrincipal(identity));
     }
