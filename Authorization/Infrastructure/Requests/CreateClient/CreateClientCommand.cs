@@ -21,5 +21,5 @@ public class CreateClientCommand : IRequest<CreateClientResponse>
   public string? InitiateLoginUri { get; set; }
   public string? LogoUri { get; set; }
   public string? ClientUri { get; set; }
-  public string? BackChannelLogoutUri { get; set; }
+  public string? BackchannelLogoutUri { get; set; }
 }

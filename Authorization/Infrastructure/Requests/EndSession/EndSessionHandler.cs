@@ -72,11 +72,11 @@ public class EndSessionHandler : IRequestHandler<EndSessionCommand, EndSessionRe
     var clients = session.AuthorizationCodeGrants
       .Select(x => x.Client)
       .Distinct()
-      .Where(x => x.BackChannelLogoutUri != null)
+      .Where(x => x.BackchannelLogoutUri != null)
       .Select(x => new
       {
         ClientId = x.Id,
-        LogoutUri = x.BackChannelLogoutUri!
+        LogoutUri = x.BackchannelLogoutUri!
       })
       .ToList();
 
