@@ -61,16 +61,6 @@ public static class ErrorCode
   public const string InvalidClientMetadata = "invalid_client_metadata";
 
   /// <summary>
-  /// Possibly several properties are invalid when registering or configuring resources.
-  /// </summary>
-  public const string InvalidResourceMetadata = "invalid_resource_metadata";
-
-  /// <summary>
-  /// Possibly several properties are invalid when registering or configuring scopes.
-  /// </summary>
-  public const string InvalidScopeMetadata = "invalid_scope_metadata";
-
-  /// <summary>
   /// The End-User must perform an interaction
   /// </summary>
   public const string InteractionRequired = "interaction_required";
