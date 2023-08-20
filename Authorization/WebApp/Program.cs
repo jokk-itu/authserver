@@ -46,7 +46,14 @@ builder.WebHost.ConfigureServices(services =>
   services.AddAntiforgery(antiForgeryOptions =>
   {
     antiForgeryOptions.FormFieldName = AntiForgeryConstants.AntiForgeryField;
-    antiForgeryOptions.Cookie.Name = AntiForgeryConstants.AntiForgeryCookie;
+    antiForgeryOptions.Cookie = new CookieBuilder
+    {
+        Name = AntiForgeryConstants.AntiForgeryCookie,
+        HttpOnly = true,
+        IsEssential = true,
+        SameSite = SameSiteMode.Strict,
+        SecurePolicy = CookieSecurePolicy.Always
+    };
   });
 
   builder.Services.Configure<ForwardedHeadersOptions>(options =>
