@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using Domain;
 using Domain.Enums;
@@ -103,8 +104,10 @@ else if (args[0] == "cleanclient")
 else if (args[0] == "client")
 {
   var clients = config.GetSection("Clients").GetChildren();
+  var newClients = new List<Client>();
   foreach (var client in clients)
   {
+    var clientId = client["ClientId"];
     var clientSecret = client["ClientSecret"];
     var applicationType = client["ApplicationType"].GetEnum<ApplicationType>();
     var tokenEndpointAuthMethod = client["TokenEndpointAuthMethod"].GetEnum<TokenEndpointAuthMethod>();
@@ -115,6 +118,7 @@ else if (args[0] == "client")
 
     var newClient = new Client
     {
+      Id = clientId,
       Name = clientName,
       Secret = clientSecret,
       ApplicationType = applicationType,
@@ -153,11 +157,11 @@ else if (args[0] == "client")
       await identityContext.Set<ResponseType>().SingleAsync(x => x.Name == client["ResponseType"]));
 
     Log.Information("Inserted Client {@client}", newClient);
-    await identityContext.Set<Client>().AddAsync(newClient);
+    newClients.Add(newClient);
   }
-
+  await identityContext.Set<Client>().AddRangeAsync(newClients);
   await identityContext.SaveChangesAsync();
-  Log.Information("Clients inserted");
+  Log.Information("{Amount} Clients inserted", newClients.Count);
 }
 else
 {
