@@ -19,8 +19,8 @@ public class ConfigureCookieAuthenticationOptions : IConfigureNamedOptions<Cooki
       HttpOnly = true,
       IsEssential = true,
       SameSite = SameSiteMode.Strict,
-      SecurePolicy = CookieSecurePolicy.Always
+      SecurePolicy = CookieSecurePolicy.Always,
+      MaxAge = TimeSpan.FromDays(2)
     };
-    options.ExpireTimeSpan = TimeSpan.FromSeconds(30);
   }
 }
