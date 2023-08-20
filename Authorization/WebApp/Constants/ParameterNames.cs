@@ -3,6 +3,7 @@
 public static class ParameterNames
 {
   public const string ResponseType = "response_type";
+  public const string ResponseMode = "response_mode";
   public const string ClientId = "client_id";
   public const string ClientSecret = "client_secret";
   public const string RedirectUri = "redirect_uri";

@@ -14,4 +14,5 @@ public class AuthorizeContext
     public string Nonce { get; set; }
     public string MaxAge { get; set; }
     public string State { get; set; }
+    public string ResponseMode { get; set; }
 }
