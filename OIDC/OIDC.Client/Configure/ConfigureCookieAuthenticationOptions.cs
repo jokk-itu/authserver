@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using OIDC.Client.Handlers.Abstract;
 
@@ -14,6 +15,13 @@ public class ConfigureCookieAuthenticationOptions : IConfigureNamedOptions<Cooki
 
   public void Configure(CookieAuthenticationOptions options)
   {
+    options.Cookie = new CookieBuilder
+    {
+      HttpOnly = true,
+      SameSite = SameSiteMode.Strict,
+      SecurePolicy = CookieSecurePolicy.Always,
+      IsEssential = true,
+    };
     options.Events = new CookieAuthenticationEvents
     {
       OnValidatePrincipal = _cookieAuthenticationEventHandler.GetRefreshTokenIfExceededExpiration
