@@ -40,7 +40,7 @@ public class StructuredTokenDecoder : IStructuredTokenDecoder
 
   private void ValidateTokenStructure(string token)
   {
-    var t = token.Split('.').Length;
+    var t = token?.Split('.').Length;
     if (t != 3 && t != 5)
     {
       throw new ArgumentException("Must be a signed or encrypted jwt", nameof(token));
