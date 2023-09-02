@@ -7,7 +7,7 @@ using Domain.Enums;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.IdToken;
 using Infrastructure.Helpers;
-using Infrastructure.Requests.SilentLogin;
+using Infrastructure.Requests.SilentTokenLogin;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Specs.Helpers;
@@ -15,38 +15,20 @@ using Specs.Helpers.EntityBuilders;
 using Xunit;
 
 namespace Specs.Validators;
-public class SilentLoginValidatorTests : BaseUnitTest
+
+public class SilentTokenLoginValidatorTests : BaseUnitTest
 {
   [Fact]
-  [Trait("Category", "Unit")]
-  public async Task ValidateAsync_ExpectInvalidClientId()
+  public async Task ValidateAsync_UnauthorizedForRedirect_BadRequest()
   {
-    // Arrange
+    //  Arrange
     var serviceProvider = BuildServiceProvider();
-    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-    var query = new SilentLoginCommand();
-
-    // Act
-    var validationResult = await validator.ValidateAsync(query);
-
-    // Assert
-    Assert.True(validationResult.IsError());
-    Assert.Equal(ErrorCode.InvalidRequest, validationResult.ErrorCode);
-    Assert.Equal(HttpStatusCode.BadRequest, validationResult.StatusCode);
-  }
-
-  [Fact]
-  [Trait("Category", "Unit")]
-  public async Task ValidateAsync_ExpectInvalidRedirectUr()
-  {
-    // Arrange
-    var serviceProvider = BuildServiceProvider();
-    var client = await GetClient();
-    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-
-    var query = new SilentLoginCommand
+    var validator = serviceProvider.GetRequiredService<IValidator<SilentTokenLoginCommand>>();
+    var query = new SilentTokenLoginCommand
     {
-      ClientId = client.Id
+      ClientId = string.Empty,
+      RedirectUri = string.Empty,
+      State = string.Empty
     };
 
     // Act
@@ -54,48 +36,23 @@ public class SilentLoginValidatorTests : BaseUnitTest
 
     // Assert
     Assert.True(validationResult.IsError());
-    Assert.Equal(ErrorCode.InvalidRequest, validationResult.ErrorCode);
     Assert.Equal(HttpStatusCode.BadRequest, validationResult.StatusCode);
   }
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task ValidateAsync_ExpectInvalidState()
-  {
-    // Arrange
-    var serviceProvider = BuildServiceProvider();
-    var client = await GetClient();
-    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-
-    var query = new SilentLoginCommand
-    {
-      ClientId = client.Id,
-      RedirectUri = "https://localhost:5001/callback"
-    };
-
-    // Act
-    var validationResult = await validator.ValidateAsync(query);
-
-    // Assert
-    Assert.True(validationResult.IsError());
-    Assert.Equal(ErrorCode.InvalidRequest, validationResult.ErrorCode);
-    Assert.Equal(HttpStatusCode.BadRequest, validationResult.StatusCode);
-  }
-
-  [Fact]
-  [Trait("Category", "Unit")]
-  public async Task ValidateAsync_ExpectInvalidToken()
+  public async Task ValidateAsync_NullIdToken_LoginRequired()
   {
     //  Arrange
     var serviceProvider = BuildServiceProvider();
     var client = await GetClient();
-    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-    var query = new SilentLoginCommand
+    var validator = serviceProvider.GetRequiredService<IValidator<SilentTokenLoginCommand>>();
+    var query = new SilentTokenLoginCommand
     {
       ClientId = client.Id,
       RedirectUri = "https://localhost:5001/callback",
       State = CryptographyHelper.GetRandomString(16),
-      IdTokenHint = null
+      IdTokenHint = null,
     };
 
     // Act
@@ -103,32 +60,64 @@ public class SilentLoginValidatorTests : BaseUnitTest
 
     // Assert
     Assert.True(validationResult.IsError());
-    Assert.Equal(ErrorCode.InvalidRequest, validationResult.ErrorCode);
+    Assert.Equal(ErrorCode.LoginRequired, validationResult.ErrorCode);
     Assert.Equal(HttpStatusCode.OK, validationResult.StatusCode);
   }
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task ValidateAsync_NoOpenIdScope_InvalidScope()
+  public async Task ValidateAsync_EmptyNonce_Ok()
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
     var client = await GetClient();
     var authorizationGrant = client.AuthorizationCodeGrants.Single();
-    var session = authorizationGrant.Session;
-
-    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
+    var validator = serviceProvider.GetRequiredService<IValidator<SilentTokenLoginCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
     var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id
     });
 
-    var query = new SilentLoginCommand
+    var query = new SilentTokenLoginCommand
     {
       ClientId = client.Id,
       RedirectUri = "https://localhost:5001/callback",
       State = CryptographyHelper.GetRandomString(16),
+      IdTokenHint = idToken,
+      Nonce = string.Empty
+    };
+
+    // Act
+    var validationResult = await validator.ValidateAsync(query);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+    Assert.Equal(HttpStatusCode.OK, validationResult.StatusCode);
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_EmptyScope_Ok()
+  {
+    // Arrange
+    var serviceProvider = BuildServiceProvider();
+    var client = await GetClient();
+    var authorizationGrant = client.AuthorizationCodeGrants.Single();
+    var validator = serviceProvider.GetRequiredService<IValidator<SilentTokenLoginCommand>>();
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
+    var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
+    {
+      AuthorizationGrantId = authorizationGrant.Id
+    });
+
+    var query = new SilentTokenLoginCommand
+    {
+      ClientId = client.Id,
+      RedirectUri = "https://localhost:5001/callback",
+      State = CryptographyHelper.GetRandomString(16),
+      Nonce = CryptographyHelper.GetRandomString(16),
+      Scope = string.Empty,
       IdTokenHint = idToken
     };
 
@@ -137,68 +126,31 @@ public class SilentLoginValidatorTests : BaseUnitTest
 
     // Assert
     Assert.True(validationResult.IsError());
-    Assert.Equal(ErrorCode.InvalidScope, validationResult.ErrorCode);
     Assert.Equal(HttpStatusCode.OK, validationResult.StatusCode);
   }
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task ValidateAsync_InvalidScope()
+  public async Task ValidateAsync_InvalidResponseType_UnsupportedResponseType()
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
     var client = await GetClient();
     var authorizationGrant = client.AuthorizationCodeGrants.Single();
-    var session = authorizationGrant.Session;
-
-    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
+    var validator = serviceProvider.GetRequiredService<IValidator<SilentTokenLoginCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
     var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id
     });
 
-    var query = new SilentLoginCommand
-    {
-      ClientId = client.Id,
-      RedirectUri = "https://localhost:5001/callback",
-      State = CryptographyHelper.GetRandomString(16),
-      Scope = $"{ScopeConstants.OpenId} nonexistingscope",
-      IdTokenHint = idToken
-    };
-
-    // Act
-    var validationResult = await validator.ValidateAsync(query);
-
-    // Assert
-    Assert.True(validationResult.IsError());
-    Assert.Equal(ErrorCode.InvalidScope, validationResult.ErrorCode);
-    Assert.Equal(HttpStatusCode.OK, validationResult.StatusCode);
-  }
-
-  [Fact]
-  [Trait("Category", "Unit")]
-  public async Task ValidateAsync_InvalidResponseType()
-  {
-    // Arrange
-    var serviceProvider = BuildServiceProvider();
-    var client = await GetClient();
-    var authorizationGrant = client.AuthorizationCodeGrants.Single();
-    var session = authorizationGrant.Session;
-
-    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
-    var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
-    {
-      AuthorizationGrantId = authorizationGrant.Id
-    });
-
-    var query = new SilentLoginCommand
+    var query = new SilentTokenLoginCommand
     {
       ClientId = client.Id,
       RedirectUri = "https://localhost:5001/callback",
       State = CryptographyHelper.GetRandomString(16),
       Scope = $"{ScopeConstants.OpenId}",
+      Nonce = CryptographyHelper.GetRandomString(16),
       IdTokenHint = idToken
     };
 
@@ -213,27 +165,27 @@ public class SilentLoginValidatorTests : BaseUnitTest
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task ValidateAsync_InvalidCodeChallengeMethod()
+  public async Task ValidateAsync_InvalidCodeChallengeMethod_InvalidRequest()
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
     var client = await GetClient();
     var authorizationGrant = client.AuthorizationCodeGrants.Single();
-
-    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
+    var validator = serviceProvider.GetRequiredService<IValidator<SilentTokenLoginCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
     var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id
     });
 
-    var query = new SilentLoginCommand
+    var query = new SilentTokenLoginCommand
     {
       ClientId = client.Id,
       RedirectUri = "https://localhost:5001/callback",
       State = CryptographyHelper.GetRandomString(16),
       Scope = $"{ScopeConstants.OpenId}",
       ResponseType = ResponseTypeConstants.Code,
+      Nonce = CryptographyHelper.GetRandomString(16),
       IdTokenHint = idToken
     };
 
@@ -245,61 +197,23 @@ public class SilentLoginValidatorTests : BaseUnitTest
     Assert.Equal(ErrorCode.InvalidRequest, validationResult.ErrorCode);
     Assert.Equal(HttpStatusCode.OK, validationResult.StatusCode);
   }
-  
+
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task ValidateAsync_InvalidNonce()
+  public async Task ValidateAsync_InvalidCodeChallenge_InvalidRequest()
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
     var client = await GetClient();
     var authorizationGrant = client.AuthorizationCodeGrants.Single();
-
-    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
+    var validator = serviceProvider.GetRequiredService<IValidator<SilentTokenLoginCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
     var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id
     });
 
-    var query = new SilentLoginCommand
-    {
-      ClientId = client.Id,
-      RedirectUri = "https://localhost:5001/callback",
-      State = CryptographyHelper.GetRandomString(16),
-      Scope = $"{ScopeConstants.OpenId}",
-      ResponseType = ResponseTypeConstants.Code,
-      CodeChallengeMethod = CodeChallengeMethodConstants.S256,
-      IdTokenHint = idToken
-    };
-
-    // Act
-    var validationResult = await validator.ValidateAsync(query);
-
-    // Assert
-    Assert.True(validationResult.IsError());
-    Assert.Equal(ErrorCode.InvalidRequest, validationResult.ErrorCode);
-    Assert.Equal(HttpStatusCode.OK, validationResult.StatusCode);
-  }
-  
-  [Fact]
-  [Trait("Category", "Unit")]
-  public async Task ValidateAsync_InvalidCodeChallenge()
-  {
-    // Arrange
-    var serviceProvider = BuildServiceProvider();
-    var client = await GetClient();
-    var authorizationGrant = client.AuthorizationCodeGrants.Single();
-    var session = authorizationGrant.Session;
-
-    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
-    var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
-    {
-      AuthorizationGrantId = authorizationGrant.Id
-    });
-
-    var query = new SilentLoginCommand
+    var query = new SilentTokenLoginCommand
     {
       ClientId = client.Id,
       RedirectUri = "https://localhost:5001/callback",
@@ -322,108 +236,28 @@ public class SilentLoginValidatorTests : BaseUnitTest
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task ValidateAsync_UnauthorizedClientForGrantType()
+  public async Task ValidateAsync_UnauthorizedGrantTypeAndScope_Ok()
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
     var client = await GetClient();
     client.GrantTypes.Clear();
-    await IdentityContext.SaveChangesAsync();
-    var authorizationGrant = client.AuthorizationCodeGrants.Single();
-
-    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
-    var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
-    {
-      AuthorizationGrantId = authorizationGrant.Id
-    });
-    
-    var query = new SilentLoginCommand
-    {
-      ClientId = client.Id,
-      RedirectUri = "https://localhost:5001/callback",
-      State = CryptographyHelper.GetRandomString(16),
-      Scope = $"{ScopeConstants.OpenId}",
-      ResponseType = ResponseTypeConstants.Code,
-      CodeChallengeMethod = CodeChallengeMethodConstants.S256,
-      CodeChallenge = ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge,
-      Nonce = CryptographyHelper.GetRandomString(16),
-      IdTokenHint = idToken
-    };
-
-    // Act
-    var validationResult = await validator.ValidateAsync(query);
-
-    // Assert
-    Assert.True(validationResult.IsError());
-    Assert.Equal(ErrorCode.UnauthorizedClient, validationResult.ErrorCode);
-    Assert.Equal(HttpStatusCode.OK, validationResult.StatusCode);
-  }
-
-  [Fact]
-  [Trait("Category", "Unit")]
-  public async Task ValidateAsync_UnauthorizedClientForRedirectUri()
-  {
-    // Arrange
-    var serviceProvider = BuildServiceProvider();
-    var client = await GetClient();
-    client.RedirectUris.Clear();
-    await IdentityContext.SaveChangesAsync();
-    var authorizationGrant = client.AuthorizationCodeGrants.Single();
-    
-    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
-    var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
-    {
-      AuthorizationGrantId = authorizationGrant.Id
-    });
-
-    var query = new SilentLoginCommand
-    {
-      ClientId = client.Id,
-      RedirectUri = "https://localhost:5001/callback",
-      State = CryptographyHelper.GetRandomString(16),
-      Scope = $"{ScopeConstants.OpenId}",
-      ResponseType = ResponseTypeConstants.Code,
-      CodeChallengeMethod = CodeChallengeMethodConstants.S256,
-      CodeChallenge = ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge,
-      Nonce = CryptographyHelper.GetRandomString(16),
-      IdTokenHint = idToken
-    };
-
-    // Act
-    var validationResult = await validator.ValidateAsync(query);
-
-    // Assert
-    Assert.True(validationResult.IsError());
-    Assert.Equal(ErrorCode.UnauthorizedClient, validationResult.ErrorCode);
-    Assert.Equal(HttpStatusCode.OK, validationResult.StatusCode);
-  }
-  
-  [Fact]
-  [Trait("Category", "Unit")]
-  public async Task ValidateAsync_UnauthorizedClientForScope()
-  {
-    // Arrange
-    var serviceProvider = BuildServiceProvider();
-    var client = await GetClient();
     client.Scopes.Clear();
     await IdentityContext.SaveChangesAsync();
     var authorizationGrant = client.AuthorizationCodeGrants.Single();
-
-    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
+    var validator = serviceProvider.GetRequiredService<IValidator<SilentTokenLoginCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
     var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id
     });
 
-    var query = new SilentLoginCommand
+    var query = new SilentTokenLoginCommand
     {
       ClientId = client.Id,
       RedirectUri = "https://localhost:5001/callback",
       State = CryptographyHelper.GetRandomString(16),
-      Scope = $"{ScopeConstants.OpenId} {ScopeConstants.Profile}",
+      Scope = $"{ScopeConstants.OpenId}",
       ResponseType = ResponseTypeConstants.Code,
       CodeChallengeMethod = CodeChallengeMethodConstants.S256,
       CodeChallenge = ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge,
@@ -436,13 +270,12 @@ public class SilentLoginValidatorTests : BaseUnitTest
 
     // Assert
     Assert.True(validationResult.IsError());
-    Assert.Equal(ErrorCode.UnauthorizedClient, validationResult.ErrorCode);
     Assert.Equal(HttpStatusCode.OK, validationResult.StatusCode);
   }
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task ValidateAsync_InvalidConsent()
+  public async Task ValidateAsync_InadequateConsent_Ok()
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
@@ -454,15 +287,14 @@ public class SilentLoginValidatorTests : BaseUnitTest
     client.Scopes.Add(profileScope);
     await IdentityContext.SaveChangesAsync();
     var authorizationGrant = client.AuthorizationCodeGrants.Single();
-
-    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
+    var validator = serviceProvider.GetRequiredService<IValidator<SilentTokenLoginCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
     var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id
     });
 
-    var query = new SilentLoginCommand
+    var query = new SilentTokenLoginCommand
     {
       ClientId = client.Id,
       RedirectUri = "https://localhost:5001/callback",
@@ -480,53 +312,49 @@ public class SilentLoginValidatorTests : BaseUnitTest
 
     // Assert
     Assert.True(validationResult.IsError());
-    Assert.Equal(ErrorCode.ConsentRequired, validationResult.ErrorCode);
     Assert.Equal(HttpStatusCode.OK, validationResult.StatusCode);
   }
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task ValidateAsync_ExpectExpiredMaxAge()
+  public async Task ValidateAsync_InvalidMaxAge_InvalidRequest()
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
     var client = await GetClient();
     var authorizationGrant = client.AuthorizationCodeGrants.Single();
-    authorizationGrant.MaxAge = 0;
-    await IdentityContext.SaveChangesAsync();
-
-    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
     var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id
     });
 
-    var query = new SilentLoginCommand
+    var validator = serviceProvider.GetRequiredService<IValidator<SilentTokenLoginCommand>>();
+    var command = new SilentTokenLoginCommand
     {
       ClientId = client.Id,
       RedirectUri = "https://localhost:5001/callback",
       State = CryptographyHelper.GetRandomString(16),
       Scope = $"{ScopeConstants.OpenId}",
       ResponseType = ResponseTypeConstants.Code,
+      CodeChallenge = ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge,
       CodeChallengeMethod = CodeChallengeMethodConstants.S256,
       Nonce = CryptographyHelper.GetRandomString(16),
-      CodeChallenge = ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge,
+      MaxAge = "invalid_number",
       IdTokenHint = idToken
     };
 
     // Act
-    var validationResult = await validator.ValidateAsync(query);
+    var result = await validator.ValidateAsync(command);
 
     // Assert
-    Assert.True(validationResult.IsError());
-    Assert.Equal(ErrorCode.LoginRequired, validationResult.ErrorCode);
-    Assert.Equal(HttpStatusCode.OK, validationResult.StatusCode);
+    Assert.True(result.IsError());
+    Assert.Equal(HttpStatusCode.OK, result.StatusCode);
   }
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task ValidateAsync_ExpectRevokedSession()
+  public async Task ValidateAsync_RevokedSession_LoginRequired()
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
@@ -535,15 +363,14 @@ public class SilentLoginValidatorTests : BaseUnitTest
     var session = authorizationGrant.Session;
     session.IsRevoked = true;
     await IdentityContext.SaveChangesAsync();
-
-    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
+    var validator = serviceProvider.GetRequiredService<IValidator<SilentTokenLoginCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
     var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id
     });
 
-    var query = new SilentLoginCommand
+    var query = new SilentTokenLoginCommand
     {
       ClientId = client.Id,
       RedirectUri = "https://localhost:5001/callback",
@@ -567,21 +394,20 @@ public class SilentLoginValidatorTests : BaseUnitTest
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task ValidateAsync_ExpectOk()
+  public async Task ValidateAsync_Ok()
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
     var client = await GetClient();
     var authorizationGrant = client.AuthorizationCodeGrants.Single();
-
-    var validator = serviceProvider.GetRequiredService<IValidator<SilentLoginCommand>>();
+    var validator = serviceProvider.GetRequiredService<IValidator<SilentTokenLoginCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
     var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id
     });
 
-    var query = new SilentLoginCommand
+    var query = new SilentTokenLoginCommand
     {
       ClientId = client.Id,
       RedirectUri = "https://localhost:5001/callback",
@@ -591,6 +417,7 @@ public class SilentLoginValidatorTests : BaseUnitTest
       CodeChallengeMethod = CodeChallengeMethodConstants.S256,
       Nonce = CryptographyHelper.GetRandomString(16),
       CodeChallenge = ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge,
+      MaxAge = "20",
       IdTokenHint = idToken
     };
 
@@ -605,8 +432,8 @@ public class SilentLoginValidatorTests : BaseUnitTest
   private async Task<Client> GetClient()
   {
     var grantType = await IdentityContext
-        .Set<GrantType>()
-        .SingleAsync(x => x.Name == GrantTypeConstants.AuthorizationCode);
+      .Set<GrantType>()
+      .SingleAsync(x => x.Name == GrantTypeConstants.AuthorizationCode);
 
     var openIdScope = await IdentityContext
       .Set<Scope>()
@@ -614,7 +441,7 @@ public class SilentLoginValidatorTests : BaseUnitTest
 
     var consent = ConsentGrantBuilder
       .Instance()
-      .AddScopes(new [] { openIdScope })
+      .AddScopes(openIdScope)
       .Build();
 
     var client = ClientBuilder
