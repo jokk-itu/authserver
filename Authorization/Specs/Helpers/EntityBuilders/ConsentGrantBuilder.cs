@@ -33,7 +33,7 @@ public class ConsentGrantBuilder
     return this;
   }
 
-  public ConsentGrantBuilder AddScopes(IEnumerable<Scope> scopes)
+  public ConsentGrantBuilder AddScopes(params Scope[] scopes)
   {
     foreach (var scope in scopes)
     {

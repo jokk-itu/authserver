@@ -1,9 +1,9 @@
 ﻿using MediatR;
 
-namespace Infrastructure.Requests.CreateOrUpdateConsentGrant;
+namespace Infrastructure.Requests.CreateConsentGrant;
 
 #nullable disable
-public class CreateOrUpdateConsentGrantCommand : IRequest<CreateOrUpdateConsentGrantResponse>
+public class CreateConsentGrantCommand : IRequest<CreateConsentGrantResponse>
 {
   public string ClientId { get; init; }
   public string UserId { get; init; }

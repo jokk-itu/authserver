@@ -359,7 +359,7 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
       var consentedScopes = await IdentityContext
         .Set<Scope>()
         .Where(x => scopes.Any(y => y == x.Name))
-        .ToListAsync();
+        .ToArrayAsync();
 
       var consentGrant = ConsentGrantBuilder
         .Instance()

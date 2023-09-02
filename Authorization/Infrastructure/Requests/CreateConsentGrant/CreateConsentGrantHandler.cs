@@ -3,18 +3,18 @@ using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Requests.CreateOrUpdateConsentGrant;
-public class CreateOrUpdateConsentGrantHandler : IRequestHandler<CreateOrUpdateConsentGrantCommand, CreateOrUpdateConsentGrantResponse>
+namespace Infrastructure.Requests.CreateConsentGrant;
+public class CreateConsentGrantHandler : IRequestHandler<CreateConsentGrantCommand, CreateConsentGrantResponse>
 {
   private readonly IdentityContext _identityContext;
 
-  public CreateOrUpdateConsentGrantHandler(
+  public CreateConsentGrantHandler(
     IdentityContext identityContext)
   {
     _identityContext = identityContext;
   }
 
-  public async Task<CreateOrUpdateConsentGrantResponse> Handle(CreateOrUpdateConsentGrantCommand request, CancellationToken cancellationToken)
+  public async Task<CreateConsentGrantResponse> Handle(CreateConsentGrantCommand request, CancellationToken cancellationToken)
   {
     var consentGrant = await _identityContext
       .Set<ConsentGrant>()
@@ -67,6 +67,6 @@ public class CreateOrUpdateConsentGrantHandler : IRequestHandler<CreateOrUpdateC
     }
     await _identityContext.SaveChangesAsync(cancellationToken);
 
-    return new CreateOrUpdateConsentGrantResponse(HttpStatusCode.OK);
+    return new CreateConsentGrantResponse(HttpStatusCode.OK);
   }
 }

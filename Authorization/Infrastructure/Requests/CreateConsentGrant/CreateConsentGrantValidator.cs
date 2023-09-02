@@ -4,44 +4,29 @@ using Application.Validation;
 using Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Requests.CreateOrUpdateConsentGrant;
-public class CreateOrUpdateConsentGrantValidator : IValidator<CreateOrUpdateConsentGrantCommand>
+namespace Infrastructure.Requests.CreateConsentGrant;
+public class CreateConsentGrantValidator : IValidator<CreateConsentGrantCommand>
 {
   private readonly IdentityContext _identityContext;
 
-  public CreateOrUpdateConsentGrantValidator(
+  public CreateConsentGrantValidator(
     IdentityContext identityContext)
   {
     _identityContext = identityContext;
   }
 
-  public async Task<ValidationResult> ValidateAsync(CreateOrUpdateConsentGrantCommand value, CancellationToken cancellationToken = default)
+  public async Task<ValidationResult> ValidateAsync(CreateConsentGrantCommand value, CancellationToken cancellationToken = default)
   {
     var client = await _identityContext
       .Set<Client>()
       .Include(x => x.Scopes)
-      .SingleOrDefaultAsync(x => x.Id == value.ClientId, cancellationToken: cancellationToken);
-
-    if (client is null)
-    {
-      return new ValidationResult(ErrorCode.InvalidClient, "client is invalid", HttpStatusCode.BadRequest);
-    }
+      .SingleAsync(x => x.Id == value.ClientId, cancellationToken: cancellationToken);
 
     var isClientAuthorized = value.ConsentedScopes.All(x => client.Scopes.Any(y => y.Name == x));
 
     if (!isClientAuthorized)
     {
       return new ValidationResult(ErrorCode.UnauthorizedClient, "client is unauthorized", HttpStatusCode.BadRequest);
-    }
-
-    var isUserValid = await _identityContext
-      .Set<User>()
-      .Where(x => x.Id == value.UserId)
-      .AnyAsync(cancellationToken: cancellationToken);
-
-    if (!isUserValid)
-    {
-      return new ValidationResult(ErrorCode.InvalidRequest, "user is invalid", HttpStatusCode.BadRequest);
     }
 
     if (await AreClaimsInvalid(value, cancellationToken))
@@ -52,7 +37,7 @@ public class CreateOrUpdateConsentGrantValidator : IValidator<CreateOrUpdateCons
     return new ValidationResult(HttpStatusCode.OK);
   }
 
-  private async Task<bool> AreClaimsInvalid(CreateOrUpdateConsentGrantCommand command,
+  private async Task<bool> AreClaimsInvalid(CreateConsentGrantCommand command,
     CancellationToken cancellationToken)
   {
     foreach (var claim in command.ConsentedClaims)
