@@ -1,10 +1,11 @@
 ﻿using MediatR;
 
+namespace Infrastructure.Requests.SilentCookieLogin;
+
 #nullable disable
-namespace Infrastructure.Requests.SilentLogin;
-public class SilentLoginCommand : IRequest<SilentLoginResponse>
+public class SilentCookieLoginCommand : IRequest<SilentCookieLoginResponse>
 {
-  public string IdTokenHint { get; init; }
+  public string UserId { get; set; }
   public string ClientId { get; init; }
   public string Scope { get; init; }
   public string ResponseType { get; init; }
@@ -13,4 +14,5 @@ public class SilentLoginCommand : IRequest<SilentLoginResponse>
   public string CodeChallenge { get; init; }
   public string CodeChallengeMethod { get; init; }
   public string Nonce { get; init; }
+  public string MaxAge { get; init; }
 }
