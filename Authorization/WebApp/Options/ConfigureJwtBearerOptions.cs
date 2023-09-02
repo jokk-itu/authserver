@@ -40,7 +40,7 @@ public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions
       options.Challenge = OpenIdConnectDefaults.AuthenticationScheme;
       options.TokenValidationParameters = new TokenValidationParameters
       {
-        ClockSkew = TimeSpan.FromMinutes(5),
+        ClockSkew = TimeSpan.FromSeconds(0)
       };
       options.SaveToken = true;
       options.Events = new JwtBearerEvents

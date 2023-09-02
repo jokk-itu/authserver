@@ -37,9 +37,9 @@ public class SignUpController : OAuthControllerBase
   [ProducesResponseType(StatusCodes.Status200OK)]
   public async Task<IActionResult> Post(PostRegisterUserRequest request)
   {
+    // TODO use ModelState.AddError for the SignUp form
     var user = new User
     {
-      Id = Guid.NewGuid().ToString(),
       FirstName = request.GivenName,
       LastName = request.FamilyName,
       Address = request.Address,
@@ -54,6 +54,6 @@ public class SignUpController : OAuthControllerBase
     user.Password = hashedPassword;
     await _identityContext.Set<User>().AddAsync(user);
     await _identityContext.SaveChangesAsync();
-    return Ok();
+    return Redirect("/");
   }
 }

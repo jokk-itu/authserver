@@ -12,9 +12,9 @@ public class BaseValidationResult
     ErrorDescription = errorDescription;
   }
 
-  public string? ErrorCode { get; init; }
+  public string? ErrorCode { get; }
 
-  public string? ErrorDescription { get; init; }
+  public string? ErrorDescription { get; }
 
   public bool IsError()
   {

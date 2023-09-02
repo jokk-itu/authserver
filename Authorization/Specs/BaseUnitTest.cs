@@ -50,7 +50,7 @@ public abstract class BaseUnitTest
       .AddScoped(_ => IdentityContext)
       .AddLogging()
       .AddBuilders()
-      .AddDataServices()
+      .AddServices()
       .AddDecoders()
       .AddRequests()
       .AddManagers()

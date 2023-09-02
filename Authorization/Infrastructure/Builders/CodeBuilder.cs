@@ -25,7 +25,7 @@ public class CodeBuilder : ICodeBuilder
     string codeChallengeMethod,
     ICollection<string> scopes)
   {
-    var ms = new MemoryStream();
+    using var ms = new MemoryStream();
     await using var writer = new BinaryWriter(ms, Encoding.UTF8, false);
     var authorizationCode = new AuthorizationCode
     {

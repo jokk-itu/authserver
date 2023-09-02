@@ -5,7 +5,7 @@ namespace Infrastructure.Requests.CreateAuthorizationGrant;
 #nullable disable
 public class CreateAuthorizationGrantCommand : IRequest<CreateAuthorizationGrantResponse>
 {
-  public string UserId { get; init; }
+  public string UserId { get; set; }
   public string ResponseType { get; init; }
   public string ClientId { get; init; }
   public string RedirectUri { get; init; }
