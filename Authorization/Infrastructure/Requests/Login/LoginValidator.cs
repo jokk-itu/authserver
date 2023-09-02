@@ -1,24 +1,37 @@
 ﻿using System.Net;
+using Application;
 using Application.Validation;
+using Infrastructure.Services.Abstract;
 using Infrastructure.Validators;
 
 namespace Infrastructure.Requests.Login;
 public class LoginValidator : IValidator<LoginQuery>
 {
-  private readonly IBaseValidator<UserToValidate> _userValidator;
+  private readonly IUserService _userService;
 
   public LoginValidator(
-    IBaseValidator<UserToValidate> userValidator)
+    IUserService userService)
   {
-    _userValidator = userValidator;
+    _userService = userService;
   }
 
   public async Task<ValidationResult> ValidateAsync(LoginQuery value, CancellationToken cancellationToken = default)
   {
-    var userValidation = await _userValidator.ValidateAsync(new UserToValidate(value.Username, value.Password), cancellationToken: cancellationToken);
-    if (userValidation.IsError())
+    if (string.IsNullOrWhiteSpace(value.Username) ||
+        string.IsNullOrWhiteSpace(value.Password))
     {
-      return new ValidationResult(userValidation.ErrorCode, userValidation.ErrorDescription, HttpStatusCode.BadRequest);
+      return new ValidationResult(
+        ErrorCode.InvalidRequest,
+        "user is invalid",
+        HttpStatusCode.BadRequest);
+    }
+
+    if (!await _userService.IsValid(value.Username, value.Password, cancellationToken))
+    {
+      return new ValidationResult(
+        ErrorCode.InvalidRequest,
+        "user is invalid",
+        HttpStatusCode.BadRequest);
     }
 
     return new ValidationResult(HttpStatusCode.OK);
