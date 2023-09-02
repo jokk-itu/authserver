@@ -40,7 +40,7 @@ public class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
         ClientId = x.Client.Id,
         SessionId = x.Session.Id,
         UserId = x.Session.User.Id,
-        Nonce = x.Nonces.OrderBy(y => y.Id).First().Value
+        Nonce = x.Nonces.OrderByDescending(n => n.Id).First().Value
       })
       .SingleAsync();
 
