@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using Domain;
-using Domain.Enums;
 using Infrastructure.Services;
 using Infrastructure.Services.Abstract;
 using MediatR;
