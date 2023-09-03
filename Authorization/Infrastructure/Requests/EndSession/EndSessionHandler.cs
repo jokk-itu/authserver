@@ -93,7 +93,7 @@ public class EndSessionHandler : IRequestHandler<EndSessionCommand, EndSessionRe
       }
       catch (Exception e)
       {
-        _logger.LogWarning(e, "Backchannel logout to client {clientId} failed", client.ClientId);
+        _logger.LogWarning(e, "Backchannel logout to client {ClientId} failed", client.ClientId);
       }
     });
 

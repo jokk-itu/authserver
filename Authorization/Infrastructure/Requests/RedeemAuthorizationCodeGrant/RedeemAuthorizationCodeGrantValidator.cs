@@ -39,6 +39,12 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
           HttpStatusCode.BadRequest);
     }
 
+    if (!string.IsNullOrEmpty(code.RedirectUri) && value.RedirectUri != code.RedirectUri)
+    {
+      return new ValidationResult(ErrorCode.InvalidRequest, "redirect_uri is invalid",
+        HttpStatusCode.BadRequest);
+    }
+
     var query = await _identityContext
       .Set<AuthorizationCodeGrant>()
       .Where(x => x.Id == code.AuthorizationGrantId)
@@ -48,8 +54,8 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
         IsClientIdValid = x.Client.Id == value.ClientId,
         IsClientSecretValid = x.Client.Secret == value.ClientSecret,
         HasClientSecret = x.Client.Secret != null,
-        IsClientAuthorized = x.Client.RedirectUris.Any(y => y.Uri == value.RedirectUri)
-                             && x.Client.GrantTypes.Any(y => y.Name == GrantTypeConstants.AuthorizationCode),
+        IsRedirectAuthorized = x.Client.RedirectUris.Any(y => y.Uri == value.RedirectUri),
+        IsGrantTypeAuthorized = x.Client.GrantTypes.Any(y => y.Name == GrantTypeConstants.AuthorizationCode),
         IsSessionValid = !x.Session.IsRevoked,
         UserId = x.Session.User.Id
       })
@@ -70,9 +76,14 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
       return new ValidationResult(ErrorCode.InvalidClient, "client_secret is invalid", HttpStatusCode.BadRequest);
     }
 
-    if (!query.IsClientAuthorized)
+    if (!string.IsNullOrEmpty(value.RedirectUri) && !query.IsRedirectAuthorized)
     {
-      return new ValidationResult(ErrorCode.UnauthorizedClient, "client is unauthorized", HttpStatusCode.BadRequest);
+      return new ValidationResult(ErrorCode.UnauthorizedClient, "client is unauthorized for redirect_uri", HttpStatusCode.BadRequest);
+    }
+
+    if (!query.IsGrantTypeAuthorized)
+    {
+      return new ValidationResult(ErrorCode.UnauthorizedClient, "client is unauthorized for grant_type", HttpStatusCode.BadRequest);
     }
 
     if (!query.IsSessionValid)

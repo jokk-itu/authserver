@@ -53,10 +53,6 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
     }
     
     var maxAge = string.IsNullOrWhiteSpace(request.MaxAge) ? client.DefaultMaxAge : long.Parse(request.MaxAge);
-    var redirectUri = string.IsNullOrWhiteSpace(request.RedirectUri)
-      ? client.RedirectUris.Single(r => r.Type == RedirectUriType.AuthorizeRedirectUri).Uri
-      : request.RedirectUri;
-
     var result = await _authorizationGrantService.CreateAuthorizationGrant(
       new CreateAuthorizationGrantArguments
       {
@@ -64,7 +60,7 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
         Client = client,
         CodeChallenge = request.CodeChallenge,
         CodeChallengeMethod = request.CodeChallengeMethod,
-        RedirectUri = redirectUri,
+        RedirectUri = request.RedirectUri,
         MaxAge = maxAge,
         Nonce = request.Nonce,
         Scope = request.Scope
