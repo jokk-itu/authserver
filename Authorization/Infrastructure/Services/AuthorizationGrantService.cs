@@ -26,10 +26,13 @@ public class AuthorizationGrantService : IAuthorizationGrantService
     var authTime = DateTime.UtcNow;
 
     var code = await _codeBuilder.BuildAuthorizationCodeAsync(
-      grantId, codeId, nonceId,
+      grantId,
+      codeId,
+      nonceId,
       arguments.CodeChallenge,
       arguments.CodeChallengeMethod,
-      arguments.Scope.Split(' '));
+      arguments.Scope.Split(' '),
+      arguments.RedirectUri);
 
     var authorizationCode = new AuthorizationCode
     {
@@ -77,7 +80,8 @@ public class AuthorizationGrantService : IAuthorizationGrantService
       nonceId,
       arguments.CodeChallenge,
       arguments.CodeChallengeMethod,
-      scopes);
+      scopes,
+      arguments.RedirectUri);
 
     var authorizationCode = new AuthorizationCode
     {

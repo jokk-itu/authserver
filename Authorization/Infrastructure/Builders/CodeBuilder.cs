@@ -23,7 +23,8 @@ public class CodeBuilder : ICodeBuilder
     string nonceId,
     string codeChallenge, 
     string codeChallengeMethod,
-    ICollection<string> scopes)
+    ICollection<string> scopes,
+    string? redirectUri = null)
   {
     using var ms = new MemoryStream();
     await using var writer = new BinaryWriter(ms, Encoding.UTF8, false);
@@ -34,7 +35,8 @@ public class CodeBuilder : ICodeBuilder
       NonceId = nonceId,
       CodeChallenge = codeChallenge,
       CodeChallengeMethod = codeChallengeMethod,
-      Scopes = scopes
+      Scopes = scopes,
+      RedirectUri = redirectUri
     };
     writer.Write(JsonSerializer.Serialize(authorizationCode));
     var protectedBytes = _dataProtector.Protect(ms.ToArray());
@@ -44,10 +46,11 @@ public class CodeBuilder : ICodeBuilder
 
 public class AuthorizationCode
 {
-  public string AuthorizationGrantId { get; set; } = null!;
-  public string AuthorizationCodeId { get; set; } = null!;
-  public string NonceId { get; set; } = null!;
-  public string CodeChallenge { get; set; } = null!;
-  public string CodeChallengeMethod { get; set; } = null!;
-  public ICollection<string> Scopes { get; set; } = new List<string>();
+  public string AuthorizationGrantId { get; init; } = null!;
+  public string AuthorizationCodeId { get; init; } = null!;
+  public string NonceId { get; init; } = null!;
+  public string CodeChallenge { get; init; } = null!;
+  public string CodeChallengeMethod { get; init; } = null!;
+  public string? RedirectUri { get; init; }
+  public ICollection<string> Scopes { get; init; } = new List<string>();
 }
