@@ -1,1 +1,0 @@
-import{S as t,v as n,x as o}from"./mermaid-aad43469-abc60380.js";function a(e){return typeof e=="string"?new t([document.querySelectorAll(e)],[document.documentElement]):new t([o(e)],n)}export{a as s};
