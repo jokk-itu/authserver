@@ -13,14 +13,7 @@ public class ConfigureCookieAuthenticationOptions : IConfigureNamedOptions<Cooki
 
   public void Configure(CookieAuthenticationOptions options)
   {
-    options.Cookie = new CookieBuilder
-    {
-      Name = CookieConstants.IdentityCookie,
-      HttpOnly = true,
-      IsEssential = true,
-      SameSite = SameSiteMode.Strict,
-      SecurePolicy = CookieSecurePolicy.Always,
-      MaxAge = TimeSpan.FromDays(2)
-    };
+    options.Cookie.Name = CookieConstants.IdentityCookie;
+    options.Cookie.MaxAge = TimeSpan.FromDays(2);
   }
 }

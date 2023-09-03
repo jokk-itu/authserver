@@ -34,13 +34,13 @@ builder.WebHost.ConfigureServices(services =>
   services
     .AddDataStore(builder.Configuration)
     .AddBuilders()
-    .AddDataServices()
+    .AddServices()
     .AddDecoders()
     .AddManagers()
     .AddRequests()
     .AddContextAccessors()
     .AddDelegatingHandlers();
-  
+
   services.AddCorsPolicy();
   services.AddCookiePolicy();
   services.AddAntiforgery(antiForgeryOptions =>
@@ -48,11 +48,7 @@ builder.WebHost.ConfigureServices(services =>
     antiForgeryOptions.FormFieldName = AntiForgeryConstants.AntiForgeryField;
     antiForgeryOptions.Cookie = new CookieBuilder
     {
-        Name = AntiForgeryConstants.AntiForgeryCookie,
-        HttpOnly = true,
-        IsEssential = true,
-        SameSite = SameSiteMode.Strict,
-        SecurePolicy = CookieSecurePolicy.Always
+      Name = AntiForgeryConstants.AntiForgeryCookie,
     };
   });
 
@@ -82,18 +78,18 @@ app.UseHsts();
 app.UseSerilogRequestLogging();
 app.UseStaticFiles();
 app.UseCors();
+app.UseCookiePolicy();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}");
+  name: "default",
+  pattern: "{controller=Home}/{action=Index}");
 
 app.Run();
 
-public partial class Program 
+public partial class Program
 {
   public Program()
   {
-
   }
 }

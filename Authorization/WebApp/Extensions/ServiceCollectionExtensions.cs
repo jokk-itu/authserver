@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Domain.Constants;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.CookiePolicy;
 using WebApp.Constants;
 using WebApp.Options;
 using WebApp.Context.Abstract;
@@ -55,11 +56,35 @@ public static class ServiceCollectionExtensions
 
   public static IServiceCollection AddCookiePolicy(this IServiceCollection services)
   {
-    services.AddCookiePolicy(cookiePolicyOptions =>
+    services.AddCookiePolicy(options =>
     {
-      cookiePolicyOptions.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
-      cookiePolicyOptions.MinimumSameSitePolicy = SameSiteMode.Strict;
-      cookiePolicyOptions.Secure = CookieSecurePolicy.Always;
+      options.Secure = CookieSecurePolicy.Always;
+      options.HttpOnly = HttpOnlyPolicy.Always;
+      options.MinimumSameSitePolicy = SameSiteMode.Strict;
+      options.OnAppendCookie = appendContext =>
+      {
+        var logger = appendContext.Context.RequestServices.GetRequiredService<ILogger<Program>>();
+        logger.LogDebug("Cookie {Cookie} Appended with {@Options}", appendContext.CookieName, new
+        {
+          appendContext.CookieOptions.Domain,
+          appendContext.CookieOptions.Path,
+          appendContext.CookieOptions.Secure,
+          appendContext.CookieOptions.HttpOnly,
+          appendContext.CookieOptions.SameSite,
+        });
+      };
+      options.OnDeleteCookie = deleteContext =>
+      {
+        var logger = deleteContext.Context.RequestServices.GetRequiredService<ILogger<Program>>();
+        logger.LogDebug("Cookie {Cookie} Appended with {@Options}", deleteContext.CookieName, new
+        {
+          deleteContext.CookieOptions.Domain,
+          deleteContext.CookieOptions.Path,
+          deleteContext.CookieOptions.Secure,
+          deleteContext.CookieOptions.HttpOnly,
+          deleteContext.CookieOptions.SameSite,
+        });
+      };
     });
     return services;
   }

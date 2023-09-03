@@ -13,5 +13,4 @@ public class ConsentViewModel
   public string? PolicyUri { get; init; }
   public string? ClientUri { get; init; }
   public string? LogoUri { get; init; }
-  public string FormMethod { get; init; } = null!;
 }
