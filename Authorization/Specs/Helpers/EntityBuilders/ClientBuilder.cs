@@ -84,7 +84,7 @@ public class ClientBuilder
 
   public ClientBuilder AddBackChannelLogoutUri(string uri)
   {
-    _client.BackChannelLogoutUri = uri;
+    _client.BackchannelLogoutUri = uri;
     return this;
   }
 }

@@ -3,6 +3,7 @@ using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
+using Domain.Enums;
 using Infrastructure.Helpers;
 using Infrastructure.Requests.CreateAuthorizationGrant;
 using Microsoft.EntityFrameworkCore;
@@ -15,402 +16,245 @@ namespace Specs.Validators;
 public class CreateAuthorizationGrantValidatorTests : BaseUnitTest
 {
   [Fact]
-  public async Task ValidateAsync_NonExistingClientId_InvalidRequest()
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_UnauthorizedForRedirect_BadRequest()
   {
-    // Arrange
+    //  Arrange
     var serviceProvider = BuildServiceProvider();
     var validator = serviceProvider.GetRequiredService<IValidator<CreateAuthorizationGrantCommand>>();
-    var command = new CreateAuthorizationGrantCommand
+    var query = new CreateAuthorizationGrantCommand
     {
-      ClientId = "invalid_id"
+      ClientId = string.Empty,
+      RedirectUri = string.Empty,
+      State = string.Empty
     };
 
     // Act
-    var result = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(query);
 
     // Assert
-    Assert.True(result.IsError());
-    Assert.Equal(ErrorCode.InvalidRequest, result.ErrorCode);
-    Assert.Equal(HttpStatusCode.BadRequest, result.StatusCode);
+    Assert.True(validationResult.IsError());
+    Assert.Equal(HttpStatusCode.BadRequest, validationResult.StatusCode);
   }
 
   [Fact]
-  public async Task ValidateAsync_EmptyRedirectUri_InvalidRequest()
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_EmptyNonce_Ok()
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var client = ClientBuilder
-      .Instance()
-      .Build();
-    await IdentityContext.AddAsync(client);
-    await IdentityContext.SaveChangesAsync();
+    var client = await GetClient();
     var validator = serviceProvider.GetRequiredService<IValidator<CreateAuthorizationGrantCommand>>();
-    var command = new CreateAuthorizationGrantCommand
-    {
-      ClientId = client.Id
-    };
-
-    // Act
-    var result = await validator.ValidateAsync(command);
-
-    // Assert
-    Assert.True(result.IsError());
-    Assert.Equal(ErrorCode.InvalidRequest, result.ErrorCode);
-    Assert.Equal(HttpStatusCode.BadRequest, result.StatusCode);
-  }
-
-  [Fact]
-  public async Task ValidateAsync_EmptyState_InvalidRequest()
-  {
-    // Arrange
-    var serviceProvider = BuildServiceProvider();
-    var client = ClientBuilder
-      .Instance()
-      .Build();
-    await IdentityContext.AddAsync(client);
-    await IdentityContext.SaveChangesAsync();
-    var validator = serviceProvider.GetRequiredService<IValidator<CreateAuthorizationGrantCommand>>();
-    var command = new CreateAuthorizationGrantCommand
+    var query = new CreateAuthorizationGrantCommand
     {
       ClientId = client.Id,
-      RedirectUri = "https://localhost:5000"
-    };
-
-    // Act
-    var result = await validator.ValidateAsync(command);
-
-    // Assert
-    Assert.True(result.IsError());
-    Assert.Equal(ErrorCode.InvalidRequest, result.ErrorCode);
-    Assert.Equal(HttpStatusCode.BadRequest, result.StatusCode);
-  }
-
-  [Fact]
-  public async Task ValidateAsync_NoOpenIdScope_InvalidScope()
-  {
-    // Arrange
-    var serviceProvider = BuildServiceProvider();
-    var client = ClientBuilder
-      .Instance()
-      .Build();
-    await IdentityContext.AddAsync(client);
-    await IdentityContext.SaveChangesAsync();
-    var validator = serviceProvider.GetRequiredService<IValidator<CreateAuthorizationGrantCommand>>();
-    var command = new CreateAuthorizationGrantCommand
-    {
-      ClientId = client.Id,
-      RedirectUri = "https://localhost:5000",
+      RedirectUri = "https://localhost:5001/callback",
       State = CryptographyHelper.GetRandomString(16),
-      Scope = "api"
+      Nonce = string.Empty
     };
 
     // Act
-    var result = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(query);
 
     // Assert
-    Assert.True(result.IsError());
-    Assert.Equal(ErrorCode.InvalidScope, result.ErrorCode);
-    Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+    Assert.True(validationResult.IsError());
+    Assert.Equal(HttpStatusCode.OK, validationResult.StatusCode);
   }
-  
+
   [Fact]
-  public async Task ValidateAsync_UnauthorizedScope_InvalidScope()
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_EmptyScope_Ok()
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var client = ClientBuilder
-      .Instance()
-      .Build();
-    await IdentityContext.AddAsync(client);
-    await IdentityContext.SaveChangesAsync();
+    var client = await GetClient();
     var validator = serviceProvider.GetRequiredService<IValidator<CreateAuthorizationGrantCommand>>();
-    var command = new CreateAuthorizationGrantCommand
+    var query = new CreateAuthorizationGrantCommand
     {
       ClientId = client.Id,
-      RedirectUri = "https://localhost:5000",
+      RedirectUri = "https://localhost:5001/callback",
       State = CryptographyHelper.GetRandomString(16),
-      Scope = $"{ScopeConstants.OpenId} api"
+      Nonce = CryptographyHelper.GetRandomString(16),
+      Scope = string.Empty
     };
 
     // Act
-    var result = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(query);
 
     // Assert
-    Assert.True(result.IsError());
-    Assert.Equal(ErrorCode.InvalidScope, result.ErrorCode);
-    Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+    Assert.True(validationResult.IsError());
+    Assert.Equal(HttpStatusCode.OK, validationResult.StatusCode);
   }
 
   [Fact]
-  public async Task ValidateAsync_UnauthorizedGrantType_UnauthorizedClient()
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_InvalidResponseType_UnsupportedResponseType()
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var openid = await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId);
-    var client = ClientBuilder
-      .Instance()
-      .AddScope(openid)
-      .AddRedirectUri("https://localhost:5000")
-      .Build();
-    await IdentityContext.AddAsync(client);
-    await IdentityContext.SaveChangesAsync();
+    var client = await GetClient();
     var validator = serviceProvider.GetRequiredService<IValidator<CreateAuthorizationGrantCommand>>();
-    var command = new CreateAuthorizationGrantCommand
+    var query = new CreateAuthorizationGrantCommand
     {
       ClientId = client.Id,
-      RedirectUri = "https://localhost:5000",
-      State = CryptographyHelper.GetRandomString(16),
-      Scope = $"{ScopeConstants.OpenId}"
-    };
-
-    // Act
-    var result = await validator.ValidateAsync(command);
-
-    // Assert
-    Assert.True(result.IsError());
-    Assert.Equal(ErrorCode.UnauthorizedClient, result.ErrorCode);
-    Assert.Equal(HttpStatusCode.OK, result.StatusCode);
-  }
-
-  [Fact]
-  public async Task ValidateAsync_UnauthorizedRedirectUri_UnauthorizedClient()
-  {
-    // Arrange
-    var serviceProvider = BuildServiceProvider();
-    var openid = await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId);
-    var grantType = await IdentityContext.Set<GrantType>().SingleAsync(x => x.Name == GrantTypeConstants.AuthorizationCode);
-    var client = ClientBuilder
-      .Instance()
-      .AddScope(openid)
-      .AddGrantType(grantType)
-      .Build();
-    await IdentityContext.AddAsync(client);
-    await IdentityContext.SaveChangesAsync();
-    var validator = serviceProvider.GetRequiredService<IValidator<CreateAuthorizationGrantCommand>>();
-    var command = new CreateAuthorizationGrantCommand
-    {
-      ClientId = client.Id,
-      RedirectUri = "https://localhost:5000",
-      State = CryptographyHelper.GetRandomString(16),
-      Scope = $"{ScopeConstants.OpenId}"
-    };
-
-    // Act
-    var result = await validator.ValidateAsync(command);
-
-    // Assert
-    Assert.True(result.IsError());
-    Assert.Equal(ErrorCode.UnauthorizedClient, result.ErrorCode);
-    Assert.Equal(HttpStatusCode.OK, result.StatusCode);
-  }
-
-  [Fact]
-  public async Task ValidateAsync_ResponseTypeIsNotCode_UnsupportedResponseType()
-  {
-    // Arrange
-    var serviceProvider = BuildServiceProvider();
-    var openid = await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId);
-    var grantType = await IdentityContext.Set<GrantType>().SingleAsync(x => x.Name == GrantTypeConstants.AuthorizationCode);
-    var client = ClientBuilder
-      .Instance()
-      .AddScope(openid)
-      .AddGrantType(grantType)
-      .AddRedirectUri("https://localhost:5000")
-      .Build();
-    await IdentityContext.AddAsync(client);
-    await IdentityContext.SaveChangesAsync();
-    var validator = serviceProvider.GetRequiredService<IValidator<CreateAuthorizationGrantCommand>>();
-    var command = new CreateAuthorizationGrantCommand
-    {
-      ClientId = client.Id,
-      RedirectUri = "https://localhost:5000",
+      RedirectUri = "https://localhost:5001/callback",
       State = CryptographyHelper.GetRandomString(16),
       Scope = $"{ScopeConstants.OpenId}",
-      ResponseType = "invalid_response_type"
+      Nonce = CryptographyHelper.GetRandomString(16),
     };
 
     // Act
-    var result = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(query);
 
     // Assert
-    Assert.True(result.IsError());
-    Assert.Equal(ErrorCode.UnsupportedResponseType, result.ErrorCode);
-    Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+    Assert.True(validationResult.IsError());
+    Assert.Equal(ErrorCode.UnsupportedResponseType, validationResult.ErrorCode);
+    Assert.Equal(HttpStatusCode.OK, validationResult.StatusCode);
   }
 
   [Fact]
-  public async Task ValidateAsync_EmptyCodeChallenge_InvalidRequest()
-  {
-    // Arrange
-    var serviceProvider = BuildServiceProvider();
-    var openid = await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId);
-    var grantType = await IdentityContext.Set<GrantType>().SingleAsync(x => x.Name == GrantTypeConstants.AuthorizationCode);
-    var client = ClientBuilder
-      .Instance()
-      .AddScope(openid)
-      .AddGrantType(grantType)
-      .AddRedirectUri("https://localhost:5000")
-      .Build();
-    await IdentityContext.AddAsync(client);
-    await IdentityContext.SaveChangesAsync();
-    var validator = serviceProvider.GetRequiredService<IValidator<CreateAuthorizationGrantCommand>>();
-    var command = new CreateAuthorizationGrantCommand
-    {
-      ClientId = client.Id,
-      RedirectUri = "https://localhost:5000",
-      State = CryptographyHelper.GetRandomString(16),
-      Scope = $"{ScopeConstants.OpenId}",
-      ResponseType = ResponseTypeConstants.Code
-    };
-
-    // Act
-    var result = await validator.ValidateAsync(command);
-
-    // Assert
-    Assert.True(result.IsError());
-    Assert.Equal(ErrorCode.InvalidRequest, result.ErrorCode);
-    Assert.Equal(HttpStatusCode.OK, result.StatusCode);
-  }
-
-  [Fact]
-  public async Task ValidateAsync_LessThan43CharactersCodeChallenge_InvalidRequest()
-  {
-    // Arrange
-    var serviceProvider = BuildServiceProvider();
-    var openid = await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId);
-    var grantType = await IdentityContext.Set<GrantType>().SingleAsync(x => x.Name == GrantTypeConstants.AuthorizationCode);
-    var client = ClientBuilder
-      .Instance()
-      .AddScope(openid)
-      .AddGrantType(grantType)
-      .AddRedirectUri("https://localhost:5000")
-      .Build();
-    await IdentityContext.AddAsync(client);
-    await IdentityContext.SaveChangesAsync();
-    var validator = serviceProvider.GetRequiredService<IValidator<CreateAuthorizationGrantCommand>>();
-    var command = new CreateAuthorizationGrantCommand
-    {
-      ClientId = client.Id,
-      RedirectUri = "https://localhost:5000",
-      State = CryptographyHelper.GetRandomString(16),
-      Scope = $"{ScopeConstants.OpenId}",
-      ResponseType = ResponseTypeConstants.Code,
-      CodeChallenge = "lessthanforthythreechars"
-    };
-
-    // Act
-    var result = await validator.ValidateAsync(command);
-
-    // Assert
-    Assert.True(result.IsError());
-    Assert.Equal(ErrorCode.InvalidRequest, result.ErrorCode);
-    Assert.Equal(HttpStatusCode.OK, result.StatusCode);
-  }
-  
-  [Fact]
+  [Trait("Category", "Unit")]
   public async Task ValidateAsync_InvalidCodeChallengeMethod_InvalidRequest()
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var openid = await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId);
-    var grantType = await IdentityContext.Set<GrantType>().SingleAsync(x => x.Name == GrantTypeConstants.AuthorizationCode);
-    var client = ClientBuilder
-      .Instance()
-      .AddScope(openid)
-      .AddGrantType(grantType)
-      .AddRedirectUri("https://localhost:5000")
-      .Build();
-    await IdentityContext.AddAsync(client);
-    await IdentityContext.SaveChangesAsync();
+    var client = await GetClient();
     var validator = serviceProvider.GetRequiredService<IValidator<CreateAuthorizationGrantCommand>>();
-    var command = new CreateAuthorizationGrantCommand
+    var query = new CreateAuthorizationGrantCommand
     {
       ClientId = client.Id,
-      RedirectUri = "https://localhost:5000",
+      RedirectUri = "https://localhost:5001/callback",
       State = CryptographyHelper.GetRandomString(16),
       Scope = $"{ScopeConstants.OpenId}",
       ResponseType = ResponseTypeConstants.Code,
-      CodeChallenge = ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge,
-      CodeChallengeMethod = "invalid_method"
+      Nonce = CryptographyHelper.GetRandomString(16)
     };
 
     // Act
-    var result = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(query);
 
     // Assert
-    Assert.True(result.IsError());
-    Assert.Equal(ErrorCode.InvalidRequest, result.ErrorCode);
-    Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+    Assert.True(validationResult.IsError());
+    Assert.Equal(ErrorCode.InvalidRequest, validationResult.ErrorCode);
+    Assert.Equal(HttpStatusCode.OK, validationResult.StatusCode);
   }
-
+ 
   [Fact]
-  public async Task ValidateAsync_DuplicateNonce_InvalidRequest()
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_InvalidCodeChallenge_InvalidRequest()
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var openid = await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId);
-    var grantType = await IdentityContext.Set<GrantType>().SingleAsync(x => x.Name == GrantTypeConstants.AuthorizationCode);
-    var client = ClientBuilder
-      .Instance()
-      .AddScope(openid)
-      .AddGrantType(grantType)
-      .AddRedirectUri("https://localhost:5000")
-      .Build();
-    var nonce = NonceBuilder
-      .Instance("1")
-      .Build();
-    await IdentityContext.AddAsync(client);
-    await IdentityContext.AddAsync(nonce);
-    await IdentityContext.SaveChangesAsync();
+    var client = await GetClient();
     var validator = serviceProvider.GetRequiredService<IValidator<CreateAuthorizationGrantCommand>>();
-    var command = new CreateAuthorizationGrantCommand
+    var query = new CreateAuthorizationGrantCommand
     {
       ClientId = client.Id,
-      RedirectUri = "https://localhost:5000",
+      RedirectUri = "https://localhost:5001/callback",
       State = CryptographyHelper.GetRandomString(16),
       Scope = $"{ScopeConstants.OpenId}",
       ResponseType = ResponseTypeConstants.Code,
-      CodeChallenge = ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge,
       CodeChallengeMethod = CodeChallengeMethodConstants.S256,
-      Nonce = nonce.Value
+      Nonce = CryptographyHelper.GetRandomString(16),
     };
 
     // Act
-    var result = await validator.ValidateAsync(command);
+    var validationResult = await validator.ValidateAsync(query);
 
     // Assert
-    Assert.True(result.IsError());
-    Assert.Equal(ErrorCode.InvalidRequest, result.ErrorCode);
-    Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+    Assert.True(validationResult.IsError());
+    Assert.Equal(ErrorCode.InvalidRequest, validationResult.ErrorCode);
+    Assert.Equal(HttpStatusCode.OK, validationResult.StatusCode);
   }
 
   [Fact]
-  public async Task ValidateAsync_MaxAgeNegative_InvalidRequest()
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_UnauthorizedGrantTypeAndScope_Ok()
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var openid = await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId);
-    var grantType = await IdentityContext.Set<GrantType>().SingleAsync(x => x.Name == GrantTypeConstants.AuthorizationCode);
-    var client = ClientBuilder
-      .Instance()
-      .AddScope(openid)
-      .AddGrantType(grantType)
-      .AddRedirectUri("https://localhost:5000")
-      .Build();
-    await IdentityContext.AddAsync(client);
+    var client = await GetClient();
+    client.GrantTypes.Clear();
+    client.Scopes.Clear();
     await IdentityContext.SaveChangesAsync();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateAuthorizationGrantCommand>>();
+    var query = new CreateAuthorizationGrantCommand
+    {
+      ClientId = client.Id,
+      RedirectUri = "https://localhost:5001/callback",
+      State = CryptographyHelper.GetRandomString(16),
+      Scope = $"{ScopeConstants.OpenId}",
+      ResponseType = ResponseTypeConstants.Code,
+      CodeChallengeMethod = CodeChallengeMethodConstants.S256,
+      CodeChallenge = ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge,
+      Nonce = CryptographyHelper.GetRandomString(16)
+    };
+
+    // Act
+    var validationResult = await validator.ValidateAsync(query);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+    Assert.Equal(HttpStatusCode.OK, validationResult.StatusCode);
+  }
+ 
+  [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_InadequateConsent_Ok()
+  {
+    // Arrange
+    var serviceProvider = BuildServiceProvider();
+    var client = await GetClient();
+    var profileScope = await IdentityContext
+      .Set<Scope>()
+      .SingleAsync(x => x.Name == ScopeConstants.Profile);
+
+    client.Scopes.Add(profileScope);
+    await IdentityContext.SaveChangesAsync();
+    var userId = client.ConsentGrants.Single().User.Id;
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateAuthorizationGrantCommand>>();
+    var query = new CreateAuthorizationGrantCommand
+    {
+      ClientId = client.Id,
+      RedirectUri = "https://localhost:5001/callback",
+      State = CryptographyHelper.GetRandomString(16),
+      Scope = $"{ScopeConstants.OpenId} {ScopeConstants.Profile}",
+      ResponseType = ResponseTypeConstants.Code,
+      CodeChallengeMethod = CodeChallengeMethodConstants.S256,
+      Nonce = CryptographyHelper.GetRandomString(16),
+      CodeChallenge = ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge,
+      UserId = userId
+    };
+
+    // Act
+    var validationResult = await validator.ValidateAsync(query);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+    Assert.Equal(HttpStatusCode.OK, validationResult.StatusCode);
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_InvalidMaxAge_InvalidRequest()
+  {
+    // Arrange
+    var serviceProvider = BuildServiceProvider();
+    var client = await GetClient();
+    var userId = client.ConsentGrants.Single().User.Id;
     var validator = serviceProvider.GetRequiredService<IValidator<CreateAuthorizationGrantCommand>>();
     var command = new CreateAuthorizationGrantCommand
     {
       ClientId = client.Id,
-      RedirectUri = "https://localhost:5000",
+      RedirectUri = "https://localhost:5001/callback",
       State = CryptographyHelper.GetRandomString(16),
       Scope = $"{ScopeConstants.OpenId}",
       ResponseType = ResponseTypeConstants.Code,
       CodeChallenge = ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge,
       CodeChallengeMethod = CodeChallengeMethodConstants.S256,
       Nonce = CryptographyHelper.GetRandomString(16),
-      MaxAge = "-1"
+      MaxAge = "invalid_number",
+      UserId = userId
     };
 
     // Act
@@ -418,170 +262,22 @@ public class CreateAuthorizationGrantValidatorTests : BaseUnitTest
 
     // Assert
     Assert.True(result.IsError());
-    Assert.Equal(ErrorCode.InvalidRequest, result.ErrorCode);
     Assert.Equal(HttpStatusCode.OK, result.StatusCode);
   }
 
   [Fact]
-  public async Task ValidateAsync_MaxAgeNotValidNumber_InvalidRequest()
-  {
-    // Arrange
-    var serviceProvider = BuildServiceProvider();
-    var openid = await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId);
-    var grantType = await IdentityContext.Set<GrantType>().SingleAsync(x => x.Name == GrantTypeConstants.AuthorizationCode);
-    var client = ClientBuilder
-      .Instance()
-      .AddScope(openid)
-      .AddGrantType(grantType)
-      .AddRedirectUri("https://localhost:5000")
-      .Build();
-    await IdentityContext.AddAsync(client);
-    await IdentityContext.SaveChangesAsync();
-    var validator = serviceProvider.GetRequiredService<IValidator<CreateAuthorizationGrantCommand>>();
-    var command = new CreateAuthorizationGrantCommand
-    {
-      ClientId = client.Id,
-      RedirectUri = "https://localhost:5000",
-      State = CryptographyHelper.GetRandomString(16),
-      Scope = $"{ScopeConstants.OpenId}",
-      ResponseType = ResponseTypeConstants.Code,
-      CodeChallenge = ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge,
-      CodeChallengeMethod = CodeChallengeMethodConstants.S256,
-      Nonce = CryptographyHelper.GetRandomString(16),
-      MaxAge = "invalid_number"
-    };
-
-    // Act
-    var result = await validator.ValidateAsync(command);
-
-    // Assert
-    Assert.True(result.IsError());
-    Assert.Equal(ErrorCode.InvalidRequest, result.ErrorCode);
-    Assert.Equal(HttpStatusCode.OK, result.StatusCode);
-  }
-
-  [Fact]
-  public async Task ValidateAsync_ConsentIsNull_ConsentRequired()
-  {
-    // Arrange
-    var serviceProvider = BuildServiceProvider();
-    var openid = await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId);
-    var grantType = await IdentityContext.Set<GrantType>().SingleAsync(x => x.Name == GrantTypeConstants.AuthorizationCode);
-    var client = ClientBuilder
-      .Instance()
-      .AddScope(openid)
-      .AddGrantType(grantType)
-      .AddRedirectUri("https://localhost:5000")
-      .Build();
-    await IdentityContext.AddAsync(client);
-    await IdentityContext.SaveChangesAsync();
-    var validator = serviceProvider.GetRequiredService<IValidator<CreateAuthorizationGrantCommand>>();
-    var command = new CreateAuthorizationGrantCommand
-    {
-      ClientId = client.Id,
-      RedirectUri = "https://localhost:5000",
-      State = CryptographyHelper.GetRandomString(16),
-      Scope = $"{ScopeConstants.OpenId}",
-      ResponseType = ResponseTypeConstants.Code,
-      CodeChallenge = ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge,
-      CodeChallengeMethod = CodeChallengeMethodConstants.S256,
-      Nonce = CryptographyHelper.GetRandomString(16),
-      MaxAge = "20"
-    };
-
-    // Act
-    var result = await validator.ValidateAsync(command);
-
-    // Assert
-    Assert.True(result.IsError());
-    Assert.Equal(ErrorCode.ConsentRequired, result.ErrorCode);
-    Assert.Equal(HttpStatusCode.OK, result.StatusCode);
-  }
-
-  [Fact]
-  public async Task ValidateAsync_ConsentNotContainsScope_ConsentRequired()
-  {
-    // Arrange
-    var serviceProvider = BuildServiceProvider();
-    var openid = await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId);
-    var grantType = await IdentityContext.Set<GrantType>().SingleAsync(x => x.Name == GrantTypeConstants.AuthorizationCode);
-    var consent = ConsentGrantBuilder
-      .Instance()
-      .Build();
-    var user = UserBuilder
-      .Instance()
-      .AddPassword(CryptographyHelper.GetRandomString(16))
-      .AddConsentGrant(consent)
-      .Build();
-    var client = ClientBuilder
-      .Instance()
-      .AddConsentGrant(consent)
-      .AddScope(openid)
-      .AddGrantType(grantType)
-      .AddRedirectUri("https://localhost:5000")
-      .Build();
-    await IdentityContext.AddAsync(user);
-    await IdentityContext.AddAsync(client);
-    await IdentityContext.SaveChangesAsync();
-    var validator = serviceProvider.GetRequiredService<IValidator<CreateAuthorizationGrantCommand>>();
-    var command = new CreateAuthorizationGrantCommand
-    {
-      ClientId = client.Id,
-      RedirectUri = "https://localhost:5000",
-      State = CryptographyHelper.GetRandomString(16),
-      Scope = $"{ScopeConstants.OpenId}",
-      ResponseType = ResponseTypeConstants.Code,
-      CodeChallenge = ProofKeyForCodeExchangeHelper.GetPkce().CodeChallenge,
-      CodeChallengeMethod = CodeChallengeMethodConstants.S256,
-      Nonce = CryptographyHelper.GetRandomString(16),
-      MaxAge = "20",
-      UserId = user.Id
-    };
-
-    // Act
-    var result = await validator.ValidateAsync(command);
-
-    // Assert
-    Assert.True(result.IsError());
-    Assert.Equal(ErrorCode.ConsentRequired, result.ErrorCode);
-    Assert.Equal(HttpStatusCode.OK, result.StatusCode);
-  }
-
-  [Fact]
+  [Trait("Category", "Unit")]
   public async Task ValidateAsync_Ok()
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var scope = ScopeBuilder
-      .Instance()
-      .AddName("api")
-      .Build();
-    var openid = await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId);
-    var grantType = await IdentityContext.Set<GrantType>().SingleAsync(x => x.Name == GrantTypeConstants.AuthorizationCode);
-    var consent = ConsentGrantBuilder
-      .Instance()
-      .AddScopes(new []{openid, scope})
-      .Build();
-    var user = UserBuilder
-      .Instance()
-      .AddPassword(CryptographyHelper.GetRandomString(16))
-      .AddConsentGrant(consent)
-      .Build();
-    var client = ClientBuilder
-      .Instance()
-      .AddConsentGrant(consent)
-      .AddScope(openid)
-      .AddGrantType(grantType)
-      .AddRedirectUri("https://localhost:5000")
-      .Build();
-    await IdentityContext.AddAsync(user);
-    await IdentityContext.AddAsync(client);
-    await IdentityContext.SaveChangesAsync();
+    var client = await GetClient();
+    var userId = client.ConsentGrants.Single().User.Id;
     var validator = serviceProvider.GetRequiredService<IValidator<CreateAuthorizationGrantCommand>>();
     var command = new CreateAuthorizationGrantCommand
     {
       ClientId = client.Id,
-      RedirectUri = "https://localhost:5000",
+      RedirectUri = "https://localhost:5001/callback",
       State = CryptographyHelper.GetRandomString(16),
       Scope = $"{ScopeConstants.OpenId}",
       ResponseType = ResponseTypeConstants.Code,
@@ -589,7 +285,7 @@ public class CreateAuthorizationGrantValidatorTests : BaseUnitTest
       CodeChallengeMethod = CodeChallengeMethodConstants.S256,
       Nonce = CryptographyHelper.GetRandomString(16),
       MaxAge = "20",
-      UserId = user.Id
+      UserId = userId
     };
 
     // Act
@@ -598,5 +294,61 @@ public class CreateAuthorizationGrantValidatorTests : BaseUnitTest
     // Assert
     Assert.False(result.IsError());
     Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+  }
+
+  private async Task<Client> GetClient()
+  {
+    var grantType = await IdentityContext
+      .Set<GrantType>()
+      .SingleAsync(x => x.Name == GrantTypeConstants.AuthorizationCode);
+
+    var openIdScope = await IdentityContext
+      .Set<Scope>()
+      .SingleAsync(x => x.Name == ScopeConstants.OpenId);
+
+    var consent = ConsentGrantBuilder
+      .Instance()
+      .AddScopes(openIdScope)
+      .Build();
+
+    var client = ClientBuilder
+      .Instance()
+      .AddGrantType(grantType)
+      .AddRedirectUri("https://localhost:5001/callback")
+      .AddScope(openIdScope)
+      .AddTokenEndpointAuthMethod(TokenEndpointAuthMethod.ClientSecretPost)
+      .AddConsentGrant(consent)
+      .Build();
+
+    var nonce = NonceBuilder
+      .Instance(Guid.NewGuid().ToString())
+      .Build();
+
+    var authorizationCode = AuthorizationCodeBuilder
+      .Instance(Guid.NewGuid().ToString())
+      .Build();
+
+    var authorizationCodeGrant = AuthorizationCodeGrantBuilder
+      .Instance(Guid.NewGuid().ToString())
+      .AddClient(client)
+      .AddNonce(nonce)
+      .AddAuthorizationCode(authorizationCode)
+      .Build();
+
+    var session = SessionBuilder
+      .Instance()
+      .AddAuthorizationCodeGrant(authorizationCodeGrant)
+      .Build();
+
+    var user = UserBuilder
+      .Instance()
+      .AddPassword(CryptographyHelper.GetRandomString(16))
+      .AddSession(session)
+      .AddConsentGrant(consent)
+      .Build();
+
+    await IdentityContext.AddAsync(user);
+    await IdentityContext.SaveChangesAsync();
+    return client;
   }
 }

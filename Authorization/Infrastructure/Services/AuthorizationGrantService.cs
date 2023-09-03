@@ -42,6 +42,7 @@ public class AuthorizationGrantService : IAuthorizationGrantService
     var nonce = new Nonce
     {
       Id = nonceId,
+      IssuedAt = DateTime.UtcNow,
       Value = arguments.Nonce
     };
 
@@ -88,6 +89,7 @@ public class AuthorizationGrantService : IAuthorizationGrantService
     var nonce = new Nonce
     {
       Id = nonceId,
+      IssuedAt = DateTime.UtcNow,
       Value = arguments.Nonce
     };
 

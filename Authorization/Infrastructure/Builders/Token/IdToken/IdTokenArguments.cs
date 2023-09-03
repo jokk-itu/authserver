@@ -1,6 +1,6 @@
 ﻿namespace Infrastructure.Builders.Token.IdToken;
-#nullable disable
+#nullable enable
 public class IdTokenArguments
 {
-  public string AuthorizationGrantId { get; init; }
+  public string AuthorizationGrantId { get; init; } = null!;
 }

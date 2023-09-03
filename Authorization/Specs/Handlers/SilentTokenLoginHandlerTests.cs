@@ -4,7 +4,7 @@ using Domain.Enums;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.IdToken;
 using Infrastructure.Helpers;
-using Infrastructure.Requests.SilentLogin;
+using Infrastructure.Requests.SilentTokenLogin;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,7 +13,7 @@ using Specs.Helpers.EntityBuilders;
 using Xunit;
 
 namespace Specs.Handlers;
-public class SilentLoginHandlerTests : BaseUnitTest
+public class SilentTokenLoginHandlerTests : BaseUnitTest
 {
   [Fact]
   [Trait("Category", "Unit")]
@@ -23,14 +23,14 @@ public class SilentLoginHandlerTests : BaseUnitTest
     var serviceProvider = BuildServiceProvider();
     var client = await GetClient();
     var authorizationGrant = client.AuthorizationCodeGrants.Single();
-    var handler = serviceProvider.GetRequiredService<IRequestHandler<SilentLoginCommand, SilentLoginResponse>>();
+    var handler = serviceProvider.GetRequiredService<IRequestHandler<SilentTokenLoginCommand, SilentTokenLoginResponse>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
     var idToken = await tokenBuilder.BuildToken(new IdTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id
     });
 
-    var command = new SilentLoginCommand
+    var command = new SilentTokenLoginCommand
     {
       ClientId = client.Id,
       Nonce = CryptographyHelper.GetRandomString(16),

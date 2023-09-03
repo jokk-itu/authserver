@@ -80,7 +80,7 @@ public class RedeemAuthorizationCodeGrantHandler : IRequestHandler<RedeemAuthori
 
     var idToken = await _idTokenBuilder.BuildToken(new IdTokenArguments
     {
-      AuthorizationGrantId = query.AuthorizationCodeGrant.Id,
+      AuthorizationGrantId = query.AuthorizationCodeGrant.Id
     });
 
     await _identityContext.SaveChangesAsync(cancellationToken: cancellationToken);

@@ -1,9 +1,9 @@
 ﻿using WebApp.Constants;
 
 namespace WebApp;
-public static class ConsentHelper
+public static class FormHelper
 {
-  public static IEnumerable<string> GetConsentedClaims(IFormCollection formCollection)
+  public static IEnumerable<string> GetFilteredKeys(IFormCollection formCollection)
   {
     var valuesToIgnore = new[] { AntiForgeryConstants.AntiForgeryField };
     return formCollection.Keys.Where(x => !valuesToIgnore.Contains(x));

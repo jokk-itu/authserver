@@ -45,7 +45,7 @@ public class CreateClientHandlerTests : BaseUnitTest
       DefaultMaxAge = "120",
       InitiateLoginUri = "https://localhost:5002/login",
       LogoUri = "https://gravatar.com/avatar",
-      BackChannelLogoutUri = "https://localhost:5002/backchannel-logout",
+      BackchannelLogoutUri = "https://localhost:5002/backchannel-logout",
       PostLogoutRedirectUris = new [] { "https://localhost:5002/postlogout" }
     };
 

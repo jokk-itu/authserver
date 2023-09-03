@@ -7,7 +7,8 @@ public class RedeemAuthorizationCodeGrantResponse : Response
   {
   }
 
-  public RedeemAuthorizationCodeGrantResponse(string? errorCode, string? errorDescription, HttpStatusCode statusCode) : base(errorCode, errorDescription, statusCode)
+  public RedeemAuthorizationCodeGrantResponse(string errorCode, string errorDescription, HttpStatusCode statusCode)
+    : base(errorCode, errorDescription, statusCode)
   {
   }
 
