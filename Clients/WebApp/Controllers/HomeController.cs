@@ -1,5 +1,6 @@
 ﻿using App.Models;
 using App.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -39,7 +40,47 @@ public class HomeController : Controller
     {
       return Redirect("/");
     }
-    return Challenge(OpenIdConnectDefaults.AuthenticationScheme);
+
+    return Challenge(new AuthenticationProperties
+    {
+      RedirectUri = "/"
+    }, OpenIdConnectDefaults.AuthenticationScheme);
+  }
+
+  public IActionResult SilentLogin()
+  {
+    var properties = new AuthenticationProperties(new Dictionary<string, string?>
+    {
+      { "prompt",  "none" }
+    })
+    {
+      RedirectUri = "/",
+    };
+    return Challenge(properties, OpenIdConnectDefaults.AuthenticationScheme);
+  }
+
+  public IActionResult Consent()
+  {
+    var properties = new AuthenticationProperties(new Dictionary<string, string?>
+    {
+      { "prompt",  "login consent" }
+    })
+    {
+      RedirectUri = "/"
+    };
+    return Challenge(properties, OpenIdConnectDefaults.AuthenticationScheme);
+  }
+
+  public IActionResult SelectAccount()
+  {
+    var properties = new AuthenticationProperties(new Dictionary<string, string?>
+    {
+      { "prompt",  "select_account" }
+    })
+    {
+      RedirectUri = "/"
+    };
+    return Challenge(properties, OpenIdConnectDefaults.AuthenticationScheme);
   }
 
   [Authorize]

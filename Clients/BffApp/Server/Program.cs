@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Yarp.ReverseProxy.Transforms;
 using Serilog;
 using Microsoft.Extensions.Options;
@@ -11,6 +10,7 @@ using OIDC.Client.Configure;
 using OIDC.Client.Handlers;
 using OIDC.Client.Handlers.Abstract;
 using OIDC.Client.Settings;
+using Serilog.Events;
 using Server;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,8 +19,11 @@ builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggerConfiguratio
 {
   loggerConfiguration
     .Enrich.FromLogContext()
-    .MinimumLevel.Information()
+    .MinimumLevel.Warning()
     .Enrich.WithProperty("Application", "Wasm")
+    .MinimumLevel.Override("Microsoft.AspNetCore.Authentication.OpenIdConnect", LogEventLevel.Verbose)
+    .MinimumLevel.Override("Serilog.AspNetCore", LogEventLevel.Information)
+    .MinimumLevel.Override("OIDC.Client", LogEventLevel.Information)
     .WriteTo.Console();
 });
 
@@ -39,10 +42,7 @@ builder.WebHost.ConfigureServices((context, services) =>
   services.AddSingleton<IConfigureOptions<IdentityProviderSettings>, ConfigureIdentityProviderSettings>();
   services.AddSingleton<IConfigureOptions<OpenIdConnectOptions>, ConfigureOpenIdConnectOptions>();
   services.AddSingleton<IConfigureOptions<CookieAuthenticationOptions>, ConfigureCookieAuthenticationOptions>();
-
   services.AddTransient<ICookieAuthenticationEventHandler, CookieAuthenticationEventHandler>();
-  services.AddTransient<IOpenIdConnectEventHandler, OpenIdConnectEventHandler>();
-
   services
     .AddAuthentication(options =>
     {
@@ -57,13 +57,6 @@ builder.WebHost.ConfigureServices((context, services) =>
       x.Cookie.Name = "IdentityCookie-Wasm";
     })
     .AddOpenIdConnect();
-
-  services.AddCookiePolicy(cookiePolicyOptions =>
-  {
-    cookiePolicyOptions.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
-    cookiePolicyOptions.MinimumSameSitePolicy = SameSiteMode.Strict;
-    cookiePolicyOptions.Secure = CookieSecurePolicy.Always;
-  });
 
   services.AddAuthorization(options => options.AddPolicy("CookieAuthenticationPolicy", policyBuilder =>
   {
@@ -104,12 +97,9 @@ app.UseHsts();
 app.UseSerilogRequestLogging();
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapRazorPages();
 app.MapControllers();
 app.MapReverseProxy();

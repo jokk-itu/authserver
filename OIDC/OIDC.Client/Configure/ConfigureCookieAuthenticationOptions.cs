@@ -15,13 +15,11 @@ public class ConfigureCookieAuthenticationOptions : IConfigureNamedOptions<Cooki
 
   public void Configure(CookieAuthenticationOptions options)
   {
-    options.Cookie = new CookieBuilder
-    {
-      HttpOnly = true,
-      SameSite = SameSiteMode.Strict,
-      SecurePolicy = CookieSecurePolicy.Always,
-      IsEssential = true,
-    };
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+
     options.Events = new CookieAuthenticationEvents
     {
       OnValidatePrincipal = _cookieAuthenticationEventHandler.GetRefreshTokenIfExceededExpiration

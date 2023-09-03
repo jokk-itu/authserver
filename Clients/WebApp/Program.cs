@@ -19,8 +19,10 @@ builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggingConfigurati
   loggingConfiguration
     .Enrich.FromLogContext()
     .Enrich.WithProperty("Application", "WebApp")
-    .MinimumLevel.Information()
+    .MinimumLevel.Warning()
     .MinimumLevel.Override("App", LogEventLevel.Information)
+    .MinimumLevel.Override("Serilog.AspNetCore", LogEventLevel.Information)
+    .MinimumLevel.Override("OIDC.Client", LogEventLevel.Information)
     .WriteTo.Console();
 });
 
@@ -34,8 +36,6 @@ builder.WebHost.ConfigureServices((builderContext, services) =>
   services.AddSingleton<IConfigureOptions<CookieAuthenticationOptions>, ConfigureCookieAuthenticationOptions>();
 
   services.AddTransient<ICookieAuthenticationEventHandler, CookieAuthenticationEventHandler>();
-  services.AddTransient<IOpenIdConnectEventHandler, OpenIdConnectEventHandler>();
-
   services.AddAuthentication(configureOptions => 
   {
     configureOptions.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -51,12 +51,6 @@ builder.WebHost.ConfigureServices((builderContext, services) =>
   .AddOpenIdConnect();
 
   services.AddAuthorization();
-  services.AddCookiePolicy(cookiePolicyOptions =>
-  {
-    cookiePolicyOptions.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
-    cookiePolicyOptions.MinimumSameSitePolicy = SameSiteMode.Strict;
-    cookiePolicyOptions.Secure = CookieSecurePolicy.Always;
-  });
   services.AddHttpClient<WeatherService>(httpClient =>
   {
     httpClient.BaseAddress = new Uri(builderContext.Configuration.GetSection("WeatherService")["Url"]);
@@ -95,12 +89,9 @@ app.UseHsts();
 app.UseHttpsRedirection();
 app.UseSerilogRequestLogging();
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
