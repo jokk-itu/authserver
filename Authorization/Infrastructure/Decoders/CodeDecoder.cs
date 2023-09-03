@@ -25,11 +25,6 @@ public class CodeDecoder : ICodeDecoder
     var ms = new MemoryStream(unProtectedBytes);
     using var reader = new BinaryReader(ms, Encoding.UTF8, false);
     var deserializedCode = JsonSerializer.Deserialize<AuthorizationCode>(reader.ReadString());
-    if (deserializedCode is null)
-    {
-      throw new InvalidOperationException();
-    }
-
-    return deserializedCode;
+    return deserializedCode ?? throw new InvalidOperationException();
   }
 }

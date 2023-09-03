@@ -4,6 +4,7 @@ using Domain;
 using Domain.Constants;
 using Infrastructure;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +26,21 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     _factory = factory.WithWebHostBuilder(builder =>
       {
         builder.UseEnvironment("Integration");
+        builder.ConfigureServices((builderContext, services) =>
+        {
+          services.AddAntiforgery(antiForgeryOptions =>
+          {
+            antiForgeryOptions.FormFieldName = AntiForgeryConstants.AntiForgeryField;
+            antiForgeryOptions.Cookie = new CookieBuilder
+            {
+              Name = AntiForgeryConstants.AntiForgeryCookie,
+              HttpOnly = true,
+              IsEssential = true,
+              SameSite = SameSiteMode.Strict,
+              SecurePolicy = CookieSecurePolicy.None
+            };
+          });
+        });
       });
   }
 

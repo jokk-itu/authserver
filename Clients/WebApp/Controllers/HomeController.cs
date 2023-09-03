@@ -29,7 +29,7 @@ public class HomeController : Controller
   }
 
   [Authorize]
-  public async Task<IActionResult> Account()
+  public IActionResult Account()
   {
     return View();
   }
@@ -40,13 +40,54 @@ public class HomeController : Controller
     {
       return Redirect("/");
     }
-    return Challenge(OpenIdConnectDefaults.AuthenticationScheme);
+
+    return Challenge(new AuthenticationProperties
+    {
+      RedirectUri = "/"
+    }, OpenIdConnectDefaults.AuthenticationScheme);
+  }
+
+  public IActionResult SilentLogin()
+  {
+    var properties = new AuthenticationProperties(new Dictionary<string, string?>
+    {
+      { "prompt",  "none" }
+    })
+    {
+      RedirectUri = "/",
+    };
+    return Challenge(properties, OpenIdConnectDefaults.AuthenticationScheme);
+  }
+
+  public IActionResult Consent()
+  {
+    var properties = new AuthenticationProperties(new Dictionary<string, string?>
+    {
+      { "prompt",  "login consent" }
+    })
+    {
+      RedirectUri = "/"
+    };
+    return Challenge(properties, OpenIdConnectDefaults.AuthenticationScheme);
+  }
+
+  public IActionResult SelectAccount()
+  {
+    var properties = new AuthenticationProperties(new Dictionary<string, string?>
+    {
+      { "prompt",  "select_account" }
+    })
+    {
+      RedirectUri = "/"
+    };
+    return Challenge(properties, OpenIdConnectDefaults.AuthenticationScheme);
   }
 
   [Authorize]
-  public async Task Logout()
+  public IActionResult Logout()
   {
-    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    await HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme);
+    return SignOut(
+        CookieAuthenticationDefaults.AuthenticationScheme,
+        OpenIdConnectDefaults.AuthenticationScheme);
   }
 }

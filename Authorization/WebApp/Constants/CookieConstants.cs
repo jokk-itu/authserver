@@ -2,5 +2,5 @@
 
 public static class CookieConstants
 {
-  public const string IdentityCookie = "IdentityCookie";
+  public const string IdentityCookie = "IdentityCookie-AuthorizationServer";
 }

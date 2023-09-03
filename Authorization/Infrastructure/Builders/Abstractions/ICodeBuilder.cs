@@ -7,5 +7,6 @@ public interface ICodeBuilder
     string nonceId,
     string codeChallenge, 
     string codeChallengeMethod,
-    ICollection<string> scopes);
+    ICollection<string> scopes,
+    string? redirectUri = null);
 }

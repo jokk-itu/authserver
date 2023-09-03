@@ -29,8 +29,8 @@ public class ClaimServiceTests : BaseUnitTest
   public async Task GetClaimsFromConsentGrant_ExpectClaims()
   {
     // Arrange
-    var scopes = await IdentityContext.Set<Scope>().ToListAsync();
-    var claims = await IdentityContext.Set<Claim>().ToListAsync();
+    var scopes = await IdentityContext.Set<Scope>().ToArrayAsync();
+    var claims = await IdentityContext.Set<Claim>().ToArrayAsync();
     var consentGrant = ConsentGrantBuilder
       .Instance()
       .AddClaims(claims)

@@ -9,6 +9,10 @@ public class AuthorizeContextAccessor : IContextAccessor<AuthorizeContext>
     {
         var query = httpContext.Request.Query;
         var context = new AuthorizeContext();
+        if (query.TryGetValue(ParameterNames.ResponseMode, out var responseMode))
+        {
+            context.ResponseMode = responseMode;
+        }
         if (query.TryGetValue(ParameterNames.MaxAge, out var maxAge))
         {
             context.MaxAge = maxAge;

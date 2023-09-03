@@ -9,7 +9,7 @@ public abstract class Response
     StatusCode = statusCode;
   }
 
-  protected Response(string? errorCode, string? errorDescription, HttpStatusCode statusCode)
+  protected Response(string errorCode, string errorDescription, HttpStatusCode statusCode)
   {
     ErrorCode = errorCode;
     ErrorDescription = errorDescription;

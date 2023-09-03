@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 
 namespace Domain;
 
@@ -21,8 +18,7 @@ public class AuthorizationCodeGrant
   public static Expression<Func<AuthorizationCodeGrant, bool>> IsAuthorizationCodeValid(string authorizationCodeId) =>
     a => a.AuthorizationCodes.Any()
          && a.AuthorizationCodes.AsQueryable().Where(AuthorizationCode.IsValid).Any(x => x.Id == authorizationCodeId)
-         && !a.IsRevoked
-         && a.AuthTime.AddSeconds(30) > DateTime.UtcNow;
+         && !a.IsRevoked;
 
   public static readonly Expression<Func<AuthorizationCodeGrant, bool>> IsMaxAgeValid = a =>
     !a.IsRevoked && (a.MaxAge == null || a.AuthTime.AddSeconds(a.MaxAge.Value) > DateTime.UtcNow);

@@ -34,19 +34,25 @@ builder.WebHost.ConfigureServices(services =>
   services
     .AddDataStore(builder.Configuration)
     .AddBuilders()
-    .AddDataServices()
+    .AddServices()
     .AddDecoders()
     .AddManagers()
     .AddRequests()
     .AddContextAccessors()
     .AddDelegatingHandlers();
-  
+
   services.AddCorsPolicy();
-  services.AddCookiePolicy();
   services.AddAntiforgery(antiForgeryOptions =>
   {
     antiForgeryOptions.FormFieldName = AntiForgeryConstants.AntiForgeryField;
-    antiForgeryOptions.Cookie.Name = AntiForgeryConstants.AntiForgeryCookie;
+    antiForgeryOptions.Cookie = new CookieBuilder
+    {
+      Name = AntiForgeryConstants.AntiForgeryCookie, 
+      HttpOnly = true,
+      IsEssential = true,
+      SameSite = SameSiteMode.Strict,
+      SecurePolicy = CookieSecurePolicy.Always
+    };
   });
 
   builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -77,14 +83,15 @@ app.UseStaticFiles();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers();
+app.MapControllerRoute(
+  name: "default",
+  pattern: "{controller=Home}/{action=Index}");
 
 app.Run();
 
-public partial class Program 
+public partial class Program
 {
   public Program()
   {
-
   }
 }

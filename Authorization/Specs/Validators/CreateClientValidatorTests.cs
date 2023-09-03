@@ -7,31 +7,26 @@ using Xunit;
 namespace Specs.Validators;
 public class CreateClientValidatorTests : BaseUnitTest
 {
-  private readonly CreateClientCommand _command;
-
-  public CreateClientValidatorTests()
+  private readonly CreateClientCommand _command = new()
   {
-    _command = new CreateClientCommand
-    {
-      ApplicationType = string.Empty,
-      ResponseTypes = new List<string>(),
-      TokenEndpointAuthMethod = string.Empty,
-      Contacts = new List<string>(),
-      PolicyUri = string.Empty,
-      RedirectUris = new[] { "https://localhost:5002/callback" },
-      Scope = $"{ScopeConstants.OpenId}",
-      GrantTypes = new[] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken },
-      SubjectType = string.Empty,
-      TosUri = string.Empty,
-      ClientName = "test",
-      ClientUri = string.Empty,
-      DefaultMaxAge = string.Empty,
-      LogoUri = string.Empty,
-      InitiateLoginUri = string.Empty,
-      BackChannelLogoutUri = string.Empty,
-      PostLogoutRedirectUris = new List<string>()
-    };
-  }
+    ApplicationType = string.Empty,
+    ResponseTypes = new List<string>(),
+    TokenEndpointAuthMethod = string.Empty,
+    Contacts = new List<string>(),
+    PolicyUri = string.Empty,
+    RedirectUris = new[] { "https://localhost:5002/callback" },
+    Scope = $"{ScopeConstants.OpenId}",
+    GrantTypes = new[] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken },
+    SubjectType = string.Empty,
+    TosUri = string.Empty,
+    ClientName = "test",
+    ClientUri = string.Empty,
+    DefaultMaxAge = string.Empty,
+    LogoUri = string.Empty,
+    InitiateLoginUri = string.Empty,
+    BackchannelLogoutUri = string.Empty,
+    PostLogoutRedirectUris = new List<string>()
+  };
 
   [Fact]
   [Trait("Category", "Unit")]
@@ -69,7 +64,7 @@ public class CreateClientValidatorTests : BaseUnitTest
       DefaultMaxAge = "120",
       LogoUri = "https://gravatar.com/avatar",
       InitiateLoginUri = "https://localhost:5002/login",
-      BackChannelLogoutUri = "https://localhost:5002/logout",
+      BackchannelLogoutUri = "https://localhost:5002/logout",
       PostLogoutRedirectUris = new[] { "https://localhost:5002" }
     };
     var validator = new CreateClientValidator(IdentityContext);
@@ -407,7 +402,7 @@ public class CreateClientValidatorTests : BaseUnitTest
   public async Task ValidateAsync_InvalidBackChannelLogoutUri_ExpectErrorResult()
   {
     // Arrange
-    _command.BackChannelLogoutUri = "invalid_uri";
+    _command.BackchannelLogoutUri = "invalid_uri";
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act
@@ -422,7 +417,7 @@ public class CreateClientValidatorTests : BaseUnitTest
   public async Task ValidateAsync_InvalidBackChannelLogoutUriWithFragment_ExpectErrorResult()
   {
     // Arrange
-    _command.BackChannelLogoutUri = "https://localhost:5002/callback#something";
+    _command.BackchannelLogoutUri = "https://localhost:5002/callback#something";
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act

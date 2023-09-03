@@ -112,12 +112,12 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
 
   private static bool IsBackChannelLogoutUriInvalid(CreateClientCommand command)
   {
-    if(string.IsNullOrWhiteSpace(command.BackChannelLogoutUri))
+    if(string.IsNullOrWhiteSpace(command.BackchannelLogoutUri))
     {
       return false;
     }
 
-    return !(Uri.TryCreate(command.BackChannelLogoutUri, UriKind.Absolute, out var uri)
+    return !(Uri.TryCreate(command.BackchannelLogoutUri, UriKind.Absolute, out var uri)
              && string.IsNullOrWhiteSpace(uri.Fragment));
   }
 

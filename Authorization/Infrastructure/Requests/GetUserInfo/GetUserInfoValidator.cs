@@ -68,7 +68,8 @@ public class GetUserInfoValidator : IValidator<GetUserInfoQuery>
 
     if (!isUserValid)
     {
-      return new ValidationResult(ErrorCode.AccessDenied, "session is invalid", HttpStatusCode.BadRequest);
+      return new ValidationResult(ErrorCode.AccessDenied,
+        "session is invalid", HttpStatusCode.BadRequest);
     }
 
     return new ValidationResult(HttpStatusCode.OK);

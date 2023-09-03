@@ -1,6 +1,9 @@
-﻿using System.Security.Cryptography;
+﻿using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using Domain;
+using Domain.Enums;
+using Domain.Extensions;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -89,6 +92,76 @@ else if (args[0] == "migration")
   Log.Information("Migration starting");
   await identityContext.Database.MigrateAsync();
   Log.Information("Migration finished");
+}
+else if (args[0] == "cleanclient")
+{
+  Log.Information("Clean Clients started");
+  var clients = await identityContext.Set<Client>().ToListAsync();
+  identityContext.RemoveRange(clients);
+  await identityContext.SaveChangesAsync();
+  Log.Information("Cleaned {amount} Clients", clients.Count);
+}
+else if (args[0] == "client")
+{
+  var clients = config.GetSection("Clients").GetChildren();
+  var newClients = new List<Client>();
+  foreach (var client in clients)
+  {
+    var clientId = client["ClientId"];
+    var clientSecret = client["ClientSecret"];
+    var applicationType = client["ApplicationType"].GetEnum<ApplicationType>();
+    var tokenEndpointAuthMethod = client["TokenEndpointAuthMethod"].GetEnum<TokenEndpointAuthMethod>();
+    var subjectType = client["SubjectType"].GetEnum<SubjectType>();
+    var clientUri = client["ClientUri"];
+    var backchannelLogoutUri = client["BackchannelLogoutUri"];
+    var clientName = client["ClientName"];
+
+    var newClient = new Client
+    {
+      Id = clientId,
+      Name = clientName,
+      Secret = clientSecret,
+      ApplicationType = applicationType,
+      TokenEndpointAuthMethod = tokenEndpointAuthMethod,
+      SubjectType = subjectType,
+      ClientUri = clientUri,
+      BackchannelLogoutUri = backchannelLogoutUri
+    };
+
+    var scopes = client["Scope"].Split(' ');
+    foreach (var scope in scopes)
+    {
+      newClient.Scopes.Add(
+        await identityContext.Set<Scope>().SingleAsync(x => x.Name == scope));
+    }
+
+    foreach (var grantType in client.GetSection("GrantTypes").GetChildren())
+    {
+      newClient.GrantTypes.Add(
+        await identityContext.Set<GrantType>().SingleAsync(x => x.Name == grantType.Value));
+    }
+
+    newClient.RedirectUris.Add(new RedirectUri
+    {
+      Type = RedirectUriType.AuthorizeRedirectUri,
+      Uri = client["AuthorizeRedirectUri"]
+    });
+
+    newClient.RedirectUris.Add(new RedirectUri
+    {
+      Type = RedirectUriType.PostLogoutRedirectUri,
+      Uri = client["PostLogoutRedirectUri"]
+    });
+
+    newClient.ResponseTypes.Add(
+      await identityContext.Set<ResponseType>().SingleAsync(x => x.Name == client["ResponseType"]));
+
+    Log.Information("Inserted Client {@client}", newClient);
+    newClients.Add(newClient);
+  }
+  await identityContext.Set<Client>().AddRangeAsync(newClients);
+  await identityContext.SaveChangesAsync();
+  Log.Information("{Amount} Clients inserted", newClients.Count);
 }
 else
 {

@@ -1,0 +1,17 @@
+﻿@page "/account"
+@using Microsoft.AspNetCore.Components.Authorization
+
+<AuthorizeView>
+    <Authorized>
+        Hello, @context.User.Identity.Name
+        <br/>
+        @foreach (var claim in context.User.Claims)
+        {
+            <p>ClaimType: @claim.Type, ClaimValue: @claim.Value</p>
+            <br/>
+        }
+    </Authorized>
+    <NotAuthorized>
+        You are not logged in.
+    </NotAuthorized>
+</AuthorizeView>

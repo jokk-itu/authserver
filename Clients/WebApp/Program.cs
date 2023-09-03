@@ -9,7 +9,6 @@ using Microsoft.Extensions.Options;
 using OIDC.Client.Configure;
 using OIDC.Client.Handlers;
 using OIDC.Client.Handlers.Abstract;
-using OIDC.Client.Registration;
 using OIDC.Client.Settings;
 using Serilog.Events;
 
@@ -20,12 +19,14 @@ builder.Host.UseSerilog((hostBuilderContext, serviceProvider, loggingConfigurati
   loggingConfiguration
     .Enrich.FromLogContext()
     .Enrich.WithProperty("Application", "WebApp")
-    .MinimumLevel.Information()
+    .MinimumLevel.Warning()
     .MinimumLevel.Override("App", LogEventLevel.Information)
+    .MinimumLevel.Override("Serilog.AspNetCore", LogEventLevel.Information)
+    .MinimumLevel.Override("OIDC.Client", LogEventLevel.Information)
     .WriteTo.Console();
 });
 
-builder.WebHost.ConfigureServices(services =>
+builder.WebHost.ConfigureServices((builderContext, services) =>
 {
   services.AddControllersWithViews();
 
@@ -35,34 +36,29 @@ builder.WebHost.ConfigureServices(services =>
   services.AddSingleton<IConfigureOptions<CookieAuthenticationOptions>, ConfigureCookieAuthenticationOptions>();
 
   services.AddTransient<ICookieAuthenticationEventHandler, CookieAuthenticationEventHandler>();
-  services.AddTransient<IOpenIdConnectEventHandler, OpenIdConnectEventHandler>();
-  services.AddTransient<IRegistrationService, RegistrationService>();
-
   services.AddAuthentication(configureOptions => 
   {
     configureOptions.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     configureOptions.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
   })
-  .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+  .AddCookie(options =>
+  {
+    options.LoginPath = "/Home/Login";
+    options.LogoutPath = "/Home/Logout";
+    options.ReturnUrlParameter = "Home";
+    options.Cookie.Name = "IdentityCookie-WebApp";
+  })
   .AddOpenIdConnect();
 
-  services.AddSingleton<IPostConfigureOptions<OpenIdConnectOptions>, PostConfigureOpenIdConnectOptions>();
-
   services.AddAuthorization();
-  services.AddCookiePolicy(cookiePolicyOptions =>
-  {
-    cookiePolicyOptions.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
-    cookiePolicyOptions.MinimumSameSitePolicy = SameSiteMode.Strict;
-    cookiePolicyOptions.Secure = CookieSecurePolicy.Always;
-  });
   services.AddHttpClient<WeatherService>(httpClient =>
   {
-    httpClient.BaseAddress = new Uri(builder.Configuration.GetSection("WeatherService")["Url"]);
+    httpClient.BaseAddress = new Uri(builderContext.Configuration.GetSection("WeatherService")["Url"]);
   }).AddHttpMessageHandler<PopulateAccessTokenDelegatingHandler>();
 
   services.AddHttpClient("IdentityProvider", httpClient =>
   {
-    httpClient.BaseAddress = new Uri(builder.Configuration.GetSection("Identity")["Authority"]);
+    httpClient.BaseAddress = new Uri(builderContext.Configuration.GetSection("Identity")["Authority"]);
   });
 
   services.AddHttpContextAccessor();
@@ -93,12 +89,9 @@ app.UseHsts();
 app.UseHttpsRedirection();
 app.UseSerilogRequestLogging();
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

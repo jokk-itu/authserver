@@ -16,6 +16,7 @@ namespace Specs.Validators;
 public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
 {
     [Fact]
+    [Trait("Category", "Unit")]
     public async Task ValidateAsync_ExpectInvalidCodeVerifier()
     {
         // Arrange
@@ -46,6 +47,7 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
     }
 
     [Fact]
+    [Trait("Category", "Unit")]
     public async Task ValidateAsync_ExpectInvalidGrantType()
     {
         // Arrange
@@ -77,6 +79,41 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
     }
 
     [Fact]
+    [Trait("Category", "Unit")]
+    public async Task ValidateAsync_MissingRedirectUri_InvalidRequest()
+    {
+      // Arrange
+      var serviceProvider = BuildServiceProvider();
+      var codeBuilder = serviceProvider.GetRequiredService<ICodeBuilder>();
+      var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
+      var code = await codeBuilder.BuildAuthorizationCodeAsync(
+        Guid.NewGuid().ToString(),
+        Guid.NewGuid().ToString(),
+        Guid.NewGuid().ToString(),
+        pkce.CodeChallenge,
+        CodeChallengeMethodConstants.S256,
+        new[] { ScopeConstants.OpenId },
+        "https://localhost:5001/callback");
+
+      var validator = serviceProvider.GetRequiredService<IValidator<RedeemAuthorizationCodeGrantCommand>>();
+      var command = new RedeemAuthorizationCodeGrantCommand
+      {
+        Code = code,
+        CodeVerifier = pkce.CodeVerifier,
+        GrantType = GrantTypeConstants.AuthorizationCode,
+        RedirectUri = string.Empty
+      };
+
+      // Act
+      var validationResult = await validator.ValidateAsync(command, CancellationToken.None);
+
+      // Assert
+      Assert.True(validationResult.IsError());
+      Assert.Equal(ErrorCode.InvalidRequest, validationResult.ErrorCode);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
     public async Task ValidateAsync_ExpectInvalidGrant()
     {
         // Arrange
@@ -108,6 +145,7 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
     }
 
     [Fact]
+    [Trait("Category", "Unit")]
     public async Task ValidateAsync_InvalidClientId_ExpectInvalidClient()
     {
         // Arrange
@@ -142,6 +180,7 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
     }
 
     [Fact]
+    [Trait("Category", "Unit")]
     public async Task ValidateAsync_InvalidClientSecret_ExpectInvalidClient()
     {
       // Arrange
@@ -176,40 +215,81 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
     }
 
     [Fact]
-    public async Task ValidateAsync_ExpectUnauthorizedClient()
+    [Trait("Category", "Unit")]
+    public async Task ValidateAsync_UnauthorizedRedirectUri_UnauthorizedClient()
     {
-        // Arrange
-        var serviceProvider = BuildServiceProvider();
-        var authorizationCodeGrant = await GetAuthorizationGrant(ApplicationType.Web, new List<string>());
-        var codeBuilder = serviceProvider.GetRequiredService<ICodeBuilder>();
-        var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
-        var code = await codeBuilder.BuildAuthorizationCodeAsync(
-          authorizationCodeGrant.Id,
-          authorizationCodeGrant.AuthorizationCodes.Single().Id,
-          authorizationCodeGrant.Nonces.Single().Id,
-          pkce.CodeChallenge,
-          CodeChallengeMethodConstants.S256,
-          new[] { ScopeConstants.OpenId });
+      // Arrange
+      var serviceProvider = BuildServiceProvider();
+      var authorizationCodeGrant = await GetAuthorizationGrant(ApplicationType.Web, new List<string>());
+      var codeBuilder = serviceProvider.GetRequiredService<ICodeBuilder>();
+      var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
+      var code = await codeBuilder.BuildAuthorizationCodeAsync(
+        authorizationCodeGrant.Id,
+        authorizationCodeGrant.AuthorizationCodes.Single().Id,
+        authorizationCodeGrant.Nonces.Single().Id,
+        pkce.CodeChallenge,
+        CodeChallengeMethodConstants.S256,
+        new[] { ScopeConstants.OpenId });
 
-        var validator = serviceProvider.GetRequiredService<IValidator<RedeemAuthorizationCodeGrantCommand>>();
-        var command = new RedeemAuthorizationCodeGrantCommand
-        {
-            Code = code,
-            CodeVerifier = pkce.CodeVerifier,
-            GrantType = GrantTypeConstants.AuthorizationCode,
-            ClientId = authorizationCodeGrant.Client.Id,
-            ClientSecret = authorizationCodeGrant.Client.Secret
-        };
+      var validator = serviceProvider.GetRequiredService<IValidator<RedeemAuthorizationCodeGrantCommand>>();
+      var command = new RedeemAuthorizationCodeGrantCommand
+      {
+        Code = code,
+        CodeVerifier = pkce.CodeVerifier,
+        GrantType = GrantTypeConstants.AuthorizationCode,
+        ClientId = authorizationCodeGrant.Client.Id,
+        ClientSecret = authorizationCodeGrant.Client.Secret,
+        RedirectUri = "https://localhost:5002/wrong-callback"
+      };
 
-        // Act
-        var validationResult = await validator.ValidateAsync(command, CancellationToken.None);
+      // Act
+      var validationResult = await validator.ValidateAsync(command, CancellationToken.None);
 
-        // Assert
-        Assert.True(validationResult.IsError());
-        Assert.Equal(ErrorCode.UnauthorizedClient, validationResult.ErrorCode);
+      // Assert
+      Assert.True(validationResult.IsError());
+      Assert.Equal(ErrorCode.UnauthorizedClient, validationResult.ErrorCode);
     }
 
     [Fact]
+    [Trait("Category", "Unit")]
+    public async Task ValidateAsync_UnauthorizedForAuthorization_UnauthorizedClient()
+    {
+      // Arrange
+      var serviceProvider = BuildServiceProvider();
+      var authorizationCodeGrant = await GetAuthorizationGrant(ApplicationType.Web, new List<string>());
+      authorizationCodeGrant.Client.GrantTypes.Clear();
+      await IdentityContext.SaveChangesAsync();
+      
+      var codeBuilder = serviceProvider.GetRequiredService<ICodeBuilder>();
+      var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
+      var code = await codeBuilder.BuildAuthorizationCodeAsync(
+        authorizationCodeGrant.Id,
+        authorizationCodeGrant.AuthorizationCodes.Single().Id,
+        authorizationCodeGrant.Nonces.Single().Id,
+        pkce.CodeChallenge,
+        CodeChallengeMethodConstants.S256,
+        new[] { ScopeConstants.OpenId });
+
+      var validator = serviceProvider.GetRequiredService<IValidator<RedeemAuthorizationCodeGrantCommand>>();
+      var command = new RedeemAuthorizationCodeGrantCommand
+      {
+        Code = code,
+        CodeVerifier = pkce.CodeVerifier,
+        GrantType = GrantTypeConstants.AuthorizationCode,
+        ClientId = authorizationCodeGrant.Client.Id,
+        ClientSecret = authorizationCodeGrant.Client.Secret
+      };
+
+      // Act
+      var validationResult = await validator.ValidateAsync(command, CancellationToken.None);
+
+      // Assert
+      Assert.True(validationResult.IsError());
+      Assert.Equal(ErrorCode.UnauthorizedClient, validationResult.ErrorCode);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
     public async Task ValidateAsync_ExpectInvalidSession()
     {
         // Arrange
@@ -247,6 +327,7 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
     }
 
     [Fact]
+    [Trait("Category", "Unit")]
     public async Task ValidateAsync_NullConsentGrant_ConsentRequired()
     {
       // Arrange
@@ -285,6 +366,7 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
     }
 
     [Fact]
+    [Trait("Category", "Unit")]
     public async Task ValidateAsync_ScopeExceedsRequestedScope_InvalidScope()
     {
       // Arrange
@@ -321,6 +403,7 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
     }
 
     [Fact]
+    [Trait("Category", "Unit")]
     public async Task ValidateAsync_ExpectOk()
     {
         // Arrange
@@ -359,7 +442,7 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
       var consentedScopes = await IdentityContext
         .Set<Scope>()
         .Where(x => scopes.Any(y => y == x.Name))
-        .ToListAsync();
+        .ToArrayAsync();
 
       var consentGrant = ConsentGrantBuilder
         .Instance()

@@ -1,4 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 using Application;
 using Domain;
 using Domain.Constants;
@@ -40,7 +40,7 @@ public class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
         ClientId = x.Client.Id,
         SessionId = x.Session.Id,
         UserId = x.Session.User.Id,
-        Nonce = x.Nonces.OrderBy(y => y.Id).First().Value
+        Nonce = x.Nonces.OrderByDescending(y => y.IssuedAt).First()
       })
       .SingleAsync();
 
@@ -51,7 +51,7 @@ public class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
       { ClaimNameConstants.Sub, query.UserId },
       { ClaimNameConstants.Jti, Guid.NewGuid() },
       { ClaimNameConstants.GrantId, arguments.AuthorizationGrantId },
-      { ClaimNameConstants.Nonce, query.Nonce }
+      { ClaimNameConstants.Nonce, query.Nonce.Value }
     };
     var now = DateTime.UtcNow;
     // TODO deduce encryption and signing from IdToken

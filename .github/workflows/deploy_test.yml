@@ -27,6 +27,7 @@ jobs:
           docker build . -f Authorization/ConfigurationApp/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/configurationapp:latest
           docker build . -f Clients/WebApp/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/webapp:latest
           docker build . -f ProtectedResources/WeatherService/Api/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/weatherservice:latest
+          docker build . -f Clients/BffApp/Server/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/bffapp:latest
       
       - name: Push Images
         run: |
@@ -34,3 +35,4 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/configurationapp:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/webapp:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/weatherservice:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/bffapp:latest

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Domain.Constants;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.CookiePolicy;
 using WebApp.Constants;
 using WebApp.Options;
 using WebApp.Context.Abstract;
@@ -49,17 +50,6 @@ public static class ServiceCollectionExtensions
         policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
         policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ClientConfiguration);
       });
-    });
-    return services;
-  }
-
-  public static IServiceCollection AddCookiePolicy(this IServiceCollection services)
-  {
-    services.AddCookiePolicy(cookiePolicyOptions =>
-    {
-      cookiePolicyOptions.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
-      cookiePolicyOptions.MinimumSameSitePolicy = SameSiteMode.Strict;
-      cookiePolicyOptions.Secure = CookieSecurePolicy.Always;
     });
     return services;
   }

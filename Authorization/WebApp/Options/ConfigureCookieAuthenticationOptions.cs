@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
 using WebApp.Constants;
+using CookieBuilder = Microsoft.AspNetCore.Http.CookieBuilder;
 
 namespace WebApp.Options;
 
@@ -17,10 +18,10 @@ public class ConfigureCookieAuthenticationOptions : IConfigureNamedOptions<Cooki
     {
       Name = CookieConstants.IdentityCookie,
       HttpOnly = true,
-      IsEssential = true,
       SameSite = SameSiteMode.Strict,
-      SecurePolicy = CookieSecurePolicy.Always
+      SecurePolicy = CookieSecurePolicy.Always,
+      MaxAge = TimeSpan.FromDays(2),
+      IsEssential = true
     };
-    options.ExpireTimeSpan = TimeSpan.FromSeconds(30);
   }
 }

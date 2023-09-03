@@ -11,7 +11,7 @@ public class Client
   public string? ClientUri { get; set; }
   public string? LogoUri { get; set; }
   public string? InitiateLoginUri { get; set; }
-  public string? BackChannelLogoutUri { get; set; }
+  public string? BackchannelLogoutUri { get; set; }
   public long? DefaultMaxAge { get; set; }
   public ApplicationType ApplicationType { get; set; }
   public TokenEndpointAuthMethod TokenEndpointAuthMethod { get; set; }

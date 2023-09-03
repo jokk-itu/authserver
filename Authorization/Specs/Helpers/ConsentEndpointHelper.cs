@@ -8,7 +8,7 @@ public static class ConsentEndpointHelper
 {
   public static async Task<HttpResponseMessage> GetConsent(HttpClient client, QueryString query, AntiForgeryToken antiForgeryToken, string authenticationCookie)
   {
-    var postConsentRequest = new HttpRequestMessage(HttpMethod.Post, $"connect/consent/create{query}");
+    var postConsentRequest = new HttpRequestMessage(HttpMethod.Post, $"connect/consent/{query}");
     postConsentRequest.Headers.Add("Cookie", new []
     {
       new CookieHeaderValue(AntiForgeryConstants.AntiForgeryCookie, antiForgeryToken.Cookie).ToString(),

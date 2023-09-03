@@ -4,6 +4,8 @@ using Application;
 using Domain.Constants;
 using Infrastructure.Requests.CreateAuthorizationGrant;
 using Infrastructure.Requests.Login;
+using Infrastructure.Services.Abstract;
+using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -23,14 +25,18 @@ public class LoginController : OAuthControllerBase
 {
   private readonly IMediator _mediator;
   private readonly IContextAccessor<AuthorizeContext> _contextAccessor;
+  private readonly IClientService _clientService;
 
   public LoginController(
     IMediator mediator,
     IdentityConfiguration identityConfiguration,
-    IContextAccessor<AuthorizeContext> contextAccessor) : base(identityConfiguration)
+    IContextAccessor<AuthorizeContext> contextAccessor,
+    IClientService clientService)
+    : base(identityConfiguration)
   {
     _mediator = mediator;
     _contextAccessor = contextAccessor;
+    _clientService = clientService;
   }
 
   [HttpGet]
@@ -48,9 +54,17 @@ public class LoginController : OAuthControllerBase
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> Post(
     PostLoginRequest request,
-    CancellationToken cancellationToken = default)
+    CancellationToken cancellationToken)
   {
     var context = await _contextAccessor.GetContext(HttpContext);
+    var clientValidation = await _clientService.ValidateRedirectAuthorization(
+      context.ClientId, context.RedirectUri, context.State, cancellationToken);
+
+    if (clientValidation.IsError())
+    {
+      return BadOAuthResult(clientValidation.ErrorCode, clientValidation.ErrorDescription);
+    }
+
     var query = new LoginQuery
     {
       Username = request.Username,
@@ -60,48 +74,58 @@ public class LoginController : OAuthControllerBase
 
     if (loginResponse.IsError())
     {
+      // TODO use ModelState.AddError because login is not OIDC constrained, we do not need to return to client
       return BadOAuthResult(loginResponse.ErrorCode, loginResponse.ErrorDescription);
     }
 
+    var claims = new[]
+    {
+      new Claim(ClaimNameConstants.Sub, loginResponse.UserId),
+      new Claim(ClaimNameConstants.Name, loginResponse.Name)
+    };
+    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+    await HttpContext.SignInAsync(
+      CookieAuthenticationDefaults.AuthenticationScheme,
+      new ClaimsPrincipal(identity));
+
+    var routeValues = HttpContext.Request.Query.ToRouteValueDictionary();
+    if (string.IsNullOrWhiteSpace(context.Prompt))
+    {
+      var isConsentValid = await _clientService.IsConsentValid(context.ClientId, loginResponse.UserId, context.Scope, cancellationToken);
+      if (isConsentValid)
+      {
+        return await GetAuthorizationCode(context, loginResponse.UserId, cancellationToken: cancellationToken);
+      }
+
+      return RedirectToAction(controllerName: "Consent", actionName: "Index", routeValues: routeValues);
+    }
+    
     var prompts = context.Prompt.Split(' ');
     if (!prompts.Contains(PromptConstants.Consent))
     {
       return await GetAuthorizationCode(context, loginResponse.UserId, cancellationToken: cancellationToken);
     }
 
-    var identity = new ClaimsIdentity(new[] { new Claim(ClaimNameConstants.Sub, loginResponse.UserId) },
-      CookieAuthenticationDefaults.AuthenticationScheme);
-
-    await HttpContext.SignInAsync(new ClaimsPrincipal(identity));
-    var routeValues = HttpContext.Request.Query.ToRouteValueDictionary();
-    return RedirectToAction(controllerName: "Consent", actionName: "CreateConsent", routeValues: routeValues);
+    return RedirectToAction(controllerName: "Consent", actionName: "Index", routeValues: routeValues);
   }
 
-  private async Task<IActionResult> GetAuthorizationCode(AuthorizeContext context, string userId, CancellationToken cancellationToken = default)
+  private async Task<IActionResult> GetAuthorizationCode(AuthorizeContext context, string userId,
+    CancellationToken cancellationToken)
   {
-    var command = new CreateAuthorizationGrantCommand
-    {
-      ClientId = context.ClientId,
-      Scope = context.Scope,
-      CodeChallenge = context.CodeChallenge,
-      CodeChallengeMethod = context.CodeChallengeMethod,
-      MaxAge = context.MaxAge,
-      Nonce = context.Nonce,
-      RedirectUri = context.RedirectUri,
-      ResponseType = context.ResponseType,
-      State = context.State,
-      UserId = userId
-    };
+    var command = context.Adapt<CreateAuthorizationGrantCommand>();
+    command.UserId = userId;
 
     var authorizationGrantResponse = await _mediator.Send(command, cancellationToken: cancellationToken);
     return authorizationGrantResponse.StatusCode switch
     {
-      HttpStatusCode.OK when authorizationGrantResponse.IsError() => 
-        ErrorFormPostResult(command.RedirectUri, command.State, authorizationGrantResponse.ErrorCode, authorizationGrantResponse.ErrorDescription),
+      HttpStatusCode.OK when authorizationGrantResponse.IsError() =>
+        ErrorFormPostResult(command.RedirectUri, command.State, authorizationGrantResponse.ErrorCode,
+          authorizationGrantResponse.ErrorDescription),
       HttpStatusCode.BadRequest when authorizationGrantResponse.IsError() =>
         BadOAuthResult(authorizationGrantResponse.ErrorCode, authorizationGrantResponse.ErrorDescription),
-      HttpStatusCode.OK => AuthorizationCodeFormPostResult(command.RedirectUri, authorizationGrantResponse.State, authorizationGrantResponse.Code),
-      _ => BadOAuthResult(ErrorCode.ServerError, "something went wrong")
+      HttpStatusCode.OK => AuthorizationCodeFormPostResult(command.RedirectUri, authorizationGrantResponse.State,
+        authorizationGrantResponse.Code),
+      _ => BadOAuthResult(ErrorCode.ServerError, "unexpected error occurred")
     };
   }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using Domain;
-using Infrastructure.Builders.Abstractions;
+using Infrastructure.Services;
+using Infrastructure.Services.Abstract;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,21 +9,25 @@ namespace Infrastructure.Requests.CreateAuthorizationGrant;
 public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizationGrantCommand, CreateAuthorizationGrantResponse>
 {
   private readonly IdentityContext _identityContext;
-  private readonly ICodeBuilder _codeBuilder;
+  private readonly IAuthorizationGrantService _authorizationGrantService;
 
   public CreateAuthorizationGrantHandler(
     IdentityContext identityContext,
-    ICodeBuilder codeBuilder)
+    IAuthorizationGrantService authorizationGrantService)
   {
     _identityContext = identityContext;
-    _codeBuilder = codeBuilder;
+    _authorizationGrantService = authorizationGrantService;
   }
 
   public async Task<CreateAuthorizationGrantResponse> Handle(CreateAuthorizationGrantCommand request, CancellationToken cancellationToken)
   {
-    var user = await _identityContext.Set<User>().SingleAsync(x => x.Id == request.UserId, cancellationToken: cancellationToken);
+    var user = await _identityContext
+      .Set<User>()
+      .SingleAsync(x => x.Id == request.UserId, cancellationToken: cancellationToken);
+
     var client = await _identityContext
       .Set<Client>()
+      .Include(c => c.RedirectUris)
       .SingleAsync(x => x.Id == request.ClientId, cancellationToken: cancellationToken);
 
     var session = await _identityContext
@@ -34,54 +39,37 @@ public class CreateAuthorizationGrantHandler : IRequestHandler<CreateAuthorizati
         User = user,
       };
 
-    var grantId = Guid.NewGuid().ToString();
-    var codeId = Guid.NewGuid().ToString();
-    var nonceId = Guid.NewGuid().ToString();
-    var authTime = DateTime.UtcNow;
-
-    var code = await _codeBuilder.BuildAuthorizationCodeAsync(
-      grantId,
-      codeId,
-      nonceId,
-      request.CodeChallenge,
-      request.CodeChallengeMethod,
-      request.Scope.Split(' '));
-
-    var authorizationCode = new AuthorizationCode
-    {
-      Id = codeId,
-      IsRedeemed = false,
-      IssuedAt = DateTime.UtcNow,
-      Value = code
-    };
-
-    var nonce = new Nonce
-    {
-      Id = nonceId,
-      Value = request.Nonce
-    };
-
-    var maxAge = string.IsNullOrWhiteSpace(request.MaxAge) ? client.DefaultMaxAge : long.Parse(request.MaxAge);
-    var authorizationCodeGrant = new AuthorizationCodeGrant
-    {
-      Id = grantId,
-      Client = client,
-      AuthTime = authTime,
-      MaxAge = maxAge,
-      Session = session,
-      AuthorizationCodes = new[] { authorizationCode },
-      Nonces = new [] { nonce }
-    };
-
-    await _identityContext
+    var currentAuthorizationGrant = await _identityContext
       .Set<AuthorizationCodeGrant>()
-      .AddAsync(authorizationCodeGrant, cancellationToken: cancellationToken);
+      .Where(g => g.Session.Id == session.Id)
+      .Where(g => g.Client.Id == request.ClientId)
+      .Where(g => !g.IsRevoked)
+      .SingleOrDefaultAsync(cancellationToken: cancellationToken);
+
+    if (currentAuthorizationGrant is not null)
+    {
+      currentAuthorizationGrant.IsRevoked = true;
+    }
+    
+    var maxAge = string.IsNullOrWhiteSpace(request.MaxAge) ? client.DefaultMaxAge : long.Parse(request.MaxAge);
+    var result = await _authorizationGrantService.CreateAuthorizationGrant(
+      new CreateAuthorizationGrantArguments
+      {
+        Session = session,
+        Client = client,
+        CodeChallenge = request.CodeChallenge,
+        CodeChallengeMethod = request.CodeChallengeMethod,
+        RedirectUri = request.RedirectUri,
+        MaxAge = maxAge,
+        Nonce = request.Nonce,
+        Scope = request.Scope
+      }, cancellationToken);
 
     await _identityContext.SaveChangesAsync(cancellationToken);
 
     return new CreateAuthorizationGrantResponse(HttpStatusCode.OK)
     {
-      Code = code,
+      Code = result.Code,
       State = request.State
     };
   }

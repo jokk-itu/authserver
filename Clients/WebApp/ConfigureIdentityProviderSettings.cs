@@ -16,15 +16,14 @@ public class ConfigureIdentityProviderSettings : IConfigureNamedOptions<Identity
   public void Configure(IdentityProviderSettings options)
   {
     var identity = _configuration.GetSection("Identity");
-    options.ClientUri = identity["ClientUri"];
+    options.ClientId = identity["ClientId"];
+    options.ClientSecret = identity["ClientSecret"];
+    options.ClientName = "webapp";
     options.Authority = identity["Authority"];
-
-    options.Prompt = new[] { "login", "consent" };
-    options.ClientName = $"webapp-{Guid.NewGuid()}";
-    options.GrantTypes = new[] { OpenIdConnectGrantTypes.RefreshToken, OpenIdConnectGrantTypes.AuthorizationCode };
-    options.TokenEndpointAuthMethod = "client_secret_post";
+    options.GrantTypes = new[] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken };
+    options.ClientAuthenticationMethod = "client_secret_post";
     options.ResponseMode = OpenIdConnectResponseMode.FormPost;
-    options.Scope = new[] { "profile", "openid", "email", "phone", "weather:read", "identityprovider:userinfo" };
+    options.Scope = new[] { "openid", "profile", "email", "phone", "weather:read", "identityprovider:userinfo" };
   }
 
   public void Configure(string name, IdentityProviderSettings options)

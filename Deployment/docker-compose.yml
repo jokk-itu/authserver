@@ -4,7 +4,7 @@ services:
   authorizationserver:
     image: jokk/authorizationserver
     restart: on-failure
-    container_name: 'authorizationserver'
+    container_name: authorizationserver
     ports:
       - 5000:80
     volumes:
@@ -17,14 +17,32 @@ services:
   webapp:
     image: jokk/webapp
     restart: on-failure
-    container_name: 'webapp'
+    container_name: webapp
     ports:
       - 5001:80
     depends_on:
       - authorizationserver
     environment:
       - Identity__Authority=https://idp.authserver.dk
-      - Identity__ClientUri=https://app.authserver.dk
+      - Identity__ClientUri=https://webapp.authserver.dk
+      - Identity__ClientId=7bae1c28-21f5-483c-8942-d71f1db04198
+      - Identity__ClientSecret=jF@zfm41c@ih9@#3HFt9JKbMfsH3uGRx
+      - WeatherService__Url=https://weather.authserver.dk
+      - ASPNETCORE_ENVIRONMENT=Production
+
+  bffapp:
+    image: jokk/bffapp
+    restart: on-failure
+    container_name: bffapp
+    ports:
+      - 5003:80
+    depends_on:
+      - authorizationserver
+    environment:
+      - Identity__Authority=https://idp.authserver.dk
+      - Identity__ClientUri=https://bffapp.authserver.dk
+      - Identity__ClientId=fa6913ea-8bba-46d3-a2a3-7ddcbc5e1197
+      - Identity__ClientSecret=^YYkp9st8arEIhSwt*^4sc9*$E#^nskY
       - WeatherService__Url=https://weather.authserver.dk
       - ASPNETCORE_ENVIRONMENT=Production
 
@@ -36,8 +54,8 @@ services:
     ports:
       - 5002:80
     environment:
+      - Identity__Authority=https://idp.authserver.dk
       - ASPNETCORE_ENVIRONMENT=Production
-      - Identity__Authority=https://idp.authserver.dk    
 
   configurationapp:
     image: jokk/configurationapp
@@ -49,9 +67,9 @@ services:
       - ./Identity.db:/app/Identity.db:rw
   
   nginx:
-    image: 'nginx'
+    image: nginx
     restart: on-failure
-    container_name: 'nginx'
+    container_name: nginx
     ports:
       - 80:80
       - 443:443

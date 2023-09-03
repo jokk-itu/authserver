@@ -49,7 +49,7 @@ public class AntiForgeryTokenHelper
     var antiForgeryFieldMatch = Regex.Match(html, $@"\<input name=""{AntiForgeryConstants.AntiForgeryField}"" type=""hidden"" value=""([^""]+)"" \/\>");
     if (!antiForgeryFieldMatch.Captures.Any() && antiForgeryFieldMatch.Groups.Count != 2)
     {
-      throw new Exception("Invalid input of anti-forgery-token was provided");
+      throw new Exception($"Invalid input of anti-forgery-token was provided{Environment.NewLine}{html}");
     }
 
     var antiForgeryField = antiForgeryFieldMatch.Groups[1].Captures[0].Value;

@@ -20,13 +20,13 @@ where TRequest : IRequest<TResponse>
     {
       var response = await next();
       stopWatch.Stop();
-      _logger.LogInformation("Request took {ElapsedTime} ms", stopWatch.ElapsedMilliseconds);
+      _logger.LogInformation("{Request} took {ElapsedTime} ms", typeof(TRequest).Name, stopWatch.ElapsedMilliseconds);
       return response;
     }
     catch (Exception e)
     {
       stopWatch.Stop();
-      _logger.LogError(e, "Error occurred during request, took {ElapsedTime} ms", stopWatch.ElapsedMilliseconds);
+      _logger.LogError(e, "Error occurred during {Request}, took {ElapsedTime} ms", typeof(TRequest).Name, stopWatch.ElapsedMilliseconds);
       throw;
     }
   }

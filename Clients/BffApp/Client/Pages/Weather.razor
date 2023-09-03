@@ -1,0 +1,41 @@
+﻿@page "/weather"
+@inject IHttpClientFactory HttpClientFactory
+
+<table class="table">
+    <thead>
+    <th scope="col">@nameof(WeatherDto.Weather)</th>
+    <th scope="col">@nameof(WeatherDto.Temperature)</th>
+    <th scope="col">@nameof(WeatherDto.Date)</th>
+    </thead>
+    <tbody>
+    @foreach (var weatherDto in _weatherDtos)
+    {
+        <tr>
+            <td>@weatherDto.Weather</td>
+            <td>@weatherDto.Temperature</td>
+            <td>@weatherDto.Date</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@code
+{
+    private IEnumerable<WeatherDto> _weatherDtos = new List<WeatherDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var httpClient = HttpClientFactory.CreateClient("Server");
+        _weatherDtos = await httpClient.GetFromJsonAsync<IEnumerable<WeatherDto>>("api/weather")
+                       ?? new List<WeatherDto>();
+
+        await base.OnInitializedAsync();
+    }
+
+    class WeatherDto
+    {
+        public DateTime Date { get; init; }
+        public string Weather { get; init; }
+        public int Temperature { get; init; }
+    }
+}

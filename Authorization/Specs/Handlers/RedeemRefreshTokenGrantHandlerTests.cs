@@ -84,8 +84,8 @@ public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
   {
     var consentGrant = ConsentGrantBuilder
       .Instance()
-      .AddClaims(await IdentityContext.Set<Claim>().ToListAsync())
-      .AddScopes(await IdentityContext.Set<Scope>().ToListAsync())
+      .AddClaims(await IdentityContext.Set<Claim>().ToArrayAsync())
+      .AddScopes(await IdentityContext.Set<Scope>().ToArrayAsync())
       .Build();
 
     var refreshGrant =

@@ -14,8 +14,8 @@ public class ValidationResult
     ErrorDescription = errorDescription;
     StatusCode = statusCode;
   }
-  public string? ErrorCode { get; init; }
 
+  public string? ErrorCode { get; init; }
   public string? ErrorDescription { get; init; }
 
   public HttpStatusCode StatusCode { get; init; }
@@ -23,5 +23,10 @@ public class ValidationResult
   public bool IsError()
   {
     return !string.IsNullOrWhiteSpace(ErrorCode);
+  }
+
+  public static ValidationResult OK()
+  {
+    return new ValidationResult(HttpStatusCode.OK);
   }
 }

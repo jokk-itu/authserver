@@ -47,7 +47,7 @@ public class RegisterController : OAuthControllerBase
     }
 
     var createdResponse = response.Adapt<ClientResponse>();
-    return CreatedOAuthResult($"connect/register?{response.ClientId}", createdResponse);
+    return CreatedOAuthResult($"connect/register/{response.ClientId}", createdResponse);
   }
 
   [HttpDelete("{clientId}")]

@@ -38,7 +38,8 @@ public class TokenRevocationHandler : IRequestHandler<TokenRevocationCommand, To
       return await _identityContext
         .Set<Token>()
         .Where(x => x.RevokedAt == null)
-        .SingleOrDefaultAsync(x => x.Reference == command.Token, cancellationToken: cancellationToken);
+        .SingleOrDefaultAsync(x => x.Reference == command.Token,
+          cancellationToken: cancellationToken);
     }
 
     var securityToken = await _tokenDecoder.Decode(command.Token, new StructuredTokenDecoderArguments

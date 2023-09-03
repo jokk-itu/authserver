@@ -146,7 +146,7 @@ public class AuthorizeEndpointBuilder
     var loginAntiForgery = await antiForgeryTokenHelper.GetAntiForgeryToken(locationHeader!.ToString());
     var loginResponse = await LoginEndpointHelper.Login(httpClient, _queryBuilder.ToQueryString(), _userName, _password, loginAntiForgery);
     var loginCookie = loginResponse.Headers.GetValues("Set-Cookie").Single();
-    var consentAntiForgery = await antiForgeryTokenHelper.GetAntiForgeryToken($"connect/consent/create{_queryBuilder}", loginCookie);
+    var consentAntiForgery = await antiForgeryTokenHelper.GetAntiForgeryToken($"connect/consent/{_queryBuilder}", loginCookie);
     var consentResponse = await ConsentEndpointHelper.GetConsent(httpClient, _queryBuilder.ToQueryString(), consentAntiForgery, loginCookie);
     var html = await consentResponse.Content.ReadAsStringAsync(cancellationToken);
     var authorizationCodeInput = Regex.Match(html, @"\<input name=""code"" type=""hidden"" value=""([^""]+)"" \/\>");

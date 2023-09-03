@@ -12,16 +12,7 @@ public static class ClaimNameConstants
   /// </summary>
   public const string ClientId = "client_id";
 
-  /// <summary>
-  /// Resource Id.
-  /// </summary>
-  public const string ResourceId = "resource_id";
-
-  /// <summary>
-  /// Scope Id.
-  /// </summary>
-  public const string ScopeId = "scope_id";
-
+  
   /// <summary>
   /// Subject Id.
   /// </summary>

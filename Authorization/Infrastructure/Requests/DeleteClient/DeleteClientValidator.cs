@@ -28,7 +28,8 @@ public class DeleteClientValidator : IValidator<DeleteClientCommand>
     if (!isAuthenticated)
     {
       // TODO revoke
-      return new ValidationResult(ErrorCode.InvalidClientMetadata, "request is invalid", HttpStatusCode.Unauthorized);
+      return new ValidationResult(ErrorCode.InvalidClientMetadata,
+        "request is invalid", HttpStatusCode.Unauthorized);
     }
 
     return new ValidationResult(HttpStatusCode.OK);

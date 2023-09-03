@@ -22,7 +22,8 @@ public class LoginHandler : IRequestHandler<LoginQuery, LoginResponse>
 
     return new LoginResponse(HttpStatusCode.OK)
     {
-      UserId = user.Id
+      UserId = user.Id,
+      Name = user.GetName()
     };
   }
 }

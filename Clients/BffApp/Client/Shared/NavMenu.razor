@@ -1,0 +1,55 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+
+<div class="top-row ps-3 navbar">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">BffApp</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <AuthorizeView>
+            <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="weather" Match="NavLinkMatch.All">
+                        <span class="bi bi-cloud-fill" aria-hidden="true"/> Weather
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="account" Match="NavLinkMatch.All">
+                        <span class="bi bi-person-circle" aria-hidden="true"/> Account
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="api/user/logout" Match="NavLinkMatch.All">
+                        <span class="bi bi-person-circle" aria-hidden="true"/> Logout
+                    </NavLink>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="api/user/login" Match="NavLinkMatch.All">
+                        <span class="bi bi-person-circle" aria-hidden="true"/> Login
+                    </NavLink>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+        
+        
+        
+    </nav>
+</div>
+
+@code {
+    private bool _collapseNavMenu = true;
+
+    private string? NavMenuCssClass => _collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        _collapseNavMenu = !_collapseNavMenu;
+    }
+}

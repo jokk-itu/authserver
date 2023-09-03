@@ -54,7 +54,7 @@ public class ValidatorBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest
     }
     catch (Exception e)
     {
-      _logger.LogError(e, "Error occurred during validation, took {ElapsedTime}", stopWatch.ElapsedMilliseconds);
+      _logger.LogError(e, "Error occurred during validation of {Request}, took {ElapsedTime}", requestName, stopWatch.ElapsedMilliseconds);
       if (Activator.CreateInstance(typeof(TResponse), ErrorCode.ServerError, ErrorDescription, HttpStatusCode.BadRequest) is not TResponse response)
       {
         throw new AggregateException(e, new InvalidOperationException($"Error occurred instantiating {requestName}"));

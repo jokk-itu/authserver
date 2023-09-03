@@ -1,70 +1,154 @@
 ﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using OIDC.Client.Handlers.Abstract;
 using OIDC.Client.Settings;
 
 namespace OIDC.Client.Configure;
+
 public class ConfigureOpenIdConnectOptions : IConfigureNamedOptions<OpenIdConnectOptions>
 {
-    private readonly IOptions<IdentityProviderSettings> _identityProviderOptions;
-    private readonly IOpenIdConnectEventHandler _openIdConnectEventHandler;
+  private readonly IOptionsMonitor<IdentityProviderSettings> _identityProviderOptions;
+  private readonly ILogger<ConfigureOpenIdConnectOptions> _logger;
 
-    public ConfigureOpenIdConnectOptions(
-      IOptions<IdentityProviderSettings> identityProviderOptions,
-      IOpenIdConnectEventHandler openIdConnectEventHandler)
+  public ConfigureOpenIdConnectOptions(
+    IOptionsMonitor<IdentityProviderSettings> identityProviderOptions,
+    ILogger<ConfigureOpenIdConnectOptions> logger)
+  {
+    _identityProviderOptions = identityProviderOptions;
+    _logger = logger;
+  }
+
+  public void Configure(OpenIdConnectOptions options)
+  {
+    options.Authority = _identityProviderOptions.CurrentValue.Authority;
+    options.TokenValidationParameters.ValidIssuer = _identityProviderOptions.CurrentValue.Authority;
+    options.TokenValidationParameters.ValidAudience = _identityProviderOptions.CurrentValue.ClientId;
+    options.TokenValidationParameters.NameClaimType = "name";
+    options.TokenValidationParameters.RoleClaimType = "role";
+    options.GetClaimsFromUserInfoEndpoint = true;
+    options.DisableTelemetry = true;
+    options.ResponseType = OpenIdConnectResponseType.Code;
+    options.SaveTokens = true;
+
+    options.ClaimActions.MapUniqueJsonKey("auth_time", "auth_time");
+    options.ClaimActions.MapUniqueJsonKey("grant_id", "grant_id");
+    options.ClaimActions.MapUniqueJsonKey("address", "address");
+    options.ClaimActions.MapUniqueJsonKey("given_name", "given_name");
+    options.ClaimActions.MapUniqueJsonKey("family_name", "family_name");
+    options.ClaimActions.MapUniqueJsonKey("birthdate", "birthdate");
+    options.ClaimActions.MapUniqueJsonKey("name", "name");
+    options.ClaimActions.MapUniqueJsonKey("email", "email");
+    options.ClaimActions.MapUniqueJsonKey("phone", "phone");
+    options.ClaimActions.MapUniqueJsonKey("locale", "locale");
+
+    options.ClientId = _identityProviderOptions.CurrentValue.ClientId;
+    options.ClientSecret = _identityProviderOptions.CurrentValue.ClientSecret;
+
+    foreach (var scope in _identityProviderOptions.CurrentValue.Scope)
     {
-      _identityProviderOptions = identityProviderOptions;
-      _openIdConnectEventHandler = openIdConnectEventHandler;
+      options.Scope.Add(scope);
     }
 
-    public void Configure(OpenIdConnectOptions options)
+    options.ResponseMode = _identityProviderOptions.CurrentValue.ResponseMode;
+    if (_identityProviderOptions.CurrentValue.MaxAge.HasValue)
     {
-        options.Authority = _identityProviderOptions.Value.Authority;
-        options.TokenValidationParameters.ValidIssuer = _identityProviderOptions.Value.Authority;
-        options.GetClaimsFromUserInfoEndpoint = true;
-        options.DisableTelemetry = true;
-        options.ResponseType = OpenIdConnectResponseType.Code;
-    
-        options.Prompt = string.Join(' ', _identityProviderOptions.Value.Prompt);
-        foreach (var scope in _identityProviderOptions.Value.Scope)
+      options.MaxAge = TimeSpan.FromSeconds(_identityProviderOptions.CurrentValue.MaxAge.Value);
+    }
+
+    options.NonceCookie.Name = $"{_identityProviderOptions.CurrentValue.ClientName}-Nonce";
+    options.NonceCookie.HttpOnly = true;
+    options.NonceCookie.IsEssential = true;
+    options.NonceCookie.SameSite = SameSiteMode.Strict;
+    options.NonceCookie.SecurePolicy = CookieSecurePolicy.Always;
+
+    options.CorrelationCookie.Name = $"{_identityProviderOptions.CurrentValue.ClientName}-Correlation";
+    options.CorrelationCookie.HttpOnly = true;
+    options.CorrelationCookie.IsEssential = true;
+    options.CorrelationCookie.SameSite = SameSiteMode.Strict;
+    options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+
+    options.Events = new OpenIdConnectEvents
+    {
+      OnRedirectToIdentityProviderForSignOut = context =>
+      {
+        context.ProtocolMessage.Parameters.Add("client_id", context.Options.ClientId);
+        return Task.CompletedTask;
+      },
+      OnRedirectToIdentityProvider = context =>
+      {
+        var hasPrompt = context.Properties.Items.TryGetValue("prompt", out var prompt);
+        if (hasPrompt)
         {
-          options.Scope.Add(scope);
+          context.ProtocolMessage.Prompt = prompt;
         }
-        options.ResponseMode = _identityProviderOptions.Value.ResponseMode;
-        if (_identityProviderOptions.Value.MaxAge.HasValue)
-        {
-          options.MaxAge = TimeSpan.FromSeconds(_identityProviderOptions.Value.MaxAge.Value);
-        }
-        options.SaveTokens = true;
 
-        options.NonceCookie = new CookieBuilder
+        _logger.LogInformation("Redirecting to IdP for Authorize {@AuthorizeRequest}", new
         {
-            Name = $"{_identityProviderOptions.Value.ClientName}-OIDC-Nonce",
-            SameSite = SameSiteMode.Strict,
-            SecurePolicy = CookieSecurePolicy.Always,
-            IsEssential = true,
-            HttpOnly = true
-        };
-        options.CorrelationCookie = new CookieBuilder
-        {
-            Name = $"{_identityProviderOptions.Value.ClientName}-OIDC-Correlation",
-            SameSite = SameSiteMode.Strict,
-            SecurePolicy = CookieSecurePolicy.Always,
-            IsEssential = true,
-            HttpOnly = true
-        };
+          context.ProtocolMessage.Nonce,
+          context.ProtocolMessage.RedirectUri
+        });
+        return Task.CompletedTask;
+      },
+      OnAuthorizationCodeReceived = context =>
+      {
+        var nonces = context.Request.Cookies
+          .Where(x => x.Key.StartsWith(options.NonceCookie.Name))
+          .Select(x => options.StringDataFormat.Unprotect(x.Key.Substring(options.NonceCookie.Name.Length, x.Key.Length - options.NonceCookie.Name.Length)))
+          .ToList();
 
-        options.Events = new OpenIdConnectEvents
+        _logger.LogInformation("Redeeming AuthorizationCode {@TokenRequest} {@Internal}", new
         {
-          OnRedirectToIdentityProviderForSignOut = _openIdConnectEventHandler.SetClientIdOnRedirect
-        };
-    }
+          context.TokenEndpointRequest?.GrantType,
+          context.TokenEndpointRequest?.RedirectUri,
+          context.TokenEndpointRequest?.Code,
+          context.TokenEndpointRequest?.Scope
+        }, new
+        {
+          Nonce = nonces,
+          RequestUri = context.Request.GetDisplayUrl()
+        });
+        return Task.CompletedTask;
+      },
+      OnTokenResponseReceived = context =>
+      {
+        var nonces = context.Request.Cookies
+          .Where(x => x.Key.StartsWith(options.NonceCookie.Name))
+          .Select(x => options.StringDataFormat.Unprotect(x.Key.Substring(options.NonceCookie.Name.Length, x.Key.Length - options.NonceCookie.Name.Length)))
+          .ToList();
 
-    public void Configure(string name, OpenIdConnectOptions options)
-    {
-      Configure(options);
-    }
+        _logger.LogInformation("Received Token {@Response} {@Internal}", new
+        {
+          context.TokenEndpointResponse.ExpiresIn
+        }, new
+        {
+          Nonce = nonces
+        });
+        return Task.CompletedTask;
+      },
+      OnTokenValidated = context =>
+      {
+        _logger.LogInformation("Token {TokenType} Validated {@Internal}",
+          context.SecurityToken.Header.Typ,
+          new
+          {
+            context.Nonce,
+            TokenNonce = context.SecurityToken.Claims.SingleOrDefault(x => x.Type == "nonce")?.Value
+          });
+
+        return Task.CompletedTask;
+      }
+    };
+  }
+
+  public void Configure(string name, OpenIdConnectOptions options)
+  {
+    Configure(options);
+  }
 }
