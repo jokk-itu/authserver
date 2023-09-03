@@ -42,13 +42,16 @@ builder.WebHost.ConfigureServices(services =>
     .AddDelegatingHandlers();
 
   services.AddCorsPolicy();
-  services.AddCookiePolicy();
   services.AddAntiforgery(antiForgeryOptions =>
   {
     antiForgeryOptions.FormFieldName = AntiForgeryConstants.AntiForgeryField;
     antiForgeryOptions.Cookie = new CookieBuilder
     {
-      Name = AntiForgeryConstants.AntiForgeryCookie,
+      Name = AntiForgeryConstants.AntiForgeryCookie, 
+      HttpOnly = true,
+      IsEssential = true,
+      SameSite = SameSiteMode.Strict,
+      SecurePolicy = CookieSecurePolicy.Always
     };
   });
 
@@ -78,7 +81,6 @@ app.UseHsts();
 app.UseSerilogRequestLogging();
 app.UseStaticFiles();
 app.UseCors();
-app.UseCookiePolicy();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllerRoute(

@@ -54,41 +54,6 @@ public static class ServiceCollectionExtensions
     return services;
   }
 
-  public static IServiceCollection AddCookiePolicy(this IServiceCollection services)
-  {
-    services.AddCookiePolicy(options =>
-    {
-      options.Secure = CookieSecurePolicy.Always;
-      options.HttpOnly = HttpOnlyPolicy.Always;
-      options.MinimumSameSitePolicy = SameSiteMode.Strict;
-      options.OnAppendCookie = appendContext =>
-      {
-        var logger = appendContext.Context.RequestServices.GetRequiredService<ILogger<Program>>();
-        logger.LogDebug("Cookie {Cookie} Appended with {@Options}", appendContext.CookieName, new
-        {
-          appendContext.CookieOptions.Domain,
-          appendContext.CookieOptions.Path,
-          appendContext.CookieOptions.Secure,
-          appendContext.CookieOptions.HttpOnly,
-          appendContext.CookieOptions.SameSite,
-        });
-      };
-      options.OnDeleteCookie = deleteContext =>
-      {
-        var logger = deleteContext.Context.RequestServices.GetRequiredService<ILogger<Program>>();
-        logger.LogDebug("Cookie {Cookie} Appended with {@Options}", deleteContext.CookieName, new
-        {
-          deleteContext.CookieOptions.Domain,
-          deleteContext.CookieOptions.Path,
-          deleteContext.CookieOptions.Secure,
-          deleteContext.CookieOptions.HttpOnly,
-          deleteContext.CookieOptions.SameSite,
-        });
-      };
-    });
-    return services;
-  }
-
   public static IServiceCollection AddCorsPolicy(this IServiceCollection services)
   {
     services.AddCors(corsOptions =>
