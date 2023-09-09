@@ -15,6 +15,11 @@
 </ul>
 </Section>
 <Section title="UserInfo">
+The endpoint accepts GET and POST methods.
+It requires an Authorization header with an issued access token.
+The access token must contain the <code>identityprovider:userinfo</code> scope.
+The response is a json body of claims, which are identified
+from the sub claim in the access token.
 <Diagram>
 {`
 sequenceDiagram
@@ -24,4 +29,39 @@ RelyingParty->>OpenIDProvider: Get request userinfo
 OpenIDProvider->>RelyingParty: 200 response userinfo
 `}
 </Diagram>
+<br/>
+Example of a GET request:<br/>
+<pre>
+    GET /connect/userinfo HTTP/1.1
+    Host: idp.authserver.dk
+    Authorization: Bearer SlAV32hkKG
+</pre>
+<br/>
+Example of a POST request:<br/>
+<pre>
+    POST /connect/userinfo HTTP/1.1
+    Host: idp.authserver.dk
+    Authorization: Bearer SlAV32hkKG
+</pre>
+<br/>
+Example of a successful response:<br/>
+<pre>
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+  
+    {`{
+     "sub": "248289761001",
+     "name": "Jane Doe",
+     "given_name": "Jane",
+     "family_name": "Doe",
+     "email": "janedoe@example.com"
+    }`}
+</pre>
+<br/>
+Example of an error response:<br/>
+<pre>
+    HTTP/1.1 401 Unauthorized
+    WWW-Authenticate: error="invalid_token",
+      error_description="The Access Token expired"
+</pre>
 </Section>

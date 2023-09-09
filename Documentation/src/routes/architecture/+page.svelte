@@ -13,22 +13,16 @@ for endpoints with mediator.
 </Section>
 
 <Section title="API">
-<p>
-    The API consists of endpoints, where each endpoint builds the received contract,
-    using the <code>IContextAccessor</code>. The query or command send using Mediator,
-    is built and then a <code>Response</code> is received.
-    Mediator consists of a pipeline including a Validator pipe and a Logging pipe.
-</p>
+The API consists of endpoints, where each endpoint builds the received contract,
+using the <code>IContextAccessor</code>. The query or command send using Mediator,
+is built and then a <code>Response</code> is received.
+Mediator consists of a pipeline including a Validator pipe and a Logging pipe.
 <br />
-<p>
-    The Validator pipe is responsible for invoking all registered validators for the query or command.
-    The Logging pipe is responsible for logging.
-</p>
+The Validator pipe is responsible for invoking all registered validators for the query or command.
+The Logging pipe is responsible for logging.
 <br/>
-<p>
-    When the response is received, it is checked for errors,
-    and an appropiate HTTP response is finally returned.
-</p>
+When the response is received, it is checked for errors,
+and an appropiate HTTP response is finally returned.
 </Section>
 <Diagram>
     {`
@@ -41,3 +35,19 @@ for endpoints with mediator.
         A --> B --> C --> D --> E
     `}
 </Diagram>
+
+<Section title="PKCE">
+This is required during authorize grants, also for confidential clients.
+code_challenge method must not be plain text.
+</Section>
+
+<Section title="Client Configuration">
+Secret must be hashed at the OP and only the hash is stored.
+Therefore, the secret is not returned during dynamic client registration GET requests.
+</Section>
+
+<Section title="UserInfo">
+Scope <code>identityprovider:userinfo</code> is required.
+It is to limit the authorization of the access token.
+</Section>
+

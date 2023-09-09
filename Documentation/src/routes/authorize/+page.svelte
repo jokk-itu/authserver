@@ -18,7 +18,7 @@
       >
     </li>
     <li>
-      <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-08"
+      <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-09"
         >OAuth 2.1</a
       >
     </li>
