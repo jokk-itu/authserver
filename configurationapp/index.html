@@ -5,62 +5,55 @@
 		<link rel="icon" href="../favicon.png" />
 		<meta name="viewport" content="width=device-width" />
 		<meta http-equiv="content-security-policy" content="">
-		<link href="../_app/immutable/assets/_layout-b4a63751.css" rel="stylesheet">
-		<link rel="modulepreload" href="../_app/immutable/start-486a9e91.js">
+		<link href="../_app/immutable/assets/_layout-02d53abc.css" rel="stylesheet">
+		<link rel="modulepreload" href="../_app/immutable/start-edef8e07.js">
 		<link rel="modulepreload" href="../_app/immutable/chunks/index-8ff2e5dd.js">
 		<link rel="modulepreload" href="../_app/immutable/chunks/singletons-e8188173.js">
 		<link rel="modulepreload" href="../_app/immutable/chunks/paths-7973a8bd.js">
 		<link rel="modulepreload" href="../_app/immutable/chunks/preload-helper-a4192956.js">
-		<link rel="modulepreload" href="../_app/immutable/components/pages/_layout.svelte-6a9ea154.js">
+		<link rel="modulepreload" href="../_app/immutable/components/pages/_layout.svelte-f25753d4.js">
 		<link rel="modulepreload" href="../_app/immutable/modules/pages/_layout.ts-668b5c48.js">
 		<link rel="modulepreload" href="../_app/immutable/chunks/mermaid-768dc893-debd85f8.js">
 		<link rel="modulepreload" href="../_app/immutable/chunks/_layout-1ec47ae4.js">
-		<link rel="modulepreload" href="../_app/immutable/components/pages/configurationapp/_page.svelte-2cc54253.js">
+		<link rel="modulepreload" href="../_app/immutable/components/pages/configurationapp/_page.svelte-03774e37.js">
 		<link rel="modulepreload" href="../_app/immutable/chunks/PageTitle-edc21ece.js">
-		<link rel="modulepreload" href="../_app/immutable/chunks/Section-3eaacaa0.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/Section-732b932d.js">
 	</head>
 	<body data-sveltekit-preload-data="hover">
 		<div style="display: contents">
 
 
-<div class="flex flew-row divide-x-2"><div class="flex flex-col px-10 pt-4 flex-grow-0 flex-shrink-0"><p class="text-2xl">Authorization Server</p>
-         <hr class="pb-4">
-         <ul class="list-disc"><li><a class="ref-link text-lg" href="/authserver/">Introduction</a></li>
+<div class="flex flew-row divide-x-2"><div class="flex flex-col px-10 pt-4 flex-grow-0 flex-shrink-0 max-sm:hidden"><ul class="list-disc"><p class="text-2xl">AuthorizationServer</p>
+             <hr class="pb-2">
+             <li><a class="ref-link text-lg" href="/authserver/">Introduction</a></li>
              <li><a class="ref-link text-lg" href="/authserver/architecture">Architecture</a></li>
              <li><a class="ref-link text-lg" href="/authserver/configurationapp">Configuration App</a></li>
              <li><a class="ref-link text-lg" href="/authserver/authorize">Authorize</a></li>
              <li><a class="ref-link text-lg" href="/authserver/token">Token</a></li>
              <li><a class="ref-link text-lg" href="/authserver/datamodel">DataModel</a></li>
-             <li><a class="ref-link text-lg" href="/authserver/grants">Grants</a>
-               <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/grants/authorizationcode">AuthorizationCode
-                         </a></li>
-                    <li><a class="ref-link" href="/authserver/grants/clientcredentials">Client Credentials
-                         </a></li>
-                    <li><a class="ref-link" href="/authserver/grants/refreshtoken">Refresh Token
-                         </a></li></ul></li>
              <li><a class="ref-link text-lg" href="/authserver/dynamicclientregistration">Dynamic Client Registration</a></li>
              <li><a class="ref-link text-lg" href="/authserver/logout">Logout</a>
                <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/logout/backchannel">Backchannel</a></li>
                     <li><a class="ref-link" href="/authserver/logout/rpinitiated">RP Initiated</a></li></ul></li>
              <li><a class="ref-link text-lg" href="/authserver/userinfo">UserInfo</a></li>
              <li><a class="ref-link text-lg" href="/authserver/discovery">Discovery</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/introspection">Introspection</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/revocation">Revocation</a></li>
              <li><a class="ref-link text-lg" href="/authserver/clients">Clients</a>
-               <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/clients/blazor-bff">Blazor.BFF</a></li>
+               <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/clients/bffapp">BFFApp</a></li>
                     <li><a class="ref-link" href="/authserver/clients/worker">Worker</a></li>
                     <li><a class="ref-link" href="/authserver/clients/webapp">WebApp</a></li></ul></li>
              <li><a class="ref-link text-lg" href="/authserver/resources">Resources</a>
-               <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/resources/weather">Weather</a></li></ul></li>
-             <li><a class="ref-link text-lg" href="/authserver/introspection">Introspection</a></li>
-             <li><a class="ref-link text-lg" href="/authserver/revocation">Revocation</a></li></ul></div>
+               <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/resources/weather">Weather</a></li></ul></li></ul></div>
  
-     <div class="px-12 pt-4 flex-grow-3"><h1 class="text-4xl mb-2">ConfigurationApp</h1>
+     <div class="px-12 pt-4 flex-grow-3 w-screen overflow-clip"><h1 class="text-4xl mb-2">ConfigurationApp</h1>
 <hr class="mb-4">
-<div class="mb-4" id="configurationapp"><div class="inline-flex"><a class="ref-link" href="#configurationapp"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"></path></svg></a>
+<div class="mb-4 word" id="configurationapp"><div class="inline-flex"><a class="ref-link" href="#configurationapp"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"></path></svg></a>
         <h3 class="text-xl">ConfigurationApp</h3></div>
     <hr class="mb-4">
     <p>The console app is built as a tool to provide for quick actions given a command.
 </p></div>
-<div class="mb-4" id="commands"><div class="inline-flex"><a class="ref-link" href="#commands"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"></path></svg></a>
+<div class="mb-4 word" id="commands"><div class="inline-flex"><a class="ref-link" href="#commands"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"></path></svg></a>
         <h3 class="text-xl">Commands</h3></div>
     <hr class="mb-4">
     <b>resource</b> is used to insert resources defined in the app and supposed to be run when creating a fresh database.
@@ -70,17 +63,26 @@
     <br>
     <br>
     <b>rotate</b> is used to rotate JWK used for signing, it does so by inserting one new JWK in the database.
+    <br>
+    <br>
+    <b>client</b> is used to create clients.
+    <br>
+    <br>
+    <b>cleanclient</b> used used for deleting all clients.
+    <br>
+    <br>
+    <b>migration</b> is used to apply migrations.
 </div></div></div>
 
 
-		<script type="module" data-sveltekit-hydrate="ovfhao">
-			import { start } from "../_app/immutable/start-486a9e91.js";
+		<script type="module" data-sveltekit-hydrate="12hl5qo">
+			import { start } from "../_app/immutable/start-edef8e07.js";
 
 			start({
 				assets: "",
 				env: {},
-				target: document.querySelector('[data-sveltekit-hydrate="ovfhao"]').parentNode,
-				version: "1693774098663",
+				target: document.querySelector('[data-sveltekit-hydrate="12hl5qo"]').parentNode,
+				version: "1694261680451",
 				hydrate: {
 					node_ids: [0, 9],
 					data: [null,null],

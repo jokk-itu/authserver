@@ -1,56 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" href="../favicon.png" />
-		<meta name="viewport" content="width=device-width" />
-		<meta http-equiv="content-security-policy" content="">
-		<link href="../_app/immutable/assets/_layout-02d53abc.css" rel="stylesheet">
-		<link rel="modulepreload" href="../_app/immutable/start-edef8e07.js">
-		<link rel="modulepreload" href="../_app/immutable/chunks/index-8ff2e5dd.js">
-		<link rel="modulepreload" href="../_app/immutable/chunks/singletons-e8188173.js">
-		<link rel="modulepreload" href="../_app/immutable/chunks/paths-7973a8bd.js">
-		<link rel="modulepreload" href="../_app/immutable/chunks/preload-helper-a4192956.js">
-		<link rel="modulepreload" href="../_app/immutable/components/pages/_layout.svelte-f25753d4.js">
-		<link rel="modulepreload" href="../_app/immutable/modules/pages/_layout.ts-668b5c48.js">
-		<link rel="modulepreload" href="../_app/immutable/chunks/mermaid-768dc893-debd85f8.js">
-		<link rel="modulepreload" href="../_app/immutable/chunks/_layout-1ec47ae4.js">
-		<link rel="modulepreload" href="../_app/immutable/components/pages/datamodel/_page.svelte-eb7dfc82.js">
-		<link rel="modulepreload" href="../_app/immutable/chunks/Diagram-61881b48.js">
-		<link rel="modulepreload" href="../_app/immutable/chunks/PageTitle-edc21ece.js">
-	</head>
-	<body data-sveltekit-preload-data="hover">
-		<div style="display: contents">
-
-
-<div class="flex flew-row divide-x-2"><div class="flex flex-col px-10 pt-4 flex-grow-0 flex-shrink-0 max-sm:hidden"><ul class="list-disc"><p class="text-2xl">AuthorizationServer</p>
-             <hr class="pb-2">
-             <li><a class="ref-link text-lg" href="/authserver/">Introduction</a></li>
-             <li><a class="ref-link text-lg" href="/authserver/architecture">Architecture</a></li>
-             <li><a class="ref-link text-lg" href="/authserver/configurationapp">Configuration App</a></li>
-             <li><a class="ref-link text-lg" href="/authserver/authorize">Authorize</a></li>
-             <li><a class="ref-link text-lg" href="/authserver/token">Token</a></li>
-             <li><a class="ref-link text-lg" href="/authserver/datamodel">DataModel</a></li>
-             <li><a class="ref-link text-lg" href="/authserver/dynamicclientregistration">Dynamic Client Registration</a></li>
-             <li><a class="ref-link text-lg" href="/authserver/logout">Logout</a>
-               <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/logout/backchannel">Backchannel</a></li>
-                    <li><a class="ref-link" href="/authserver/logout/rpinitiated">RP Initiated</a></li></ul></li>
-             <li><a class="ref-link text-lg" href="/authserver/userinfo">UserInfo</a></li>
-             <li><a class="ref-link text-lg" href="/authserver/discovery">Discovery</a></li>
-             <li><a class="ref-link text-lg" href="/authserver/introspection">Introspection</a></li>
-             <li><a class="ref-link text-lg" href="/authserver/revocation">Revocation</a></li>
-             <li><a class="ref-link text-lg" href="/authserver/clients">Clients</a>
-               <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/clients/bffapp">BFFApp</a></li>
-                    <li><a class="ref-link" href="/authserver/clients/worker">Worker</a></li>
-                    <li><a class="ref-link" href="/authserver/clients/webapp">WebApp</a></li></ul></li>
-             <li><a class="ref-link text-lg" href="/authserver/resources">Resources</a>
-               <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/resources/weather">Weather</a></li></ul></li></ul></div>
- 
-     <div class="px-12 pt-4 flex-grow-3 w-screen overflow-clip"><h1 class="text-4xl mb-2">DataModel</h1>
-<hr class="mb-4">
-
-
-<pre id="GMSuZF3KQqQLBd56D41gRyzcQV3ZpfKD">    
+import{S,i as m,s as A,c as N,a as R,b as I,d as l,m as a,k as g,o,p as C,q as d,j as O,t as P,h as p,n as u}from"../../../chunks/index-8ff2e5dd.js";import{D as c}from"../../../chunks/Diagram-61881b48.js";import{P as L}from"../../../chunks/PageTitle-edc21ece.js";function f(E){let i=`
         erDiagram
         TOKEN {
             guid Id PK
@@ -228,26 +176,4 @@
 
         TOKEN }o--|| CLIENT : ""
         TOKEN }o--|| AUTHORIZATIONCODEGRANT : ""
-    
-</pre></div></div>
-
-
-		<script type="module" data-sveltekit-hydrate="xo26u8">
-			import { start } from "../_app/immutable/start-edef8e07.js";
-
-			start({
-				assets: "",
-				env: {},
-				target: document.querySelector('[data-sveltekit-hydrate="xo26u8"]').parentNode,
-				version: "1694261680451",
-				hydrate: {
-					node_ids: [0, 10],
-					data: [null,null],
-					form: null,
-					error: null
-				}
-			});
-		</script>
-	</div>
-	</body>
-</html>
+    `,n;return{c(){n=P(i)},l(e){n=p(e,i)},m(e,s){g(e,n,s)},p:u,d(e){e&&O(n)}}}function U(E){let i,n,e,s;return i=new L({props:{title:"DataModel"}}),e=new c({props:{$$slots:{default:[f]},$$scope:{ctx:E}}}),{c(){N(i.$$.fragment),n=R(),N(e.$$.fragment)},l(t){I(i.$$.fragment,t),n=l(t),I(e.$$.fragment,t)},m(t,r){a(i,t,r),g(t,n,r),a(e,t,r),s=!0},p(t,[r]){const T={};r&1&&(T.$$scope={dirty:r,ctx:t}),e.$set(T)},i(t){s||(o(i.$$.fragment,t),o(e.$$.fragment,t),s=!0)},o(t){C(i.$$.fragment,t),C(e.$$.fragment,t),s=!1},d(t){d(i,t),t&&O(n),d(e,t)}}}class K extends S{constructor(i){super(),m(this,i,null,U,A,{})}}export{K as default};

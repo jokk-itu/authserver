@@ -5,117 +5,165 @@
 		<link rel="icon" href="../favicon.png" />
 		<meta name="viewport" content="width=device-width" />
 		<meta http-equiv="content-security-policy" content="">
-		<link href="../_app/immutable/assets/_layout-b4a63751.css" rel="stylesheet">
-		<link rel="modulepreload" href="../_app/immutable/start-486a9e91.js">
+		<link href="../_app/immutable/assets/_layout-02d53abc.css" rel="stylesheet">
+		<link rel="modulepreload" href="../_app/immutable/start-edef8e07.js">
 		<link rel="modulepreload" href="../_app/immutable/chunks/index-8ff2e5dd.js">
 		<link rel="modulepreload" href="../_app/immutable/chunks/singletons-e8188173.js">
 		<link rel="modulepreload" href="../_app/immutable/chunks/paths-7973a8bd.js">
 		<link rel="modulepreload" href="../_app/immutable/chunks/preload-helper-a4192956.js">
-		<link rel="modulepreload" href="../_app/immutable/components/pages/_layout.svelte-6a9ea154.js">
+		<link rel="modulepreload" href="../_app/immutable/components/pages/_layout.svelte-f25753d4.js">
 		<link rel="modulepreload" href="../_app/immutable/modules/pages/_layout.ts-668b5c48.js">
 		<link rel="modulepreload" href="../_app/immutable/chunks/mermaid-768dc893-debd85f8.js">
 		<link rel="modulepreload" href="../_app/immutable/chunks/_layout-1ec47ae4.js">
-		<link rel="modulepreload" href="../_app/immutable/components/pages/token/_page.svelte-aa1b2506.js">
+		<link rel="modulepreload" href="../_app/immutable/components/pages/token/_page.svelte-63547c62.js">
 		<link rel="modulepreload" href="../_app/immutable/chunks/PageTitle-edc21ece.js">
-		<link rel="modulepreload" href="../_app/immutable/chunks/Section-3eaacaa0.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/Section-732b932d.js">
 	</head>
 	<body data-sveltekit-preload-data="hover">
 		<div style="display: contents">
 
 
-<div class="flex flew-row divide-x-2"><div class="flex flex-col px-10 pt-4 flex-grow-0 flex-shrink-0"><p class="text-2xl">Authorization Server</p>
-         <hr class="pb-4">
-         <ul class="list-disc"><li><a class="ref-link text-lg" href="/authserver/">Introduction</a></li>
+<div class="flex flew-row divide-x-2"><div class="flex flex-col px-10 pt-4 flex-grow-0 flex-shrink-0 max-sm:hidden"><ul class="list-disc"><p class="text-2xl">AuthorizationServer</p>
+             <hr class="pb-2">
+             <li><a class="ref-link text-lg" href="/authserver/">Introduction</a></li>
              <li><a class="ref-link text-lg" href="/authserver/architecture">Architecture</a></li>
              <li><a class="ref-link text-lg" href="/authserver/configurationapp">Configuration App</a></li>
              <li><a class="ref-link text-lg" href="/authserver/authorize">Authorize</a></li>
              <li><a class="ref-link text-lg" href="/authserver/token">Token</a></li>
              <li><a class="ref-link text-lg" href="/authserver/datamodel">DataModel</a></li>
-             <li><a class="ref-link text-lg" href="/authserver/grants">Grants</a>
-               <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/grants/authorizationcode">AuthorizationCode
-                         </a></li>
-                    <li><a class="ref-link" href="/authserver/grants/clientcredentials">Client Credentials
-                         </a></li>
-                    <li><a class="ref-link" href="/authserver/grants/refreshtoken">Refresh Token
-                         </a></li></ul></li>
              <li><a class="ref-link text-lg" href="/authserver/dynamicclientregistration">Dynamic Client Registration</a></li>
              <li><a class="ref-link text-lg" href="/authserver/logout">Logout</a>
                <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/logout/backchannel">Backchannel</a></li>
                     <li><a class="ref-link" href="/authserver/logout/rpinitiated">RP Initiated</a></li></ul></li>
              <li><a class="ref-link text-lg" href="/authserver/userinfo">UserInfo</a></li>
              <li><a class="ref-link text-lg" href="/authserver/discovery">Discovery</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/introspection">Introspection</a></li>
+             <li><a class="ref-link text-lg" href="/authserver/revocation">Revocation</a></li>
              <li><a class="ref-link text-lg" href="/authserver/clients">Clients</a>
-               <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/clients/blazor-bff">Blazor.BFF</a></li>
+               <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/clients/bffapp">BFFApp</a></li>
                     <li><a class="ref-link" href="/authserver/clients/worker">Worker</a></li>
                     <li><a class="ref-link" href="/authserver/clients/webapp">WebApp</a></li></ul></li>
              <li><a class="ref-link text-lg" href="/authserver/resources">Resources</a>
-               <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/resources/weather">Weather</a></li></ul></li>
-             <li><a class="ref-link text-lg" href="/authserver/introspection">Introspection</a></li>
-             <li><a class="ref-link text-lg" href="/authserver/revocation">Revocation</a></li></ul></div>
+               <ul class="pl-4 list-disc"><li><a class="ref-link" href="/authserver/resources/weather">Weather</a></li></ul></li></ul></div>
  
-     <div class="px-12 pt-4 flex-grow-3"><h1 class="text-4xl mb-2">Token Endpoint</h1>
+     <div class="px-12 pt-4 flex-grow-3 w-screen overflow-clip"><h1 class="text-4xl mb-2">Token Endpoint</h1>
 <hr class="mb-4">
-<div class="mb-4" id="introduction"><div class="inline-flex"><a class="ref-link" href="#introduction"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"></path></svg></a>
+<div class="mb-4 word" id="introduction"><div class="inline-flex"><a class="ref-link" href="#introduction"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"></path></svg></a>
         <h3 class="text-xl">Introduction</h3></div>
     <hr class="mb-4">
-    </div>
-<div class="mb-4" id="specifications"><div class="inline-flex"><a class="ref-link" href="#specifications"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"></path></svg></a>
+    The token endpoint is used by the OP to issue access, refresh and id tokens to RPs by redeeming grants.
+</div>
+<div class="mb-4 word" id="specifications"><div class="inline-flex"><a class="ref-link" href="#specifications"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"></path></svg></a>
         <h3 class="text-xl">Specifications</h3></div>
     <hr class="mb-4">
     <ul class="list-disc"><li><a href="https://openid.net/specs/openid-connect-core-1_0.html">OIDC 1.0</a></li>
-    <li><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-08">OAuth 2.1</a></li></ul></div>
+    <li><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-09">OAuth 2.1</a></li></ul></div>
 
-<div class="mb-4" id="request"><div class="inline-flex"><a class="ref-link" href="#request"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"></path></svg></a>
-        <h3 class="text-xl">Request</h3></div>
+<div class="mb-4 word" id="token"><div class="inline-flex"><a class="ref-link" href="#token"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"></path></svg></a>
+        <h3 class="text-xl">Token</h3></div>
     <hr class="mb-4">
-    <table class="table-auto"><thead><tr><th>Parameter</th>
-                <th>Data type</th>
-                <th>Description</th>
-                <th>Example</th></tr></thead>
-            <tbody><tr><td>grant_type</td>
-                <td>string</td>
-                <td>Used to assess the method to grant authorization.</td>
-                <td>authorization_code</td></tr>
-              <tr><td>code</td>
-                <td>string</td>
-                <td>Used as the authorization_code return in the callback from the authorize endpoint.</td>
-                <td>labwuigwbweogbnoiweg</td></tr>
-              <tr><td>client_id</td>
-                <td>string</td>
-                <td>Used to identify a client.</td>
-                <td>8BDB0EC9-32C0-4324-B836-B41538471A8E</td></tr>
-              <tr><td>client_secret</td>
-                <td>string</td>
-                <td>Used to authenticate a client.</td>
-                <td>sdbvisdbvsiudbvisvbsd</td></tr>
-              <tr><td>redirect_uri</td>
-                <td>string</td>
-                <td>Used to match the redirect_uri in the authorize request.</td>
-                <td>https://localhost:5001/callback</td></tr>
-              <tr><td>scope</td>
-                <td>space delimited string</td>
-                <td>Used to assess the usage of the access token. Must include openid.</td>
-                <td>openid identityprovider:userinfo weather:write</td></tr>
-              <tr><td>code_verifier</td>
-                <td>string</td>
-                <td>Used to verify the code_challenge was generated from the code_verifier.</td>
-                <td>isubvisvubiusebvsiev</td></tr>
-              <tr><td>refresh_token</td>
-                <td>string</td>
-                <td>Used to get a new access_token in the refresh_token grant flow.</td>
-                <td>ey</td></tr></tbody></table></div></div></div>
+    Requests are sent using the POST method,
+and the body is encoded as form-urlencoded.
+The client must also authenticate itself,
+using the authentication method registered in the token_endpoint_auth_method.<br>
+The following parameters are allowed:<br>
+<b>grant_type</b><br>
+REQUIRED. The grant being redeemed for token(s).
+The supported grants can be found at the discovery endpoint under grant_types.
+<br><br>
+<b>code</b><br>
+REQUIRED. If the grant_type is authorization_code.
+It is the authorization_code issued by the OP.
+<br><br>
+<b>client_id</b><br>
+REQUIRED. Used to authenticate the client.
+How it is sent is determined by the client authentication method.
+<br><br>
+<b>client_secret</b><br>
+REQUIRED. Used to authenticate the client.
+How it is sent is determined by the client authenticatino method.
+<br><br>
+<b>redirect_uri</b><br>
+REQUIRED. If the grant_type is authorization_code
+and the authorize request included a redirect_uri parameter.
+If included, it must match a registered redirect_uri,
+and it must match the same redirect_uri given at the authorize endpoint, if one was provided.
+<br><br>
+<b>scope</b><br>
+REQUIRED. If the grant_type is client_credentials.
+It can be useful during refresh_token grant,
+if the access token should only contain a subset of the authorized scope in the initial grant.
+<br><br>
+<b>code_verifier</b><br>
+REQUIRED. If the grant_type is authorization_code.
+It will be validated against the code, since it contains the code_challenge from the authorize request.
+It must be between 43 and 128 characters long.
+<br><br>
+<b>refresh_token</b><br>
+REQUIRED. If the grant_type is refresh_token.
+It will be used and then invalidated. A new refresh_token is returned in the response.
+<br><br>
+The request for authorization_code grant can look like the following:
+<pre>    POST /connect/token HTTP/1.1
+    Host: idp.authserver.dk
+    Content-Type: application/x-www-form-urlencoded
+    Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
+
+    grant_type=authorization_code
+    &amp;code=fgukaoirnenvsoidnv
+    &amp;redirect_uri=https://webapp.authserver.dk/signin-callback
+    &amp;code_verifier=saeoginsoivn...
+</pre><br><br>
+The request for refresh_token grant can look like the following:
+<pre>    POST /connect/token HTTP/1.1
+    Host: idp.authserver.dk
+    Content-Type: application/x-www-form-urlencoded
+    Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
+
+    grant_type=refresh_token
+    &amp;refresh_token=fgukaoirnenvsoidnv
+    &amp;scope=openid%20identityprovider:userinfo
+</pre><br><br>
+The response for authorization_code and refresh_token grant can look like the following:
+<pre>    HTTP/1.1 200 OK
+    Content-Type: application/json
+
+    {
+     "access_token": "aiseubisadvsdbgur",
+     "expires_in": 3600,
+     "refresh_token": "lauribvidbvdfv";
+     "id_token": "aleryubvksjdv",
+    }
+</pre><br><br>
+The request for client_credentials grant can look like the following:
+<pre>    POST /connect/token HTTP/1.1
+    Host: idp.authserver.dk
+    Content-Type: application/x-www-form-urlencoded
+    Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
+
+    grant_type=client_credentials&amp;scope=weather%3Aread
+</pre><br><br>
+The response for client_credentials grant can look like the following:
+<pre>    HTTP/1.1 200 OK
+    Content-Type: application/json
+
+    {
+     "access_token": "aiseubisadvsdbgur",
+     "expires_in": 3600
+    }
+</pre></div></div></div>
 
 
-		<script type="module" data-sveltekit-hydrate="4znagp">
-			import { start } from "../_app/immutable/start-486a9e91.js";
+		<script type="module" data-sveltekit-hydrate="1orrmuu">
+			import { start } from "../_app/immutable/start-edef8e07.js";
 
 			start({
 				assets: "",
 				env: {},
-				target: document.querySelector('[data-sveltekit-hydrate="4znagp"]').parentNode,
-				version: "1693774098663",
+				target: document.querySelector('[data-sveltekit-hydrate="1orrmuu"]').parentNode,
+				version: "1694261680451",
 				hydrate: {
-					node_ids: [0, 24],
+					node_ids: [0, 20],
 					data: [null,null],
 					form: null,
 					error: null
