@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace WebApp.Contracts.GetDiscoveryDocument;
 
@@ -73,4 +73,10 @@ public record GetDiscoveryDocumentResponse
 
   [JsonPropertyName("registration_endpoint")]
   public string RegistrationEndpoint { get; init; }
+
+  [JsonPropertyName("request_uri_parameter_supported")]
+  public bool RequestUriParameterSupported { get; init; }
+
+  [JsonPropertyName("claims_supported")]
+  public IEnumerable<string> ClaimsSupported { get; init; }
 }

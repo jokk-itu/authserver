@@ -1,6 +1,6 @@
 ﻿namespace Infrastructure.Builders.Abstractions;
 public interface IDiscoveryBuilder
 {
-  Task<DiscoveryDocument> BuildDiscoveryDocument();
+  DiscoveryDocument BuildDiscoveryDocument();
   Task<JwksDocument> BuildJwkDocument();
 }

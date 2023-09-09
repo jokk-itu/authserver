@@ -22,9 +22,9 @@ public class DiscoveryController : ControllerBase
   [HttpGet]
   [Route("openid-configuration")]
   [ProducesResponseType(typeof(GetDiscoveryDocumentResponse), StatusCodes.Status200OK)]
-  public async Task<IActionResult> GetDiscoveryDocument()
+  public IActionResult GetDiscoveryDocument()
   {
-    var document = await _builder.BuildDiscoveryDocument();
+    var document = _builder.BuildDiscoveryDocument();
     return Ok(document.Adapt<GetDiscoveryDocumentResponse>());
   }
 
