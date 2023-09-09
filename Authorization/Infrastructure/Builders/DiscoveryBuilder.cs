@@ -1,4 +1,4 @@
-﻿using Application;
+using Application;
 using Domain;
 using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
@@ -31,7 +31,7 @@ public class DiscoveryBuilder : IDiscoveryBuilder
   public async Task<DiscoveryDocument> BuildDiscoveryDocument()
   {
     var issuer = _identityConfiguration.Issuer;
-    var scopes = await _identityContext
+    var serviceDocumentation = _identityConfiguration.ServiceDocumentation;
       .Set<Scope>()
       .Select(x => x.Name)
       .ToListAsync();
@@ -39,6 +39,7 @@ public class DiscoveryBuilder : IDiscoveryBuilder
     return new DiscoveryDocument
     {
       Issuer = issuer,
+      ServiceDocumentation = serviceDocumentation,
       AuthorizationEndpoint = $"{issuer}/connect/authorize",
       TokenEndpoint = $"{issuer}/connect/token",
       UserInfoEndpoint = $"{issuer}/connect/userinfo",
@@ -87,6 +88,7 @@ public class DiscoveryBuilder : IDiscoveryBuilder
 public class DiscoveryDocument
 {
   public string Issuer { get; init; }
+  public string ServiceDocumentation { get; init; }
   public string AuthorizationEndpoint { get; init; }
   public string TokenEndpoint { get; init; }
   public string UserInfoEndpoint { get; init; }

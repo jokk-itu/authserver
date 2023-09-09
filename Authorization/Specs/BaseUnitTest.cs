@@ -1,4 +1,4 @@
-﻿using Application;
+using Application;
 using Infrastructure;
 using Infrastructure.Extensions;
 using Infrastructure.Helpers;
@@ -44,6 +44,7 @@ public abstract class BaseUnitTest
         EncryptingKeySecret = "WnZr4u7w!z%C*F-J",
         CodeSecret = CryptographyHelper.GetRandomString(32),
         PrivateKeySecret = CryptographyHelper.GetRandomString(32),
+        ServiceDocumentation = "http://localhost:5173",
         Issuer = "auth-server",
         UseReferenceTokens = false,
       })

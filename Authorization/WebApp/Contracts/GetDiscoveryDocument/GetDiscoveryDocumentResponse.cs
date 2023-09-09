@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace WebApp.Contracts.GetDiscoveryDocument;
 
@@ -7,6 +7,9 @@ public record GetDiscoveryDocumentResponse
 {
   [JsonPropertyName("issuer")]
   public string Issuer { get; init; }
+
+  [JsonPropertyName("service_documentation")]
+  public string ServiceDocumentation { get; init; }
 
   [JsonPropertyName("authorization_endpoint")]
   public string AuthorizationEndpoint { get; init; }
