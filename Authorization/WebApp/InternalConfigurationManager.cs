@@ -38,7 +38,7 @@ public class InternalConfigurationManager : IConfigurationManager<OpenIdConnectC
 
   private async Task RefreshAsync()
   {
-    var discoveryDocument = (await _builder.BuildDiscoveryDocument()).Adapt<GetDiscoveryDocumentResponse>();
+    var discoveryDocument = _builder.BuildDiscoveryDocument().Adapt<GetDiscoveryDocumentResponse>();
     var jwkDocument = (await _builder.BuildJwkDocument()).Adapt<GetJwksDocumentResponse>();
 
     _openIdConnectConfiguration = OpenIdConnectConfiguration.Create(JsonSerializer.Serialize(discoveryDocument));

@@ -4,8 +4,7 @@
 </script>
 <PageTitle title="Weather"/>
 <Section title="Introduction">
-<p>
 An API functioning as a protected resource.
 It exposes data about the weather randomly.
-</p>
+It requires the weather:read scope.
 </Section>

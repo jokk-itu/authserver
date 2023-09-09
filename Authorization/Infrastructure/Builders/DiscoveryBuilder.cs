@@ -1,9 +1,7 @@
 ﻿using Application;
-using Domain;
 using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Repositories;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Infrastructure.Builders;
@@ -13,32 +11,55 @@ public class DiscoveryBuilder : IDiscoveryBuilder
 {
   private const string Algorithm = "RSA";
   private const string Use = "sig";
+  private readonly string[] Scopes =
+  {
+    ScopeConstants.OpenId,
+    ScopeConstants.ClientConfiguration,
+    ScopeConstants.Email,
+    ScopeConstants.OfflineAccess,
+    ScopeConstants.Phone,
+    ScopeConstants.Profile,
+    ScopeConstants.UserInfo
+  };
+  private readonly string[] ClaimsSupported =
+  {
+    ClaimNameConstants.Address,
+    ClaimNameConstants.Birthdate,
+    ClaimNameConstants.Email,
+    ClaimNameConstants.Phone,
+    ClaimNameConstants.Name,
+    ClaimNameConstants.GivenName,
+    ClaimNameConstants.FamilyName,
+    ClaimNameConstants.Locale,
+    ClaimNameConstants.Nonce,
+    ClaimNameConstants.AuthTime,
+    ClaimNameConstants.Sub,
+    ClaimNameConstants.Sid,
+    ClaimNameConstants.GrantId,
+    ClaimNameConstants.Aud,
+    ClaimNameConstants.Scope
+  };
 
   private readonly IdentityConfiguration _identityConfiguration;
-  private readonly IdentityContext _identityContext;
   private readonly JwkManager _jwkManager;
 
   public DiscoveryBuilder(
     IdentityConfiguration identityConfiguration,
-    IdentityContext identityContext,
     JwkManager jwkManager)
   {
     _identityConfiguration = identityConfiguration;
-    _identityContext = identityContext;
     _jwkManager = jwkManager;
   }
 
-  public async Task<DiscoveryDocument> BuildDiscoveryDocument()
+  public DiscoveryDocument BuildDiscoveryDocument()
   {
     var issuer = _identityConfiguration.Issuer;
-    var scopes = await _identityContext
-      .Set<Scope>()
-      .Select(x => x.Name)
-      .ToListAsync();
-
+    var serviceDocumentation = _identityConfiguration.ServiceDocumentation;
+    
     return new DiscoveryDocument
     {
       Issuer = issuer,
+      ServiceDocumentation = serviceDocumentation,
       AuthorizationEndpoint = $"{issuer}/connect/authorize",
       TokenEndpoint = $"{issuer}/connect/token",
       UserInfoEndpoint = $"{issuer}/connect/userinfo",
@@ -47,7 +68,7 @@ public class DiscoveryBuilder : IDiscoveryBuilder
       IntrospectionEndpoint = $"{issuer}/connect/introspection",
       RevocationEndpoint = $"{issuer}/connect/revoke",
       RegistrationEndpoint = $"{issuer}/connect/register",
-      Scopes = scopes,
+      Scopes = Scopes,
       GrantTypes = GrantTypeConstants.GrantTypes,
       ResponseTypes = ResponseTypeConstants.ResponseTypes,
       TokenEndpointAuthMethods = TokenEndpointAuthMethodConstants.AuthMethods,
@@ -57,9 +78,11 @@ public class DiscoveryBuilder : IDiscoveryBuilder
       CodeChallengeMethods = CodeChallengeMethodConstants.CodeChallengeMethods,
       ResponseModes = ResponseModeConstants.ResponseModes,
       SubjectTypes = SubjectTypeConstants.SubjectTypes,
+      IdTokenSigningAlgValues = IdTokenSigningAlgConstants.IdTokenSigningAlgorithms,
+      ClaimsSupported = ClaimsSupported,
       AuthorizationResponseIssParameterSupported = true,
       BackChannelLogoutSupported = true,
-      IdTokenSigningAlgValues = IdTokenSigningAlgConstants.IdTokenSigningAlgorithms
+      RequestUriParameterSupported = false
     };
   }
 
@@ -87,6 +110,7 @@ public class DiscoveryBuilder : IDiscoveryBuilder
 public class DiscoveryDocument
 {
   public string Issuer { get; init; }
+  public string ServiceDocumentation { get; init; }
   public string AuthorizationEndpoint { get; init; }
   public string TokenEndpoint { get; init; }
   public string UserInfoEndpoint { get; init; }
@@ -106,8 +130,10 @@ public class DiscoveryDocument
   public IEnumerable<string> SubjectTypes { get; init; }
   public IEnumerable<string> IdTokenSigningAlgValues { get; init; }
   public IEnumerable<string> ResponseModes { get; init; }
+  public IEnumerable<string> ClaimsSupported { get; init; }
   public bool AuthorizationResponseIssParameterSupported { get; init; }
   public bool BackChannelLogoutSupported { get; init; }
+  public bool RequestUriParameterSupported { get; init; }
 }
 
 public class JwksDocument

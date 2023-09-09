@@ -126,6 +126,7 @@
         }
         NONCE {
             string Id 
+            datetime IssuedAt
             string Value
             string AuthorizationCodeGrantId 
         }

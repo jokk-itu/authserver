@@ -42,7 +42,7 @@ services:
       - Identity__Authority=https://idp.authserver.dk
       - Identity__ClientUri=https://bffapp.authserver.dk
       - Identity__ClientId=fa6913ea-8bba-46d3-a2a3-7ddcbc5e1197
-      - Identity__ClientSecret=^YYkp9st8arEIhSwt*^4sc9*$E#^nskY
+      - Identity__ClientSecret=YYkp9st8arEIhSwt@4sc9@$E#nskY
       - WeatherService__Url=https://weather.authserver.dk
       - ASPNETCORE_ENVIRONMENT=Production
 
@@ -80,6 +80,8 @@ services:
     depends_on:
       - authorizationserver
       - webapp
+      - bffapp
+      - weatherservice
 
   certbot:
     image: certbot/certbot

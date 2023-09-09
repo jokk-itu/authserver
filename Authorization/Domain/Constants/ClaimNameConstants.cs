@@ -6,12 +6,6 @@ public static class ClaimNameConstants
   /// A space delimited string of scopes.
   /// </summary>
   public const string Scope = "scope";
-
-  /// <summary>
-  /// Client Id.
-  /// </summary>
-  public const string ClientId = "client_id";
-
   
   /// <summary>
   /// Subject Id.

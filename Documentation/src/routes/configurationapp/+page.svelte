@@ -16,4 +16,13 @@ The console app is built as a tool to provide for quick actions given a command.
     <br/>
     <br/>
     <b>rotate</b> is used to rotate JWK used for signing, it does so by inserting one new JWK in the database.
+    <br/>
+    <br/>
+    <b>client</b> is used to create clients.
+    <br/>
+    <br/>
+    <b>cleanclient</b> used used for deleting all clients.
+    <br/>
+    <br/>
+    <b>migration</b> is used to apply migrations.
 </Section>

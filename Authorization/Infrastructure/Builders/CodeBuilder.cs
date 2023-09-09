@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using System.Text.Json;
-using Application;
 using Infrastructure.Builders.Abstractions;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
@@ -10,11 +9,9 @@ public class CodeBuilder : ICodeBuilder
 {
   private readonly IDataProtector _dataProtector;
 
-  public CodeBuilder(
-    IdentityConfiguration identityConfiguration,
-    IDataProtectionProvider protectorProvider)
+  public CodeBuilder(IDataProtectionProvider protectorProvider)
   {
-    _dataProtector = protectorProvider.CreateProtector(identityConfiguration.CodeSecret);
+    _dataProtector = protectorProvider.CreateProtector("AuthorizationCode");
   }
 
   public async Task<string> BuildAuthorizationCodeAsync(

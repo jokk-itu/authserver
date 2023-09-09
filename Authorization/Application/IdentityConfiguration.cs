@@ -4,13 +4,8 @@ namespace Application;
 public record IdentityConfiguration
 {
   public virtual string Issuer { get; set; }
-
+  public virtual string ServiceDocumentation { get; set; }
   public virtual string PrivateKeySecret { get; set; }
-
-  public virtual string EncryptingKeySecret { get; set; }
-
-  public virtual string CodeSecret { get; set; }
-
   public virtual bool UseReferenceTokens { get; set; }
 
   /// <summary>

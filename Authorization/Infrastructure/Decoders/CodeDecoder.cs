@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using System.Text.Json;
-using Application;
 using Infrastructure.Builders;
 using Infrastructure.Decoders.Abstractions;
 using Microsoft.AspNetCore.DataProtection;
@@ -11,11 +10,9 @@ public class CodeDecoder : ICodeDecoder
 {
   private readonly IDataProtector _dataProtector;
 
-  public CodeDecoder(
-    IdentityConfiguration identityConfiguration,
-    IDataProtectionProvider dataProtectionProvider)
+  public CodeDecoder(IDataProtectionProvider dataProtectionProvider)
   {
-    _dataProtector = dataProtectionProvider.CreateProtector(identityConfiguration.CodeSecret);
+    _dataProtector = dataProtectionProvider.CreateProtector("AuthorizationCode");
   }
 
   public AuthorizationCode DecodeAuthorizationCode(string code)

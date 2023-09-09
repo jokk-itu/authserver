@@ -41,9 +41,8 @@ public abstract class BaseUnitTest
         AccessTokenExpiration = 3600,
         IdTokenExpiration = 300,
         RefreshTokenExpiration = 26000,
-        EncryptingKeySecret = "WnZr4u7w!z%C*F-J",
-        CodeSecret = CryptographyHelper.GetRandomString(32),
         PrivateKeySecret = CryptographyHelper.GetRandomString(32),
+        ServiceDocumentation = "http://localhost:5173",
         Issuer = "auth-server",
         UseReferenceTokens = false,
       })

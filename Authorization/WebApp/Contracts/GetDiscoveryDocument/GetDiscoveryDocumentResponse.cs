@@ -8,6 +8,9 @@ public record GetDiscoveryDocumentResponse
   [JsonPropertyName("issuer")]
   public string Issuer { get; init; }
 
+  [JsonPropertyName("service_documentation")]
+  public string ServiceDocumentation { get; init; }
+
   [JsonPropertyName("authorization_endpoint")]
   public string AuthorizationEndpoint { get; init; }
 
@@ -70,4 +73,10 @@ public record GetDiscoveryDocumentResponse
 
   [JsonPropertyName("registration_endpoint")]
   public string RegistrationEndpoint { get; init; }
+
+  [JsonPropertyName("request_uri_parameter_supported")]
+  public bool RequestUriParameterSupported { get; init; }
+
+  [JsonPropertyName("claims_supported")]
+  public IEnumerable<string> ClaimsSupported { get; init; }
 }
