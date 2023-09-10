@@ -15,7 +15,7 @@ public class CreateClientValidatorTests : BaseUnitTest
     Contacts = new List<string>(),
     PolicyUri = string.Empty,
     RedirectUris = new[] { "https://localhost:5002/callback" },
-    Scope = $"{ScopeConstants.OpenId}",
+    Scope = string.Empty,
     GrantTypes = new[] { OpenIdConnectGrantTypes.AuthorizationCode, OpenIdConnectGrantTypes.RefreshToken },
     SubjectType = string.Empty,
     TosUri = string.Empty,
@@ -208,21 +208,6 @@ public class CreateClientValidatorTests : BaseUnitTest
   {
     // Arrange
     _command.Contacts = new[] { "invalid" };
-    var validator = new CreateClientValidator(IdentityContext);
-
-    // Act
-    var validationResult = await validator.ValidateAsync(_command);
-
-    // Assert
-    Assert.True(validationResult.IsError());
-  }
-
-  [Fact]
-  [Trait("Category", "Unit")]
-  public async Task ValidateAsync_EmptyScopes_ExpectErrorResult()
-  {
-    // Arrange
-    _command.Scope = string.Empty;
     var validator = new CreateClientValidator(IdentityContext);
 
     // Act

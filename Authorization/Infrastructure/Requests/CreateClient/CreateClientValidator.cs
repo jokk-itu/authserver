@@ -205,21 +205,23 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
 
   private async Task<bool> IsScopeInvalidAsync(CreateClientCommand command)
   {
-    var scopes = command.Scope.Split(' ');
-    if (command.GrantTypes.Contains(GrantTypeConstants.AuthorizationCode) && !scopes.Contains(ScopeConstants.OpenId))
+    var scopes = new List<string>();
+    if (!string.IsNullOrWhiteSpace(command.Scope))
     {
-      return true;
+      scopes = command.Scope.Split(' ').ToList();
+    }
+    else if(command.GrantTypes.Contains(GrantTypeConstants.AuthorizationCode))
+    {
+      scopes.Add(ScopeConstants.OpenId);
+      scopes.Add(ScopeConstants.UserInfo);
     }
 
-    foreach (var scope in scopes)
-    {
-      if (!await _identityContext.Set<Scope>().AnyAsync(x => x.Name == scope))
-      {
-        return true;
-      }
-    }
+    var matchingScopes = await _identityContext
+      .Set<Scope>()
+      .Where(s => scopes.Contains(s.Name))
+      .CountAsync();
 
-    return false;
+    return matchingScopes != scopes.Count;
   }
 
   private static bool IsSubjectTypeInvalid(CreateClientCommand command)
