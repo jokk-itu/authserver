@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using Domain;
 using Domain.Enums;
-using Domain.Extensions;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.RegistrationToken;
 using Infrastructure.Helpers;
@@ -36,7 +35,6 @@ public class ReadClientHandler : IRequestHandler<ReadClientQuery, ReadClientResp
       .Include(x => x.Scopes)
       .Include(x => x.Contacts)
       .Include(x => x.GrantTypes)
-      .Include(x => x.RedirectUris)
       .Include(x => x.RedirectUris)
       .SingleAsync(cancellationToken: cancellationToken);
 
