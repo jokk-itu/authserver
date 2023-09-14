@@ -4,15 +4,20 @@ using Application.Validation;
 using Domain;
 using Domain.Constants;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Infrastructure.Requests.CreateClient;
 public class CreateClientValidator : IValidator<CreateClientCommand>
 {
   private readonly IdentityContext _identityContext;
+  private readonly HttpClient _httpClient;
 
-  public CreateClientValidator(IdentityContext identityContext)
+  public CreateClientValidator(
+    IdentityContext identityContext,
+    IHttpClientFactory httpClientFactory)
   {
     _identityContext = identityContext;
+    _httpClient = httpClientFactory.CreateClient();
   }
 
   public async Task<ValidationResult> ValidateAsync(CreateClientCommand value, CancellationToken cancellationToken = default)
@@ -107,7 +112,67 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
       return GetInvalidClientMetadataResult("backchannel_logout_uri is invalid");
     }
 
+    if (!string.IsNullOrWhiteSpace(value.Jwks) && !string.IsNullOrWhiteSpace(value.JwksUri))
+    {
+      return GetInvalidClientMetadataResult("jwks and jwks_uri must not be used together");
+    }
+
+    if (IsJwksInvalid(value))
+    {
+      return GetInvalidClientMetadataResult("jwks is invalid");
+    }
+
+    if (await IsJwksUriInvalid(value, cancellationToken))
+    {
+      return GetInvalidClientMetadataResult("jwks_uri is invalid");
+    }
+
     return new ValidationResult(HttpStatusCode.OK);
+  }
+
+  private async Task<bool> IsJwksUriInvalid(CreateClientCommand command, CancellationToken cancellationToken)
+  {
+    if (string.IsNullOrWhiteSpace(command.JwksUri))
+    {
+      return false;
+    }
+
+    if (!Uri.TryCreate(command.JwksUri, UriKind.Absolute, out var uri))
+    {
+      return true;
+    }
+
+    try
+    {
+      var request = new HttpRequestMessage(HttpMethod.Get, uri);
+      var response = await _httpClient.SendAsync(request, cancellationToken);
+      response.EnsureSuccessStatusCode();
+      var jwks = await response.Content.ReadAsStringAsync(cancellationToken: cancellationToken); 
+      var temp = JsonWebKeySet.Create(jwks);
+      var isValid =  temp.GetSigningKeys().Any() && temp.GetSigningKeys().Count == temp.Keys.Count;
+      if (isValid)
+      {
+        command.Jwks = jwks;
+      }
+
+      return !isValid;
+    }
+    catch (Exception)
+    {
+      return true;
+    }
+  }
+
+  private static bool IsJwksInvalid(CreateClientCommand command)
+  {
+    if (string.IsNullOrWhiteSpace(command.Jwks))
+    {
+      return false;
+    }
+    
+    var jwks = JsonWebKeySet.Create(command.Jwks);
+    var isValid = jwks.GetSigningKeys().Any() && jwks.GetSigningKeys().Count == jwks.Keys.Count;
+    return !isValid;
   }
 
   private static bool IsBackChannelLogoutUriInvalid(CreateClientCommand command)

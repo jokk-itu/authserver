@@ -1,12 +1,31 @@
-﻿using Domain;
+﻿using System.ComponentModel;
+using System.Net;
+using Application.Validation;
+using Domain;
 using Domain.Constants;
 using Infrastructure.Requests.CreateClient;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Moq;
 using Xunit;
 
 namespace Specs.Validators;
 public class CreateClientValidatorTests : BaseUnitTest
 {
+  private const string Jwks = @"
+{
+    ""keys"": [
+        {
+        ""kty"": ""RSA"",
+        ""e"": ""AQAB"",
+        ""use"": ""sig"",
+        ""kid"": ""NTAxZmMxNDMyZDg3MTU1ZGM0MzEzODJhZWI4NDNlZDU1OGFkNjFiMQ"",
+        ""alg"": ""RS256"",
+        ""n"": ""luZFdW1ynitztkWLC6xKegbRWxky-5P0p4ShYEOkHs30QI2VCuR6Qo4Bz5rTgLBrky03W1GAVrZxuvKRGj9V9-PmjdGtau4CTXu9pLLcqnruaczoSdvBYA3lS9a7zgFU0-s6kMl2EhB-rk7gXluEep7lIOenzfl2f6IoTKa2fVgVd3YKiSGsyL4tztS70vmmX121qm0sTJdKWP4HxXyqK9neolXI9fYyHOYILVNZ69z_73OOVhkh_mvTmWZLM7GM6sApmyLX6OXUp8z0pkY-vT_9-zRxxQs7GurC4_C1nK3rI_0ySUgGEafO1atNjYmlFN-M3tZX6nEcA6g94IavyQ""
+        }
+    ]
+}";
+
   private readonly CreateClientCommand _command = new()
   {
     ApplicationType = string.Empty,
@@ -33,7 +52,29 @@ public class CreateClientValidatorTests : BaseUnitTest
   public async Task ValidateAsync_ForceDefaultValues_ExpectCreatedResult()
   {
     // Arrange
-    var validator = new CreateClientValidator(IdentityContext);
+    _command.JwksUri = "https://localhost:5002/.well-known/jwks";
+    var response = new HttpResponseMessage(HttpStatusCode.OK)
+    {
+      Content = new StringContent(Jwks)
+    };
+
+    var httpClientMock = new Mock<HttpClient>();
+    httpClientMock
+      .Setup(x => x.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(response)
+      .Verifiable();
+
+    var httpClientFactoryMock = new Mock<IHttpClientFactory>();
+    httpClientFactoryMock
+      .Setup(x => x.CreateClient(It.IsAny<string>()))
+      .Returns(httpClientMock.Object)
+      .Verifiable();
+
+    var serviceProvider = BuildServiceProvider(services =>
+    {
+      services.AddSingletonMock(httpClientFactoryMock);
+    });
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);
@@ -44,7 +85,7 @@ public class CreateClientValidatorTests : BaseUnitTest
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task IsValid_ExpectCreatedResult()
+  public async Task ValidateAsync_FullCommand_ExpectCreatedResult()
   {
     // Arrange
     var command = new CreateClientCommand
@@ -65,9 +106,11 @@ public class CreateClientValidatorTests : BaseUnitTest
       LogoUri = "https://gravatar.com/avatar",
       InitiateLoginUri = "https://localhost:5002/login",
       BackchannelLogoutUri = "https://localhost:5002/logout",
-      PostLogoutRedirectUris = new[] { "https://localhost:5002" }
+      PostLogoutRedirectUris = new[] { "https://localhost:5002" },
+      Jwks = Jwks
     };
-    var validator = new CreateClientValidator(IdentityContext);
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(command);
@@ -82,7 +125,8 @@ public class CreateClientValidatorTests : BaseUnitTest
   {
     // Arrange
     _command.ApplicationType = "wrong";
-    var validator = new CreateClientValidator(IdentityContext);
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);
@@ -97,7 +141,8 @@ public class CreateClientValidatorTests : BaseUnitTest
   {
     // Arrange
     _command.ClientName = string.Empty;
-    var validator = new CreateClientValidator(IdentityContext);
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);
@@ -120,7 +165,8 @@ public class CreateClientValidatorTests : BaseUnitTest
       });
     await IdentityContext.SaveChangesAsync();
 
-    var validator = new CreateClientValidator(IdentityContext);
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);
@@ -133,8 +179,10 @@ public class CreateClientValidatorTests : BaseUnitTest
   [Trait("Category", "Unit")]
   public async Task ValidateAsync_InvalidRedirectUris_ExpectErrorResult()
   {
+    // Arrange
     _command.RedirectUris = new[] { "invalid" };
-    var validator = new CreateClientValidator(IdentityContext);
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);
@@ -147,8 +195,10 @@ public class CreateClientValidatorTests : BaseUnitTest
   [Trait("Category", "Unit")]
   public async Task ValidateAsync_EmptyRedirectUris_ExpectErrorResult()
   {
+    // Arrange
     _command.RedirectUris = Array.Empty<string>();
-    var validator = new CreateClientValidator(IdentityContext);
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);
@@ -163,7 +213,8 @@ public class CreateClientValidatorTests : BaseUnitTest
   {
     // Arrange
     _command.ResponseTypes = new[] { "invalid" };
-    var validator = new CreateClientValidator(IdentityContext);
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);
@@ -178,7 +229,8 @@ public class CreateClientValidatorTests : BaseUnitTest
   {
     // Arrange
     _command.GrantTypes = new[] { "invalid" };
-    var validator = new CreateClientValidator(IdentityContext);
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);
@@ -193,7 +245,8 @@ public class CreateClientValidatorTests : BaseUnitTest
   {
     // Arrange
     _command.GrantTypes = Array.Empty<string>();
-    var validator = new CreateClientValidator(IdentityContext);
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);
@@ -208,7 +261,8 @@ public class CreateClientValidatorTests : BaseUnitTest
   {
     // Arrange
     _command.Contacts = new[] { "invalid" };
-    var validator = new CreateClientValidator(IdentityContext);
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);
@@ -223,7 +277,8 @@ public class CreateClientValidatorTests : BaseUnitTest
   {
     // Arrange
     _command.Scope = "invalid_scope";
-    var validator = new CreateClientValidator(IdentityContext);
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);
@@ -238,7 +293,8 @@ public class CreateClientValidatorTests : BaseUnitTest
   {
     // Arrange
     _command.PolicyUri = "invalid";
-    var validator = new CreateClientValidator(IdentityContext);
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);
@@ -253,7 +309,8 @@ public class CreateClientValidatorTests : BaseUnitTest
   {
     // Arrange
     _command.TosUri = "invalid";
-    var validator = new CreateClientValidator(IdentityContext);
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);
@@ -268,7 +325,8 @@ public class CreateClientValidatorTests : BaseUnitTest
   {
     // Arrange
     _command.SubjectType = "invalid";
-    var validator = new CreateClientValidator(IdentityContext);
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);
@@ -283,7 +341,8 @@ public class CreateClientValidatorTests : BaseUnitTest
   {
     // Arrange
     _command.TokenEndpointAuthMethod = "invalid";
-    var validator = new CreateClientValidator(IdentityContext);
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);
@@ -298,7 +357,8 @@ public class CreateClientValidatorTests : BaseUnitTest
   {
     // Arrange
     _command.InitiateLoginUri = "invalid_uri";
-    var validator = new CreateClientValidator(IdentityContext);
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);
@@ -313,7 +373,8 @@ public class CreateClientValidatorTests : BaseUnitTest
   {
     // Arrange
     _command.LogoUri = "invalid_uri";
-    var validator = new CreateClientValidator(IdentityContext);
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);
@@ -328,7 +389,8 @@ public class CreateClientValidatorTests : BaseUnitTest
   {
     // Arrange
     _command.ClientUri = "invalid_uri";
-    var validator = new CreateClientValidator(IdentityContext);
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);
@@ -337,28 +399,16 @@ public class CreateClientValidatorTests : BaseUnitTest
     Assert.True(validationResult.IsError());
   }
 
-  [Fact]
+  [Theory]
+  [InlineData("-2")]
+  [InlineData("invalid_number")]
   [Trait("Category", "Unit")]
-  public async Task ValidateAsync_InvalidDefaultMaxAgeMinusOne_ExpectErrorResult()
+  public async Task ValidateAsync_InvalidDefaultMaxAge_ExpectErrorResult(string number)
   {
     // Arrange
-    _command.DefaultMaxAge = "-2";
-    var validator = new CreateClientValidator(IdentityContext);
-
-    // Act
-    var validationResult = await validator.ValidateAsync(_command);
-
-    // Assert
-    Assert.True(validationResult.IsError());
-  }
-
-  [Fact]
-  [Trait("Category", "Unit")]
-  public async Task ValidateAsync_InvalidDefaultMaxAge_ExpectErrorResult()
-  {
-    // Arrange
-    _command.DefaultMaxAge = "invalid_number";
-    var validator = new CreateClientValidator(IdentityContext);
+    _command.DefaultMaxAge = number;
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);
@@ -373,7 +423,26 @@ public class CreateClientValidatorTests : BaseUnitTest
   {
     // Arrange
     _command.PostLogoutRedirectUris = new[] { "invalid_uri" };
-    var validator = new CreateClientValidator(IdentityContext);
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
+
+    // Act
+    var validationResult = await validator.ValidateAsync(_command);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+  }
+
+  [Theory]
+  [InlineData("invalid_uri")]
+  [InlineData("https://localhost:5002/callback#something")]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_InvalidBackChannelLogoutUri_ExpectErrorResult(string uri)
+  {
+    // Arrange
+    _command.BackchannelLogoutUri = uri;
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);
@@ -384,11 +453,14 @@ public class CreateClientValidatorTests : BaseUnitTest
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task ValidateAsync_InvalidBackChannelLogoutUri_ExpectErrorResult()
+  public async Task ValidateAsync_InvalidCombinationOfJwksAndJwksUri_ExpectErrorResult()
   {
     // Arrange
-    _command.BackchannelLogoutUri = "invalid_uri";
-    var validator = new CreateClientValidator(IdentityContext);
+    _command.JwksUri = "uri";
+    _command.Jwks = "jwks";
+
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);
@@ -399,11 +471,69 @@ public class CreateClientValidatorTests : BaseUnitTest
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task ValidateAsync_InvalidBackChannelLogoutUriWithFragment_ExpectErrorResult()
+  public async Task ValidateAsync_InvalidJwks_ExpectErrorResult()
   {
     // Arrange
-    _command.BackchannelLogoutUri = "https://localhost:5002/callback#something";
-    var validator = new CreateClientValidator(IdentityContext);
+    var jwksUri = "https://localhost:5002/jwks";
+    _command.Jwks = @"
+{
+    ""keys"": [
+        {
+        ""kty"": ""RSA"",
+        ""e"": ""AQAB"",
+        ""use"": ""sig"",
+        ""kid"": ""NTAxZmMxNDMyZDg3MTU1ZGM0MzEzODJhZWI4NDNlZDU1OGFkNjFiMQ"",
+        ""alg"": ""RS256"",
+        ""n"": ""luZFdW1ynitztkWLC6xKegbRWxky-5P0p4ShYEOkHs30QI2VCuR6Qo4Bz5rTgLBrky03W1GAVrZxuvKRGj9V9-PmjdGtau4CTXu9pLLcqnruaczoSdvBYA3lS9a7zgFU0-s6kMl2EhB-rk7gXluEep7lIOenzfl2f6IoTKa2fVgVd3YKiSGsyL4tztS70vmmX121qm0sTJdKWP4HxXyqK9neolXI9fYyHOYILVNZ69z_73OOVhkh_mvTmWZLM7GM6sApmyLX6OXUp8z0pkY-vT_9-zRxxQs7GurC4_C1nK3rI_0ySUgGEafO1atNjYmlFN-M3tZX6nEcA6g94IavyQ""
+        },
+        {
+        ""kty"": ""invalid"",
+        ""e"": ""invalid"",
+        ""use"": ""invalid"",
+        ""alg"": ""invalid"",
+        ""n"": ""invalid""
+        }
+    ]
+}";
+
+    var serviceProvider = BuildServiceProvider();
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
+
+    // Act
+    var validationResult = await validator.ValidateAsync(_command);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_InvalidJwksUri_ExpectErrorResult()
+  {
+    // Arrange
+    var jwksUri = "https://localhost:5002/jwks";
+    _command.JwksUri = jwksUri;
+
+    var response = new HttpResponseMessage(HttpStatusCode.NotFound);
+
+    var httpClientMock = new Mock<HttpClient>();
+    httpClientMock
+      .Setup(x => x.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(response)
+      .Verifiable();
+
+    var httpClientFactoryMock = new Mock<IHttpClientFactory>();
+    httpClientFactoryMock
+      .Setup(x => x.CreateClient(It.IsAny<string>()))
+      .Returns(httpClientMock.Object)
+      .Verifiable();
+
+    var serviceProvider = BuildServiceProvider(services =>
+    {
+      services.AddSingletonMock(httpClientFactoryMock);
+    });
+
+    var validator = serviceProvider.GetRequiredService<IValidator<CreateClientCommand>>();
 
     // Act
     var validationResult = await validator.ValidateAsync(_command);

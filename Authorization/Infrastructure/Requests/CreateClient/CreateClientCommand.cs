@@ -1,5 +1,6 @@
 ﻿using Domain.Constants;
 using MediatR;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Infrastructure.Requests.CreateClient;
 
@@ -12,7 +13,7 @@ public class CreateClientCommand : IRequest<CreateClientResponse>
   public ICollection<string> GrantTypes { get; set; } = new List<string>();
   public string ApplicationType { get; set; } = null!;
   public ICollection<string> Contacts { get; set; } = new List<string>();
-  public string Scope { get; set; } = null!;
+  public string? Scope { get; set; }
   public string? PolicyUri { get; set; }
   public string? TosUri { get; set; }
   public string SubjectType { get; set; } = SubjectTypeConstants.Public;
@@ -22,4 +23,6 @@ public class CreateClientCommand : IRequest<CreateClientResponse>
   public string? LogoUri { get; set; }
   public string? ClientUri { get; set; }
   public string? BackchannelLogoutUri { get; set; }
+  public string? Jwks { get; set; }
+  public string? JwksUri { get; set; }
 }
