@@ -11,4 +11,5 @@ public class TokenContext
     public string Scope { get; set; }
     public string CodeVerifier { get; set; }
     public string RefreshToken { get; set; }
+    public ICollection<string> Resource { get; set; }
 }

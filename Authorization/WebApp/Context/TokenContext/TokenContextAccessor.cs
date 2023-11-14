@@ -25,7 +25,7 @@ public class TokenContextAccessor : IContextAccessor<TokenContext>
         }
         var isBasicAuthentication = AuthenticationHeaderValue.TryParse(httpContext.Request.Headers.Authorization, out var authenticationHeader);
         if (isBasicAuthentication
-            && authenticationHeader?.Scheme == "Basic"
+            && authenticationHeader!.Scheme == "Basic"
             && !string.IsNullOrWhiteSpace(authenticationHeader.Parameter))
         {
           var decodedBytes = Convert.FromBase64String(authenticationHeader.Parameter);
@@ -55,6 +55,10 @@ public class TokenContextAccessor : IContextAccessor<TokenContext>
         if (body.TryGetValue(ParameterNames.Scope, out var scope))
         {
             context.Scope = scope;
+        }
+        if (body.TryGetValue(ParameterNames.Resource, out var resource))
+        {
+            context.Resource = resource.ToList();
         }
 
         return context;
