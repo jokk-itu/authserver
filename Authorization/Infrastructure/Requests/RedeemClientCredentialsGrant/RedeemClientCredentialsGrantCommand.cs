@@ -9,4 +9,5 @@ public class RedeemClientCredentialsGrantCommand : IRequest<RedeemClientCredenti
   public string ClientId { get; init; }
   public string ClientSecret { get; init; }
   public string Scope { get; init; }
+  public ICollection<string> Resource { get; init; }
 }
