@@ -5,6 +5,7 @@ using Domain;
 using Domain.Constants;
 using Infrastructure.Decoders.Token;
 using Infrastructure.Decoders.Token.Abstractions;
+using Infrastructure.Services.Abstract;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.RedeemRefreshTokenGrant;
@@ -12,13 +13,16 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
 {
   private readonly IdentityContext _identityContext;
   private readonly IStructuredTokenDecoder _tokenDecoder;
+  private readonly IResourceService _resourceService;
 
   public RedeemRefreshTokenGrantValidator(
     IdentityContext identityContext,
-    IStructuredTokenDecoder tokenDecoder)
+    IStructuredTokenDecoder tokenDecoder,
+    IResourceService resourceService)
   {
     _identityContext = identityContext;
     _tokenDecoder = tokenDecoder;
+    _resourceService = resourceService;
   }
 
   public async Task<ValidationResult> ValidateAsync(RedeemRefreshTokenGrantCommand value, CancellationToken cancellationToken = default)
@@ -107,6 +111,16 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
           .Any())
     {
       return new ValidationResult(ErrorCode.InvalidScope, "scope exceeds consented scope", HttpStatusCode.BadRequest);
+    }
+
+    var scope = string.IsNullOrWhiteSpace(value.Scope) ? string.Join(' ', consentGrant.ConsentedScopes.Select(s => s.Name)) : value.Scope;
+    var resourceValidation = await _resourceService.ValidateResources(value.Resource, scope);
+    if (resourceValidation.IsError())
+    {
+      return new ValidationResult(
+        resourceValidation.ErrorCode,
+        resourceValidation.ErrorDescription,
+        HttpStatusCode.OK);
     }
 
     return new ValidationResult(HttpStatusCode.OK);
