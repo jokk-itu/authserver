@@ -7,6 +7,7 @@ using Application.Validation;
 using Domain;
 using Domain.Constants;
 using Infrastructure.Decoders.Abstractions;
+using Infrastructure.Services.Abstract;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -15,13 +16,16 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
 {
   private readonly IdentityContext _identityContext;
   private readonly ICodeDecoder _codeDecoder;
+  private readonly IResourceService _resourceService;
 
   public RedeemAuthorizationCodeGrantValidator(
     IdentityContext identityContext,
-    ICodeDecoder codeDecoder)
+    ICodeDecoder codeDecoder,
+    IResourceService resourceService)
   {
     _identityContext = identityContext;
     _codeDecoder = codeDecoder;
+    _resourceService = resourceService;
   }
 
   public async Task<ValidationResult> ValidateAsync(RedeemAuthorizationCodeGrantCommand value, CancellationToken cancellationToken = default)
@@ -106,6 +110,16 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
     if (code.Scopes.Except(consentGrant.ConsentedScopes.Select(x => x.Name)).Any())
     {
       return new ValidationResult(ErrorCode.InvalidScope, "scope exceeds consented scope", HttpStatusCode.BadRequest);
+    }
+
+    var scope = string.Join(' ', code.Scopes);
+    var resourceValidation = await _resourceService.ValidateResources(value.Resource, scope);
+    if (resourceValidation.IsError())
+    {
+      return new ValidationResult(
+        resourceValidation.ErrorCode,
+        resourceValidation.ErrorDescription,
+        HttpStatusCode.OK);
     }
 
     return new ValidationResult(HttpStatusCode.OK);

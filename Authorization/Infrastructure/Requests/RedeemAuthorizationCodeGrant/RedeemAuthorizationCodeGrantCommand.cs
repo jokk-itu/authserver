@@ -15,4 +15,5 @@ public class RedeemAuthorizationCodeGrantCommand : IRequest<RedeemAuthorizationC
   public string RedirectUri { get; init; }
 
   public string CodeVerifier { get; init; }
+  public ICollection<string> Resource { get; init; }
 }
