@@ -110,4 +110,10 @@ public static class ErrorCode
   /// Used in revocation and introspection.
   /// </summary>
   public const string UnsupportedTokenType = "unsupported_token_type";
+
+  /// <summary>
+  /// The request contains an invalid resource parameter.
+  /// Used in authorize and token endpoints.
+  /// </summary>
+  public const string InvalidTarget = "invalid_target";
 }
