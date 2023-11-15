@@ -87,7 +87,6 @@ public static class ServiceCollectionExtensions
 
   public static IServiceCollection AddManagers(this IServiceCollection services)
   {
-    services.AddScoped<ResourceManager>();
     services.AddSingleton<JwkManager>();
     return services;
   }

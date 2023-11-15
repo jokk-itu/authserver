@@ -71,7 +71,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     var token = await tokenBuilder.BuildToken(new GrantAccessTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id,
-      ResourceNames = new [] { "identity-provider" },
+      Resource = new[] { "https://localhost:5000" },
       Scope = $"{ScopeConstants.OpenId}"
     });
     await IdentityContext.SaveChangesAsync();
@@ -104,7 +104,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     var token = await tokenBuilder.BuildToken(new GrantAccessTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id,
-      ResourceNames = new [] { "identity-provider" },
+      Resource = new[] { "https://localhost:5000" },
       Scope = $"{ScopeConstants.OpenId}"
     });
     await IdentityContext.SaveChangesAsync();
@@ -137,7 +137,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     var token = await tokenBuilder.BuildToken(new GrantAccessTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id,
-      ResourceNames = new [] { "identity-provider" },
+      Resource = new[] { "https://localhost:5000" },
       Scope = $"{ScopeConstants.OpenId}"
     });
     await IdentityContext.SaveChangesAsync();
@@ -171,7 +171,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     var token = await tokenBuilder.BuildToken(new GrantAccessTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id,
-      ResourceNames = new [] { "identity-provider" },
+      Resource = new[] { "https://localhost:5000" },
       Scope = $"{ScopeConstants.OpenId}"
     });
     await IdentityContext.SaveChangesAsync();
@@ -204,7 +204,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     var token = await tokenBuilder.BuildToken(new GrantAccessTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id,
-      ResourceNames = new [] { "identity-provider" },
+      Resource = new[] { "https://localhost:5000" },
       Scope = $"{ScopeConstants.OpenId}"
     });
     await IdentityContext.SaveChangesAsync();
@@ -237,7 +237,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     var token = await tokenBuilder.BuildToken(new GrantAccessTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id,
-      ResourceNames = new [] { "identity-provider" },
+      Resource = new[] { "https://localhost:5000" },
       Scope = $"{ScopeConstants.OpenId}"
     });
     await IdentityContext.SaveChangesAsync();
@@ -271,7 +271,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     var token = await tokenBuilder.BuildToken(new GrantAccessTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id,
-      ResourceNames = new [] { "identity-provider" },
+      Resource = new[] { "https://localhost:5000" },
       Scope = $"{ScopeConstants.OpenId} {resource.Scopes.Single().Name}"
     });
     await IdentityContext.SaveChangesAsync();
@@ -304,7 +304,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     var token = await tokenBuilder.BuildToken(new GrantAccessTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id,
-      ResourceNames = new [] { "identity-provider" },
+      Resource = new [] { "https://localhost:5000" },
       Scope = $"{ScopeConstants.OpenId}"
     });
     await IdentityContext.SaveChangesAsync();
@@ -337,7 +337,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     var token = await tokenBuilder.BuildToken(new ClientAccessTokenArguments
     {
       ClientId = client.Id,
-      ResourceNames = new [] { "identity-provider" },
+      Resource = new [] { "https://localhost:5000" },
       Scope = $"{ScopeConstants.OpenId}"
     });
     await IdentityContext.SaveChangesAsync();
