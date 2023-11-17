@@ -22,6 +22,7 @@ public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
     // Arrange
     var serviceProvider = BuildServiceProvider();
     var authorizationGrant = await GetAuthorizationGrant();
+    var resource = await GetResource();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<RefreshTokenArguments>>();
     var scopes = $"{ScopeConstants.OpenId}";
     var refreshToken = await tokenBuilder.BuildToken(new RefreshTokenArguments
@@ -36,7 +37,8 @@ public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
       ClientSecret = authorizationGrant.Client.Secret,
       RefreshToken = refreshToken,
       GrantType = GrantTypeConstants.RefreshToken,
-      Scope = requestScope
+      Scope = requestScope,
+      Resource = new[] { resource.Uri }
     };
 
     // Act
@@ -55,6 +57,7 @@ public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
     var serviceProvider = BuildServiceProvider();
     serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
     var authorizationGrant = await GetAuthorizationGrant();
+    var resource = await GetResource();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<RefreshTokenArguments>>();
     var scopes = $"{ScopeConstants.OpenId}";
     var refreshToken = await tokenBuilder.BuildToken(new RefreshTokenArguments
@@ -70,7 +73,8 @@ public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
       ClientSecret = authorizationGrant.Client.Secret,
       RefreshToken = refreshToken,
       GrantType = GrantTypeConstants.RefreshToken,
-      Scope = requestScope
+      Scope = requestScope,
+      Resource = new[] { resource.Uri }
     };
 
     // Act
@@ -78,6 +82,18 @@ public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
 
     // Assert
     Assert.False(response.IsError());
+  }
+
+  private async Task<Resource> GetResource()
+  {
+    var resource = ResourceBuilder
+      .Instance()
+      .AddScope(await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId))
+      .Build();
+
+    await IdentityContext.Set<Resource>().AddAsync(resource);
+    await IdentityContext.SaveChangesAsync();
+    return resource;
   }
 
   private async Task<AuthorizationCodeGrant> GetAuthorizationGrant()
