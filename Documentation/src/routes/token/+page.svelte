@@ -59,6 +59,10 @@ It must be between 43 and 128 characters long.
 REQUIRED. If the grant_type is refresh_token.
 It will be used and then invalidated. A new refresh_token is returned in the response.
 <br/><br/>
+<b>resource</b><br/>
+REQUIRED. It will be used as the audience of the access_token returned in the response.
+Multiple resource parameters can be given and each must be a resource Uri registered at the OP.
+<br/><br/>
 The request for authorization_code grant can look like the following:
 <pre>
     POST /connect/token HTTP/1.1
@@ -70,6 +74,7 @@ The request for authorization_code grant can look like the following:
     &code=fgukaoirnenvsoidnv
     &redirect_uri=https://webapp.authserver.dk/signin-callback
     &code_verifier=saeoginsoivn...
+    &resource=https://weather.authserver.dk
 </pre><br/><br/>
 The request for refresh_token grant can look like the following:
 <pre>
