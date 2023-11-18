@@ -16,7 +16,7 @@ public class ResourceBuilder
       Id = Guid.NewGuid().ToString(),
       Secret = CryptographyHelper.GetRandomString(16),
       Name = faker.Name.FirstName(),
-      Uri = "https://localhost:5000"
+      Uri = "https://weather.authserver.dk"
     };
   }
 
