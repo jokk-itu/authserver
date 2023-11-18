@@ -409,6 +409,7 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
         // Arrange
         var serviceProvider = BuildServiceProvider();
         var authorizationCodeGrant = await GetAuthorizationGrant(ApplicationType.Web, new[] {ScopeConstants.OpenId});
+        var resource = await GetResource();
         var codeBuilder = serviceProvider.GetRequiredService<ICodeBuilder>();
         var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
         var code = await codeBuilder.BuildAuthorizationCodeAsync(
@@ -427,7 +428,8 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
             GrantType = GrantTypeConstants.AuthorizationCode,
             ClientId = authorizationCodeGrant.Client.Id,
             ClientSecret = authorizationCodeGrant.Client.Secret,
-            RedirectUri = "https://localhost:5001/callback"
+            RedirectUri = "https://localhost:5001/callback",
+            Resource = new[] { resource.Uri }
         };
 
         // Act
@@ -435,6 +437,18 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
 
         // Assert
         Assert.False(validationResult.IsError());
+    }
+
+    private async Task<Resource> GetResource()
+    {
+      var resource = ResourceBuilder
+        .Instance()
+        .AddScope(await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId))
+        .Build();
+
+      await IdentityContext.AddAsync(resource);
+      await IdentityContext.SaveChangesAsync();
+      return resource;
     }
 
     private async Task<AuthorizationCodeGrant> GetAuthorizationGrant(ApplicationType applicationType, ICollection<string> scopes)
