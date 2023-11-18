@@ -85,7 +85,8 @@ public class RedeemAuthorizationCodeGrantHandler : IRequestHandler<RedeemAuthori
       AccessToken = accessToken,
       RefreshToken = refreshToken,
       IdToken = idToken,
-      ExpiresIn = _identityConfiguration.AccessTokenExpiration
+      ExpiresIn = _identityConfiguration.AccessTokenExpiration,
+      Scope = string.Join(' ', code.Scopes)
     };
   }
 }

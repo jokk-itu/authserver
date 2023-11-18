@@ -18,4 +18,7 @@ public record PostTokenResponse
 
   [JsonPropertyName(ParameterNames.ExpiresIn)]
   public long ExpiresIn { get; init; }
+
+  [JsonPropertyName(ParameterNames.Scope)]
+  public string Scope { get; init; } = null!;
 }

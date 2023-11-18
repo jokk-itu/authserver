@@ -71,7 +71,8 @@ public class TokenController : OAuthControllerBase
       AccessToken = response.AccessToken,
       RefreshToken = response.RefreshToken,
       IdToken = response.IdToken,
-      ExpiresIn = response.ExpiresIn
+      ExpiresIn = response.ExpiresIn,
+      Scope = response.Scope
     });
   }
 
@@ -99,7 +100,8 @@ public class TokenController : OAuthControllerBase
       AccessToken = response.AccessToken,
       RefreshToken = response.RefreshToken,
       IdToken = response.IdToken,
-      ExpiresIn = response.ExpiresIn
+      ExpiresIn = response.ExpiresIn,
+      Scope = response.Scope
     });
   }
 
@@ -123,7 +125,8 @@ public class TokenController : OAuthControllerBase
     return Ok(new PostTokenResponse
     {
       AccessToken = response.AccessToken,
-      ExpiresIn = response.ExpiresIn
+      ExpiresIn = response.ExpiresIn,
+      Scope = response.Scope
     });
   }
 }

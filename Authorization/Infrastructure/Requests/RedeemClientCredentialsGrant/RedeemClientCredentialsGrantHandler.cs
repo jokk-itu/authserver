@@ -34,7 +34,8 @@ public class RedeemClientCredentialsGrantHandler : IRequestHandler<RedeemClientC
     return new RedeemClientCredentialsGrantResponse(HttpStatusCode.OK)
     {
       AccessToken = accessToken,
-      ExpiresIn = _identityConfiguration.AccessTokenExpiration
+      ExpiresIn = _identityConfiguration.AccessTokenExpiration,
+      Scope = request.Scope
     };
   }
 }

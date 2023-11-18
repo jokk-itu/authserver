@@ -8,7 +8,6 @@ using Infrastructure.Builders.Token.IdToken;
 using Infrastructure.Builders.Token.RefreshToken;
 using Infrastructure.Decoders.Token;
 using Infrastructure.Decoders.Token.Abstractions;
-using Infrastructure.Repositories;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -84,7 +83,8 @@ public class RedeemRefreshTokenGrantHandler : IRequestHandler<RedeemRefreshToken
       AccessToken = accessToken,
       RefreshToken = refreshToken,
       IdToken = idToken,
-      ExpiresIn = _identityConfiguration.AccessTokenExpiration
+      ExpiresIn = _identityConfiguration.AccessTokenExpiration,
+      Scope = scope
     };
   }
 
