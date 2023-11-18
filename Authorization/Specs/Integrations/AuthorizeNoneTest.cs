@@ -47,6 +47,7 @@ public class AuthorizeNoneTest : BaseIntegrationTest
       .AddScope(scope)
       .AddCode(code)
       .AddCodeVerifier(pkce.CodeVerifier)
+      .AddResource("https://idp.authserver.dk")
       .BuildRedeemAuthorizationCode(GetHttpClient());
 
     var none = await AuthorizeEndpointBuilder
@@ -96,6 +97,7 @@ public class AuthorizeNoneTest : BaseIntegrationTest
       .AddScope(scope)
       .AddCode(code)
       .AddCodeVerifier(pkce.CodeVerifier)
+      .AddResource("https://idp.authserver.dk")
       .BuildRedeemAuthorizationCode(GetHttpClient());
 
     var none = await AuthorizeEndpointBuilder

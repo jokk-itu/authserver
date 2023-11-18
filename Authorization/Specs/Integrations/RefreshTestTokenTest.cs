@@ -45,6 +45,7 @@ public class RefreshTestTokenTest : BaseIntegrationTest
       .AddCode(code)
       .AddGrantType(GrantTypeConstants.AuthorizationCode)
       .AddRedirectUri(client.RedirectUris.First())
+      .AddResource("https://idp.authserver.dk")
       .BuildRedeemAuthorizationCode(GetHttpClient());
 
     var refreshResponse = await TokenEndpointBuilder
@@ -87,6 +88,7 @@ public class RefreshTestTokenTest : BaseIntegrationTest
       .AddCode(code)
       .AddGrantType(GrantTypeConstants.AuthorizationCode)
       .AddRedirectUri(client.RedirectUris.First())
+      .AddResource("https://idp.authserver.dk")
       .BuildRedeemAuthorizationCode(GetHttpClient());
 
     var refreshResponse = await TokenEndpointBuilder
@@ -95,6 +97,7 @@ public class RefreshTestTokenTest : BaseIntegrationTest
       .AddGrantType(GrantTypeConstants.RefreshToken)
       .AddScope(scope)
       .AddRefreshToken(tokenResponse.RefreshToken)
+      .AddResource("https://idp.authserver.dk")
       .BuildRedeemRefreshToken(GetHttpClient());
 
     Assert.NotNull(refreshResponse);

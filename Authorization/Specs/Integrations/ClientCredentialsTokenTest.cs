@@ -22,7 +22,7 @@ public class ClientCredentialsTokenTest : BaseIntegrationTest
     await CreateIdentityProviderResource();
     const string scope = "weather:read";
     await BuildScope(scope);
-    await BuildResource(scope, "weatherservice");
+    await BuildResource(scope, "weatherservice", "https://weather.authserver.dk");
 
     var client = await BuildClientCredentialsWebClient("test", scope);
     var tokens = await TokenEndpointBuilder
@@ -31,6 +31,7 @@ public class ClientCredentialsTokenTest : BaseIntegrationTest
       .AddClientSecret(client.ClientSecret)
       .AddGrantType(GrantTypeConstants.ClientCredentials)
       .AddScope(scope)
+      .AddResource("https://weather.authserver.dk")
       .BuildRedeemClientCredentials(GetHttpClient());
     
     Assert.NotNull(tokens);

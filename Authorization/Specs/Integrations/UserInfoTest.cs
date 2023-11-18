@@ -45,6 +45,7 @@ public class UserInfoTest : BaseIntegrationTest
       .AddCode(code)
       .AddGrantType(GrantTypeConstants.AuthorizationCode)
       .AddRedirectUri(client.RedirectUris.First())
+      .AddResource("https://idp.authserver.dk")
       .BuildRedeemAuthorizationCode(GetHttpClient());
 
     var userInfo = await UserInfoEndpointBuilder
@@ -83,6 +84,7 @@ public class UserInfoTest : BaseIntegrationTest
       .AddCode(code)
       .AddGrantType(GrantTypeConstants.AuthorizationCode)
       .AddRedirectUri(client.RedirectUris.First())
+      .AddResource("https://idp.authserver.dk")
       .BuildRedeemAuthorizationCode(GetHttpClient());
 
     var userInfo = await UserInfoEndpointBuilder

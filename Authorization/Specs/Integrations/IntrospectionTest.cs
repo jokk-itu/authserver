@@ -23,7 +23,7 @@ public class IntrospectionTest : BaseIntegrationTest
     UseReferenceTokens();
     const string scope = "weather:read";
     await BuildScope(scope);
-    var resource = await BuildResource(scope, "weatherservice");
+    var resource = await BuildResource(scope, "weatherservice", "https://weather.authserver.dk");
     var client = await BuildClientCredentialsWebClient("test", scope);
     var tokens = await TokenEndpointBuilder
       .Instance()
@@ -31,6 +31,7 @@ public class IntrospectionTest : BaseIntegrationTest
       .AddClientSecret(client.ClientSecret)
       .AddGrantType(GrantTypeConstants.ClientCredentials)
       .AddScope(scope)
+      .AddResource("https://weather.authserver.dk")
       .BuildRedeemClientCredentials(GetHttpClient());
 
     var introspection = await IntrospectionEndpointBuilder
@@ -57,7 +58,7 @@ public class IntrospectionTest : BaseIntegrationTest
     UseReferenceTokens();
     const string scope = "weather:read";
     await BuildScope(scope);
-    var resource = await BuildResource(scope, "weatherservice");
+    var resource = await BuildResource(scope, "weatherservice", "https://weather.authserver.dk");
 
     var client = await BuildClientCredentialsWebClient("test", scope);
     var tokens = await TokenEndpointBuilder
@@ -66,6 +67,7 @@ public class IntrospectionTest : BaseIntegrationTest
       .AddClientSecret(client.ClientSecret)
       .AddGrantType(GrantTypeConstants.ClientCredentials)
       .AddScope(scope)
+      .AddResource("https://weather.authserver.dk")
       .BuildRedeemClientCredentials(GetHttpClient());
 
     var introspection = await IntrospectionEndpointBuilder

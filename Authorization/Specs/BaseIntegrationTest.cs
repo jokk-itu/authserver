@@ -66,7 +66,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 
   protected async Task CreateIdentityProviderResource()
   {
-    await BuildResource(ScopeConstants.UserInfo, "IdentityProvider");
+    await BuildResource(ScopeConstants.UserInfo, "IdentityProvider", "https://idp.authserver.dk");
   }
 
   protected async Task<Scope> BuildScope(string name)
@@ -81,7 +81,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     return scope;
   }
 
-  protected async Task<Resource> BuildResource(string scope, string name)
+  protected async Task<Resource> BuildResource(string scope, string name, string uri)
   {
     var identityContext = _factory.Services.GetRequiredService<IdentityContext>();
     var scopes = scope.Split(' ');
@@ -91,7 +91,8 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
       Scopes = await identityContext
         .Set<Scope>()
         .Where(x => scopes.Contains(x.Name))
-        .ToListAsync()
+        .ToListAsync(),
+      Uri = uri
     };
     await identityContext.AddAsync(resource);
     await identityContext.SaveChangesAsync();
