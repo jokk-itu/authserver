@@ -62,6 +62,7 @@ public static class ServiceCollectionExtensions
     services.AddScoped<IScopeService, ScopeService>();
     services.AddScoped<IConsentGrantService, ConsentGrantService>();
     services.AddScoped<IAuthorizationGrantService, AuthorizationGrantService>();
+    services.AddScoped<IResourceService, ResourceService>();
     return services;
   }
 

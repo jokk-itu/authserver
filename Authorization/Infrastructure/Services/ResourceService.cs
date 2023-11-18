@@ -24,7 +24,6 @@ public class ResourceService : IResourceService
         }
 
         var scopes = scope.Split(' ');
-
         var resourcesExisting = await _identityContext
             .Set<Resource>()
             .Where(r => resource.Contains(r.Uri))

@@ -34,7 +34,7 @@ public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions
 
     public void Configure(JwtBearerOptions options)
     {
-      options.Audience = AudienceConstants.IdentityProvider;
+      options.Audience = _identityConfiguration.Issuer;
       options.Authority = _identityConfiguration.Issuer;
       options.ConfigurationManager = _internalConfigurationManager;
       options.Challenge = OpenIdConnectDefaults.AuthenticationScheme;
