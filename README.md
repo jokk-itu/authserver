@@ -18,7 +18,8 @@ Take a look at [authserver.dk](https://www.authserver.dk).
 
 ## Test Environment
 
-Take a look at the demo client at [app.authserver.dk](https://app.authserver.dk).
+Take a look at a demo client at [webapp.authserver.dk](https://webapp.authserver.dk).
+Take a look at a demo client a [bff.authserver.dk](https://bffapp.authserver.dk).
 Take a look at the demo identity provider at [idp.authserver.dk](https://idp.authserver.dk).
 Take a look at the demo protected resource at [weather.authserver.dk](https://weather.authserver.dk).
 
@@ -46,11 +47,6 @@ There exist multiple clients, each support different scenarios.
 ### WebApp
 
 Supporting the authorization code grant type and the refresh token grant type on a confidential web app.
-
-### Svelte.BFF
-
-Supporting the authorization code grant type and the refresh token grant type on a confidential api,
-which supports the backend for frontend pattern on the frontend app created using svelte.
 
 ### Blazor.BFF
 
