@@ -1,4 +1,4 @@
-﻿using System.Collections.Specialized;
+using System.Collections.Specialized;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Server.IIS.Core;
@@ -79,7 +79,7 @@ public class TokenEndpointBuilder
 
   public async Task<PostTokenResponse> BuildRedeemAuthorizationCode(HttpClient httpClient, CancellationToken cancellationToken = default)
   {
-    var body = new List<KeyValuePair<string, string>>
+    var tokenContent = new FormUrlEncodedContent(new Dictionary<string, string>
     {
       new(ParameterNames.ClientId, _clientId),
       new(ParameterNames.ClientSecret, _clientSecret),

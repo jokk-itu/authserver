@@ -1,4 +1,4 @@
-﻿using Domain.Constants;
+using Domain.Constants;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Specs.Helpers.EndpointBuilders;
 using Xunit;
@@ -24,7 +24,14 @@ public class IntrospectionTest : BaseIntegrationTest
     const string scope = "weather:read";
     await BuildScope(scope);
     var resource = await BuildResource(scope, "weatherservice", "https://weather.authserver.dk");
-    var client = await BuildClientCredentialsWebClient("test", scope);
+    var client = await RegisterEndpointBuilder
+      .Instance()
+      .AddClientName("testapp")
+      .AddScope(scope)
+      .AddTokenEndpointAuthMethod(TokenEndpointAuthMethodConstants.ClientSecretPost)
+      .AddGrantType(GrantTypeConstants.ClientCredentials)
+      .BuildClient(GetHttpClient());
+
     var tokens = await TokenEndpointBuilder
       .Instance()
       .AddClientId(client.ClientId)
@@ -59,8 +66,14 @@ public class IntrospectionTest : BaseIntegrationTest
     const string scope = "weather:read";
     await BuildScope(scope);
     var resource = await BuildResource(scope, "weatherservice", "https://weather.authserver.dk");
-
-    var client = await BuildClientCredentialsWebClient("test", scope);
+    var client = await RegisterEndpointBuilder
+      .Instance()
+      .AddClientName("webapp")
+      .AddScope(scope)
+      .AddTokenEndpointAuthMethod(TokenEndpointAuthMethodConstants.ClientSecretPost)
+      .AddGrantType(GrantTypeConstants.ClientCredentials)
+      .BuildClient(GetHttpClient());
+    
     var tokens = await TokenEndpointBuilder
       .Instance()
       .AddClientId(client.ClientId)

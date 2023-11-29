@@ -68,7 +68,7 @@ public class ClientResponse
   [JsonPropertyName(ParameterNames.PostLogoutRedirectUris)]
   public ICollection<string> PostLogoutRedirectUris { get; init; }
 
-  [JsonPropertyName(ParameterNames.BackChannelLogoutUri)]
+  [JsonPropertyName(ParameterNames.BackchannelLogoutUri)]
   public string BackChannelLogoutUri { get; init; }
 
   [JsonPropertyName(ParameterNames.ClientIdIssuedAt)]
