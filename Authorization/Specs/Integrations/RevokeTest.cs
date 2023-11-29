@@ -27,7 +27,14 @@ public class RevokeTest : BaseIntegrationTest
     const string scope = "weather:read";
     await BuildScope(scope);
     await BuildResource(scope, "weatherservice");
-    var client = await BuildClientCredentialsWebClient("test", scope);
+    var client = await RegisterEndpointBuilder
+      .Instance()
+      .AddClientName("webapp")
+      .AddScope(scope)
+      .AddTokenEndpointAuthMethod(TokenEndpointAuthMethodConstants.ClientSecretPost)
+      .AddGrantType(GrantTypeConstants.ClientCredentials)
+      .BuildClient(GetHttpClient());
+
     var tokens = await TokenEndpointBuilder
       .Instance()
       .AddClientId(client.ClientId)
@@ -56,7 +63,16 @@ public class RevokeTest : BaseIntegrationTest
     const string scope = $"{ScopeConstants.OpenId} {ScopeConstants.Profile} {ScopeConstants.Email} {ScopeConstants.Phone} {ScopeConstants.UserInfo}";
     var password = CryptographyHelper.GetRandomString(32);
     var user = await BuildUserAsync(password);
-    var client = await BuildAuthorizationGrantWebClient("webapp", scope);
+    var client = await RegisterEndpointBuilder
+      .Instance()
+      .AddClientName("webapp")
+      .AddScope(scope)
+      .AddTokenEndpointAuthMethod(TokenEndpointAuthMethodConstants.ClientSecretPost)
+      .AddRedirectUri("https://localhost:5002/callback")
+      .AddGrantType(GrantTypeConstants.AuthorizationCode)
+      .AddGrantType(GrantTypeConstants.RefreshToken)
+      .BuildClient(GetHttpClient());
+
     var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
     var code = await AuthorizeEndpointBuilder
       .Instance()

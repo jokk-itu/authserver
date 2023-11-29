@@ -23,8 +23,14 @@ public class ClientCredentialsTokenTest : BaseIntegrationTest
     const string scope = "weather:read";
     await BuildScope(scope);
     await BuildResource(scope, "weatherservice");
-
-    var client = await BuildClientCredentialsWebClient("test", scope);
+    var client = await RegisterEndpointBuilder
+      .Instance()
+      .AddClientName("testapp")
+      .AddScope(scope)
+      .AddTokenEndpointAuthMethod(TokenEndpointAuthMethodConstants.ClientSecretPost)
+      .AddGrantType(GrantTypeConstants.ClientCredentials)
+      .BuildClient(GetHttpClient());
+    
     var tokens = await TokenEndpointBuilder
       .Instance()
       .AddClientId(client.ClientId)

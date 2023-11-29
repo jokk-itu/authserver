@@ -9,19 +9,16 @@ namespace Infrastructure.Decoders.Token;
 #nullable disable
 public class StructuredTokenDecoder : IStructuredTokenDecoder
 {
-  private readonly IdentityConfiguration _identityConfiguration;
-  private readonly IdentityContext _identityContext;
+  private readonly IdentityConfiguration _identityConfiguration; 
   private readonly JwkManager _jwkManager;
   private readonly ILogger<StructuredTokenDecoder> _logger;
 
   public StructuredTokenDecoder(
     IdentityConfiguration identityConfiguration,
-    IdentityContext identityContext,
     JwkManager jwkManager,
     ILogger<StructuredTokenDecoder> logger)
   {
     _identityConfiguration = identityConfiguration;
-    _identityContext = identityContext;
     _jwkManager = jwkManager;
     _logger = logger;
   }
