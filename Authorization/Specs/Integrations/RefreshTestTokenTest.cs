@@ -64,6 +64,7 @@ public class RefreshTestTokenTest : BaseIntegrationTest
       .AddGrantType(GrantTypeConstants.RefreshToken)
       .AddScope(scope)
       .AddRefreshToken(tokenResponse.RefreshToken)
+      .AddResource("https://idp.authserver.dk")
       .BuildRedeemRefreshToken(GetHttpClient());
 
     Assert.NotNull(refreshResponse);

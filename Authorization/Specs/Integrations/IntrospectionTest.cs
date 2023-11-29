@@ -50,7 +50,7 @@ public class IntrospectionTest : BaseIntegrationTest
       .BuildIntrospection(GetHttpClient());
 
     Assert.True(introspection.Active);
-    Assert.Contains(resource.Name, introspection.Audience);
+    Assert.Contains(resource.Uri, introspection.Audience);
     Assert.Equal(client.ClientId, introspection.ClientId);
     Assert.Equal(scope, introspection.Scope);
     Assert.Equal(TokenTypeConstants.AccessToken, introspection.TokenType);
@@ -92,7 +92,7 @@ public class IntrospectionTest : BaseIntegrationTest
       .BuildIntrospection(GetHttpClient());
 
     Assert.True(introspection.Active);
-    Assert.Contains(resource.Name, introspection.Audience);
+    Assert.Contains(resource.Uri, introspection.Audience);
     Assert.Equal(client.ClientId, introspection.ClientId);
     Assert.Equal(scope, introspection.Scope);
     Assert.Equal(TokenTypeConstants.AccessToken, introspection.TokenType);

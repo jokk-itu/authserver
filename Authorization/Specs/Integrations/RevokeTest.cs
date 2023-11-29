@@ -93,7 +93,7 @@ public class RevokeTest : BaseIntegrationTest
       .AddCode(code)
       .AddGrantType(GrantTypeConstants.AuthorizationCode)
       .AddRedirectUri(client.RedirectUris.First())
-      .AddResource("https://weather.authserver.dk")
+      .AddResource("https://idp.authserver.dk")
       .BuildRedeemAuthorizationCode(GetHttpClient());
 
     var revocation = await RevokeEndpointBuilder

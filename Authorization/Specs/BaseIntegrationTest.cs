@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Json;
-using Application;
+﻿using Application;
 using Domain;
 using Domain.Constants;
 using Infrastructure;
@@ -10,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Specs.Helpers.EntityBuilders;
 using WebApp.Constants;
-using WebApp.Contracts;
 using Xunit;
 using Xunit.Abstractions;
 

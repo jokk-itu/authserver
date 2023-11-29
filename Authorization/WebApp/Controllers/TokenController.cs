@@ -58,7 +58,8 @@ public class TokenController : OAuthControllerBase
       ClientId = context.ClientId,
       ClientSecret = context.ClientSecret,
       RefreshToken = context.RefreshToken,
-      Scope = context.Scope
+      Scope = context.Scope,
+      Resource = context.Resource
     };
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
     if (response.IsError())
@@ -87,7 +88,8 @@ public class TokenController : OAuthControllerBase
       ClientSecret = context.ClientSecret,
       RedirectUri = context.RedirectUri,
       CodeVerifier = context.CodeVerifier,
-      Code = context.Code
+      Code = context.Code,
+      Resource = context.Resource
     };
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
     if (response.IsError())
@@ -114,7 +116,8 @@ public class TokenController : OAuthControllerBase
       GrantType = context.GrantType,
       ClientId = context.ClientId,
       ClientSecret = context.ClientSecret,
-      Scope = context.Scope
+      Scope = context.Scope,
+      Resource = context.Resource
     };
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
     if (response.IsError())
