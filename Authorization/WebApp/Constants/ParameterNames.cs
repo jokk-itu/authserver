@@ -57,7 +57,7 @@ public static class ParameterNames
   public const string ClientUri = "client_uri";
   public const string PostLogoutRedirectUri = "post_logout_redirect_uri";
   public const string PostLogoutRedirectUris = "post_logout_redirect_uris";
-  public const string BackChannelLogoutUri = "backchannel_logout_uri";
+  public const string BackchannelLogoutUri = "backchannel_logout_uri";
   public const string Token = "token";
   public const string TokenTypeHint = "token_type_hint";
   public const string Active = "active";

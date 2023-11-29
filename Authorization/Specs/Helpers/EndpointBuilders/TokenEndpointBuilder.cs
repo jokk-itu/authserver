@@ -70,7 +70,6 @@ public class TokenEndpointBuilder
 
   public async Task<PostTokenResponse> BuildRedeemAuthorizationCode(HttpClient httpClient, CancellationToken cancellationToken = default)
   {
-    
     var tokenContent = new FormUrlEncodedContent(new Dictionary<string, string>
     {
       { ParameterNames.ClientId, _clientId },

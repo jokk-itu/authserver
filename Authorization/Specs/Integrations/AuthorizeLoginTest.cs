@@ -23,10 +23,17 @@ public class AuthorizeLoginTest : BaseIntegrationTest
     await CreateDatabase();
     await CreateIdentityProviderResource();
     const string scope = $"{ScopeConstants.OpenId}";
-    const string clientName = "webapp";
     var password = CryptographyHelper.GetRandomString(32);
     var user = await BuildUserAsync(password);
-    var client = await BuildAuthorizationGrantWebClient(clientName, scope);
+    var client = await RegisterEndpointBuilder
+      .Instance()
+      .AddClientName("webapp")
+      .AddScope(scope)
+      .AddTokenEndpointAuthMethod(TokenEndpointAuthMethodConstants.ClientSecretPost)
+      .AddRedirectUri("https://localhost:5002/callback")
+      .AddGrantType(GrantTypeConstants.AuthorizationCode)
+      .BuildClient(GetHttpClient());
+
     var firstLoginWithConsent = await AuthorizeEndpointBuilder
       .Instance()
       .AddClientId(client.ClientId)
@@ -60,10 +67,18 @@ public class AuthorizeLoginTest : BaseIntegrationTest
     await CreateDatabase();
     await CreateIdentityProviderResource();
     const string scope = $"{ScopeConstants.OpenId}";
-    const string clientName = "nativeapp";
     var password = CryptographyHelper.GetRandomString(32);
     var user = await BuildUserAsync(password);
-    var client = await BuildAuthorizationGrantNativeClient(clientName, scope);
+    var client = await RegisterEndpointBuilder
+      .Instance()
+      .AddClientName("webapp")
+      .AddApplicationType(ApplicationTypeConstants.Native)
+      .AddScope(scope)
+      .AddTokenEndpointAuthMethod(TokenEndpointAuthMethodConstants.ClientSecretPost)
+      .AddRedirectUri("https://localhost:5002/callback")
+      .AddGrantType(GrantTypeConstants.AuthorizationCode)
+      .BuildClient(GetHttpClient());
+
     var firstLoginWithConsent = await AuthorizeEndpointBuilder
       .Instance()
       .AddClientId(client.ClientId)

@@ -24,7 +24,14 @@ public class IntrospectionTest : BaseIntegrationTest
     const string scope = "weather:read";
     await BuildScope(scope);
     var resource = await BuildResource(scope, "weatherservice");
-    var client = await BuildClientCredentialsWebClient("test", scope);
+    var client = await RegisterEndpointBuilder
+      .Instance()
+      .AddClientName("testapp")
+      .AddScope(scope)
+      .AddTokenEndpointAuthMethod(TokenEndpointAuthMethodConstants.ClientSecretPost)
+      .AddGrantType(GrantTypeConstants.ClientCredentials)
+      .BuildClient(GetHttpClient());
+
     var tokens = await TokenEndpointBuilder
       .Instance()
       .AddClientId(client.ClientId)
@@ -58,8 +65,14 @@ public class IntrospectionTest : BaseIntegrationTest
     const string scope = "weather:read";
     await BuildScope(scope);
     var resource = await BuildResource(scope, "weatherservice");
-
-    var client = await BuildClientCredentialsWebClient("test", scope);
+    var client = await RegisterEndpointBuilder
+      .Instance()
+      .AddClientName("webapp")
+      .AddScope(scope)
+      .AddTokenEndpointAuthMethod(TokenEndpointAuthMethodConstants.ClientSecretPost)
+      .AddGrantType(GrantTypeConstants.ClientCredentials)
+      .BuildClient(GetHttpClient());
+    
     var tokens = await TokenEndpointBuilder
       .Instance()
       .AddClientId(client.ClientId)
