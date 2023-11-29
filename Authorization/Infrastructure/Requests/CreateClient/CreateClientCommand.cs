@@ -1,6 +1,5 @@
 ﻿using Domain.Constants;
 using MediatR;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Infrastructure.Requests.CreateClient;
 

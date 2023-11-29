@@ -67,4 +67,6 @@ public static class ParameterNames
   public const string NotBefore = "nbf";
   public const string Subject = "sub";
   public const string Audience = "aud";
+  public const string Jwks = "jwks";
+  public const string JwksUri = "jwks_uri";
 }

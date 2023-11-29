@@ -149,7 +149,7 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
       response.EnsureSuccessStatusCode();
       var jwks = await response.Content.ReadAsStringAsync(cancellationToken: cancellationToken); 
       var temp = JsonWebKeySet.Create(jwks);
-      var isValid =  temp.GetSigningKeys().Any() && temp.GetSigningKeys().Count == temp.Keys.Count;
+      var isValid = temp.GetSigningKeys().Any() && temp.GetSigningKeys().Count == temp.Keys.Count;
       if (isValid)
       {
         command.Jwks = jwks;

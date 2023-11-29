@@ -25,12 +25,15 @@ public class CreateClientResponse : Response
   public string? ClientUri { get; init; }
   public int ClientSecretExpiresAt { get; init; }
   public long ClientIdIssuedAt { get; init; }
+  public string? JwksUri { get; init; }
+  public string? Jwks { get; init; }
 
   public CreateClientResponse(HttpStatusCode statusCode) : base(statusCode)
   {
   }
 
-  public CreateClientResponse(string? errorCode, string? errorDescription, HttpStatusCode statusCode) : base(errorCode, errorDescription, statusCode)
+  public CreateClientResponse(string errorCode, string errorDescription, HttpStatusCode statusCode)
+    : base(errorCode, errorDescription, statusCode)
   {
   }
 }

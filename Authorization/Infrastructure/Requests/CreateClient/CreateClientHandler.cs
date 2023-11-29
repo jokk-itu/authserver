@@ -29,7 +29,7 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
 
   public async Task<CreateClientResponse> Handle(CreateClientCommand request, CancellationToken cancellationToken)
   {
-    var splitScopes = request.Scope.Split(' ');
+    var splitScopes = request.Scope?.Split(' ') ?? Array.Empty<string>();
     var scopes = await _identityContext
       .Set<Scope>()
       .Where(x => splitScopes.Contains(x.Name))
@@ -81,7 +81,9 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       LogoUri = request.LogoUri,
       ClientUri = request.ClientUri,
       DefaultMaxAge = defaultMaxAge,
-      BackchannelLogoutUri = request.BackchannelLogoutUri
+      BackchannelLogoutUri = request.BackchannelLogoutUri,
+      JwksUri = request.JwksUri,
+      Jwks = request.Jwks
     };
     await _identityContext
       .Set<Client>()
@@ -123,7 +125,9 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       ClientUri = request.ClientUri,
       DefaultMaxAge = defaultMaxAge,
       LogoUri = request.LogoUri,
-      InitiateLoginUri = request.InitiateLoginUri
+      InitiateLoginUri = request.InitiateLoginUri,
+      JwksUri = request.JwksUri,
+      Jwks = request.Jwks
     };
   }
 }

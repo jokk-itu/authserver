@@ -55,4 +55,10 @@ public class ClientContext
 
   [JsonPropertyName(ParameterNames.BackChannelLogoutUri)]
   public string BackchannelLogoutUri { get; set; }
+
+  [JsonPropertyName(ParameterNames.Jwks)]
+  public string Jwks { get; set; }
+
+  [JsonPropertyName(ParameterNames.JwksUri)]
+  public string JwksUri { get; set; }
 }
