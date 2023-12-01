@@ -13,4 +13,5 @@ public class IdentityProviderSettings
   public string ResponseMode { get; set; }
   public IEnumerable<string> GrantTypes { get; set; }
   public string ClientAuthenticationMethod { get; set; }
+  public string Resource { get; set; }
 }
