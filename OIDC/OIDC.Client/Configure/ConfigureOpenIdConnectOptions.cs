@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -50,6 +50,8 @@ public class ConfigureOpenIdConnectOptions : IConfigureNamedOptions<OpenIdConnec
 
     options.ClientId = _identityProviderOptions.CurrentValue.ClientId;
     options.ClientSecret = _identityProviderOptions.CurrentValue.ClientSecret;
+
+    options.Resource = _identityProviderOptions.CurrentValue.Resource;
 
     foreach (var scope in _identityProviderOptions.CurrentValue.Scope)
     {
@@ -100,27 +102,40 @@ public class ConfigureOpenIdConnectOptions : IConfigureNamedOptions<OpenIdConnec
       {
         var nonces = context.Request.Cookies
           .Where(x => x.Key.StartsWith(options.NonceCookie.Name))
-          .Select(x => options.StringDataFormat.Unprotect(x.Key.Substring(options.NonceCookie.Name.Length, x.Key.Length - options.NonceCookie.Name.Length)))
+          .Select(x => options.StringDataFormat.Unprotect(x.Key[options.NonceCookie.Name.Length..]))
           .ToList();
 
-        _logger.LogInformation("Redeeming AuthorizationCode {@TokenRequest} {@Internal}", new
+        var request = context.TokenEndpointRequest!;
+        _logger.LogInformation("Requesting Token {@Response} {@Internal}", new
         {
-          context.TokenEndpointRequest?.GrantType,
-          context.TokenEndpointRequest?.RedirectUri,
-          context.TokenEndpointRequest?.Code,
-          context.TokenEndpointRequest?.Scope
+          request.GrantType,
+          request.ClientId,
+          request.ClientSecret,
+          request.Resource,
+          request.RedirectUri
         }, new
         {
-          Nonce = nonces,
-          RequestUri = context.Request.GetDisplayUrl()
+          Nonce = nonces
         });
+
+        if (!string.IsNullOrWhiteSpace(_identityProviderOptions.CurrentValue.Resource))
+        {
+          var resources = _identityProviderOptions.CurrentValue.Resource.Split(' ');
+          var nameValueCollection = new NameValueCollection();
+          foreach (var resource in resources)
+          {
+            nameValueCollection.Add(OpenIdConnectParameterNames.Resource, resource);
+          }
+          context.TokenEndpointRequest!.SetParameters(nameValueCollection);
+        }
+
         return Task.CompletedTask;
       },
       OnTokenResponseReceived = context =>
       {
         var nonces = context.Request.Cookies
           .Where(x => x.Key.StartsWith(options.NonceCookie.Name))
-          .Select(x => options.StringDataFormat.Unprotect(x.Key.Substring(options.NonceCookie.Name.Length, x.Key.Length - options.NonceCookie.Name.Length)))
+          .Select(x => options.StringDataFormat.Unprotect(x.Key[options.NonceCookie.Name.Length..]))
           .ToList();
 
         _logger.LogInformation("Received Token {@Response} {@Internal}", new

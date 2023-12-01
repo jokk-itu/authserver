@@ -24,6 +24,7 @@ public class ConfigureIdentityProviderSettings : IConfigureNamedOptions<Identity
     options.ClientAuthenticationMethod = "client_secret_post";
     options.ResponseMode = OpenIdConnectResponseMode.FormPost;
     options.Scope = new[] { "openid", "profile", "email", "phone", "weather:read", "identityprovider:userinfo" };
+    options.Resource = $"{options.Authority} {_configuration.GetSection("WeatherService")["Url"]}";
   }
 
   public void Configure(string name, IdentityProviderSettings options)

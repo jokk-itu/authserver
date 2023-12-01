@@ -20,7 +20,6 @@ public class RedeemAuthorizationCodeGrantHandler : IRequestHandler<RedeemAuthori
   private readonly ITokenBuilder<GrantAccessTokenArguments> _accessTokenBuilder;
   private readonly ITokenBuilder<RefreshTokenArguments> _refreshTokenBuilder;
   private readonly ITokenBuilder<IdTokenArguments> _idTokenBuilder;
-  private readonly ResourceManager _resourceManager;
 
   public RedeemAuthorizationCodeGrantHandler(
     IdentityContext identityContext,
@@ -28,8 +27,7 @@ public class RedeemAuthorizationCodeGrantHandler : IRequestHandler<RedeemAuthori
     ICodeDecoder codeDecoder,
     ITokenBuilder<GrantAccessTokenArguments> accessTokenBuilder,
     ITokenBuilder<RefreshTokenArguments> refreshTokenBuilder,
-    ITokenBuilder<IdTokenArguments> idTokenBuilder,
-    ResourceManager resourceManager)
+    ITokenBuilder<IdTokenArguments> idTokenBuilder)
   {
     _identityContext = identityContext;
     _identityConfiguration = identityConfiguration;
@@ -37,13 +35,11 @@ public class RedeemAuthorizationCodeGrantHandler : IRequestHandler<RedeemAuthori
     _accessTokenBuilder = accessTokenBuilder;
     _refreshTokenBuilder = refreshTokenBuilder;
     _idTokenBuilder = idTokenBuilder;
-    _resourceManager = resourceManager;
   }
 
   public async Task<RedeemAuthorizationCodeGrantResponse> Handle(RedeemAuthorizationCodeGrantCommand request, CancellationToken cancellationToken)
   {
     var code = _codeDecoder.DecodeAuthorizationCode(request.Code);
-    var resources = await _resourceManager.ReadResourcesAsync(code.Scopes, cancellationToken: cancellationToken);
     var query = await _identityContext
       .Set<AuthorizationCodeGrant>()
       .Where(x => x.Id == code.AuthorizationGrantId)
@@ -75,7 +71,7 @@ public class RedeemAuthorizationCodeGrantHandler : IRequestHandler<RedeemAuthori
     {
       AuthorizationGrantId = query.AuthorizationCodeGrant.Id,
       Scope = string.Join(' ', code.Scopes),
-      ResourceNames = resources.Select(x => x.Name)
+      Resource = request.Resource
     });
 
     var idToken = await _idTokenBuilder.BuildToken(new IdTokenArguments
@@ -89,7 +85,8 @@ public class RedeemAuthorizationCodeGrantHandler : IRequestHandler<RedeemAuthori
       AccessToken = accessToken,
       RefreshToken = refreshToken,
       IdToken = idToken,
-      ExpiresIn = _identityConfiguration.AccessTokenExpiration
+      ExpiresIn = _identityConfiguration.AccessTokenExpiration,
+      Scope = string.Join(' ', code.Scopes)
     };
   }
 }

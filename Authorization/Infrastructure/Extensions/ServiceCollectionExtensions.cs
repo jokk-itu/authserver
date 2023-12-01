@@ -62,6 +62,7 @@ public static class ServiceCollectionExtensions
     services.AddScoped<IScopeService, ScopeService>();
     services.AddScoped<IConsentGrantService, ConsentGrantService>();
     services.AddScoped<IAuthorizationGrantService, AuthorizationGrantService>();
+    services.AddScoped<IResourceService, ResourceService>();
     return services;
   }
 
@@ -87,7 +88,6 @@ public static class ServiceCollectionExtensions
 
   public static IServiceCollection AddManagers(this IServiceCollection services)
   {
-    services.AddScoped<ResourceManager>();
     services.AddSingleton<JwkManager>();
     return services;
   }

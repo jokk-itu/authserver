@@ -41,7 +41,7 @@ public class GrantAccessTokenBuilder : ITokenBuilder<GrantAccessTokenArguments>
     {
       { ClaimNameConstants.Jti, Guid.NewGuid() },
       { ClaimNameConstants.Scope, arguments.Scope },
-      { ClaimNameConstants.Aud, arguments.ResourceNames },
+      { ClaimNameConstants.Aud, arguments.Resource },
       { ClaimNameConstants.GrantId, arguments.AuthorizationGrantId }
     };
 
@@ -90,7 +90,7 @@ public class GrantAccessTokenBuilder : ITokenBuilder<GrantAccessTokenArguments>
     var accessToken = new Domain.GrantAccessToken
     {
       AuthorizationGrant = grant,
-      Audience = string.Join(" ", arguments.ResourceNames),
+      Audience = string.Join(" ", arguments.Resource),
       IssuedAt = now,
       NotBefore = now,
       ExpiresAt = now.AddHours(1),

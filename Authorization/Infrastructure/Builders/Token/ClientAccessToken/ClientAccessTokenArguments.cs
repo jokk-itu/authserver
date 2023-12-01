@@ -2,7 +2,7 @@
 #nullable disable
 public class ClientAccessTokenArguments
 {
-  public IEnumerable<string> ResourceNames { get; init; } = new List<string>();
+  public ICollection<string> Resource { get; init; } = new List<string>();
   public string Scope { get; init; }
   public string ClientId { get; init; }
 }

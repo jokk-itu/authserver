@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Domain.Constants;
 using Specs.Helpers.EndpointBuilders;
 using Xunit;
@@ -22,7 +22,7 @@ public class ClientCredentialsTokenTest : BaseIntegrationTest
     await CreateIdentityProviderResource();
     const string scope = "weather:read";
     await BuildScope(scope);
-    await BuildResource(scope, "weatherservice");
+    await BuildResource(scope, "weatherservice", "https://weather.authserver.dk");
     var client = await RegisterEndpointBuilder
       .Instance()
       .AddClientName("testapp")
@@ -37,6 +37,7 @@ public class ClientCredentialsTokenTest : BaseIntegrationTest
       .AddClientSecret(client.ClientSecret)
       .AddGrantType(GrantTypeConstants.ClientCredentials)
       .AddScope(scope)
+      .AddResource("https://weather.authserver.dk")
       .BuildRedeemClientCredentials(GetHttpClient());
     
     Assert.NotNull(tokens);

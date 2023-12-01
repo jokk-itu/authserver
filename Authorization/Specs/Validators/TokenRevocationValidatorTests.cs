@@ -71,7 +71,7 @@ public class TokenRevocationValidatorTests : BaseUnitTest
     var token = await tokenBuilder.BuildToken(new GrantAccessTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id,
-      ResourceNames = new [] { "identity-provider" },
+      Resource = new[] { "https://localhost:5000" },
       Scope = $"{ScopeConstants.OpenId}"
     });
     await IdentityContext.SaveChangesAsync();
@@ -104,7 +104,7 @@ public class TokenRevocationValidatorTests : BaseUnitTest
     var token = await tokenBuilder.BuildToken(new GrantAccessTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id,
-      ResourceNames = new [] { "identity-provider" },
+      Resource = new[] { "https://localhost:5000" },
       Scope = $"{ScopeConstants.OpenId}"
     });
     await IdentityContext.SaveChangesAsync();
@@ -169,7 +169,7 @@ public class TokenRevocationValidatorTests : BaseUnitTest
     var token = await tokenBuilder.BuildToken(new GrantAccessTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id,
-      ResourceNames = new [] {"identity-provider"},
+      Resource = new[] { "https://localhost:5000" },
       Scope = $"{ScopeConstants.OpenId}"
     });
     await IdentityContext.SaveChangesAsync();
@@ -233,7 +233,7 @@ public class TokenRevocationValidatorTests : BaseUnitTest
     var token = await tokenBuilder.BuildToken(new GrantAccessTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id,
-      ResourceNames = new [] {"identity-provider"},
+      Resource = new[] { "https://localhost:5000" },
       Scope = $"{ScopeConstants.OpenId}"
     });
     await IdentityContext.SaveChangesAsync();

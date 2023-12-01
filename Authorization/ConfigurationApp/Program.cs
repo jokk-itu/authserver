@@ -53,7 +53,7 @@ if (args[0] == "resource")
   }
 
   await identityContext.SaveChangesAsync();
-  Log.Information("Resources inserted");
+  Log.Information("{Amount} Resources inserted", resources.Count);
 }
 else if (args[0] == "scope")
 {
@@ -65,7 +65,7 @@ else if (args[0] == "scope")
   }
 
   await identityContext.SaveChangesAsync();
-  Log.Information("Scopes inserted");
+  Log.Information("{Amount} Scopes inserted", scopes.Count);
 }
 else if (args[0] == "rotate")
 {
@@ -141,20 +141,29 @@ else if (args[0] == "client")
         await identityContext.Set<GrantType>().SingleAsync(x => x.Name == grantType.Value));
     }
 
-    newClient.RedirectUris.Add(new RedirectUri
+    if (!string.IsNullOrWhiteSpace(client["AuthorizeRedirectUri"]))
     {
-      Type = RedirectUriType.AuthorizeRedirectUri,
-      Uri = client["AuthorizeRedirectUri"]
-    });
+      newClient.RedirectUris.Add(new RedirectUri
+      {
+        Type = RedirectUriType.AuthorizeRedirectUri,
+        Uri = client["AuthorizeRedirectUri"]
+      });
+    }
 
-    newClient.RedirectUris.Add(new RedirectUri
+    if (!string.IsNullOrWhiteSpace(client["PostLogoutRedirectUri"]))
     {
-      Type = RedirectUriType.PostLogoutRedirectUri,
-      Uri = client["PostLogoutRedirectUri"]
-    });
+      newClient.RedirectUris.Add(new RedirectUri
+      {
+        Type = RedirectUriType.PostLogoutRedirectUri,
+        Uri = client["PostLogoutRedirectUri"]
+      });
+    }
 
-    newClient.ResponseTypes.Add(
-      await identityContext.Set<ResponseType>().SingleAsync(x => x.Name == client["ResponseType"]));
+    if (!string.IsNullOrWhiteSpace(client["ResponseType"]))
+    {
+      newClient.ResponseTypes.Add(
+        await identityContext.Set<ResponseType>().SingleAsync(x => x.Name == client["ResponseType"]));
+    }
 
     Log.Information("Inserted Client {@client}", newClient);
     newClients.Add(newClient);

@@ -22,7 +22,7 @@ public class AuthorizeNoneTest : BaseIntegrationTest
   {
     await CreateDatabase();
     await CreateIdentityProviderResource();
-    const string scope = $"{ScopeConstants.OpenId}";
+    const string scope = $"{ScopeConstants.OpenId} {ScopeConstants.UserInfo}";
     var password = CryptographyHelper.GetRandomString(32);
     var user = await BuildUserAsync(password);
     var client = await RegisterEndpointBuilder
@@ -54,6 +54,7 @@ public class AuthorizeNoneTest : BaseIntegrationTest
       .AddScope(scope)
       .AddCode(code)
       .AddCodeVerifier(pkce.CodeVerifier)
+      .AddResource("https://idp.authserver.dk")
       .BuildRedeemAuthorizationCode(GetHttpClient());
 
     var none = await AuthorizeEndpointBuilder
@@ -78,7 +79,7 @@ public class AuthorizeNoneTest : BaseIntegrationTest
   {
     await CreateDatabase();
     await CreateIdentityProviderResource();
-    const string scope = $"{ScopeConstants.OpenId}";
+    const string scope = $"{ScopeConstants.OpenId} {ScopeConstants.UserInfo}";
     var password = CryptographyHelper.GetRandomString(32);
     var user = await BuildUserAsync(password);
     var client = await RegisterEndpointBuilder
@@ -111,6 +112,7 @@ public class AuthorizeNoneTest : BaseIntegrationTest
       .AddScope(scope)
       .AddCode(code)
       .AddCodeVerifier(pkce.CodeVerifier)
+      .AddResource("https://idp.authserver.dk")
       .BuildRedeemAuthorizationCode(GetHttpClient());
 
     var none = await AuthorizeEndpointBuilder

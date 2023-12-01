@@ -7,11 +7,13 @@ public class RedeemClientCredentialsGrantResponse : Response
   {
   }
 
-  public RedeemClientCredentialsGrantResponse(string? errorCode, string? errorDescription, HttpStatusCode statusCode) : base(errorCode, errorDescription, statusCode)
+  public RedeemClientCredentialsGrantResponse(string errorCode, string errorDescription, HttpStatusCode statusCode)
+    : base(errorCode, errorDescription, statusCode)
   {
   }
 
   public string AccessToken { get; init; } = null!;
 
   public int ExpiresIn { get; init; }
+  public string Scope { get; init; } = null!;
 }

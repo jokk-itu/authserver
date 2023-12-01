@@ -53,6 +53,7 @@ public class AuthorizationCodeTokenTest : BaseIntegrationTest
       .AddCode(code)
       .AddGrantType(GrantTypeConstants.AuthorizationCode)
       .AddRedirectUri(client.RedirectUris.First())
+      .AddResource("https://idp.authserver.dk")
       .BuildRedeemAuthorizationCode(GetHttpClient());
 
     Assert.NotNull(tokenResponse);
@@ -95,6 +96,7 @@ public class AuthorizationCodeTokenTest : BaseIntegrationTest
       .AddCode(code)
       .AddGrantType(GrantTypeConstants.AuthorizationCode)
       .AddRedirectUri(client.RedirectUris.First())
+      .AddResource("https://idp.authserver.dk")
       .BuildRedeemAuthorizationCode(GetHttpClient());
 
     Assert.NotNull(tokenResponse);

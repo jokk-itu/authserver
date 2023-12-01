@@ -8,7 +8,6 @@ using Infrastructure.Builders.Token.IdToken;
 using Infrastructure.Builders.Token.RefreshToken;
 using Infrastructure.Decoders.Token;
 using Infrastructure.Decoders.Token.Abstractions;
-using Infrastructure.Repositories;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,7 +19,6 @@ public class RedeemRefreshTokenGrantHandler : IRequestHandler<RedeemRefreshToken
   private readonly ITokenBuilder<GrantAccessTokenArguments> _accessTokenBuilder;
   private readonly ITokenBuilder<RefreshTokenArguments> _refreshTokenBuilder;
   private readonly ITokenBuilder<IdTokenArguments> _idTokenBuilder;
-  private readonly ResourceManager _resourceManager;
   private readonly IdentityContext _identityContext;
 
   public RedeemRefreshTokenGrantHandler(
@@ -29,7 +27,6 @@ public class RedeemRefreshTokenGrantHandler : IRequestHandler<RedeemRefreshToken
     ITokenBuilder<GrantAccessTokenArguments> accessTokenBuilder,
     ITokenBuilder<RefreshTokenArguments> refreshTokenBuilder,
     ITokenBuilder<IdTokenArguments> idTokenBuilder,
-    ResourceManager resourceManager,
     IdentityContext identityContext)
   {
     _identityConfiguration = identityConfiguration;
@@ -37,7 +34,6 @@ public class RedeemRefreshTokenGrantHandler : IRequestHandler<RedeemRefreshToken
     _accessTokenBuilder = accessTokenBuilder;
     _refreshTokenBuilder = refreshTokenBuilder;
     _idTokenBuilder = idTokenBuilder;
-    _resourceManager = resourceManager;
     _identityContext = identityContext;
   }
 
@@ -64,12 +60,10 @@ public class RedeemRefreshTokenGrantHandler : IRequestHandler<RedeemRefreshToken
       scope = request.Scope;
     }
 
-    var resources = await _resourceManager.ReadResourcesAsync(scope.Split(' '), cancellationToken: cancellationToken);
-
     var accessToken = await _accessTokenBuilder.BuildToken(new GrantAccessTokenArguments
     {
       Scope = scope,
-      ResourceNames = resources.Select(x => x.Name),
+      Resource = request.Resource,
       AuthorizationGrantId = authorizationGrantId
     });
 
@@ -89,7 +83,8 @@ public class RedeemRefreshTokenGrantHandler : IRequestHandler<RedeemRefreshToken
       AccessToken = accessToken,
       RefreshToken = refreshToken,
       IdToken = idToken,
-      ExpiresIn = _identityConfiguration.AccessTokenExpiration
+      ExpiresIn = _identityConfiguration.AccessTokenExpiration,
+      Scope = scope
     };
   }
 

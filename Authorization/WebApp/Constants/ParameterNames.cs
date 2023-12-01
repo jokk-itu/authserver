@@ -41,6 +41,7 @@ public static class ParameterNames
   public const string IdTokenHint = "id_token_hint";
   public const string LoginHint = "login_hint";
   public const string AcrValues = "acr_values";
+  public const string Resource = "resource";
   public const string Username = "username";
   public const string Password = "password";
   public const string Email = "email";

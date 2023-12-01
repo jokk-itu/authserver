@@ -40,7 +40,7 @@ public class ClientAccessTokenBuilder : ITokenBuilder<ClientAccessTokenArguments
     {
       { ClaimNameConstants.Jti, Guid.NewGuid() },
       { ClaimNameConstants.Scope, arguments.Scope },
-      { ClaimNameConstants.Aud, arguments.ResourceNames }
+      { ClaimNameConstants.Aud, arguments.Resource }
     };
 
     var now = DateTime.UtcNow;
@@ -75,7 +75,7 @@ public class ClientAccessTokenBuilder : ITokenBuilder<ClientAccessTokenArguments
     var accessToken = new Domain.ClientAccessToken()
     {
       Client = client,
-      Audience = string.Join(" ", arguments.ResourceNames),
+      Audience = string.Join(" ", arguments.Resource),
       IssuedAt = now,
       NotBefore = now,
       ExpiresAt = now.AddHours(1),

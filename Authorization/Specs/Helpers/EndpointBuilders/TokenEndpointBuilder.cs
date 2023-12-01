@@ -1,5 +1,7 @@
-﻿using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using System.Collections.Specialized;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Net.Http.Json;
+using Microsoft.AspNetCore.Server.IIS.Core;
 using WebApp.Constants;
 using WebApp.Contracts.PostToken;
 
@@ -14,6 +16,7 @@ public class TokenEndpointBuilder
   private string _scope = string.Empty;
   private string _codeVerifier = string.Empty;
   private string _refreshToken = string.Empty;
+  private ICollection<string> _resource = new List<string>();
 
   public static TokenEndpointBuilder Instance()
   {
@@ -68,18 +71,27 @@ public class TokenEndpointBuilder
     return this;
   }
 
+  public TokenEndpointBuilder AddResource(string resource)
+  {
+    _resource.Add(resource);
+    return this;
+  }
+
   public async Task<PostTokenResponse> BuildRedeemAuthorizationCode(HttpClient httpClient, CancellationToken cancellationToken = default)
   {
-    var tokenContent = new FormUrlEncodedContent(new Dictionary<string, string>
+    var body = new List<KeyValuePair<string, string>>
     {
-      { ParameterNames.ClientId, _clientId },
-      { ParameterNames.ClientSecret, _clientSecret },
-      { ParameterNames.Code, _code },
-      { ParameterNames.GrantType, _grantType },
-      { ParameterNames.RedirectUri, _redirectUri },
-      { ParameterNames.Scope, _scope },
-      { ParameterNames.CodeVerifier, _codeVerifier }
-    });
+      new(ParameterNames.ClientId, _clientId),
+      new(ParameterNames.ClientSecret, _clientSecret),
+      new(ParameterNames.Code, _code),
+      new(ParameterNames.GrantType, _grantType),
+      new(ParameterNames.RedirectUri, _redirectUri),
+      new(ParameterNames.Scope, _scope),
+      new(ParameterNames.CodeVerifier, _codeVerifier)
+    };
+    body.AddRange(_resource.Select(r => new KeyValuePair<string, string>(ParameterNames.Resource, r)));
+
+    var tokenContent = new FormUrlEncodedContent(body);
     var request = new HttpRequestMessage(HttpMethod.Post, "connect/token")
     {
       Content = tokenContent
@@ -93,15 +105,17 @@ public class TokenEndpointBuilder
   public async Task<PostTokenResponse> BuildRedeemRefreshToken(HttpClient httpClient,
     CancellationToken cancellationToken = default)
   {
-    var tokenContent = new FormUrlEncodedContent(new Dictionary<string, string>
+    var body = new List<KeyValuePair<string, string>>
     {
-      { ParameterNames.ClientId, _clientId },
-      { ParameterNames.ClientSecret, _clientSecret },
-      { ParameterNames.GrantType, _grantType },
-      { ParameterNames.RefreshToken, _refreshToken },
-      { ParameterNames.Scope, _scope }
-    });
+      new(ParameterNames.ClientId, _clientId),
+      new(ParameterNames.ClientSecret, _clientSecret),
+      new(ParameterNames.GrantType, _grantType),
+      new(ParameterNames.RefreshToken, _refreshToken),
+      new(ParameterNames.Scope, _scope)
+    };
+    body.AddRange(_resource.Select(r => new KeyValuePair<string, string>(ParameterNames.Resource, r)));
 
+    var tokenContent = new FormUrlEncodedContent(body);
     var refreshTokenRequest = new HttpRequestMessage(HttpMethod.Post, "connect/token")
     {
       Content = tokenContent
@@ -115,13 +129,16 @@ public class TokenEndpointBuilder
   public async Task<PostTokenResponse> BuildRedeemClientCredentials(HttpClient httpClient,
     CancellationToken cancellationToken = default)
   {
-    var tokenContent = new FormUrlEncodedContent(new Dictionary<string, string>
+    var body = new List<KeyValuePair<string, string>>
     {
-      { ParameterNames.ClientId, _clientId },
-      { ParameterNames.ClientSecret, _clientSecret },
-      { ParameterNames.GrantType, OpenIdConnectGrantTypes.ClientCredentials },
-      { ParameterNames.Scope, _scope }
-    });
+      new(ParameterNames.ClientId, _clientId),
+      new(ParameterNames.ClientSecret, _clientSecret),
+      new(ParameterNames.GrantType, _grantType),
+      new(ParameterNames.Scope, _scope)
+    };
+    body.AddRange(_resource.Select(r => new KeyValuePair<string, string>(ParameterNames.Resource, r)));
+
+    var tokenContent = new FormUrlEncodedContent(body);
     var request = new HttpRequestMessage(HttpMethod.Post, "connect/token")
     {
       Content = tokenContent

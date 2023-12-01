@@ -130,9 +130,11 @@ public class RedeemClientCredentialsGrantValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var scope = ScopeBuilder
+    var scope = await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.UserInfo);
+
+    var resource = ResourceBuilder
       .Instance()
-      .AddName("identityprovider")
+      .AddScope(scope)
       .Build();
 
     var client = ClientBuilder
@@ -141,7 +143,8 @@ public class RedeemClientCredentialsGrantValidatorTests : BaseUnitTest
       .AddGrantType(await IdentityContext.Set<GrantType>().SingleAsync(x => x.Name == GrantTypeConstants.ClientCredentials))
       .Build();
 
-    await IdentityContext.Set<Client>().AddAsync(client);
+    await IdentityContext.AddAsync(client);
+    await IdentityContext.AddAsync(resource);
     await IdentityContext.SaveChangesAsync();
 
     var command = new RedeemClientCredentialsGrantCommand
@@ -149,7 +152,8 @@ public class RedeemClientCredentialsGrantValidatorTests : BaseUnitTest
       ClientId = client.Id,
       ClientSecret = client.Secret,
       GrantType = GrantTypeConstants.ClientCredentials,
-      Scope = scope.Name
+      Scope = scope.Name,
+      Resource = new[] { resource.Uri }
     };
     var validator = serviceProvider.GetRequiredService<IValidator<RedeemClientCredentialsGrantCommand>>();
 

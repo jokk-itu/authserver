@@ -18,5 +18,17 @@ internal class ResourceConfiguration : IEntityTypeConfiguration<Resource>
     builder
       .Property(x => x.Secret)
       .IsRequired();
+
+    builder
+      .Property(r => r.Uri)
+      .IsRequired();
+
+    builder
+      .HasIndex(r => r.Name)
+      .IsUnique();
+
+    builder
+      .HasIndex(r => r.Uri)
+      .IsUnique();
   }
 }

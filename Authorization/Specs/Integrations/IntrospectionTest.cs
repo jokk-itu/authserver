@@ -1,4 +1,4 @@
-﻿using Domain.Constants;
+using Domain.Constants;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Specs.Helpers.EndpointBuilders;
 using Xunit;
@@ -23,7 +23,7 @@ public class IntrospectionTest : BaseIntegrationTest
     UseReferenceTokens();
     const string scope = "weather:read";
     await BuildScope(scope);
-    var resource = await BuildResource(scope, "weatherservice");
+    var resource = await BuildResource(scope, "weatherservice", "https://weather.authserver.dk");
     var client = await RegisterEndpointBuilder
       .Instance()
       .AddClientName("testapp")
@@ -38,6 +38,7 @@ public class IntrospectionTest : BaseIntegrationTest
       .AddClientSecret(client.ClientSecret)
       .AddGrantType(GrantTypeConstants.ClientCredentials)
       .AddScope(scope)
+      .AddResource("https://weather.authserver.dk")
       .BuildRedeemClientCredentials(GetHttpClient());
 
     var introspection = await IntrospectionEndpointBuilder
@@ -49,7 +50,7 @@ public class IntrospectionTest : BaseIntegrationTest
       .BuildIntrospection(GetHttpClient());
 
     Assert.True(introspection.Active);
-    Assert.Contains(resource.Name, introspection.Audience);
+    Assert.Contains(resource.Uri, introspection.Audience);
     Assert.Equal(client.ClientId, introspection.ClientId);
     Assert.Equal(scope, introspection.Scope);
     Assert.Equal(TokenTypeConstants.AccessToken, introspection.TokenType);
@@ -64,7 +65,7 @@ public class IntrospectionTest : BaseIntegrationTest
     UseReferenceTokens();
     const string scope = "weather:read";
     await BuildScope(scope);
-    var resource = await BuildResource(scope, "weatherservice");
+    var resource = await BuildResource(scope, "weatherservice", "https://weather.authserver.dk");
     var client = await RegisterEndpointBuilder
       .Instance()
       .AddClientName("webapp")
@@ -79,6 +80,7 @@ public class IntrospectionTest : BaseIntegrationTest
       .AddClientSecret(client.ClientSecret)
       .AddGrantType(GrantTypeConstants.ClientCredentials)
       .AddScope(scope)
+      .AddResource("https://weather.authserver.dk")
       .BuildRedeemClientCredentials(GetHttpClient());
 
     var introspection = await IntrospectionEndpointBuilder
@@ -90,7 +92,7 @@ public class IntrospectionTest : BaseIntegrationTest
       .BuildIntrospection(GetHttpClient());
 
     Assert.True(introspection.Active);
-    Assert.Contains(resource.Name, introspection.Audience);
+    Assert.Contains(resource.Uri, introspection.Audience);
     Assert.Equal(client.ClientId, introspection.ClientId);
     Assert.Equal(scope, introspection.Scope);
     Assert.Equal(TokenTypeConstants.AccessToken, introspection.TokenType);

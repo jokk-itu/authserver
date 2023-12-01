@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using Domain.Constants;
 using Infrastructure.Helpers;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -26,7 +26,7 @@ public class RevokeTest : BaseIntegrationTest
     UseReferenceTokens();
     const string scope = "weather:read";
     await BuildScope(scope);
-    await BuildResource(scope, "weatherservice");
+    await BuildResource(scope, "weatherservice", "https://weather.authserver.dk");
     var client = await RegisterEndpointBuilder
       .Instance()
       .AddClientName("webapp")
@@ -41,6 +41,7 @@ public class RevokeTest : BaseIntegrationTest
       .AddClientSecret(client.ClientSecret)
       .AddGrantType(GrantTypeConstants.ClientCredentials)
       .AddScope(scope)
+      .AddResource("https://weather.authserver.dk")
       .BuildRedeemClientCredentials(GetHttpClient());
 
     var revocation = await RevokeEndpointBuilder
@@ -92,6 +93,7 @@ public class RevokeTest : BaseIntegrationTest
       .AddCode(code)
       .AddGrantType(GrantTypeConstants.AuthorizationCode)
       .AddRedirectUri(client.RedirectUris.First())
+      .AddResource("https://idp.authserver.dk")
       .BuildRedeemAuthorizationCode(GetHttpClient());
 
     var revocation = await RevokeEndpointBuilder
