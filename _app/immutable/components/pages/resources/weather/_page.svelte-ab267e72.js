@@ -1,5 +1,0 @@
-import{S as d,i as g,s as h,c,a as x,b as m,d as I,m as p,k as $,o as u,p as f,q as l,j as _,t as w,h as P}from"../../../../chunks/index-8ff2e5dd.js";import{P as q}from"../../../../chunks/PageTitle-edc21ece.js";import{S as A}from"../../../../chunks/Section-732b932d.js";function S(o){let t;return{c(){t=w(`An API functioning as a protected resource.
-It exposes data about the weather randomly.
-It requires the weather:read scope.`)},l(a){t=P(a,`An API functioning as a protected resource.
-It exposes data about the weather randomly.
-It requires the weather:read scope.`)},m(a,n){$(a,t,n)},d(a){a&&_(t)}}}function b(o){let t,a,n,r;return t=new q({props:{title:"Weather"}}),n=new A({props:{title:"Introduction",$$slots:{default:[S]},$$scope:{ctx:o}}}),{c(){c(t.$$.fragment),a=x(),c(n.$$.fragment)},l(e){m(t.$$.fragment,e),a=I(e),m(n.$$.fragment,e)},m(e,s){p(t,e,s),$(e,a,s),p(n,e,s),r=!0},p(e,[s]){const i={};s&1&&(i.$$scope={dirty:s,ctx:e}),n.$set(i)},i(e){r||(u(t.$$.fragment,e),u(n.$$.fragment,e),r=!0)},o(e){f(t.$$.fragment,e),f(n.$$.fragment,e),r=!1},d(e){l(t,e),e&&_(a),l(n,e)}}}class v extends d{constructor(t){super(),g(this,t,null,b,h,{})}}export{v as default};

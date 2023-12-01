@@ -4,21 +4,20 @@
 		<meta charset="utf-8" />
 		<link rel="icon" href="../favicon.png" />
 		<meta name="viewport" content="width=device-width" />
-		<meta http-equiv="content-security-policy" content="">
-		<link href="../_app/immutable/assets/_layout-02d53abc.css" rel="stylesheet">
-		<link rel="modulepreload" href="../_app/immutable/start-bc425fc3.js">
-		<link rel="modulepreload" href="../_app/immutable/chunks/index-8ff2e5dd.js">
-		<link rel="modulepreload" href="../_app/immutable/chunks/singletons-e8188173.js">
-		<link rel="modulepreload" href="../_app/immutable/chunks/paths-7973a8bd.js">
-		<link rel="modulepreload" href="../_app/immutable/chunks/preload-helper-a4192956.js">
-		<link rel="modulepreload" href="../_app/immutable/components/pages/_layout.svelte-f25753d4.js">
-		<link rel="modulepreload" href="../_app/immutable/modules/pages/_layout.ts-1423e732.js">
-		<link rel="modulepreload" href="../_app/immutable/chunks/mermaid-934d9bea-74696520.js">
-		<link rel="modulepreload" href="../_app/immutable/chunks/_layout-b6b17226.js">
-		<link rel="modulepreload" href="../_app/immutable/components/pages/userinfo/_page.svelte-8e53bccf.js">
-		<link rel="modulepreload" href="../_app/immutable/chunks/Diagram-adaf7575.js">
-		<link rel="modulepreload" href="../_app/immutable/chunks/PageTitle-edc21ece.js">
-		<link rel="modulepreload" href="../_app/immutable/chunks/Section-732b932d.js">
+		
+		<link href="../_app/immutable/assets/0.02d53abc.css" rel="stylesheet">
+		<link rel="modulepreload" href="../_app/immutable/entry/start.95af8a4f.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/index.8cffed02.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/singletons.6b0e71fa.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/paths.b0c1f616.js">
+		<link rel="modulepreload" href="../_app/immutable/entry/app.24108cd2.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/preload-helper.a4192956.js">
+		<link rel="modulepreload" href="../_app/immutable/nodes/0.0ffab1b5.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/mermaid-934d9bea.605cf65c.js">
+		<link rel="modulepreload" href="../_app/immutable/nodes/21.cb4dbe51.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/Diagram.ad75e5b6.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/PageTitle.df959b80.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/Section.be805b22.js">
 	</head>
 	<body data-sveltekit-preload-data="hover">
 		<div style="display: contents">
@@ -65,7 +64,7 @@ It requires an Authorization header with an issued access token.
 The access token must contain the <code>identityprovider:userinfo</code> scope.
 The response is a json body of claims, which are identified
 from the sub claim in the access token.
-<pre id="0OZaqg9t1BEhIAfGFT9INIP7v5Sb5eTo">    
+<pre id="zY1og4axEo1sdloq8blioOYrSPMXj9Vg">    
 sequenceDiagram
 participant OpenIDProvider as OP
 participant RelyingParty as RP
@@ -106,22 +105,32 @@ Example of an error response:<br>
 </pre></div></div></div>
 
 
-		<script type="module" data-sveltekit-hydrate="1c9efbo">
-			import { start } from "../_app/immutable/start-bc425fc3.js";
+			
+			<script>
+				{
+					__sveltekit_vlnpsn = {
+						assets: "/authserver",
+						base: new URL("..", location).pathname.slice(0, -1),
+						env: {}
+					};
 
-			start({
-				assets: "",
-				env: {},
-				target: document.querySelector('[data-sveltekit-hydrate="1c9efbo"]').parentNode,
-				version: "1701263886744",
-				hydrate: {
-					node_ids: [0, 21],
-					data: [null,null],
-					form: null,
-					error: null
+					const element = document.currentScript.parentElement;
+
+					const data = [null,null];
+
+					Promise.all([
+						import("../_app/immutable/entry/start.95af8a4f.js"),
+						import("../_app/immutable/entry/app.24108cd2.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element, {
+							node_ids: [0, 21],
+							data,
+							form: null,
+							error: null
+						});
+					});
 				}
-			});
-		</script>
-	</div>
+			</script>
+		</div>
 	</body>
 </html>
