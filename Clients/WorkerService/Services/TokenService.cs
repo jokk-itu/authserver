@@ -11,16 +11,19 @@ public class TokenService : ITokenService
   private readonly IOptions<WorkerOptions> _options;
   private readonly HttpClient _httpClient;
   private readonly ILogger<TokenService> _logger;
+  private readonly IOptionsMonitor<WeatherOptions> _weatherOptions;
 
   public TokenService(
     IServiceProvider serviceProvider,
     IHttpClientFactory httpClientFactory,
-    ILogger<TokenService> logger)
+    ILogger<TokenService> logger,
+    IOptionsMonitor<WeatherOptions> weatherOptions)
   {
     using var scope = serviceProvider.CreateScope();
     _options = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<WorkerOptions>>();
     _httpClient = httpClientFactory.CreateClient(nameof(TokenService));
     _logger = logger;
+    _weatherOptions = weatherOptions;
   }
 
   public async Task<string?> GetToken(string scope, CancellationToken cancellationToken = default)
@@ -35,7 +38,11 @@ public class TokenService : ITokenService
       ClientCredentialStyle = ClientCredentialStyle.PostBody,
       ClientId = _options.Value.ClientId,
       ClientSecret = _options.Value.ClientSecret,
-      Address = _options.Value.TokenEndpoint
+      Address = _options.Value.TokenEndpoint,
+      Parameters = new Parameters(new Dictionary<string, string>
+      {
+        { "resource",  _weatherOptions.CurrentValue.BaseUrl }
+      })
     };
     var tokenClient = new TokenClient(_httpClient, tokenClientOptions);
     var tokenResponse = await tokenClient.RequestClientCredentialsTokenAsync(scope, cancellationToken: cancellationToken);
