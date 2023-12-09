@@ -3,8 +3,8 @@ using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
+using Infrastructure.Helpers;
 using Infrastructure.Services.Abstract;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.RedeemClientCredentialsGrant;
@@ -27,11 +27,17 @@ public class RedeemClientCredentialsGrantValidator : IValidator<RedeemClientCred
       .Set<Client>()
       .Include(x => x.Scopes)
       .Include(x => x.GrantTypes)
-      .SingleOrDefaultAsync(x => x.Id == value.ClientId && x.Secret == value.ClientSecret, cancellationToken: cancellationToken);
+      .SingleOrDefaultAsync(x => x.Id == value.ClientId, cancellationToken: cancellationToken);
 
     if (client is null)
     {
-      return new ValidationResult(ErrorCode.InvalidClient, "client is invalid", HttpStatusCode.BadRequest);
+      return new ValidationResult(ErrorCode.InvalidClient, "client could not be authenticated", HttpStatusCode.BadRequest);
+    }
+
+    var isClientSecretValid = !string.IsNullOrWhiteSpace(value.ClientSecret) && BCrypt.CheckPassword(value.ClientSecret, client.Secret);
+    if (!isClientSecretValid)
+    {
+      return new ValidationResult(ErrorCode.InvalidClient, "client could not be authenticated", HttpStatusCode.BadRequest);
     }
 
     if (value.GrantType != GrantTypeConstants.ClientCredentials)

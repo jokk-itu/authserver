@@ -14,6 +14,7 @@ using Specs.Helpers.EntityBuilders;
 using Xunit;
 
 namespace Specs.Validators;
+
 public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
 {
   [Fact]
@@ -26,7 +27,7 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     {
       RefreshToken = null
     };
-    
+
     // Act
     var validationResponse = await validator.ValidateAsync(command);
 
@@ -41,7 +42,8 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant(new List<string>());
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret, new List<string>());
     var validator = serviceProvider.GetRequiredService<IValidator<RedeemRefreshTokenGrantCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<RefreshTokenArguments>>();
     var scopes = new[] { ScopeConstants.OpenId };
@@ -58,7 +60,7 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
       RefreshToken = token,
       Scope = $"{ScopeConstants.OpenId}"
     };
-    
+
     // Act
     var validationResponse = await validator.ValidateAsync(command);
 
@@ -73,7 +75,8 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant(new List<string>());
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret, new List<string>());
     var validator = serviceProvider.GetRequiredService<IValidator<RedeemRefreshTokenGrantCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<RefreshTokenArguments>>();
     var token = await tokenBuilder.BuildToken(new RefreshTokenArguments
@@ -95,11 +98,11 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     {
       GrantType = GrantTypeConstants.RefreshToken,
       ClientId = authorizationGrant.Client.Id,
-      ClientSecret = authorizationGrant.Client.Secret,
+      ClientSecret = clientSecret,
       RefreshToken = token,
       Scope = $"{ScopeConstants.OpenId}"
     };
-    
+
     // Act
     var validationResponse = await validator.ValidateAsync(command);
 
@@ -108,13 +111,14 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     Assert.Equal(ErrorCode.InvalidRequest, validationResponse.ErrorCode);
     Assert.Equal(HttpStatusCode.BadRequest, validationResponse.StatusCode);
   }
-  
+
   [Fact]
   public async Task Validate_ExpiredRefreshToken_InvalidRefreshToken()
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant(new List<string>());
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret,new List<string>());
     var identityConfiguration = serviceProvider.GetRequiredService<IdentityConfiguration>();
     identityConfiguration.UseReferenceTokens = true;
     var validator = serviceProvider.GetRequiredService<IValidator<RedeemRefreshTokenGrantCommand>>();
@@ -138,11 +142,11 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     {
       GrantType = GrantTypeConstants.RefreshToken,
       ClientId = authorizationGrant.Client.Id,
-      ClientSecret = authorizationGrant.Client.Secret,
+      ClientSecret = clientSecret,
       RefreshToken = token,
       Scope = $"{ScopeConstants.OpenId}"
     };
-    
+
     // Act
     var validationResponse = await validator.ValidateAsync(command);
 
@@ -157,7 +161,8 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant(new List<string>());
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret,new List<string>());
     var identityConfiguration = serviceProvider.GetRequiredService<IdentityConfiguration>();
     identityConfiguration.UseReferenceTokens = true;
     var validator = serviceProvider.GetRequiredService<IValidator<RedeemRefreshTokenGrantCommand>>();
@@ -181,11 +186,11 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     {
       GrantType = GrantTypeConstants.RefreshToken,
       ClientId = authorizationGrant.Client.Id,
-      ClientSecret = authorizationGrant.Client.Secret,
+      ClientSecret = clientSecret,
       RefreshToken = token,
       Scope = $"{ScopeConstants.OpenId}"
     };
-    
+
     // Act
     var validationResponse = await validator.ValidateAsync(command);
 
@@ -200,7 +205,8 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant(new List<string>());
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret, new List<string>());
     var validator = serviceProvider.GetRequiredService<IValidator<RedeemRefreshTokenGrantCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<RefreshTokenArguments>>();
     var token = await tokenBuilder.BuildToken(new RefreshTokenArguments
@@ -212,11 +218,11 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     {
       GrantType = string.Empty,
       ClientId = authorizationGrant.Client.Id,
-      ClientSecret = authorizationGrant.Client.Secret,
+      ClientSecret = clientSecret,
       RefreshToken = token,
       Scope = $"{ScopeConstants.OpenId}"
     };
-    
+
     // Act
     var validationResponse = await validator.ValidateAsync(command);
 
@@ -231,7 +237,8 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant(new List<string>());
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret, new List<string>());
     authorizationGrant.MaxAge = 0;
     await IdentityContext.SaveChangesAsync();
     var validator = serviceProvider.GetRequiredService<IValidator<RedeemRefreshTokenGrantCommand>>();
@@ -245,11 +252,11 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     {
       GrantType = GrantTypeConstants.RefreshToken,
       ClientId = authorizationGrant.Client.Id,
-      ClientSecret = authorizationGrant.Client.Secret,
+      ClientSecret = clientSecret,
       RefreshToken = token,
       Scope = $"{ScopeConstants.OpenId}"
     };
-    
+
     // Act
     var validationResponse = await validator.ValidateAsync(command);
 
@@ -264,7 +271,8 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant(new List<string>());
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret, new List<string>());
     await IdentityContext.SaveChangesAsync();
     var validator = serviceProvider.GetRequiredService<IValidator<RedeemRefreshTokenGrantCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<RefreshTokenArguments>>();
@@ -281,7 +289,7 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
       RefreshToken = token,
       Scope = $"{ScopeConstants.OpenId}"
     };
-    
+
     // Act
     var validationResponse = await validator.ValidateAsync(command);
 
@@ -296,7 +304,8 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant(new List<string>());
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret, new List<string>());
     authorizationGrant.Client.GrantTypes.Clear();
     await IdentityContext.SaveChangesAsync();
     var validator = serviceProvider.GetRequiredService<IValidator<RedeemRefreshTokenGrantCommand>>();
@@ -310,11 +319,11 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     {
       GrantType = GrantTypeConstants.RefreshToken,
       ClientId = authorizationGrant.Client.Id,
-      ClientSecret = authorizationGrant.Client.Secret,
+      ClientSecret = clientSecret,
       RefreshToken = token,
       Scope = $"{ScopeConstants.OpenId}"
     };
-    
+
     // Act
     var validationResponse = await validator.ValidateAsync(command);
 
@@ -329,7 +338,8 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant(new List<string>());
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret, new List<string>());
     authorizationGrant.Session.IsRevoked = true;
     await IdentityContext.SaveChangesAsync();
     var validator = serviceProvider.GetRequiredService<IValidator<RedeemRefreshTokenGrantCommand>>();
@@ -344,11 +354,11 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     {
       GrantType = GrantTypeConstants.RefreshToken,
       ClientId = authorizationGrant.Client.Id,
-      ClientSecret = authorizationGrant.Client.Secret,
+      ClientSecret = clientSecret,
       RefreshToken = token,
       Scope = $"{ScopeConstants.OpenId}"
     };
-    
+
     // Act
     var validationResponse = await validator.ValidateAsync(command);
 
@@ -363,7 +373,8 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant(new List<string>());
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret, new List<string>());
     authorizationGrant.Client.ConsentGrants.Clear();
     authorizationGrant.Session.User.ConsentGrants.Clear();
     await IdentityContext.SaveChangesAsync();
@@ -379,11 +390,11 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     {
       GrantType = GrantTypeConstants.RefreshToken,
       ClientId = authorizationGrant.Client.Id,
-      ClientSecret = authorizationGrant.Client.Secret,
+      ClientSecret = clientSecret,
       RefreshToken = token,
       Scope = $"{ScopeConstants.OpenId}"
     };
-    
+
     // Act
     var validationResponse = await validator.ValidateAsync(command);
 
@@ -398,7 +409,8 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant(new List<string>());
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret, new List<string>());
     await IdentityContext.SaveChangesAsync();
     var validator = serviceProvider.GetRequiredService<IValidator<RedeemRefreshTokenGrantCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<RefreshTokenArguments>>();
@@ -412,11 +424,11 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     {
       GrantType = GrantTypeConstants.RefreshToken,
       ClientId = authorizationGrant.Client.Id,
-      ClientSecret = authorizationGrant.Client.Secret,
+      ClientSecret = clientSecret,
       RefreshToken = token,
       Scope = $"{ScopeConstants.OpenId}"
     };
-    
+
     // Act
     var validationResponse = await validator.ValidateAsync(command);
 
@@ -434,8 +446,10 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     // Arrange
     var serviceProvider = BuildServiceProvider();
     var scopes = new[] { ScopeConstants.OpenId };
-    var authorizationGrant = await GetAuthorizationGrant(scopes);
-    var resource = await GetResource();
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret, scopes);
+    var resourceSecret = CryptographyHelper.GetRandomString(32);
+    var resource = await GetResource(resourceSecret);
     var validator = serviceProvider.GetRequiredService<IValidator<RedeemRefreshTokenGrantCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<RefreshTokenArguments>>();
     var token = await tokenBuilder.BuildToken(new RefreshTokenArguments
@@ -447,12 +461,12 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     {
       GrantType = GrantTypeConstants.RefreshToken,
       ClientId = authorizationGrant.Client.Id,
-      ClientSecret = authorizationGrant.Client.Secret,
+      ClientSecret = clientSecret,
       RefreshToken = token,
       Scope = requestScope,
       Resource = new[] { resource.Uri }
     };
-    
+
     // Act
     var validationResponse = await validator.ValidateAsync(command);
 
@@ -468,8 +482,10 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     // Arrange
     var serviceProvider = BuildServiceProvider();
     var scopes = new[] { ScopeConstants.OpenId };
-    var authorizationGrant = await GetAuthorizationGrant(scopes);
-    var resource = await GetResource();
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret, scopes);
+    var resourceSecret = CryptographyHelper.GetRandomString(32);
+    var resource = await GetResource(resourceSecret);
     var identityConfiguration = serviceProvider.GetRequiredService<IdentityConfiguration>();
     identityConfiguration.UseReferenceTokens = true;
     var validator = serviceProvider.GetRequiredService<IValidator<RedeemRefreshTokenGrantCommand>>();
@@ -484,12 +500,12 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     {
       GrantType = GrantTypeConstants.RefreshToken,
       ClientId = authorizationGrant.Client.Id,
-      ClientSecret = authorizationGrant.Client.Secret,
+      ClientSecret = clientSecret,
       RefreshToken = token,
       Scope = requestScope,
       Resource = new[] { resource.Uri }
     };
-    
+
     // Act
     var validationResponse = await validator.ValidateAsync(command);
 
@@ -497,10 +513,11 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     Assert.False(validationResponse.IsError());
   }
 
-  private async Task<Resource> GetResource()
+  private async Task<Resource> GetResource(string resourceSecret)
   {
     var resource = ResourceBuilder
       .Instance()
+      .AddSecret(resourceSecret)
       .AddScope(await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId))
       .Build();
 
@@ -509,7 +526,9 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     return resource;
   }
 
-    private async Task<AuthorizationCodeGrant> GetAuthorizationGrant(ICollection<string> scopes)
+  private async Task<AuthorizationCodeGrant> GetAuthorizationGrant(
+    string clientSecret,
+    ICollection<string> scopes)
   {
     var consentedScopes = await IdentityContext
       .Set<Scope>()
@@ -522,11 +541,12 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
       .Build();
 
     var refreshGrant = await IdentityContext
-        .Set<GrantType>()
-        .SingleAsync(x => x.Name == GrantTypeConstants.RefreshToken);
+      .Set<GrantType>()
+      .SingleAsync(x => x.Name == GrantTypeConstants.RefreshToken);
 
     var client = ClientBuilder
       .Instance()
+      .AddSecret(clientSecret)
       .AddGrantType(refreshGrant)
       .AddConsentGrant(consentGrant)
       .Build();

@@ -39,9 +39,16 @@ public class TokenRevocationValidator : IValidator<TokenRevocationCommand>
       .Where(x => x.Id == value.ClientId)
       .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
-    if (client is null
-        || client.TokenEndpointAuthMethod != TokenEndpointAuthMethod.None
-        && client.Secret != value.ClientSecret)
+    if (client is null)
+    {
+      return new ValidationResult(ErrorCode.InvalidClient, "client could not be authenticated", HttpStatusCode.BadRequest);
+    }
+
+    var isClientSecretValid = client.Secret == null
+                              || !string.IsNullOrWhiteSpace(value.ClientSecret)
+                              && BCrypt.CheckPassword(value.ClientSecret, client.Secret);
+
+    if (!isClientSecretValid)
     {
       return new ValidationResult(ErrorCode.InvalidClient, "client could not be authenticated", HttpStatusCode.BadRequest);
     }
@@ -53,7 +60,7 @@ public class TokenRevocationValidator : IValidator<TokenRevocationCommand>
     }
     else
     {
-      clientId = await GetClientFromReferenceToken(value.Token, cancellationToken);
+      clientId = await GetClientIdFromReferenceToken(value.Token, cancellationToken);
     }
 
     
@@ -87,7 +94,7 @@ public class TokenRevocationValidator : IValidator<TokenRevocationCommand>
     return query?.ClientId;
   }
 
-  private async Task<string?> GetClientFromReferenceToken(string token, CancellationToken cancellationToken)
+  private async Task<string?> GetClientIdFromReferenceToken(string token, CancellationToken cancellationToken)
   {
     var clientToken = await _identityContext
       .Set<Token>()

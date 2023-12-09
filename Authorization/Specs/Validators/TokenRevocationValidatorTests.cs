@@ -63,7 +63,8 @@ public class TokenRevocationValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant();
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret);
     var client = authorizationGrant.Client;
     serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
     var validator = serviceProvider.GetRequiredService<IValidator<TokenRevocationCommand>>();
@@ -96,8 +97,8 @@ public class TokenRevocationValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant();
-    var client = authorizationGrant.Client;
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret);
     serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
     var validator = serviceProvider.GetRequiredService<IValidator<TokenRevocationCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<GrantAccessTokenArguments>>();
@@ -112,7 +113,7 @@ public class TokenRevocationValidatorTests : BaseUnitTest
     {
       TokenTypeHint = TokenTypeConstants.AccessToken,
       Token = token,
-      ClientSecret = client.Secret,
+      ClientSecret = clientSecret,
     };
 
     // Act
@@ -129,8 +130,9 @@ public class TokenRevocationValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant();
-    var client = await GetClient();
+    var authorizationGrant = await GetAuthorizationGrant(CryptographyHelper.GetRandomString(32));
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var client = await GetClient(clientSecret);
     var validator = serviceProvider.GetRequiredService<IValidator<TokenRevocationCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<RefreshTokenArguments>>();
     var token = await tokenBuilder.BuildToken(new RefreshTokenArguments
@@ -144,7 +146,7 @@ public class TokenRevocationValidatorTests : BaseUnitTest
       TokenTypeHint = TokenTypeConstants.RefreshToken,
       Token = token,
       ClientId = client.Id,
-      ClientSecret = client.Secret,
+      ClientSecret = clientSecret,
     };
 
     // Act
@@ -161,8 +163,9 @@ public class TokenRevocationValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant();
-    var client = await GetClient();
+    var authorizationGrant = await GetAuthorizationGrant(CryptographyHelper.GetRandomString(32));
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var client = await GetClient(clientSecret);
     serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
     var validator = serviceProvider.GetRequiredService<IValidator<TokenRevocationCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<GrantAccessTokenArguments>>();
@@ -178,7 +181,7 @@ public class TokenRevocationValidatorTests : BaseUnitTest
       TokenTypeHint = TokenTypeConstants.RefreshToken,
       Token = token,
       ClientId = client.Id,
-      ClientSecret = client.Secret,
+      ClientSecret = clientSecret,
     };
 
     // Act
@@ -195,7 +198,8 @@ public class TokenRevocationValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant();
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret);
     var validator = serviceProvider.GetRequiredService<IValidator<TokenRevocationCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<RefreshTokenArguments>>();
     var token = await tokenBuilder.BuildToken(new RefreshTokenArguments
@@ -209,7 +213,7 @@ public class TokenRevocationValidatorTests : BaseUnitTest
       TokenTypeHint = TokenTypeConstants.RefreshToken,
       Token = token,
       ClientId = authorizationGrant.Client.Id,
-      ClientSecret = authorizationGrant.Client.Secret,
+      ClientSecret = clientSecret,
     };
 
     // Act
@@ -226,7 +230,8 @@ public class TokenRevocationValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant();
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret);
     serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
     var validator = serviceProvider.GetRequiredService<IValidator<TokenRevocationCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<GrantAccessTokenArguments>>();
@@ -242,7 +247,7 @@ public class TokenRevocationValidatorTests : BaseUnitTest
       TokenTypeHint = TokenTypeConstants.RefreshToken,
       Token = token,
       ClientId = authorizationGrant.Client.Id,
-      ClientSecret = authorizationGrant.Client.Secret,
+      ClientSecret = clientSecret
     };
 
     // Act
@@ -253,7 +258,7 @@ public class TokenRevocationValidatorTests : BaseUnitTest
     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
   }
 
-  private async Task<Client> GetClient()
+  private async Task<Client> GetClient(string clientSecret)
   {
     var grantType = await IdentityContext
       .Set<GrantType>()
@@ -265,6 +270,7 @@ public class TokenRevocationValidatorTests : BaseUnitTest
 
     var client = ClientBuilder
       .Instance()
+      .AddSecret(clientSecret)
       .AddGrantType(grantType)
       .AddRedirectUri("https://localhost:5001/callback")
       .AddScope(openIdScope)
@@ -276,7 +282,7 @@ public class TokenRevocationValidatorTests : BaseUnitTest
     return client;
   }
 
-  private async Task<AuthorizationCodeGrant> GetAuthorizationGrant()
+  private async Task<AuthorizationCodeGrant> GetAuthorizationGrant(string clientSecret)
   {
     var grantType = await IdentityContext
       .Set<GrantType>()
@@ -288,12 +294,13 @@ public class TokenRevocationValidatorTests : BaseUnitTest
 
     var consent = ConsentGrantBuilder
       .Instance()
-      .AddScopes(new [] { openIdScope })
+      .AddScopes(openIdScope)
       .Build();
 
     var client = ClientBuilder
       .Instance()
       .AddGrantType(grantType)
+      .AddSecret(clientSecret)
       .AddRedirectUri("https://localhost:5001/callback")
       .AddScope(openIdScope)
       .AddTokenEndpointAuthMethod(TokenEndpointAuthMethod.ClientSecretPost)

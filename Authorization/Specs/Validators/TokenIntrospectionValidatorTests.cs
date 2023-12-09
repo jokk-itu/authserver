@@ -63,8 +63,10 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant();
-    var resource = await GetResource();
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret);
+    var resourceSecret = CryptographyHelper.GetRandomString(32);
+    var resource = await GetResource(resourceSecret);
     serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
     var validator = serviceProvider.GetRequiredService<IValidator<TokenIntrospectionQuery>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<GrantAccessTokenArguments>>();
@@ -96,8 +98,10 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant();
-    var resource = await GetResource();
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret);
+    var resourceSecret = CryptographyHelper.GetRandomString(32);
+    var resource = await GetResource(resourceSecret);
     serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
     var validator = serviceProvider.GetRequiredService<IValidator<TokenIntrospectionQuery>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<GrantAccessTokenArguments>>();
@@ -112,7 +116,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     {
       TokenTypeHint = TokenTypeConstants.AccessToken,
       Token = token,
-      ClientSecret = resource.Secret,
+      ClientSecret = resourceSecret
     };
 
     // Act
@@ -129,8 +133,10 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant();
-    var resource = await GetResource();
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret);
+    var resourceSecret = CryptographyHelper.GetRandomString(32);
+    var resource = await GetResource(resourceSecret);
     serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
     var validator = serviceProvider.GetRequiredService<IValidator<TokenIntrospectionQuery>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<GrantAccessTokenArguments>>();
@@ -146,7 +152,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
       TokenTypeHint = TokenTypeConstants.AccessToken,
       Token = token,
       ClientId = resource.Id,
-      ClientSecret = resource.Secret,
+      ClientSecret = resourceSecret
     };
 
     // Act
@@ -163,7 +169,8 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant();
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret);
     var client = authorizationGrant.Client;
     serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
     var validator = serviceProvider.GetRequiredService<IValidator<TokenIntrospectionQuery>>();
@@ -196,7 +203,8 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant();
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret);
     var client = authorizationGrant.Client;
     serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
     var validator = serviceProvider.GetRequiredService<IValidator<TokenIntrospectionQuery>>();
@@ -212,7 +220,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     {
       TokenTypeHint = TokenTypeConstants.AccessToken,
       Token = token,
-      ClientSecret = client.Secret,
+      ClientSecret = clientSecret
     };
 
     // Act
@@ -229,8 +237,9 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant();
-    var client = await GetClient();
+    var authorizationGrant = await GetAuthorizationGrant(CryptographyHelper.GetRandomString(32));
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var client = await GetClient(clientSecret);
     serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
     var validator = serviceProvider.GetRequiredService<IValidator<TokenIntrospectionQuery>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<GrantAccessTokenArguments>>();
@@ -246,7 +255,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
       TokenTypeHint = TokenTypeConstants.AccessToken,
       Token = token,
       ClientId = client.Id,
-      ClientSecret = client.Secret,
+      ClientSecret = clientSecret,
     };
 
     // Act
@@ -263,8 +272,10 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant();
-    var resource = await GetResource();
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret);
+    var resourceSecret = CryptographyHelper.GetRandomString(32);
+    var resource = await GetResource(resourceSecret);
     serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
     var validator = serviceProvider.GetRequiredService<IValidator<TokenIntrospectionQuery>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<GrantAccessTokenArguments>>();
@@ -280,7 +291,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
       TokenTypeHint = TokenTypeConstants.AccessToken,
       Token = token,
       ClientId = resource.Id,
-      ClientSecret = resource.Secret,
+      ClientSecret = resourceSecret,
     };
 
     // Act
@@ -297,7 +308,8 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var authorizationGrant = await GetAuthorizationGrant();
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret);
     serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
     var validator = serviceProvider.GetRequiredService<IValidator<TokenIntrospectionQuery>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<GrantAccessTokenArguments>>();
@@ -313,7 +325,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
       TokenTypeHint = TokenTypeConstants.AccessToken,
       Token = token,
       ClientId = authorizationGrant.Client.Id,
-      ClientSecret = authorizationGrant.Client.Secret,
+      ClientSecret = clientSecret
     };
 
     // Act
@@ -330,7 +342,8 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
-    var client = await GetClient();
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var client = await GetClient(clientSecret);
     serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
     var validator = serviceProvider.GetRequiredService<IValidator<TokenIntrospectionQuery>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<ClientAccessTokenArguments>>();
@@ -346,7 +359,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
       TokenTypeHint = TokenTypeConstants.AccessToken,
       Token = token,
       ClientId = client.Id,
-      ClientSecret = client.Secret,
+      ClientSecret = clientSecret
     };
 
     // Act
@@ -357,7 +370,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
   }
 
-  private async Task<Client> GetClient()
+  private async Task<Client> GetClient(string clientSecret)
   {
     var grantType = await IdentityContext
       .Set<GrantType>()
@@ -369,6 +382,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
 
     var client = ClientBuilder
       .Instance()
+      .AddSecret(clientSecret)
       .AddGrantType(grantType)
       .AddRedirectUri("https://localhost:5001/callback")
       .AddScope(openIdScope)
@@ -380,7 +394,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     return client;
   }
 
-  private async Task<Resource> GetResource()
+  private async Task<Resource> GetResource(string resourceSecret)
   {
     var scope = ScopeBuilder
       .Instance()
@@ -389,6 +403,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
 
     var resource = ResourceBuilder
       .Instance()
+      .AddSecret(resourceSecret)
       .AddScope(scope)
       .Build();
 
@@ -397,7 +412,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     return resource;
   }
 
-  private async Task<AuthorizationCodeGrant> GetAuthorizationGrant()
+  private async Task<AuthorizationCodeGrant> GetAuthorizationGrant(string clientSecret)
   {
     var grantType = await IdentityContext
       .Set<GrantType>()
@@ -409,11 +424,12 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
 
     var consent = ConsentGrantBuilder
       .Instance()
-      .AddScopes(new [] { openIdScope })
+      .AddScopes(openIdScope)
       .Build();
 
     var client = ClientBuilder
       .Instance()
+      .AddSecret(clientSecret)
       .AddGrantType(grantType)
       .AddRedirectUri("https://localhost:5001/callback")
       .AddScope(openIdScope)

@@ -112,11 +112,13 @@ public class EndSessionHandlerTests : BaseUnitTest
 
     var resource = ResourceBuilder
       .Instance()
+      .AddSecret(CryptographyHelper.GetRandomString(32))
       .AddScope(weatherScope)
       .Build();
 
     var client = ClientBuilder
       .Instance()
+      .AddSecret(CryptographyHelper.GetRandomString(32))
       .AddRedirectUri("https://localhost:5001/callback")
       .AddPostLogoutRedirectUri("https://localhost:5001/logout-redirect")
       .AddBackChannelLogoutUri("https://localhost:5001/logout")
@@ -138,7 +140,7 @@ public class EndSessionHandlerTests : BaseUnitTest
       .AddAudience(resource.Name)
       .AddExpiresAt(DateTime.UtcNow.AddHours(1))
       .AddIssuer("https://localhost:5000")
-      .AddScope($"weatherScope.Name {openIdScope.Name}")
+      .AddScope($"{weatherScope.Name} {openIdScope.Name}")
       .Build() as GrantAccessToken;
 
     var authorizationGrant = AuthorizationCodeGrantBuilder
