@@ -91,6 +91,12 @@ public class ConfigureOpenIdConnectOptions : IConfigureNamedOptions<OpenIdConnec
           context.ProtocolMessage.Prompt = prompt;
         }
 
+        var hasLoginHint = context.Properties.Items.TryGetValue("login_hint", out var loginHint);
+        if (hasLoginHint)
+        {
+          context.ProtocolMessage.LoginHint = loginHint;
+        }
+
         _logger.LogInformation("Redirecting to IdP for Authorize {@AuthorizeRequest}", new
         {
           context.ProtocolMessage.Nonce,

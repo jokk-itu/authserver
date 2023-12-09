@@ -9,6 +9,10 @@ public class AuthorizeContextAccessor : IContextAccessor<AuthorizeContext>
     {
         var query = httpContext.Request.Query;
         var context = new AuthorizeContext();
+        if (query.TryGetValue(ParameterNames.LoginHint, out var loginHint))
+        {
+          context.LoginHint = loginHint;
+        }
         if (query.TryGetValue(ParameterNames.ResponseMode, out var responseMode))
         {
             context.ResponseMode = responseMode;

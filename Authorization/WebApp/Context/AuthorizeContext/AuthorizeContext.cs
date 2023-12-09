@@ -5,6 +5,7 @@ public class AuthorizeContext
 {
     public string Scope { get; set; }
     public string IdTokenHint { get; set; }
+    public string LoginHint { get; set; }
     public string Prompt { get; set; }
     public string ClientId { get; set; }
     public string RedirectUri { get; set; }

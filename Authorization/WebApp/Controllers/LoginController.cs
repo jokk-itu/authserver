@@ -17,6 +17,7 @@ using WebApp.Context.AuthorizeContext;
 using WebApp.Contracts.PostLogin;
 using WebApp.Controllers.Abstracts;
 using WebApp.Extensions;
+using WebApp.ViewModels;
 
 namespace WebApp.Controllers;
 
@@ -41,9 +42,13 @@ public class LoginController : OAuthControllerBase
 
   [HttpGet]
   [SecurityHeader]
-  public IActionResult Index()
+  public async Task<IActionResult> Index()
   {
-    return View();
+    var authorizeContext = await _contextAccessor.GetContext(HttpContext);
+    return View(new LoginViewModel
+    {
+      LoginHint = authorizeContext.LoginHint
+    });
   }
 
   [HttpPost]
