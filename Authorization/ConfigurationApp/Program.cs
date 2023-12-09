@@ -5,6 +5,7 @@ using Domain;
 using Domain.Enums;
 using Domain.Extensions;
 using Infrastructure;
+using Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Serilog;
@@ -39,6 +40,10 @@ if (args[0] == "resource")
   foreach (var resource in resources)
   {
     Log.Information("Inserting resource {@resource}", resource);
+
+    var secret = resource.Secret;
+    resource.Secret = BCrypt.HashPassword(secret, BCrypt.GenerateSalt());
+
     var scopes = resource.Scopes.Select(x => x.Name).ToList();
     resource.Scopes.Clear();
     foreach (var scopeName in scopes)
@@ -120,7 +125,7 @@ else if (args[0] == "client")
     {
       Id = clientId,
       Name = clientName,
-      Secret = clientSecret,
+      Secret = BCrypt.HashPassword(clientSecret, BCrypt.GenerateSalt()),
       ApplicationType = applicationType,
       TokenEndpointAuthMethod = tokenEndpointAuthMethod,
       SubjectType = subjectType,

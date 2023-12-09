@@ -5,6 +5,7 @@ using Domain;
 using Domain.Constants;
 using Infrastructure.Decoders.Token;
 using Infrastructure.Decoders.Token.Abstractions;
+using Infrastructure.Helpers;
 using Infrastructure.Services.Abstract;
 using Microsoft.EntityFrameworkCore;
 
@@ -59,8 +60,7 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
       .Select(x => new
       {
         IsClientIdValid = x.Client.Id == value.ClientId,
-        IsClientSecretValid = x.Client.Secret == value.ClientSecret,
-        HasClientSecret = x.Client.Secret != null,
+        ClientSecret = x.Client.Secret,
         IsClientAuthorized = x.Client.GrantTypes.Any(y => y.Name == GrantTypeConstants.RefreshToken),
         IsSessionValid = !x.Session.IsRevoked,
         UserId = x.Session.User.Id
@@ -72,14 +72,13 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
       return new ValidationResult(ErrorCode.LoginRequired, "authorization grant is invalid", HttpStatusCode.BadRequest);
     }
 
-    if (!query.IsClientIdValid)
-    {
-      return new ValidationResult(ErrorCode.InvalidClient, "client_id is invalid", HttpStatusCode.BadRequest);
-    }
+    var isClientSecretValid = query.ClientSecret == null
+                         || !string.IsNullOrWhiteSpace(value.ClientSecret)
+                         && BCrypt.CheckPassword(value.ClientSecret, query.ClientSecret);
 
-    if (query.HasClientSecret && !query.IsClientSecretValid)
+    if (!query.IsClientIdValid || !isClientSecretValid)
     {
-      return new ValidationResult(ErrorCode.InvalidClient, "client_secret is invalid", HttpStatusCode.BadRequest);
+      return new ValidationResult(ErrorCode.InvalidClient, "client could not be authenticated", HttpStatusCode.BadRequest);
     }
 
     if (!query.IsClientAuthorized)

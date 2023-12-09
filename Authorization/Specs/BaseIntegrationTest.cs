@@ -2,6 +2,7 @@
 using Domain;
 using Domain.Constants;
 using Infrastructure;
+using Infrastructure.Helpers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -64,7 +65,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 
   protected async Task CreateIdentityProviderResource()
   {
-    await BuildResource(ScopeConstants.UserInfo, "IdentityProvider", "https://idp.authserver.dk");
+    await BuildResource(ScopeConstants.UserInfo, CryptographyHelper.GetRandomString(32), "IdentityProvider", "https://idp.authserver.dk");
   }
 
   protected async Task<Scope> BuildScope(string name)
@@ -79,13 +80,15 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     return scope;
   }
 
-  protected async Task<Resource> BuildResource(string scope, string name, string uri)
+  protected async Task<Resource> BuildResource(string scope, string secret, string name, string uri)
   {
     var identityContext = _factory.Services.GetRequiredService<IdentityContext>();
     var scopes = scope.Split(' ');
+    var hashedSecret = BCrypt.HashPassword(secret, BCrypt.GenerateSalt());
     var resource = new Resource
     {
       Name = name,
+      Secret = hashedSecret,
       Scopes = await identityContext
         .Set<Scope>()
         .Where(x => scopes.Contains(x.Name))

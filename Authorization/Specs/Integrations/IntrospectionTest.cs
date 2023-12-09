@@ -1,4 +1,5 @@
 using Domain.Constants;
+using Infrastructure.Helpers;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Specs.Helpers.EndpointBuilders;
 using Xunit;
@@ -23,7 +24,8 @@ public class IntrospectionTest : BaseIntegrationTest
     UseReferenceTokens();
     const string scope = "weather:read";
     await BuildScope(scope);
-    var resource = await BuildResource(scope, "weatherservice", "https://weather.authserver.dk");
+    var resourceSecret = CryptographyHelper.GetRandomString(32);
+    var resource = await BuildResource(scope, resourceSecret, "weatherservice", "https://weather.authserver.dk");
     var client = await RegisterEndpointBuilder
       .Instance()
       .AddClientName("testapp")
@@ -44,13 +46,13 @@ public class IntrospectionTest : BaseIntegrationTest
     var introspection = await IntrospectionEndpointBuilder
       .Instance()
       .AddClientId(resource.Id)
-      .AddClientSecret(resource.Secret)
+      .AddClientSecret(resourceSecret)
       .AddToken(tokens.AccessToken)
       .AddTokenTypeHint(TokenTypeConstants.AccessToken)
       .BuildIntrospection(GetHttpClient());
 
     Assert.True(introspection.Active);
-    Assert.Contains(resource.Uri, introspection.Audience);
+    Assert.Contains(resource.Uri, introspection.Audience!);
     Assert.Equal(client.ClientId, introspection.ClientId);
     Assert.Equal(scope, introspection.Scope);
     Assert.Equal(TokenTypeConstants.AccessToken, introspection.TokenType);
@@ -65,7 +67,7 @@ public class IntrospectionTest : BaseIntegrationTest
     UseReferenceTokens();
     const string scope = "weather:read";
     await BuildScope(scope);
-    var resource = await BuildResource(scope, "weatherservice", "https://weather.authserver.dk");
+    var resource = await BuildResource(scope, CryptographyHelper.GetRandomString(32), "weatherservice", "https://weather.authserver.dk");
     var client = await RegisterEndpointBuilder
       .Instance()
       .AddClientName("webapp")
@@ -92,7 +94,7 @@ public class IntrospectionTest : BaseIntegrationTest
       .BuildIntrospection(GetHttpClient());
 
     Assert.True(introspection.Active);
-    Assert.Contains(resource.Uri, introspection.Audience);
+    Assert.Contains(resource.Uri, introspection.Audience!);
     Assert.Equal(client.ClientId, introspection.ClientId);
     Assert.Equal(scope, introspection.Scope);
     Assert.Equal(TokenTypeConstants.AccessToken, introspection.TokenType);

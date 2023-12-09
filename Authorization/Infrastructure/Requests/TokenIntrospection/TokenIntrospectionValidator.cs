@@ -4,6 +4,7 @@ using Domain.Constants;
 using Domain.Enums;
 using Domain;
 using System.Net;
+using Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.TokenIntrospection;
@@ -65,9 +66,16 @@ public class TokenIntrospectionValidator : IValidator<TokenIntrospectionQuery>
       .Where(x => x.Id == query.ClientId)
       .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
-    if (client is null ||
-        client.TokenEndpointAuthMethod != TokenEndpointAuthMethod.None
-        && client.Secret != query.ClientSecret)
+    if (client is null)
+    {
+      return (false, new ValidationResult(ErrorCode.InvalidClient, "client could not be authenticated", HttpStatusCode.BadRequest));
+    }
+
+    var isClientSecretValid = client.Secret == null
+                              || !string.IsNullOrWhiteSpace(query.ClientSecret)
+                              && BCrypt.CheckPassword(query.ClientSecret, client.Secret);
+
+    if (!isClientSecretValid)
     {
       return (false, new ValidationResult(ErrorCode.InvalidClient, "client could not be authenticated", HttpStatusCode.BadRequest));
     }
@@ -92,11 +100,16 @@ public class TokenIntrospectionValidator : IValidator<TokenIntrospectionQuery>
     var resource = await _identityContext
       .Set<Resource>()
       .Where(x => x.Id == query.ClientId)
-      .Where(x => x.Secret == query.ClientSecret)
       .Include(x => x.Scopes)
       .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
     if (resource is null)
+    {
+      return (false, new ValidationResult(ErrorCode.InvalidClient, "client could not be authenticated", HttpStatusCode.BadRequest));
+    }
+
+    var isResourceSecretValid = !string.IsNullOrWhiteSpace(query.ClientSecret) && BCrypt.CheckPassword(query.ClientSecret, resource.Secret);
+    if (!isResourceSecretValid)
     {
       return (false, new ValidationResult(ErrorCode.InvalidClient, "client could not be authenticated", HttpStatusCode.BadRequest));
     }

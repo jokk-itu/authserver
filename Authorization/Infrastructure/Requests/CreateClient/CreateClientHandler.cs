@@ -59,14 +59,20 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       .ToList();
 
     long? defaultMaxAge = string.IsNullOrWhiteSpace(request.DefaultMaxAge) ? null : long.Parse(request.DefaultMaxAge);
-    var secret = request.TokenEndpointAuthMethod.GetEnum<TokenEndpointAuthMethod>() == TokenEndpointAuthMethod.None
+
+    var tokenEndpointAuthMethod = request.TokenEndpointAuthMethod.GetEnum<TokenEndpointAuthMethod>();
+    var plainTextSecret = tokenEndpointAuthMethod == TokenEndpointAuthMethod.None
       ? null
       : CryptographyHelper.GetRandomString(32);
+
+    var hashedSecret = tokenEndpointAuthMethod == TokenEndpointAuthMethod.None
+      ? null
+      : BCrypt.HashPassword(plainTextSecret, BCrypt.GenerateSalt());
 
     var client = new Client
     {
       Name = request.ClientName,
-      Secret = secret,
+      Secret = hashedSecret,
       ApplicationType = request.ApplicationType.GetEnum<ApplicationType>(),
       Scopes = scopes,
       RedirectUris = redirectUris,
@@ -102,7 +108,7 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       GrantTypes = client.GrantTypes.Select(x => x.Name).ToList(),
       ClientId = client.Id,
       ClientName = client.Name,
-      ClientSecret = client.Secret,
+      ClientSecret = plainTextSecret,
       Scope = string.Join(' ', client.Scopes.Select(x => x.Name)),
       RedirectUris = client.RedirectUris
         .Where(x => x.Type == RedirectUriType.AuthorizeRedirectUri)

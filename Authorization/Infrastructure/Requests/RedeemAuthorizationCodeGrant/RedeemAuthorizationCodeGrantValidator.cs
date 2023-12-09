@@ -7,6 +7,7 @@ using Application.Validation;
 using Domain;
 using Domain.Constants;
 using Infrastructure.Decoders.Abstractions;
+using Infrastructure.Helpers;
 using Infrastructure.Services.Abstract;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -56,8 +57,7 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
       .Select(x => new
       {
         IsClientIdValid = x.Client.Id == value.ClientId,
-        IsClientSecretValid = x.Client.Secret == value.ClientSecret,
-        HasClientSecret = x.Client.Secret != null,
+        ClientSecret = x.Client.Secret,
         IsRedirectAuthorized = x.Client.RedirectUris.Any(y => y.Uri == value.RedirectUri),
         IsGrantTypeAuthorized = x.Client.GrantTypes.Any(y => y.Name == GrantTypeConstants.AuthorizationCode),
         IsSessionValid = !x.Session.IsRevoked,
@@ -70,14 +70,14 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
       return new ValidationResult(ErrorCode.InvalidGrant, "grant is invalid", HttpStatusCode.BadRequest);
     }
 
-    if (!query.IsClientIdValid)
-    {
-      return new ValidationResult(ErrorCode.InvalidClient, "client_id is invalid", HttpStatusCode.BadRequest);
-    }
+    var isClientSecretValid = query.ClientSecret == null
+                              || !string.IsNullOrWhiteSpace(value.ClientSecret)
+                              && BCrypt.CheckPassword(value.ClientSecret, query.ClientSecret);
 
-    if (query.HasClientSecret && !query.IsClientSecretValid)
+    if (!query.IsClientIdValid || !isClientSecretValid)
     {
-      return new ValidationResult(ErrorCode.InvalidClient, "client_secret is invalid", HttpStatusCode.BadRequest);
+      return new ValidationResult(ErrorCode.InvalidClient, "client could not be authenticated",
+        HttpStatusCode.BadRequest);
     }
 
     if (!string.IsNullOrEmpty(value.RedirectUri) && !query.IsRedirectAuthorized)

@@ -14,7 +14,6 @@ public class ResourceBuilder
     _resource = new Resource
     {
       Id = Guid.NewGuid().ToString(),
-      Secret = CryptographyHelper.GetRandomString(16),
       Name = faker.Name.FirstName(),
       Uri = "https://weather.authserver.dk"
     };
@@ -33,6 +32,13 @@ public class ResourceBuilder
   public ResourceBuilder AddScope(Scope scope)
   {
     _resource.Scopes.Add(scope);
+    return this;
+  }
+
+  public ResourceBuilder AddSecret(string secret)
+  {
+    var hashedSecret = BCrypt.HashPassword(secret, BCrypt.GenerateSalt());
+    _resource.Secret = hashedSecret;
     return this;
   }
 }

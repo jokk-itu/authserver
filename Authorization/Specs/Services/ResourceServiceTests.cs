@@ -50,6 +50,7 @@ public class ResourceServiceTests : BaseUnitTest
         var resourceService = serviceProvider.GetRequiredService<IResourceService>();
         var resource = ResourceBuilder
             .Instance()
+            .AddSecret(CryptographyHelper.GetRandomString(32))
             .AddScope(await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId))
             .Build();
         await IdentityContext.AddAsync(resource);

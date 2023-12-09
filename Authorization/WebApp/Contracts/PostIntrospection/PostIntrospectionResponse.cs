@@ -33,7 +33,7 @@ public class PostIntrospectionResponse
   public string? Subject { get; init; }
 
   [JsonPropertyName(ParameterNames.Audience)]
-  public IEnumerable<string> Audience { get; init; } = new List<string>();
+  public IEnumerable<string>? Audience { get; init; }
 
   [JsonPropertyName(ParameterNames.Issuer)]
   public string? Issuer { get; init; }

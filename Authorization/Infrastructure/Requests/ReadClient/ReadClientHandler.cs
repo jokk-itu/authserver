@@ -38,9 +38,13 @@ public class ReadClientHandler : IRequestHandler<ReadClientQuery, ReadClientResp
       .Include(x => x.RedirectUris)
       .SingleAsync(cancellationToken: cancellationToken);
 
-    client.Secret = client.TokenEndpointAuthMethod == TokenEndpointAuthMethod.None
+    var plainTextSecret = client.TokenEndpointAuthMethod == TokenEndpointAuthMethod.None
       ? null
       : CryptographyHelper.GetRandomString(32);
+
+    client.Secret = client.TokenEndpointAuthMethod == TokenEndpointAuthMethod.None
+      ? null
+      : BCrypt.HashPassword(plainTextSecret, BCrypt.GenerateSalt());
 
     client.ClientTokens.Single().RevokedAt = DateTime.UtcNow;
     var registrationToken = await _tokenBuilder.BuildToken(new RegistrationTokenArguments
@@ -52,7 +56,7 @@ public class ReadClientHandler : IRequestHandler<ReadClientQuery, ReadClientResp
     return new ReadClientResponse(HttpStatusCode.OK)
     {
       ClientId = client.Id,
-      ClientSecret = client.Secret,
+      ClientSecret = plainTextSecret,
       ClientName = client.Name,
       ApplicationType = client.ApplicationType.ToString(),
       SubjectType = client.SubjectType.ToString(),

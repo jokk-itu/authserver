@@ -16,7 +16,6 @@ public class ClientBuilder
       Id = Guid.NewGuid().ToString(),
       ApplicationType = ApplicationType.Web,
       Name = faker.Name.FirstName(),
-      Secret = CryptographyHelper.GetRandomString(32),
       PolicyUri = "https://localhost:5001/policy",
       TosUri = "https://locaolhost:5001/tos"
     };
@@ -30,6 +29,13 @@ public class ClientBuilder
   public Client Build()
   {
     return _client;
+  }
+
+  public ClientBuilder AddSecret(string secret)
+  {
+    var hashedSecret = BCrypt.HashPassword(secret, BCrypt.GenerateSalt());
+    _client.Secret = hashedSecret;
+    return this;
   }
 
   public ClientBuilder AddTokenEndpointAuthMethod(TokenEndpointAuthMethod tokenEndpointAuthMethod)
