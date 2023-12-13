@@ -6,6 +6,7 @@ using Domain.Constants;
 using Infrastructure.Decoders.Token;
 using Infrastructure.Decoders.Token.Abstractions;
 using Infrastructure.Helpers;
+using Infrastructure.Requests.Abstract;
 using Infrastructure.Services.Abstract;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,14 +34,22 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
       return new ValidationResult(ErrorCode.InvalidRequest, "refresh_token is invalid", HttpStatusCode.BadRequest);
     }
 
+    if (value.ClientAuthentications.Count != 1)
+    {
+      return new ValidationResult(ErrorCode.InvalidClient, "multiple or none client authentication methods detected",
+        HttpStatusCode.BadRequest);
+    }
+
+    var clientAuthentication = value.ClientAuthentications.Single();
+
     string? authorizationGrantId;
     if (value.RefreshToken.Split('.').Length == 3)
     {
-      authorizationGrantId = await ValidateStructuredToken(value, cancellationToken);
+      authorizationGrantId = await ValidateStructuredToken(clientAuthentication, value.RefreshToken, cancellationToken);
     }
     else
     {
-      authorizationGrantId = await ValidateReferenceToken(value, cancellationToken);
+      authorizationGrantId = await ValidateReferenceToken(value.RefreshToken, cancellationToken);
     }
 
     if (string.IsNullOrWhiteSpace(authorizationGrantId))
@@ -59,7 +68,7 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
       .Where(AuthorizationCodeGrant.IsMaxAgeValid)
       .Select(x => new
       {
-        IsClientIdValid = x.Client.Id == value.ClientId,
+        IsClientIdValid = x.Client.Id == clientAuthentication.ClientId,
         ClientSecret = x.Client.Secret,
         IsClientAuthorized = x.Client.GrantTypes.Any(y => y.Name == GrantTypeConstants.RefreshToken),
         IsSessionValid = !x.Session.IsRevoked,
@@ -73,8 +82,8 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
     }
 
     var isClientSecretValid = query.ClientSecret == null
-                         || !string.IsNullOrWhiteSpace(value.ClientSecret)
-                         && BCrypt.CheckPassword(value.ClientSecret, query.ClientSecret);
+                         || !string.IsNullOrWhiteSpace(clientAuthentication.ClientSecret)
+                         && BCrypt.CheckPassword(clientAuthentication.ClientSecret, query.ClientSecret);
 
     if (!query.IsClientIdValid || !isClientSecretValid)
     {
@@ -94,7 +103,7 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
     var consentGrant = await _identityContext
       .Set<ConsentGrant>()
       .Where(x => x.User.Id == query.UserId)
-      .Where(x => x.Client.Id == value.ClientId)
+      .Where(x => x.Client.Id == clientAuthentication.ClientId)
       .Include(x => x.ConsentedScopes)
       .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
@@ -125,11 +134,11 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
     return new ValidationResult(HttpStatusCode.OK);
   }
 
-  private async Task<string?> ValidateReferenceToken(RedeemRefreshTokenGrantCommand value, CancellationToken cancellationToken)
+  private async Task<string?> ValidateReferenceToken(string refreshToken, CancellationToken cancellationToken)
   {
     var authorizationGrantId = await _identityContext
       .Set<RefreshToken>()
-      .Where(x => x.Reference == value.RefreshToken)
+      .Where(x => x.Reference == refreshToken)
       .Where(x => x.RevokedAt == null)
       .Where(x => x.ExpiresAt > DateTime.UtcNow)
       .Select(x => x.AuthorizationGrant.Id)
@@ -138,14 +147,14 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
     return authorizationGrantId;
   }
 
-  private async Task<string?> ValidateStructuredToken(RedeemRefreshTokenGrantCommand value, CancellationToken cancellationToken)
+  private async Task<string?> ValidateStructuredToken(ClientAuthentication clientAuthentication, string refreshToken, CancellationToken cancellationToken)
   {
     try
     {
-      var token = await _tokenDecoder.Decode(value.RefreshToken, new StructuredTokenDecoderArguments
+      var token = await _tokenDecoder.Decode(refreshToken, new StructuredTokenDecoderArguments
       {
-        ClientId = value.ClientId,
-        Audiences = new[] { value.ClientId },
+        ClientId = clientAuthentication.ClientId,
+        Audiences = new[] { clientAuthentication.ClientId },
         ValidateAudience = true,
         ValidateLifetime = true
       });
