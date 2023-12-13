@@ -11,6 +11,7 @@ using Domain.Enums;
 using Domain;
 using Infrastructure.Builders.Token.RefreshToken;
 using Infrastructure.Helpers;
+using Infrastructure.Requests.Abstract;
 using Microsoft.EntityFrameworkCore;
 using Specs.Helpers.EntityBuilders;
 
@@ -57,6 +58,41 @@ public class TokenRevocationValidatorTests : BaseUnitTest
     Assert.Equal(ErrorCode.InvalidRequest, response.ErrorCode);
   }
 
+  [Theory]
+  [InlineData(0)]
+  [InlineData(2)]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_InvalidClientAuthentication_ExpectInvalidClient(int count)
+  {
+    // Arrange
+    var serviceProvider = BuildServiceProvider();
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret);
+    serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
+    var validator = serviceProvider.GetRequiredService<IValidator<TokenRevocationCommand>>();
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<GrantAccessTokenArguments>>();
+    var token = await tokenBuilder.BuildToken(new GrantAccessTokenArguments
+    {
+      AuthorizationGrantId = authorizationGrant.Id,
+      Resource = new[] { "https://localhost:5000" },
+      Scope = $"{ScopeConstants.OpenId}"
+    });
+    await IdentityContext.SaveChangesAsync();
+    var query = new TokenRevocationCommand
+    {
+      TokenTypeHint = TokenTypeConstants.AccessToken,
+      Token = token,
+      ClientAuthentications = Enumerable.Repeat(new ClientAuthentication(), count).ToList()
+    };
+
+    // Act
+    var response = await validator.ValidateAsync(query);
+
+    // Assert
+    Assert.True(response.IsError());
+    Assert.Equal(ErrorCode.InvalidClient, response.ErrorCode);
+  }
+
   [Fact]
   [Trait("Category", "Unit")]
   public async Task ValidateAsync_NullClientSecret_InvalidRequest()
@@ -80,7 +116,13 @@ public class TokenRevocationValidatorTests : BaseUnitTest
     {
       TokenTypeHint = TokenTypeConstants.AccessToken,
       Token = token,
-      ClientId = client.Id,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = client.Id
+        }
+      }
     };
 
     // Act
@@ -113,7 +155,13 @@ public class TokenRevocationValidatorTests : BaseUnitTest
     {
       TokenTypeHint = TokenTypeConstants.AccessToken,
       Token = token,
-      ClientSecret = clientSecret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientSecret = clientSecret
+        }
+      }
     };
 
     // Act
@@ -145,8 +193,14 @@ public class TokenRevocationValidatorTests : BaseUnitTest
     {
       TokenTypeHint = TokenTypeConstants.RefreshToken,
       Token = token,
-      ClientId = client.Id,
-      ClientSecret = clientSecret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = client.Id,
+          ClientSecret = clientSecret
+        }
+      }
     };
 
     // Act
@@ -180,8 +234,14 @@ public class TokenRevocationValidatorTests : BaseUnitTest
     {
       TokenTypeHint = TokenTypeConstants.RefreshToken,
       Token = token,
-      ClientId = client.Id,
-      ClientSecret = clientSecret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = client.Id,
+          ClientSecret = clientSecret
+        }
+      }
     };
 
     // Act
@@ -212,8 +272,14 @@ public class TokenRevocationValidatorTests : BaseUnitTest
     {
       TokenTypeHint = TokenTypeConstants.RefreshToken,
       Token = token,
-      ClientId = authorizationGrant.Client.Id,
-      ClientSecret = clientSecret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = authorizationGrant.Client.Id,
+          ClientSecret = clientSecret
+        }
+      }
     };
 
     // Act
@@ -246,8 +312,14 @@ public class TokenRevocationValidatorTests : BaseUnitTest
     {
       TokenTypeHint = TokenTypeConstants.RefreshToken,
       Token = token,
-      ClientId = authorizationGrant.Client.Id,
-      ClientSecret = clientSecret
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = authorizationGrant.Client.Id,
+          ClientSecret = clientSecret
+        }
+      }
     };
 
     // Act

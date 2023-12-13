@@ -7,6 +7,7 @@ using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.GrantAccessToken;
 using Infrastructure.Builders.Token.RefreshToken;
 using Infrastructure.Helpers;
+using Infrastructure.Requests.Abstract;
 using Infrastructure.Requests.TokenRevocation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -41,8 +42,14 @@ public class TokenRevocationHandlerTests : BaseUnitTest
       serviceProvider.GetRequiredService<IRequestHandler<TokenRevocationCommand, TokenRevocationResponse>>();
     var command = new TokenRevocationCommand
     {
-      ClientId = authorizationGrant.Client.Id,
-      ClientSecret = authorizationGrant.Client.Secret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = authorizationGrant.Client.Id,
+          ClientSecret = authorizationGrant.Client.Secret
+        }
+      },
       Token = token,
       TokenTypeHint = TokenTypeConstants.RefreshToken
     };
@@ -81,8 +88,14 @@ public class TokenRevocationHandlerTests : BaseUnitTest
       serviceProvider.GetRequiredService<IRequestHandler<TokenRevocationCommand, TokenRevocationResponse>>();
     var command = new TokenRevocationCommand
     {
-      ClientId = authorizationGrant.Client.Id,
-      ClientSecret = authorizationGrant.Client.Secret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = authorizationGrant.Client.Id,
+          ClientSecret = authorizationGrant.Client.Secret
+        }
+      },
       Token = token,
       TokenTypeHint = TokenTypeConstants.RefreshToken
     };
@@ -112,8 +125,14 @@ public class TokenRevocationHandlerTests : BaseUnitTest
       serviceProvider.GetRequiredService<IRequestHandler<TokenRevocationCommand, TokenRevocationResponse>>();
     var command = new TokenRevocationCommand
     {
-      ClientId = authorizationGrant.Client.Id,
-      ClientSecret = authorizationGrant.Client.Secret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = authorizationGrant.Client.Id,
+          ClientSecret = authorizationGrant.Client.Secret
+        }
+      },
       Token = token,
       TokenTypeHint = TokenTypeConstants.RefreshToken
     };
@@ -147,8 +166,14 @@ public class TokenRevocationHandlerTests : BaseUnitTest
       serviceProvider.GetRequiredService<IRequestHandler<TokenRevocationCommand, TokenRevocationResponse>>();
     var command = new TokenRevocationCommand
     {
-      ClientId = authorizationGrant.Client.Id,
-      ClientSecret = authorizationGrant.Client.Secret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = authorizationGrant.Client.Id,
+          ClientSecret = authorizationGrant.Client.Secret
+        }
+      },
       Token = token,
       TokenTypeHint = TokenTypeConstants.RefreshToken
     };

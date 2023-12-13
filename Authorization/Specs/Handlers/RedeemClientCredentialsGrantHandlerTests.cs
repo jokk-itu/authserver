@@ -6,6 +6,7 @@ using Moq;
 using System.Net;
 using Domain.Constants;
 using Infrastructure.Helpers;
+using Infrastructure.Requests.Abstract;
 using Xunit;
 
 namespace Specs.Handlers;
@@ -26,8 +27,14 @@ public class RedeemClientCredentialsGrantHandlerTests : BaseUnitTest
 
     var command = new RedeemClientCredentialsGrantCommand
     {
-      ClientId = "test",
-      ClientSecret = CryptographyHelper.GetRandomString(16),
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = "test",
+          ClientSecret = CryptographyHelper.GetRandomString(16)
+        }
+      },
       GrantType = GrantTypeConstants.ClientCredentials,
       Scope = "scope"
     };

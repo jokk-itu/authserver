@@ -4,6 +4,7 @@ using Domain;
 using Domain.Constants;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Helpers;
+using Infrastructure.Requests.Abstract;
 using Infrastructure.Requests.RedeemAuthorizationCodeGrant;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -82,8 +83,14 @@ public class RedeemAuthorizationGrantCodeHandlerTests : BaseUnitTest
 
     var command = new RedeemAuthorizationCodeGrantCommand
     {
-      ClientId = client.Id,
-      ClientSecret = client.Secret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = client.Id,
+          ClientSecret = client.Secret
+        }
+      },
       RedirectUri = uri,
       GrantType = GrantTypeConstants.AuthorizationCode,
       Code = code,

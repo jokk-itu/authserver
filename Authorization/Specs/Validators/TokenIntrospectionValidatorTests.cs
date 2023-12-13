@@ -8,6 +8,7 @@ using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.ClientAccessToken;
 using Infrastructure.Builders.Token.GrantAccessToken;
 using Infrastructure.Helpers;
+using Infrastructure.Requests.Abstract;
 using Infrastructure.Requests.TokenIntrospection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +16,7 @@ using Specs.Helpers.EntityBuilders;
 using Xunit;
 
 namespace Specs.Validators;
+
 public class TokenIntrospectionValidatorTests : BaseUnitTest
 {
   [Fact]
@@ -57,6 +59,43 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     Assert.Equal(ErrorCode.InvalidRequest, response.ErrorCode);
   }
 
+  [Theory]
+  [InlineData(0)]
+  [InlineData(2)]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_InvalidClientAuthentications_ExpectInvalidClient(int count)
+  {
+    // Arrange
+    var serviceProvider = BuildServiceProvider();
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var authorizationGrant = await GetAuthorizationGrant(clientSecret);
+    var resourceSecret = CryptographyHelper.GetRandomString(32);
+    var resource = await GetResource(resourceSecret);
+    serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
+    var validator = serviceProvider.GetRequiredService<IValidator<TokenIntrospectionQuery>>();
+    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<GrantAccessTokenArguments>>();
+    var token = await tokenBuilder.BuildToken(new GrantAccessTokenArguments
+    {
+      AuthorizationGrantId = authorizationGrant.Id,
+      Resource = new[] { "https://localhost:5000" },
+      Scope = $"{ScopeConstants.OpenId}"
+    });
+    await IdentityContext.SaveChangesAsync();
+    var query = new TokenIntrospectionQuery
+    {
+      TokenTypeHint = TokenTypeConstants.AccessToken,
+      Token = token,
+      ClientAuthentications = Enumerable.Repeat(new ClientAuthentication(), count).ToList()
+    };
+
+    // Act
+    var response = await validator.ValidateAsync(query);
+
+    // Assert
+    Assert.True(response.IsError());
+    Assert.Equal(ErrorCode.InvalidClient, response.ErrorCode);
+  }
+
   [Fact]
   [Trait("Category", "Unit")]
   public async Task ValidateAsync_NullResourceSecret_InvalidClient()
@@ -81,7 +120,13 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     {
       TokenTypeHint = TokenTypeConstants.AccessToken,
       Token = token,
-      ClientId = resource.Id,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = resource.Id
+        }
+      }
     };
 
     // Act
@@ -116,7 +161,13 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     {
       TokenTypeHint = TokenTypeConstants.AccessToken,
       Token = token,
-      ClientSecret = resourceSecret
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientSecret = resourceSecret
+        }
+      }
     };
 
     // Act
@@ -151,8 +202,14 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     {
       TokenTypeHint = TokenTypeConstants.AccessToken,
       Token = token,
-      ClientId = resource.Id,
-      ClientSecret = resourceSecret
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = resource.Id,
+          ClientSecret = resourceSecret
+        }
+      }
     };
 
     // Act
@@ -186,7 +243,13 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     {
       TokenTypeHint = TokenTypeConstants.AccessToken,
       Token = token,
-      ClientId = client.Id,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = client.Id
+        }
+      }
     };
 
     // Act
@@ -205,7 +268,6 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     var serviceProvider = BuildServiceProvider();
     var clientSecret = CryptographyHelper.GetRandomString(32);
     var authorizationGrant = await GetAuthorizationGrant(clientSecret);
-    var client = authorizationGrant.Client;
     serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
     var validator = serviceProvider.GetRequiredService<IValidator<TokenIntrospectionQuery>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<GrantAccessTokenArguments>>();
@@ -220,7 +282,13 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     {
       TokenTypeHint = TokenTypeConstants.AccessToken,
       Token = token,
-      ClientSecret = clientSecret
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientSecret = clientSecret
+        }
+      }
     };
 
     // Act
@@ -254,8 +322,14 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     {
       TokenTypeHint = TokenTypeConstants.AccessToken,
       Token = token,
-      ClientId = client.Id,
-      ClientSecret = clientSecret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = client.Id,
+          ClientSecret = clientSecret
+        }
+      }
     };
 
     // Act
@@ -290,8 +364,14 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     {
       TokenTypeHint = TokenTypeConstants.AccessToken,
       Token = token,
-      ClientId = resource.Id,
-      ClientSecret = resourceSecret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = resource.Id,
+          ClientSecret = resourceSecret
+        }
+      }
     };
 
     // Act
@@ -316,7 +396,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     var token = await tokenBuilder.BuildToken(new GrantAccessTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id,
-      Resource = new [] { "https://localhost:5000" },
+      Resource = new[] { "https://localhost:5000" },
       Scope = $"{ScopeConstants.OpenId}"
     });
     await IdentityContext.SaveChangesAsync();
@@ -324,8 +404,14 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     {
       TokenTypeHint = TokenTypeConstants.AccessToken,
       Token = token,
-      ClientId = authorizationGrant.Client.Id,
-      ClientSecret = clientSecret
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = authorizationGrant.Client.Id,
+          ClientSecret = clientSecret
+        }
+      }
     };
 
     // Act
@@ -350,7 +436,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     var token = await tokenBuilder.BuildToken(new ClientAccessTokenArguments
     {
       ClientId = client.Id,
-      Resource = new [] { "https://localhost:5000" },
+      Resource = new[] { "https://localhost:5000" },
       Scope = $"{ScopeConstants.OpenId}"
     });
     await IdentityContext.SaveChangesAsync();
@@ -358,8 +444,14 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     {
       TokenTypeHint = TokenTypeConstants.AccessToken,
       Token = token,
-      ClientId = client.Id,
-      ClientSecret = clientSecret
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = client.Id,
+          ClientSecret = clientSecret
+        }
+      }
     };
 
     // Act
