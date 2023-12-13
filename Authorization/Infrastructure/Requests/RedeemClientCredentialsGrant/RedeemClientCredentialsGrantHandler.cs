@@ -24,9 +24,10 @@ public class RedeemClientCredentialsGrantHandler : IRequestHandler<RedeemClientC
   public async Task<RedeemClientCredentialsGrantResponse> Handle(RedeemClientCredentialsGrantCommand request,
     CancellationToken cancellationToken)
   {
+    var clientAuthentication = request.ClientAuthentications.Single();
     var accessToken = await _tokenBuilder.BuildToken(new ClientAccessTokenArguments
       {
-        ClientId = request.ClientId,
+        ClientId = clientAuthentication.ClientId,
         Resource = request.Resource,
         Scope = request.Scope
       });
