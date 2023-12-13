@@ -3,10 +3,10 @@ using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
-using Domain.Enums;
 using Infrastructure.Decoders.Token;
 using Infrastructure.Decoders.Token.Abstractions;
 using Infrastructure.Helpers;
+using Infrastructure.Requests.Abstract;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.TokenRevocation;
@@ -34,9 +34,17 @@ public class TokenRevocationValidator : IValidator<TokenRevocationCommand>
         HttpStatusCode.BadRequest);
     }
 
+    if (value.ClientAuthentications.Count != 1)
+    {
+      return new ValidationResult(ErrorCode.InvalidClient, "multiple or none client authentication methods detected",
+        HttpStatusCode.BadRequest);
+    }
+
+    var clientAuthentication = value.ClientAuthentications.Single();
+
     var client = await _identityContext
       .Set<Client>()
-      .Where(x => x.Id == value.ClientId)
+      .Where(x => x.Id == clientAuthentication.ClientId)
       .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
     if (client is null)
@@ -45,8 +53,8 @@ public class TokenRevocationValidator : IValidator<TokenRevocationCommand>
     }
 
     var isClientSecretValid = client.Secret == null
-                              || !string.IsNullOrWhiteSpace(value.ClientSecret)
-                              && BCrypt.CheckPassword(value.ClientSecret, client.Secret);
+                              || !string.IsNullOrWhiteSpace(clientAuthentication.ClientSecret)
+                              && BCrypt.CheckPassword(clientAuthentication.ClientSecret, client.Secret);
 
     if (!isClientSecretValid)
     {
@@ -56,7 +64,7 @@ public class TokenRevocationValidator : IValidator<TokenRevocationCommand>
     string? clientId;
     if (TokenHelper.IsStructuredToken(value.Token))
     {
-      clientId = await GetClientIdFromStructuredToken(value, cancellationToken);
+      clientId = await GetClientIdFromStructuredToken(value, clientAuthentication, cancellationToken);
     }
     else
     {
@@ -64,7 +72,7 @@ public class TokenRevocationValidator : IValidator<TokenRevocationCommand>
     }
 
     
-    if (clientId is not null && clientId != value.ClientId)
+    if (clientId is not null && clientId != clientAuthentication.ClientId)
     {
       return new ValidationResult(ErrorCode.UnauthorizedClient, "client_id does not match token", HttpStatusCode.BadRequest);
     }
@@ -72,11 +80,11 @@ public class TokenRevocationValidator : IValidator<TokenRevocationCommand>
     return new ValidationResult(HttpStatusCode.OK);
   }
 
-  private async Task<string?> GetClientIdFromStructuredToken(TokenRevocationCommand command, CancellationToken cancellationToken)
+  private async Task<string?> GetClientIdFromStructuredToken(TokenRevocationCommand command, ClientAuthentication clientAuthentication, CancellationToken cancellationToken)
   {
     var securityToken = await _tokenDecoder.Decode(command.Token, new StructuredTokenDecoderArguments
     {
-      ClientId = command.ClientId,
+      ClientId = clientAuthentication.ClientId,
       ValidateAudience = false,
       ValidateLifetime = false
     });
