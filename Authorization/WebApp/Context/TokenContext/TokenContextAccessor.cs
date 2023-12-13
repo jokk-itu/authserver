@@ -1,7 +1,6 @@
-﻿using System.Net.Http.Headers;
-using System.Text;
-using WebApp.Constants;
+﻿using WebApp.Constants;
 using WebApp.Context.Abstract;
+using WebApp.Extensions;
 
 namespace WebApp.Context.TokenContext;
 
@@ -16,29 +15,16 @@ public class TokenContextAccessor : IContextAccessor<TokenContext>
       context.GrantType = grantType;
     }
 
-    if (body.TryGetValue(ParameterNames.ClientId, out var clientId))
+    var clientSecretBasic = httpContext.GetClientSecretBasic();
+    if (clientSecretBasic is not null)
     {
-      context.ClientId = clientId;
+      context.ClientAuthentications.Add(clientSecretBasic);
     }
 
-    if (body.TryGetValue(ParameterNames.ClientSecret, out var clientSecret))
+    var clientSecretPost = body.GetClientSecretPost();
+    if (clientSecretPost is not null)
     {
-      context.ClientSecret = clientSecret;
-    }
-
-    var isBasicAuthentication =
-      AuthenticationHeaderValue.TryParse(httpContext.Request.Headers.Authorization, out var authenticationHeader);
-    if (isBasicAuthentication
-        && authenticationHeader!.Scheme == "Basic"
-        && !string.IsNullOrWhiteSpace(authenticationHeader.Parameter))
-    {
-      var decodedBytes = Convert.FromBase64String(authenticationHeader.Parameter);
-      var decoded = Encoding.UTF8.GetString(decodedBytes).Split(":");
-      if (decoded.Length == 2)
-      {
-        context.ClientId = decoded[0];
-        context.ClientSecret = decoded[1];
-      }
+      context.ClientAuthentications.Add(clientSecretPost);
     }
 
     if (body.TryGetValue(ParameterNames.Code, out var code))

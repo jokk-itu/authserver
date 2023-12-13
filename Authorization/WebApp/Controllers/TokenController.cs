@@ -55,8 +55,7 @@ public class TokenController : OAuthControllerBase
     var command = new RedeemRefreshTokenGrantCommand
     {
       GrantType = context.GrantType,
-      ClientId = context.ClientId,
-      ClientSecret = context.ClientSecret,
+      ClientAuthentications = context.ClientAuthentications,
       RefreshToken = context.RefreshToken,
       Scope = context.Scope,
       Resource = context.Resource
@@ -84,8 +83,7 @@ public class TokenController : OAuthControllerBase
     var command = new RedeemAuthorizationCodeGrantCommand
     {
       GrantType = context.GrantType,
-      ClientId = context.ClientId,
-      ClientSecret = context.ClientSecret,
+      ClientAuthentications = context.ClientAuthentications,
       RedirectUri = context.RedirectUri,
       CodeVerifier = context.CodeVerifier,
       Code = context.Code,
@@ -114,8 +112,7 @@ public class TokenController : OAuthControllerBase
     var command = new RedeemClientCredentialsGrantCommand
     {
       GrantType = context.GrantType,
-      ClientId = context.ClientId,
-      ClientSecret = context.ClientSecret,
+      ClientAuthentications = context.ClientAuthentications,
       Scope = context.Scope,
       Resource = context.Resource
     };
