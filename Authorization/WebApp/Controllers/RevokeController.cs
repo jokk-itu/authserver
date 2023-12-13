@@ -33,8 +33,7 @@ public class RevokeController : OAuthControllerBase
     {
       TokenTypeHint = context.TokenTypeHint,
       Token = context.Token,
-      ClientId = context.ClientId,
-      ClientSecret = context.ClientSecret
+      ClientAuthentications = context.ClientAuthentications
     };
     var response = await _mediator.Send(command, cancellationToken: cancellationToken);
     if (response.IsError())
