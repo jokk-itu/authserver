@@ -101,9 +101,10 @@ public class RedeemRefreshTokenGrantHandler : IRequestHandler<RedeemRefreshToken
 
   private async Task<string> ValidateStructuredToken(RedeemRefreshTokenGrantCommand value)
   {
+    var clientAuthentication = value.ClientAuthentications.Single();
     var token = await _tokenDecoder.Decode(value.RefreshToken, new StructuredTokenDecoderArguments
       {
-        ClientId = value.ClientId,
+        ClientId = clientAuthentication.ClientId,
       });
     var authorizationGrantId = token.Claims.Single(x => x.Type == ClaimNameConstants.GrantId).Value;
     return authorizationGrantId;

@@ -7,6 +7,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.TokenRevocation;
+
 public class TokenRevocationHandler : IRequestHandler<TokenRevocationCommand, TokenRevocationResponse>
 {
   private readonly IdentityContext _identityContext;
@@ -42,15 +43,16 @@ public class TokenRevocationHandler : IRequestHandler<TokenRevocationCommand, To
           cancellationToken: cancellationToken);
     }
 
+    var clientAuthentication = command.ClientAuthentications.Single();
     var securityToken = await _tokenDecoder.Decode(command.Token, new StructuredTokenDecoderArguments
-      {
-        ClientId = command.ClientId,
-        ValidateAudience = false,
-        ValidateLifetime = false
-      });
-    
+    {
+      ClientId = clientAuthentication.ClientId,
+      ValidateAudience = false,
+      ValidateLifetime = false
+    });
+
     var id = Guid.Parse(securityToken.Id);
-    
+
     return await _identityContext
       .Set<Token>()
       .Where(x => x.RevokedAt == null)

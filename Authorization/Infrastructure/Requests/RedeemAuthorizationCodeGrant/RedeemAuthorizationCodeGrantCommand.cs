@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Infrastructure.Requests.Abstract;
+using MediatR;
 
 namespace Infrastructure.Requests.RedeemAuthorizationCodeGrant;
 
@@ -8,9 +9,7 @@ public class RedeemAuthorizationCodeGrantCommand : IRequest<RedeemAuthorizationC
   public string GrantType { get; init; }
   public string Code { get; init; }
 
-  public string ClientId { get; init; }
-
-  public string ClientSecret { get; init; }
+  public ICollection<ClientAuthentication> ClientAuthentications { get; init; } = new List<ClientAuthentication>();
 
   public string RedirectUri { get; init; }
 

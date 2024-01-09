@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Infrastructure.Requests.Abstract;
+using MediatR;
 
 namespace Infrastructure.Requests.RedeemClientCredentialsGrant;
 
@@ -6,8 +7,7 @@ namespace Infrastructure.Requests.RedeemClientCredentialsGrant;
 public class RedeemClientCredentialsGrantCommand : IRequest<RedeemClientCredentialsGrantResponse>
 {
   public string GrantType { get; init; }
-  public string ClientId { get; init; }
-  public string ClientSecret { get; init; }
+  public ICollection<ClientAuthentication> ClientAuthentications { get; init; } = new List<ClientAuthentication>();
   public string Scope { get; init; }
   public ICollection<string> Resource { get; init; }
 }

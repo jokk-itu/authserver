@@ -25,20 +25,16 @@ Take a look at the demo protected resource at [weather.authserver.dk](https://we
 
 ## How to run
 
-The project relies on a database. It can either be SQL Server or SQLite.
-This can be configured using the appsettings.json file.
-
-If using SQL Server, then a docker-compose.yml file can be used.
-
-All projects use Kestrel as server, and can be started using <code>dotnet run</code>.
+The project relies on a SQLite database. It is constructed by running the ConfigurationApp commands.
+Navigate to the Authorization/ConfigurationApp folder and run the ``` new_database.ps1 ``` script.
+It will generate a new .sqlite database in the WebApp for AuthorizationServer with standard data.
+Copy the file into the bin/Debug/net6.0 folder.
+Run the Authorization/WebApp project by using ``` dotnet run ``` command.
 
 ## How to add data
 
-There exist three scripts to create entities for scopes, resources and clients in Tools folder.
-<b>Beware that the scopes script must be run first.</b>
-<b>Remember to set the new clientid and clientsecret for each client.</b>
-
-Create users by directing to the register endpoint, which is <b>connect/register</b>
+The new_database.ps1 script will setup initial data in a new .sqlite database.
+To dynamically create new data, the register endpoint can be used for clients.
 
 ## Clients
 

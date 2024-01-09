@@ -1,7 +1,4 @@
 ﻿using System.Net;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.RegularExpressions;
 using Application;
 using Application.Validation;
 using Domain;
@@ -9,10 +6,11 @@ using Domain.Constants;
 using Infrastructure.Decoders.Abstractions;
 using Infrastructure.Helpers;
 using Infrastructure.Services.Abstract;
+using Infrastructure.Validators;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Infrastructure.Requests.RedeemAuthorizationCodeGrant;
+
 public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizationCodeGrantCommand>
 {
   private readonly IdentityContext _identityContext;
@@ -33,9 +31,10 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
   { 
     var code = _codeDecoder.DecodeAuthorizationCode(value.Code);
 
-    if (IsCodeVerifierInvalid(value, code.CodeChallenge))
+    var codeVerifierValidation = PkceValidator.ValidateCodeVerifier(value.CodeVerifier, code.CodeChallenge);
+    if (codeVerifierValidation.IsError())
     {
-      return new ValidationResult(ErrorCode.InvalidRequest, "code_verifier is invalid", HttpStatusCode.BadRequest);
+      return new ValidationResult(codeVerifierValidation.ErrorCode, codeVerifierValidation.ErrorDescription, HttpStatusCode.BadRequest);
     }
 
     if (value.GrantType != GrantTypeConstants.AuthorizationCode)
@@ -50,13 +49,21 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
         HttpStatusCode.BadRequest);
     }
 
+    if (value.ClientAuthentications.Count != 1)
+    {
+      return new ValidationResult(ErrorCode.InvalidClient, "multiple or none client authentication methods detected",
+        HttpStatusCode.BadRequest);
+    }
+
+    var clientAuthentication = value.ClientAuthentications.Single();
+
     var query = await _identityContext
       .Set<AuthorizationCodeGrant>()
       .Where(x => x.Id == code.AuthorizationGrantId)
       .Where(AuthorizationCodeGrant.IsAuthorizationCodeValid(code.AuthorizationCodeId))
       .Select(x => new
       {
-        IsClientIdValid = x.Client.Id == value.ClientId,
+        IsClientIdValid = x.Client.Id == clientAuthentication.ClientId,
         ClientSecret = x.Client.Secret,
         IsRedirectAuthorized = x.Client.RedirectUris.Any(y => y.Uri == value.RedirectUri),
         IsGrantTypeAuthorized = x.Client.GrantTypes.Any(y => y.Name == GrantTypeConstants.AuthorizationCode),
@@ -71,8 +78,8 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
     }
 
     var isClientSecretValid = query.ClientSecret == null
-                              || !string.IsNullOrWhiteSpace(value.ClientSecret)
-                              && BCrypt.CheckPassword(value.ClientSecret, query.ClientSecret);
+                              || !string.IsNullOrWhiteSpace(clientAuthentication.ClientSecret)
+                              && BCrypt.CheckPassword(clientAuthentication.ClientSecret, query.ClientSecret);
 
     if (!query.IsClientIdValid || !isClientSecretValid)
     {
@@ -98,7 +105,7 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
     var consentGrant = await _identityContext
       .Set<ConsentGrant>()
       .Where(x => x.User.Id == query.UserId)
-      .Where(x => x.Client.Id == value.ClientId)
+      .Where(x => x.Client.Id == clientAuthentication.ClientId)
       .Include(x => x.ConsentedScopes)
       .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
@@ -123,25 +130,5 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
     }
 
     return new ValidationResult(HttpStatusCode.OK);
-  }
-
-  private static bool IsCodeVerifierInvalid(RedeemAuthorizationCodeGrantCommand command, string codeChallenge)
-  {
-    var isCodeVerifierInvalid = string.IsNullOrWhiteSpace(command.CodeVerifier) ||
-                              !Regex.IsMatch(command.CodeVerifier,
-                                "^[0-9a-zA-Z-_~.]{43,128}$",
-                                RegexOptions.None,
-                                TimeSpan.FromSeconds(1));
-
-    if (isCodeVerifierInvalid)
-    {
-      return true;
-    }
-
-    using var sha256 = SHA256.Create();
-    var bytes = Encoding.UTF8.GetBytes(command.CodeVerifier);
-    var hashed = sha256.ComputeHash(bytes);
-    var encoded = Base64UrlEncoder.Encode(hashed);
-    return encoded != codeChallenge;
   }
 }

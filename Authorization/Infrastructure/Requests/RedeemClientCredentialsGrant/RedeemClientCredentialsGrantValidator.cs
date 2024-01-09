@@ -23,18 +23,28 @@ public class RedeemClientCredentialsGrantValidator : IValidator<RedeemClientCred
 
   public async Task<ValidationResult> ValidateAsync(RedeemClientCredentialsGrantCommand value, CancellationToken cancellationToken = default)
   {
+    if (value.ClientAuthentications.Count != 1)
+    {
+      return new ValidationResult(ErrorCode.InvalidClient, "multiple or none client authentication methods detected",
+        HttpStatusCode.BadRequest);
+    }
+
+    var clientAuthentication = value.ClientAuthentications.Single();
+
     var client = await _identityContext
       .Set<Client>()
       .Include(x => x.Scopes)
       .Include(x => x.GrantTypes)
-      .SingleOrDefaultAsync(x => x.Id == value.ClientId, cancellationToken: cancellationToken);
+      .SingleOrDefaultAsync(x => x.Id == clientAuthentication.ClientId, cancellationToken: cancellationToken);
 
     if (client is null)
     {
       return new ValidationResult(ErrorCode.InvalidClient, "client could not be authenticated", HttpStatusCode.BadRequest);
     }
 
-    var isClientSecretValid = !string.IsNullOrWhiteSpace(value.ClientSecret) && BCrypt.CheckPassword(value.ClientSecret, client.Secret);
+    var isClientSecretValid = !string.IsNullOrWhiteSpace(clientAuthentication.ClientSecret)
+                              && BCrypt.CheckPassword(clientAuthentication.ClientSecret, client.Secret);
+
     if (!isClientSecretValid)
     {
       return new ValidationResult(ErrorCode.InvalidClient, "client could not be authenticated", HttpStatusCode.BadRequest);

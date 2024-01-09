@@ -4,6 +4,7 @@ using Domain.Constants;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.RefreshToken;
 using Infrastructure.Helpers;
+using Infrastructure.Requests.Abstract;
 using Infrastructure.Requests.RedeemRefreshTokenGrant;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -35,8 +36,14 @@ public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
     var handler = serviceProvider.GetRequiredService<IRequestHandler<RedeemRefreshTokenGrantCommand, RedeemRefreshTokenGrantResponse>>();
     var command = new RedeemRefreshTokenGrantCommand
     {
-      ClientId = authorizationGrant.Client.Id,
-      ClientSecret = clientSecret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = authorizationGrant.Client.Id,
+          ClientSecret = clientSecret
+        }
+      },
       RefreshToken = refreshToken,
       GrantType = GrantTypeConstants.RefreshToken,
       Scope = requestScope,
@@ -73,8 +80,14 @@ public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
     var handler = serviceProvider.GetRequiredService<IRequestHandler<RedeemRefreshTokenGrantCommand, RedeemRefreshTokenGrantResponse>>();
     var command = new RedeemRefreshTokenGrantCommand
     {
-      ClientId = authorizationGrant.Client.Id,
-      ClientSecret = clientSecret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = authorizationGrant.Client.Id,
+          ClientSecret = clientSecret
+        }
+      },
       RefreshToken = refreshToken,
       GrantType = GrantTypeConstants.RefreshToken,
       Scope = requestScope,

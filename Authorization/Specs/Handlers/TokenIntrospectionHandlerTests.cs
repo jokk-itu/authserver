@@ -7,6 +7,7 @@ using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.ClientAccessToken;
 using Infrastructure.Builders.Token.GrantAccessToken;
 using Infrastructure.Helpers;
+using Infrastructure.Requests.Abstract;
 using Infrastructure.Requests.TokenIntrospection;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -54,9 +55,15 @@ public class TokenIntrospectionHandlerTests : BaseUnitTest
     var handler = serviceProvider.GetRequiredService<IRequestHandler<TokenIntrospectionQuery, TokenIntrospectionResponse>>();
     var query = new TokenIntrospectionQuery
     {
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = client.Id,
+          ClientSecret = client.Secret
+        }
+      },
       Token = token,
-      ClientId = client.Id,
-      ClientSecret = client.Secret,
       TokenTypeHint = TokenTypeConstants.AccessToken
     };
 
@@ -86,9 +93,15 @@ public class TokenIntrospectionHandlerTests : BaseUnitTest
     var handler = serviceProvider.GetRequiredService<IRequestHandler<TokenIntrospectionQuery, TokenIntrospectionResponse>>();
     var query = new TokenIntrospectionQuery
     {
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = authorizationGrant.Client.Id,
+          ClientSecret = authorizationGrant.Client.Secret
+        }
+      },
       Token = token,
-      ClientId = authorizationGrant.Client.Id,
-      ClientSecret = authorizationGrant.Client.Secret,
       TokenTypeHint = TokenTypeConstants.AccessToken
     };
 

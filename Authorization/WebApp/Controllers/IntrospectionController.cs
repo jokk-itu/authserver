@@ -34,8 +34,7 @@ public class IntrospectionController : OAuthControllerBase
     {
       Token = context.Token,
       TokenTypeHint = context.TokenTypeHint,
-      ClientId = context.ClientId,
-      ClientSecret = context.ClientSecret
+      ClientAuthentications = context.ClientAuthentications
     };
 
     var response = await _mediator.Send(query, cancellationToken: cancellationToken);

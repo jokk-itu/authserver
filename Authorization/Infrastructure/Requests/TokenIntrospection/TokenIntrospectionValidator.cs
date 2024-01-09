@@ -5,9 +5,11 @@ using Domain.Enums;
 using Domain;
 using System.Net;
 using Infrastructure.Helpers;
+using Infrastructure.Requests.Abstract;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.TokenIntrospection;
+
 public class TokenIntrospectionValidator : IValidator<TokenIntrospectionQuery>
 {
   private readonly IdentityContext _identityContext;
@@ -17,11 +19,13 @@ public class TokenIntrospectionValidator : IValidator<TokenIntrospectionQuery>
     _identityContext = identityContext;
   }
 
-  public async Task<ValidationResult> ValidateAsync(TokenIntrospectionQuery value, CancellationToken cancellationToken = default)
+  public async Task<ValidationResult> ValidateAsync(TokenIntrospectionQuery value,
+    CancellationToken cancellationToken = default)
   {
     if (!TokenTypeConstants.TokenTypes.Contains(value.TokenTypeHint))
     {
-      return new ValidationResult(ErrorCode.UnsupportedTokenType, "the given token_type_hint is not recognized", HttpStatusCode.BadRequest);
+      return new ValidationResult(ErrorCode.UnsupportedTokenType, "the given token_type_hint is not recognized",
+        HttpStatusCode.BadRequest);
     }
 
     if (string.IsNullOrWhiteSpace(value.Token))
@@ -29,6 +33,14 @@ public class TokenIntrospectionValidator : IValidator<TokenIntrospectionQuery>
       return new ValidationResult(ErrorCode.InvalidRequest, "token must not be null or empty",
         HttpStatusCode.BadRequest);
     }
+
+    if (value.ClientAuthentications.Count != 1)
+    {
+      return new ValidationResult(ErrorCode.InvalidClient, "multiple or none client authentication methods detected",
+        HttpStatusCode.BadRequest);
+    }
+
+    var clientAuthentication = value.ClientAuthentications.Single();
 
     var token = await _identityContext
       .Set<Token>()
@@ -38,8 +50,8 @@ public class TokenIntrospectionValidator : IValidator<TokenIntrospectionQuery>
       .Include(x => (x as ClientToken).Client)
       .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
-    var (isClientAuthenticated, clientValidatedResult) = await AuthorizeClient(value, token, cancellationToken);
-    var (isResourceAuthenticated, resourceValidatedResult) = await AuthorizeResource(value, token, cancellationToken);
+    var (isClientAuthenticated, clientValidatedResult) = await AuthorizeClient(clientAuthentication, token, cancellationToken);
+    var (isResourceAuthenticated, resourceValidatedResult) = await AuthorizeResource(clientAuthentication, token, cancellationToken);
     if (clientValidatedResult.IsError() && resourceValidatedResult.IsError())
     {
       if (isClientAuthenticated)
@@ -59,25 +71,28 @@ public class TokenIntrospectionValidator : IValidator<TokenIntrospectionQuery>
     return new ValidationResult(HttpStatusCode.OK);
   }
 
-  private async Task<(bool, ValidationResult)> AuthorizeClient(TokenIntrospectionQuery query, Token? token, CancellationToken cancellationToken)
+  private async Task<(bool, ValidationResult)> AuthorizeClient(ClientAuthentication clientAuthentication, Token? token,
+    CancellationToken cancellationToken)
   {
     var client = await _identityContext
       .Set<Client>()
-      .Where(x => x.Id == query.ClientId)
+      .Where(x => x.Id == clientAuthentication.ClientId)
       .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
     if (client is null)
     {
-      return (false, new ValidationResult(ErrorCode.InvalidClient, "client could not be authenticated", HttpStatusCode.BadRequest));
+      return (false,
+        new ValidationResult(ErrorCode.InvalidClient, "client could not be authenticated", HttpStatusCode.BadRequest));
     }
 
     var isClientSecretValid = client.Secret == null
-                              || !string.IsNullOrWhiteSpace(query.ClientSecret)
-                              && BCrypt.CheckPassword(query.ClientSecret, client.Secret);
+                              || !string.IsNullOrWhiteSpace(clientAuthentication.ClientSecret)
+                              && BCrypt.CheckPassword(clientAuthentication.ClientSecret, client.Secret);
 
     if (!isClientSecretValid)
     {
-      return (false, new ValidationResult(ErrorCode.InvalidClient, "client could not be authenticated", HttpStatusCode.BadRequest));
+      return (false,
+        new ValidationResult(ErrorCode.InvalidClient, "client could not be authenticated", HttpStatusCode.BadRequest));
     }
 
     var clientId = token switch
@@ -87,31 +102,37 @@ public class TokenIntrospectionValidator : IValidator<TokenIntrospectionQuery>
       _ => null
     };
 
-    if (token is not null && clientId != query.ClientId)
+    if (token is not null && clientId != clientAuthentication.ClientId)
     {
-      return (true, new ValidationResult(ErrorCode.UnauthorizedClient, "client_id does not match token", HttpStatusCode.BadRequest));
+      return (true,
+        new ValidationResult(ErrorCode.UnauthorizedClient, "client_id does not match token",
+          HttpStatusCode.BadRequest));
     }
 
     return (true, new ValidationResult(HttpStatusCode.OK));
   }
 
-  private async Task<(bool, ValidationResult)> AuthorizeResource(TokenIntrospectionQuery query, Token? token, CancellationToken cancellationToken)
+  private async Task<(bool, ValidationResult)> AuthorizeResource(ClientAuthentication clientAuthentication, Token? token,
+    CancellationToken cancellationToken)
   {
     var resource = await _identityContext
       .Set<Resource>()
-      .Where(x => x.Id == query.ClientId)
+      .Where(x => x.Id == clientAuthentication.ClientId)
       .Include(x => x.Scopes)
       .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
     if (resource is null)
     {
-      return (false, new ValidationResult(ErrorCode.InvalidClient, "client could not be authenticated", HttpStatusCode.BadRequest));
+      return (false,
+        new ValidationResult(ErrorCode.InvalidClient, "client could not be authenticated", HttpStatusCode.BadRequest));
     }
 
-    var isResourceSecretValid = !string.IsNullOrWhiteSpace(query.ClientSecret) && BCrypt.CheckPassword(query.ClientSecret, resource.Secret);
+    var isResourceSecretValid = !string.IsNullOrWhiteSpace(clientAuthentication.ClientSecret) &&
+                                BCrypt.CheckPassword(clientAuthentication.ClientSecret, resource.Secret);
     if (!isResourceSecretValid)
     {
-      return (false, new ValidationResult(ErrorCode.InvalidClient, "client could not be authenticated", HttpStatusCode.BadRequest));
+      return (false,
+        new ValidationResult(ErrorCode.InvalidClient, "client could not be authenticated", HttpStatusCode.BadRequest));
     }
 
     if (token is not null && !resource.Scopes
@@ -119,7 +140,9 @@ public class TokenIntrospectionValidator : IValidator<TokenIntrospectionQuery>
           .Intersect(token.Scope?.Split(' ') ?? Array.Empty<string>())
           .Any())
     {
-      return (true, new ValidationResult(ErrorCode.UnauthorizedClient, "client is not authorized for scope", HttpStatusCode.BadRequest));
+      return (true,
+        new ValidationResult(ErrorCode.UnauthorizedClient, "client is not authorized for scope",
+          HttpStatusCode.BadRequest));
     }
 
     return (true, new ValidationResult(HttpStatusCode.OK));

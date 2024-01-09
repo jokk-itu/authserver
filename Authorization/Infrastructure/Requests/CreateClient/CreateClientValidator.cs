@@ -307,7 +307,7 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
       return !TokenEndpointAuthMethodConstants.AuthMethods.Contains(command.TokenEndpointAuthMethod);
     }
 
-    command.SubjectType = TokenEndpointAuthMethodConstants.ClientSecretPost;
+    command.TokenEndpointAuthMethod = TokenEndpointAuthMethodConstants.ClientSecretBasic;
     return false;
   }
 

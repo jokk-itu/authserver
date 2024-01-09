@@ -5,6 +5,7 @@ using Domain.Constants;
 using Domain.Enums;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Helpers;
+using Infrastructure.Requests.Abstract;
 using Infrastructure.Requests.RedeemAuthorizationCodeGrant;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -113,9 +114,11 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
     Assert.Equal(ErrorCode.InvalidRequest, validationResult.ErrorCode);
   }
 
-  [Fact]
+  [Theory]
+  [InlineData(0)]
+  [InlineData(2)]
   [Trait("Category", "Unit")]
-  public async Task ValidateAsync_ExpectInvalidGrant()
+  public async Task ValidateAsync_InvalidClientAuthentications_ExpectInvalidClient(int count)
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
@@ -134,7 +137,44 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
     {
       Code = code,
       CodeVerifier = pkce.CodeVerifier,
-      GrantType = GrantTypeConstants.AuthorizationCode
+      GrantType = GrantTypeConstants.AuthorizationCode,
+      ClientAuthentications = Enumerable.Repeat(new ClientAuthentication(), count).ToList()
+    };
+
+    // Act
+    var validationResult = await validator.ValidateAsync(command, CancellationToken.None);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+    Assert.Equal(ErrorCode.InvalidClient, validationResult.ErrorCode);
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_InvalidAuthorizationGrantId_ExpectInvalidGrant()
+  {
+    // Arrange
+    var serviceProvider = BuildServiceProvider();
+    var codeBuilder = serviceProvider.GetRequiredService<ICodeBuilder>();
+    var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
+    var code = await codeBuilder.BuildAuthorizationCodeAsync(
+      Guid.NewGuid().ToString(),
+      Guid.NewGuid().ToString(),
+      Guid.NewGuid().ToString(),
+      pkce.CodeChallenge,
+      CodeChallengeMethodConstants.S256,
+      new[] { ScopeConstants.OpenId });
+
+    var validator = serviceProvider.GetRequiredService<IValidator<RedeemAuthorizationCodeGrantCommand>>();
+    var command = new RedeemAuthorizationCodeGrantCommand
+    {
+      Code = code,
+      CodeVerifier = pkce.CodeVerifier,
+      GrantType = GrantTypeConstants.AuthorizationCode,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication()
+      }
     };
 
     // Act
@@ -169,8 +209,14 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
       Code = code,
       CodeVerifier = pkce.CodeVerifier,
       GrantType = GrantTypeConstants.AuthorizationCode,
-      ClientId = string.Empty,
-      ClientSecret = clientSecret
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = string.Empty,
+          ClientSecret = clientSecret
+        }
+      }
     };
 
     // Act
@@ -205,8 +251,14 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
       Code = code,
       CodeVerifier = pkce.CodeVerifier,
       GrantType = GrantTypeConstants.AuthorizationCode,
-      ClientId = authorizationCodeGrant.Client.Id,
-      ClientSecret = string.Empty
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = authorizationCodeGrant.Client.Id,
+          ClientSecret = string.Empty
+        }
+      }
     };
 
     // Act
@@ -241,8 +293,14 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
       Code = code,
       CodeVerifier = pkce.CodeVerifier,
       GrantType = GrantTypeConstants.AuthorizationCode,
-      ClientId = authorizationCodeGrant.Client.Id,
-      ClientSecret = clientSecret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = authorizationCodeGrant.Client.Id,
+          ClientSecret = clientSecret
+        }
+      },
       RedirectUri = "https://localhost:5002/wrong-callback"
     };
 
@@ -281,8 +339,14 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
       Code = code,
       CodeVerifier = pkce.CodeVerifier,
       GrantType = GrantTypeConstants.AuthorizationCode,
-      ClientId = authorizationCodeGrant.Client.Id,
-      ClientSecret = clientSecret
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = authorizationCodeGrant.Client.Id,
+          ClientSecret = clientSecret
+        }
+      }
     };
 
     // Act
@@ -319,8 +383,14 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
       Code = code,
       CodeVerifier = pkce.CodeVerifier,
       GrantType = GrantTypeConstants.AuthorizationCode,
-      ClientId = authorizationCodeGrant.Client.Id,
-      ClientSecret = clientSecret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = authorizationCodeGrant.Client.Id,
+          ClientSecret = clientSecret
+        }
+      },
       RedirectUri = "https://localhost:5001/callback"
     };
 
@@ -359,8 +429,14 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
       Code = code,
       CodeVerifier = pkce.CodeVerifier,
       GrantType = GrantTypeConstants.AuthorizationCode,
-      ClientId = authorizationCodeGrant.Client.Id,
-      ClientSecret = clientSecret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = authorizationCodeGrant.Client.Id,
+          ClientSecret = clientSecret
+        }
+      },
       RedirectUri = "https://localhost:5001/callback"
     };
 
@@ -397,8 +473,14 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
       Code = code,
       CodeVerifier = pkce.CodeVerifier,
       GrantType = GrantTypeConstants.AuthorizationCode,
-      ClientId = authorizationCodeGrant.Client.Id,
-      ClientSecret = clientSecret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = authorizationCodeGrant.Client.Id,
+          ClientSecret = clientSecret
+        }
+      },
       RedirectUri = "https://localhost:5001/callback"
     };
 
@@ -436,8 +518,14 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
       Code = code,
       CodeVerifier = pkce.CodeVerifier,
       GrantType = GrantTypeConstants.AuthorizationCode,
-      ClientId = authorizationCodeGrant.Client.Id,
-      ClientSecret = clientSecret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = authorizationCodeGrant.Client.Id,
+          ClientSecret = clientSecret
+        }
+      },
       RedirectUri = "https://localhost:5001/callback",
       Resource = new[] { resource.Uri }
     };

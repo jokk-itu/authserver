@@ -3,6 +3,7 @@ using Application.Validation;
 using Domain;
 using Domain.Constants;
 using Infrastructure.Helpers;
+using Infrastructure.Requests.Abstract;
 using Infrastructure.Requests.RedeemClientCredentialsGrant;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,17 +11,20 @@ using Specs.Helpers.EntityBuilders;
 using Xunit;
 
 namespace Specs.Validators;
+
 public class RedeemClientCredentialsGrantValidatorTests : BaseUnitTest
 {
-  [Fact]
-  public async Task ValidateAsync_InvalidClient()
+  [Theory]
+  [InlineData(0)]
+  [InlineData(2)]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_InvalidClientAuthentications_ExpectInvalidClient(int count)
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
     var command = new RedeemClientCredentialsGrantCommand
     {
-      ClientId = "invalid",
-      ClientSecret = "invalid",
+      ClientAuthentications = Enumerable.Repeat(new ClientAuthentication(), count).ToList(),
       GrantType = GrantTypeConstants.ClientCredentials,
       Scope = "scope"
     };
@@ -35,6 +39,73 @@ public class RedeemClientCredentialsGrantValidatorTests : BaseUnitTest
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_InvalidClientId_ExpectInvalidClient()
+  {
+    // Arrange
+    var serviceProvider = BuildServiceProvider();
+    var command = new RedeemClientCredentialsGrantCommand
+    {
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = "invalid"
+        }
+      },
+      GrantType = GrantTypeConstants.ClientCredentials,
+      Scope = "scope"
+    };
+    var validator = serviceProvider.GetRequiredService<IValidator<RedeemClientCredentialsGrantCommand>>();
+
+    // Act
+    var validationResult = await validator.ValidateAsync(command, CancellationToken.None);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+    Assert.Equal(ErrorCode.InvalidClient, validationResult.ErrorCode);
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateAsync_InvalidClientSecret_ExpectInvalidClient()
+  {
+    // Arrange
+    var serviceProvider = BuildServiceProvider();
+    var clientSecret = CryptographyHelper.GetRandomString(32);
+    var client = ClientBuilder
+      .Instance()
+      .AddSecret(clientSecret)
+      .Build();
+
+    await IdentityContext.Set<Client>().AddAsync(client);
+    await IdentityContext.SaveChangesAsync();
+
+    var command = new RedeemClientCredentialsGrantCommand
+    {
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = client.Id,
+          ClientSecret = "invalid"
+        }
+      },
+      GrantType = GrantTypeConstants.ClientCredentials,
+      Scope = "scope"
+    };
+    var validator = serviceProvider.GetRequiredService<IValidator<RedeemClientCredentialsGrantCommand>>();
+
+    // Act
+    var validationResult = await validator.ValidateAsync(command, CancellationToken.None);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+    Assert.Equal(ErrorCode.InvalidClient, validationResult.ErrorCode);
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
   public async Task ValidateAsync_UnsupportedGrantType()
   {
     // Arrange
@@ -50,8 +121,14 @@ public class RedeemClientCredentialsGrantValidatorTests : BaseUnitTest
 
     var command = new RedeemClientCredentialsGrantCommand
     {
-      ClientId = client.Id,
-      ClientSecret = clientSecret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = client.Id,
+          ClientSecret = clientSecret
+        }
+      },
       GrantType = "invalid"
     };
     var validator = serviceProvider.GetRequiredService<IValidator<RedeemClientCredentialsGrantCommand>>();
@@ -65,6 +142,7 @@ public class RedeemClientCredentialsGrantValidatorTests : BaseUnitTest
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task ValidateAsync_UnauthorizedClient_GrantTypes()
   {
     // Arrange
@@ -85,8 +163,14 @@ public class RedeemClientCredentialsGrantValidatorTests : BaseUnitTest
 
     var command = new RedeemClientCredentialsGrantCommand
     {
-      ClientId = client.Id,
-      ClientSecret = clientSecret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = client.Id,
+          ClientSecret = clientSecret
+        }
+      },
       GrantType = GrantTypeConstants.ClientCredentials,
       Scope = scope.Name
     };
@@ -101,6 +185,7 @@ public class RedeemClientCredentialsGrantValidatorTests : BaseUnitTest
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task ValidateAsync_UnauthorizedClient_Scopes()
   {
     // Arrange
@@ -109,7 +194,8 @@ public class RedeemClientCredentialsGrantValidatorTests : BaseUnitTest
     var client = ClientBuilder
       .Instance()
       .AddSecret(clientSecret)
-      .AddGrantType(await IdentityContext.Set<GrantType>().SingleAsync(x => x.Name == GrantTypeConstants.ClientCredentials))
+      .AddGrantType(await IdentityContext.Set<GrantType>()
+        .SingleAsync(x => x.Name == GrantTypeConstants.ClientCredentials))
       .Build();
 
     await IdentityContext.Set<Client>().AddAsync(client);
@@ -117,8 +203,14 @@ public class RedeemClientCredentialsGrantValidatorTests : BaseUnitTest
 
     var command = new RedeemClientCredentialsGrantCommand
     {
-      ClientId = client.Id,
-      ClientSecret = clientSecret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = client.Id,
+          ClientSecret = clientSecret
+        }
+      },
       GrantType = GrantTypeConstants.ClientCredentials,
       Scope = "invalid"
     };
@@ -133,6 +225,7 @@ public class RedeemClientCredentialsGrantValidatorTests : BaseUnitTest
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task ValidateAsync_Ok()
   {
     // Arrange
@@ -151,7 +244,8 @@ public class RedeemClientCredentialsGrantValidatorTests : BaseUnitTest
       .Instance()
       .AddSecret(clientSecret)
       .AddScope(scope)
-      .AddGrantType(await IdentityContext.Set<GrantType>().SingleAsync(x => x.Name == GrantTypeConstants.ClientCredentials))
+      .AddGrantType(await IdentityContext.Set<GrantType>()
+        .SingleAsync(x => x.Name == GrantTypeConstants.ClientCredentials))
       .Build();
 
     await IdentityContext.AddAsync(client);
@@ -160,8 +254,14 @@ public class RedeemClientCredentialsGrantValidatorTests : BaseUnitTest
 
     var command = new RedeemClientCredentialsGrantCommand
     {
-      ClientId = client.Id,
-      ClientSecret = clientSecret,
+      ClientAuthentications = new[]
+      {
+        new ClientAuthentication
+        {
+          ClientId = client.Id,
+          ClientSecret = clientSecret
+        }
+      },
       GrantType = GrantTypeConstants.ClientCredentials,
       Scope = scope.Name,
       Resource = new[] { resource.Uri }
