@@ -18,6 +18,29 @@ public class ClientService : IClientService
     _identityContext = identityContext;
   }
 
+  public async Task<BaseValidationResult> ValidateResources(ICollection<string> resource, string scope, CancellationToken cancellationToken)
+  {
+    if (!resource.Any())
+    {
+      return new BaseValidationResult(ErrorCode.InvalidTarget, "resource is empty");
+    }
+
+    var scopes = scope.Split(' ');
+    var resourcesExisting = await _identityContext
+      .Set<Client>()
+      .Where(r => r.ClientUri != null && resource.Contains(r.ClientUri))
+      .Where(r => r.Scopes.AsQueryable().Any(s => scopes.Contains(s.Name)))
+      .CountAsync(cancellationToken: cancellationToken);
+
+    var isResourcesValid = resourcesExisting == resource.Count;
+    if (isResourcesValid)
+    {
+      return new BaseValidationResult();
+    }
+
+    return new BaseValidationResult(ErrorCode.InvalidTarget, "resource is invalid");
+  }
+
   public async Task<BaseValidationResult> ValidateRedirectAuthorization(
     string clientId,
     string? redirectUri,

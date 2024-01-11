@@ -19,4 +19,9 @@ public interface IClientService
     string scope,
     string clientId,
     CancellationToken cancellationToken);
+
+  Task<BaseValidationResult> ValidateResources(
+    ICollection<string> resource,
+    string scope,
+    CancellationToken cancellationToken);
 }
