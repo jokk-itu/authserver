@@ -110,10 +110,11 @@ public class EndSessionHandlerTests : BaseUnitTest
       .AddName("weather:read")
       .Build();
 
-    var resource = ResourceBuilder
+    var weatherClient = ClientBuilder
       .Instance()
       .AddSecret(CryptographyHelper.GetRandomString(32))
       .AddScope(weatherScope)
+      .AddClientUri("https://localhost:5002")
       .Build();
 
     var client = ClientBuilder
@@ -137,7 +138,7 @@ public class EndSessionHandlerTests : BaseUnitTest
 
     var grantAccessToken = GrantAccessTokenBuilder
       .Instance()
-      .AddAudience(resource.Name)
+      .AddAudience(weatherClient.Name)
       .AddExpiresAt(DateTime.UtcNow.AddHours(1))
       .AddIssuer("https://localhost:5000")
       .AddScope($"{weatherScope.Name} {openIdScope.Name}")
@@ -162,7 +163,7 @@ public class EndSessionHandlerTests : BaseUnitTest
       .AddSession(session)
       .Build();
 
-    await IdentityContext.AddAsync(resource);
+    await IdentityContext.AddAsync(weatherClient);
     await IdentityContext.AddAsync(user);
     await IdentityContext.SaveChangesAsync();
     return authorizationGrant;

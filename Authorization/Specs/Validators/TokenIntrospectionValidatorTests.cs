@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using Application;
 using Application.Validation;
 using Domain;
@@ -69,8 +69,6 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     var serviceProvider = BuildServiceProvider();
     var clientSecret = CryptographyHelper.GetRandomString(32);
     var authorizationGrant = await GetAuthorizationGrant(clientSecret);
-    var resourceSecret = CryptographyHelper.GetRandomString(32);
-    var resource = await GetResource(resourceSecret);
     serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
     var validator = serviceProvider.GetRequiredService<IValidator<TokenIntrospectionQuery>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<GrantAccessTokenArguments>>();
@@ -94,130 +92,6 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     // Assert
     Assert.True(response.IsError());
     Assert.Equal(ErrorCode.InvalidClient, response.ErrorCode);
-  }
-
-  [Fact]
-  [Trait("Category", "Unit")]
-  public async Task ValidateAsync_NullResourceSecret_InvalidClient()
-  {
-    // Arrange
-    var serviceProvider = BuildServiceProvider();
-    var clientSecret = CryptographyHelper.GetRandomString(32);
-    var authorizationGrant = await GetAuthorizationGrant(clientSecret);
-    var resourceSecret = CryptographyHelper.GetRandomString(32);
-    var resource = await GetResource(resourceSecret);
-    serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
-    var validator = serviceProvider.GetRequiredService<IValidator<TokenIntrospectionQuery>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<GrantAccessTokenArguments>>();
-    var token = await tokenBuilder.BuildToken(new GrantAccessTokenArguments
-    {
-      AuthorizationGrantId = authorizationGrant.Id,
-      Resource = new[] { "https://localhost:5000" },
-      Scope = $"{ScopeConstants.OpenId}"
-    });
-    await IdentityContext.SaveChangesAsync();
-    var query = new TokenIntrospectionQuery
-    {
-      TokenTypeHint = TokenTypeConstants.AccessToken,
-      Token = token,
-      ClientAuthentications = new[]
-      {
-        new ClientAuthentication
-        {
-          ClientId = resource.Id
-        }
-      }
-    };
-
-    // Act
-    var response = await validator.ValidateAsync(query);
-
-    // Assert
-    Assert.True(response.IsError());
-    Assert.Equal(ErrorCode.InvalidClient, response.ErrorCode);
-  }
-
-  [Fact]
-  [Trait("Category", "Unit")]
-  public async Task ValidateAsync_NullResourceId_InvalidClient()
-  {
-    // Arrange
-    var serviceProvider = BuildServiceProvider();
-    var clientSecret = CryptographyHelper.GetRandomString(32);
-    var authorizationGrant = await GetAuthorizationGrant(clientSecret);
-    var resourceSecret = CryptographyHelper.GetRandomString(32);
-    var resource = await GetResource(resourceSecret);
-    serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
-    var validator = serviceProvider.GetRequiredService<IValidator<TokenIntrospectionQuery>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<GrantAccessTokenArguments>>();
-    var token = await tokenBuilder.BuildToken(new GrantAccessTokenArguments
-    {
-      AuthorizationGrantId = authorizationGrant.Id,
-      Resource = new[] { "https://localhost:5000" },
-      Scope = $"{ScopeConstants.OpenId}"
-    });
-    await IdentityContext.SaveChangesAsync();
-    var query = new TokenIntrospectionQuery
-    {
-      TokenTypeHint = TokenTypeConstants.AccessToken,
-      Token = token,
-      ClientAuthentications = new[]
-      {
-        new ClientAuthentication
-        {
-          ClientSecret = resourceSecret
-        }
-      }
-    };
-
-    // Act
-    var response = await validator.ValidateAsync(query);
-
-    // Assert
-    Assert.True(response.IsError());
-    Assert.Equal(ErrorCode.InvalidClient, response.ErrorCode);
-  }
-
-  [Fact]
-  [Trait("Category", "Unit")]
-  public async Task ValidateAsync_ResourceHasNoScopesFromToken_UnauthorizedClient()
-  {
-    // Arrange
-    var serviceProvider = BuildServiceProvider();
-    var clientSecret = CryptographyHelper.GetRandomString(32);
-    var authorizationGrant = await GetAuthorizationGrant(clientSecret);
-    var resourceSecret = CryptographyHelper.GetRandomString(32);
-    var resource = await GetResource(resourceSecret);
-    serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
-    var validator = serviceProvider.GetRequiredService<IValidator<TokenIntrospectionQuery>>();
-    var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<GrantAccessTokenArguments>>();
-    var token = await tokenBuilder.BuildToken(new GrantAccessTokenArguments
-    {
-      AuthorizationGrantId = authorizationGrant.Id,
-      Resource = new[] { "https://localhost:5000" },
-      Scope = $"{ScopeConstants.OpenId}"
-    });
-    await IdentityContext.SaveChangesAsync();
-    var query = new TokenIntrospectionQuery
-    {
-      TokenTypeHint = TokenTypeConstants.AccessToken,
-      Token = token,
-      ClientAuthentications = new[]
-      {
-        new ClientAuthentication
-        {
-          ClientId = resource.Id,
-          ClientSecret = resourceSecret
-        }
-      }
-    };
-
-    // Act
-    var response = await validator.ValidateAsync(query);
-
-    // Assert
-    Assert.True(response.IsError());
-    Assert.Equal(ErrorCode.UnauthorizedClient, response.ErrorCode);
   }
 
   [Fact]
@@ -342,14 +216,12 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
 
   [Fact]
   [Trait("Category", "Unit")]
-  public async Task ValidateAsync_ResourceFetchingGrantAccessToken_Ok()
+  public async Task ValidateAsync_ClientHasNoScopesFromToken_UnauthorizedClient()
   {
     // Arrange
     var serviceProvider = BuildServiceProvider();
     var clientSecret = CryptographyHelper.GetRandomString(32);
     var authorizationGrant = await GetAuthorizationGrant(clientSecret);
-    var resourceSecret = CryptographyHelper.GetRandomString(32);
-    var resource = await GetResource(resourceSecret);
     serviceProvider.GetRequiredService<IdentityConfiguration>().UseReferenceTokens = true;
     var validator = serviceProvider.GetRequiredService<IValidator<TokenIntrospectionQuery>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<GrantAccessTokenArguments>>();
@@ -357,7 +229,7 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     {
       AuthorizationGrantId = authorizationGrant.Id,
       Resource = new[] { "https://localhost:5000" },
-      Scope = $"{ScopeConstants.OpenId} {resource.Scopes.Single().Name}"
+      Scope = $"weather:read"
     });
     await IdentityContext.SaveChangesAsync();
     var query = new TokenIntrospectionQuery
@@ -368,8 +240,8 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
       {
         new ClientAuthentication
         {
-          ClientId = resource.Id,
-          ClientSecret = resourceSecret
+          ClientId = authorizationGrant.Client.Id,
+          ClientSecret = clientSecret
         }
       }
     };
@@ -378,8 +250,8 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     var response = await validator.ValidateAsync(query);
 
     // Assert
-    Assert.False(response.IsError());
-    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    Assert.True(response.IsError());
+    Assert.Equal(ErrorCode.UnauthorizedClient, response.ErrorCode);
   }
 
   [Fact]
@@ -484,24 +356,6 @@ public class TokenIntrospectionValidatorTests : BaseUnitTest
     await IdentityContext.AddAsync(client);
     await IdentityContext.SaveChangesAsync();
     return client;
-  }
-
-  private async Task<Resource> GetResource(string resourceSecret)
-  {
-    var scope = ScopeBuilder
-      .Instance()
-      .AddName("weather")
-      .Build();
-
-    var resource = ResourceBuilder
-      .Instance()
-      .AddSecret(resourceSecret)
-      .AddScope(scope)
-      .Build();
-
-    await IdentityContext.AddAsync(resource);
-    await IdentityContext.SaveChangesAsync();
-    return resource;
   }
 
   private async Task<AuthorizationCodeGrant> GetAuthorizationGrant(string clientSecret)

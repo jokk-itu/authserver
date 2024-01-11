@@ -2,12 +2,11 @@
 using Domain;
 using Domain.Constants;
 using Infrastructure;
-using Infrastructure.Helpers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Specs.Helpers.EndpointBuilders;
 using Specs.Helpers.EntityBuilders;
 using WebApp.Constants;
 using Xunit;
@@ -65,7 +64,14 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 
   protected async Task CreateIdentityProviderResource()
   {
-    await BuildResource(ScopeConstants.UserInfo, CryptographyHelper.GetRandomString(32), "IdentityProvider", "https://idp.authserver.dk");
+    await RegisterEndpointBuilder
+      .Instance()
+      .AddScope(ScopeConstants.UserInfo)
+      .AddClientName("IdentityProvider")
+      .AddClientUri("https://idp.authserver.dk")
+      .AddGrantType(GrantTypeConstants.ClientCredentials)
+      .AddTokenEndpointAuthMethod(TokenEndpointAuthMethodConstants.ClientSecretBasic)
+      .BuildClient(GetHttpClient());
   }
 
   protected async Task<Scope> BuildScope(string name)
@@ -78,26 +84,6 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     await identityContext.AddAsync(scope);
     await identityContext.SaveChangesAsync();
     return scope;
-  }
-
-  protected async Task<Resource> BuildResource(string scope, string secret, string name, string uri)
-  {
-    var identityContext = _factory.Services.GetRequiredService<IdentityContext>();
-    var scopes = scope.Split(' ');
-    var hashedSecret = BCrypt.HashPassword(secret, BCrypt.GenerateSalt());
-    var resource = new Resource
-    {
-      Name = name,
-      Secret = hashedSecret,
-      Scopes = await identityContext
-        .Set<Scope>()
-        .Where(x => scopes.Contains(x.Name))
-        .ToListAsync(),
-      Uri = uri
-    };
-    await identityContext.AddAsync(resource);
-    await identityContext.SaveChangesAsync();
-    return resource;
   }
 
   protected async Task<User> BuildUserAsync(string password)
