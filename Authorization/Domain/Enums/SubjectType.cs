@@ -5,5 +5,8 @@ namespace Domain.Enums;
 public enum SubjectType
 {
   [Description(SubjectTypeConstants.Public)]
-  Public
+  Public,
+
+  [Description(SubjectTypeConstants.Pairwise)]
+  Pairwise
 }
