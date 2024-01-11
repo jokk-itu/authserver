@@ -15,16 +15,16 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
 {
   private readonly IdentityContext _identityContext;
   private readonly IStructuredTokenDecoder _tokenDecoder;
-  private readonly IResourceService _resourceService;
+  private readonly IClientService _clientService;
 
   public RedeemRefreshTokenGrantValidator(
     IdentityContext identityContext,
     IStructuredTokenDecoder tokenDecoder,
-    IResourceService resourceService)
+    IClientService clientService)
   {
     _identityContext = identityContext;
     _tokenDecoder = tokenDecoder;
-    _resourceService = resourceService;
+    _clientService = clientService;
   }
 
   public async Task<ValidationResult> ValidateAsync(RedeemRefreshTokenGrantCommand value, CancellationToken cancellationToken = default)
@@ -122,7 +122,7 @@ public class RedeemRefreshTokenGrantValidator : IValidator<RedeemRefreshTokenGra
     }
 
     var scope = string.IsNullOrWhiteSpace(value.Scope) ? string.Join(' ', consentGrant.ConsentedScopes.Select(s => s.Name)) : value.Scope;
-    var resourceValidation = await _resourceService.ValidateResources(value.Resource, scope);
+    var resourceValidation = await _clientService.ValidateResources(value.Resource, scope, cancellationToken);
     if (resourceValidation.IsError())
     {
       return new ValidationResult(

@@ -11,14 +11,14 @@ namespace Infrastructure.Requests.RedeemClientCredentialsGrant;
 public class RedeemClientCredentialsGrantValidator : IValidator<RedeemClientCredentialsGrantCommand>
 {
   private readonly IdentityContext _identityContext;
-  private readonly IResourceService _resourceService;
+  private readonly IClientService _clientService;
 
   public RedeemClientCredentialsGrantValidator(
     IdentityContext identityContext,
-    IResourceService resourceService)
+    IClientService clientService)
   {
     _identityContext = identityContext;
-    _resourceService = resourceService;
+    _clientService = clientService;
   }
 
   public async Task<ValidationResult> ValidateAsync(RedeemClientCredentialsGrantCommand value, CancellationToken cancellationToken = default)
@@ -71,7 +71,7 @@ public class RedeemClientCredentialsGrantValidator : IValidator<RedeemClientCred
       return new ValidationResult(ErrorCode.UnauthorizedClient, "client is unauthorized for scope", HttpStatusCode.BadRequest);
     }
 
-    var resourceValidation = await _resourceService.ValidateResources(value.Resource, value.Scope);
+    var resourceValidation = await _clientService.ValidateResources(value.Resource, value.Scope, cancellationToken);
     if (resourceValidation.IsError())
     {
       return new ValidationResult(
