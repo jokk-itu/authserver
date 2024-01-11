@@ -37,7 +37,8 @@ public class DiscoveryBuilder : IDiscoveryBuilder
     ClaimNameConstants.Sid,
     ClaimNameConstants.GrantId,
     ClaimNameConstants.Aud,
-    ClaimNameConstants.Scope
+    ClaimNameConstants.Scope,
+    ClaimNameConstants.Role
   };
 
   private readonly IdentityConfiguration _identityConfiguration;
