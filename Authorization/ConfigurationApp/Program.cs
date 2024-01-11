@@ -34,33 +34,7 @@ if (!string.IsNullOrWhiteSpace(sqliteConnectionString))
 
 var identityContext = new IdentityContext(dbContextOptionsBuilder.Options);
 
-if (args[0] == "resource")
-{
-  var resources = config.GetSection("Resources").Get<List<Resource>>();
-  foreach (var resource in resources)
-  {
-    Log.Information("Inserting resource {@resource}", resource);
-
-    var secret = resource.Secret;
-    resource.Secret = BCrypt.HashPassword(secret, BCrypt.GenerateSalt());
-
-    var scopes = resource.Scopes.Select(x => x.Name).ToList();
-    resource.Scopes.Clear();
-    foreach (var scopeName in scopes)
-    {
-      var scope = await identityContext
-        .Set<Scope>()
-        .SingleAsync(y => y.Name == scopeName);
-
-      resource.Scopes.Add(scope);
-    }
-    await identityContext.AddAsync(resource);
-  }
-
-  await identityContext.SaveChangesAsync();
-  Log.Information("{Amount} Resources inserted", resources.Count);
-}
-else if (args[0] == "scope")
+if (args[0] == "scope")
 {
   var scopes = config.GetSection("Scopes").Get<List<Scope>>();
   foreach (var scope in scopes)
@@ -116,7 +90,7 @@ else if (args[0] == "client")
     var clientSecret = client["ClientSecret"];
     var applicationType = client["ApplicationType"].GetEnum<ApplicationType>();
     var tokenEndpointAuthMethod = client["TokenEndpointAuthMethod"].GetEnum<TokenEndpointAuthMethod>();
-    var subjectType = client["SubjectType"].GetEnum<SubjectType>();
+    var subjectType = client["SubjectType"]?.GetEnum<SubjectType>();
     var clientUri = client["ClientUri"];
     var backchannelLogoutUri = client["BackchannelLogoutUri"];
     var clientName = client["ClientName"];
