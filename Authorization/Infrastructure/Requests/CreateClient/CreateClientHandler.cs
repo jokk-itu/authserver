@@ -69,6 +69,10 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       ? null
       : BCrypt.HashPassword(plainTextSecret, BCrypt.GenerateSalt());
 
+    SubjectType? subjectType = string.IsNullOrWhiteSpace(request.SubjectType)
+      ? null
+      : request.SubjectType.GetEnum<SubjectType>();
+
     var client = new Client
     {
       Name = request.ClientName,
@@ -80,7 +84,7 @@ public class CreateClientHandler : IRequestHandler<CreateClientCommand, CreateCl
       ResponseTypes = responseTypes,
       TokenEndpointAuthMethod = request.TokenEndpointAuthMethod.GetEnum<TokenEndpointAuthMethod>(),
       Contacts = contacts,
-      SubjectType = request.SubjectType.GetEnum<SubjectType>(),
+      SubjectType = subjectType,
       TosUri = request.TosUri,
       PolicyUri = request.PolicyUri,
       InitiateLoginUri = request.InitiateLoginUri,

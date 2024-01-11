@@ -19,7 +19,8 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
 
     builder
       .Property(client => client.SubjectType)
-      .HasConversion<string>();
+      .HasConversion<string>()
+      .IsRequired(false);
 
     builder
       .Property(client => client.TokenEndpointAuthMethod)

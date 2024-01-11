@@ -17,7 +17,7 @@ public class Client
   public long? DefaultMaxAge { get; set; }
   public ApplicationType ApplicationType { get; set; }
   public TokenEndpointAuthMethod TokenEndpointAuthMethod { get; set; }
-  public SubjectType SubjectType { get; set; }
+  public SubjectType? SubjectType { get; set; }
   public ICollection<RedirectUri> RedirectUris { get; set; } = new List<RedirectUri>();
   public ICollection<GrantType> GrantTypes { get; set; } = new List<GrantType>();
   public ICollection<ConsentGrant> ConsentGrants { get; set; } = new List<ConsentGrant>();
