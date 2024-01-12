@@ -32,6 +32,12 @@ public class ClientBuilder
     return _client;
   }
 
+  public ClientBuilder AddSubjectType(SubjectType subjectType)
+  {
+    _client.SubjectType = subjectType;
+    return this;
+  }
+
   public ClientBuilder AddClientUri(string clientUri)
   {
     _client.ClientUri = clientUri;

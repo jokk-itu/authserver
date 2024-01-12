@@ -42,6 +42,12 @@ public class UserBuilder
     return this;
   }
 
+  public UserBuilder AddRole(Role role)
+  {
+    _user.Roles.Add(role);
+    return this;
+  }
+
   public UserBuilder AddSession(Session session)
   {
     _user.Sessions.Add(session);
