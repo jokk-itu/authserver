@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Domain;
+using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -51,6 +52,18 @@ public class CreateConsentGrantHandler : IRequestHandler<CreateConsentGrantComma
       var user = await _identityContext
         .Set<User>()
         .SingleAsync(x => x.Id == request.UserId, cancellationToken: cancellationToken);
+
+      if (client.SubjectType == SubjectType.Pairwise)
+      {
+        var pairwiseIdentifier = new PairwiseIdentifier
+        {
+          Client = client,
+          User = user
+        };
+        await _identityContext
+          .Set<PairwiseIdentifier>()
+          .AddAsync(pairwiseIdentifier, cancellationToken: cancellationToken);
+      }
 
       consentGrant = new ConsentGrant
       {
