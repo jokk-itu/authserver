@@ -25,11 +25,6 @@ public class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
     _jwkManager = jwkManager;
   }
 
-  public Task<JwtSecurityToken> GetToken(string token)
-  {
-    throw new NotImplementedException();
-  }
-
   public async Task<string> BuildToken(IdTokenArguments arguments)
   {
     var query = await _identityContext

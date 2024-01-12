@@ -109,7 +109,7 @@ public class RefreshTokenBuilder : ITokenBuilder<RefreshTokenArguments>
     var tokenDescriptor = new SecurityTokenDescriptor
     {
       IssuedAt = now,
-      Expires = now.AddHours(1),
+      Expires = now.AddDays(30),
       NotBefore = DateTime.UtcNow,
       Issuer = _identityConfiguration.Issuer,
       SigningCredentials = signingCredentials,
