@@ -38,38 +38,41 @@ public class ClaimService : IClaimService
       ? userId
       : query.Subject!.Id;
 
-    var userInfo = new List<KeyValuePair<string, object>> { new(ClaimNameConstants.Sub, subject) };
+    var userInfo = new Dictionary<string, object>
+    {
+      { ClaimNameConstants.Sub, subject }
+    };
 
     foreach (var claim in query.ConsentedClaims.Select(x => x.Name))
     {
       switch (claim)
       {
         case ClaimNameConstants.Name:
-          userInfo.Add(new KeyValuePair<string, object>(claim, query.User.GetName()));
+          userInfo.Add(claim, query.User.GetName());
           break;
         case ClaimNameConstants.GivenName:
-          userInfo.Add(new KeyValuePair<string, object>(claim, query.User.FirstName));
+          userInfo.Add(claim, query.User.FirstName);
           break;
         case ClaimNameConstants.FamilyName:
-          userInfo.Add(new KeyValuePair<string, object>(claim, query.User.LastName));
+          userInfo.Add(claim, query.User.LastName);
           break;
         case ClaimNameConstants.Address:
-          userInfo.Add(new KeyValuePair<string, object>(claim, query.User.Address));
+          userInfo.Add(claim, query.User.Address);
           break;
         case ClaimNameConstants.Birthdate:
-          userInfo.Add(new KeyValuePair<string, object>(claim, query.User.Birthdate.ToString(CultureInfo.InvariantCulture)));
+          userInfo.Add(claim, query.User.Birthdate.ToString(CultureInfo.InvariantCulture));
           break;
         case ClaimNameConstants.Locale:
-          userInfo.Add(new KeyValuePair<string, object>(claim, query.User.Locale));
+          userInfo.Add(claim, query.User.Locale);
           break;
         case ClaimNameConstants.Phone:
-          userInfo.Add(new KeyValuePair<string, object>(claim, query.User.PhoneNumber));
+          userInfo.Add(claim, query.User.PhoneNumber);
           break;
         case ClaimNameConstants.Email:
-          userInfo.Add(new KeyValuePair<string, object>(claim, query.User.Email));
+          userInfo.Add(claim, query.User.Email);
           break;
         case ClaimNameConstants.Role:
-          userInfo.Add(new KeyValuePair<string, object>(claim, query.User.Roles.Select(r => r.Value)));
+          userInfo.Add(claim, query.User.Roles.Select(r => r.Value));
           break;
       }
     }

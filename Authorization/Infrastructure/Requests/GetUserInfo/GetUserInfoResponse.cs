@@ -13,5 +13,5 @@ public class GetUserInfoResponse : Response
   {
   }
 
-  public IEnumerable<KeyValuePair<string, object>> UserInfo { get; init; } = new List<KeyValuePair<string, object>>();
+  public IEnumerable<KeyValuePair<string, object>> UserInfo { get; init; } = new Dictionary<string, object>();
 }
