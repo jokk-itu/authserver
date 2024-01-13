@@ -232,10 +232,11 @@ public class RedeemClientCredentialsGrantValidatorTests : BaseUnitTest
     var serviceProvider = BuildServiceProvider();
     var scope = await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.UserInfo);
 
-    var resourceSecret = CryptographyHelper.GetRandomString(32);
-    var resource = ResourceBuilder
+    var weatherClientSecret = CryptographyHelper.GetRandomString(32);
+    var weatherClient = ClientBuilder
       .Instance()
-      .AddSecret(resourceSecret)
+      .AddSecret(weatherClientSecret)
+      .AddClientUri("https://weather.authserver.dk")
       .AddScope(scope)
       .Build();
 
@@ -249,7 +250,7 @@ public class RedeemClientCredentialsGrantValidatorTests : BaseUnitTest
       .Build();
 
     await IdentityContext.AddAsync(client);
-    await IdentityContext.AddAsync(resource);
+    await IdentityContext.AddAsync(weatherClient);
     await IdentityContext.SaveChangesAsync();
 
     var command = new RedeemClientCredentialsGrantCommand
@@ -264,7 +265,7 @@ public class RedeemClientCredentialsGrantValidatorTests : BaseUnitTest
       },
       GrantType = GrantTypeConstants.ClientCredentials,
       Scope = scope.Name,
-      Resource = new[] { resource.Uri }
+      Resource = new[] { weatherClient.ClientUri }
     };
     var validator = serviceProvider.GetRequiredService<IValidator<RedeemClientCredentialsGrantCommand>>();
 

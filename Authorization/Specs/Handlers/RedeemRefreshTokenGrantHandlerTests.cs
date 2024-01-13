@@ -25,7 +25,7 @@ public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
     var clientSecret = CryptographyHelper.GetRandomString(32);
     var authorizationGrant = await GetAuthorizationGrant(clientSecret);
     var resourceSecret = CryptographyHelper.GetRandomString(32);
-    var resource = await GetResource(resourceSecret);
+    var resource = await GetWeatherClient(resourceSecret);
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<RefreshTokenArguments>>();
     var scopes = $"{ScopeConstants.OpenId}";
     var refreshToken = await tokenBuilder.BuildToken(new RefreshTokenArguments
@@ -47,7 +47,7 @@ public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
       RefreshToken = refreshToken,
       GrantType = GrantTypeConstants.RefreshToken,
       Scope = requestScope,
-      Resource = new[] { resource.Uri }
+      Resource = new[] { resource.ClientUri }
     };
 
     // Act
@@ -68,7 +68,7 @@ public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
     var clientSecret = CryptographyHelper.GetRandomString(32);
     var authorizationGrant = await GetAuthorizationGrant(clientSecret);
     var resourceSecret = CryptographyHelper.GetRandomString(32);
-    var resource = await GetResource(resourceSecret);
+    var resource = await GetWeatherClient(resourceSecret);
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<RefreshTokenArguments>>();
     var scopes = $"{ScopeConstants.OpenId}";
     var refreshToken = await tokenBuilder.BuildToken(new RefreshTokenArguments
@@ -91,7 +91,7 @@ public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
       RefreshToken = refreshToken,
       GrantType = GrantTypeConstants.RefreshToken,
       Scope = requestScope,
-      Resource = new[] { resource.Uri }
+      Resource = new[] { resource.ClientUri }
     };
 
     // Act
@@ -101,17 +101,18 @@ public class RedeemRefreshTokenGrantHandlerTests : BaseUnitTest
     Assert.False(response.IsError());
   }
 
-  private async Task<Resource> GetResource(string resourceSecret)
+  private async Task<Client> GetWeatherClient(string clientSecret)
   {
-    var resource = ResourceBuilder
+    var client = ClientBuilder
       .Instance()
-      .AddSecret(resourceSecret)
+      .AddSecret(clientSecret)
       .AddScope(await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId))
+      .AddClientUri("https://localhost:5002")
       .Build();
 
-    await IdentityContext.Set<Resource>().AddAsync(resource);
+    await IdentityContext.Set<Client>().AddAsync(client);
     await IdentityContext.SaveChangesAsync();
-    return resource;
+    return client;
   }
 
   private async Task<AuthorizationCodeGrant> GetAuthorizationGrant(string clientSecret)

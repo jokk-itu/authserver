@@ -17,7 +17,8 @@ public class ClientBuilder
       ApplicationType = ApplicationType.Web,
       Name = faker.Name.FirstName(),
       PolicyUri = "https://localhost:5001/policy",
-      TosUri = "https://locaolhost:5001/tos"
+      TosUri = "https://locaolhost:5001/tos",
+      ClientUri = "https://localhost:5001"
     };
   }
 
@@ -29,6 +30,18 @@ public class ClientBuilder
   public Client Build()
   {
     return _client;
+  }
+
+  public ClientBuilder AddSubjectType(SubjectType subjectType)
+  {
+    _client.SubjectType = subjectType;
+    return this;
+  }
+
+  public ClientBuilder AddClientUri(string clientUri)
+  {
+    _client.ClientUri = clientUri;
+    return this;
   }
 
   public ClientBuilder AddSecret(string secret)
@@ -59,6 +72,12 @@ public class ClientBuilder
   public ClientBuilder AddScope(Scope scope)
   {
     _client.Scopes.Add(scope);
+    return this;
+  }
+
+  public ClientBuilder AddScopes(params Scope[] scopes)
+  {
+    scopes.ToList().ForEach(_client.Scopes.Add);
     return this;
   }
 

@@ -500,8 +500,6 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
     var serviceProvider = BuildServiceProvider();
     var clientSecret = CryptographyHelper.GetRandomString(32);
     var authorizationCodeGrant = await GetAuthorizationGrant(clientSecret, ApplicationType.Web, new[] { ScopeConstants.OpenId });
-    var resourceSecret = CryptographyHelper.GetRandomString(32);
-    var resource = await GetResource(resourceSecret);
     var codeBuilder = serviceProvider.GetRequiredService<ICodeBuilder>();
     var pkce = ProofKeyForCodeExchangeHelper.GetPkce();
     var code = await codeBuilder.BuildAuthorizationCodeAsync(
@@ -511,6 +509,9 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
       pkce.CodeChallenge,
       CodeChallengeMethodConstants.S256,
       new[] { ScopeConstants.OpenId });
+
+    var weatherClientSecret = CryptographyHelper.GetRandomString(16);
+    var weatherClient = await GetWeatherClient(weatherClientSecret);
 
     var validator = serviceProvider.GetRequiredService<IValidator<RedeemAuthorizationCodeGrantCommand>>();
     var command = new RedeemAuthorizationCodeGrantCommand
@@ -527,7 +528,7 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
         }
       },
       RedirectUri = "https://localhost:5001/callback",
-      Resource = new[] { resource.Uri }
+      Resource = new[] { weatherClient.ClientUri }
     };
 
     // Act
@@ -537,17 +538,20 @@ public class RedeemAuthorizationCodeGrantValidatorTests : BaseUnitTest
     Assert.False(validationResult.IsError());
   }
 
-  private async Task<Resource> GetResource(string resourceSecret)
+  private async Task<Client> GetWeatherClient(string secret)
   {
-    var resource = ResourceBuilder
+    var client = ClientBuilder
       .Instance()
-      .AddSecret(resourceSecret)
-      .AddScope(await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId))
+      .AddSecret(secret)
+      .AddClientUri("https://weather.authserver.dk")
+      .AddScopes(
+        ScopeBuilder.Instance().AddName("weather:read").Build(),
+        await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId))
       .Build();
 
-    await IdentityContext.AddAsync(resource);
+    await IdentityContext.AddAsync(client);
     await IdentityContext.SaveChangesAsync();
-    return resource;
+    return client;
   }
 
   private async Task<AuthorizationCodeGrant> GetAuthorizationGrant(

@@ -19,11 +19,6 @@ public class LogoutTokenBuilder : ITokenBuilder<LogoutTokenArguments>
     _jwkManager = jwkManager;
   }
 
-  public Task<JwtSecurityToken> GetToken(string token)
-  {
-    throw new NotImplementedException();
-  }
-
   public Task<string> BuildToken(LogoutTokenArguments arguments)
   {
     var claims = new Dictionary<string, object>

@@ -15,6 +15,8 @@ public class User
   public string Locale { get; set; }
   public ICollection<ConsentGrant> ConsentGrants { get; set; } = new List<ConsentGrant>();
   public ICollection<Session> Sessions { get; set; } = new List<Session>();
+  public ICollection<Role> Roles { get; set; } = new List<Role>();
+  public ICollection<PairwiseIdentifier> PairwiseIdentifiers { get; set; } = new List<PairwiseIdentifier>();
 
   public string GetName()
   {

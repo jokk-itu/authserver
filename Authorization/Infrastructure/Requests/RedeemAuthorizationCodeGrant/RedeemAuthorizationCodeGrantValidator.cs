@@ -15,16 +15,16 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
 {
   private readonly IdentityContext _identityContext;
   private readonly ICodeDecoder _codeDecoder;
-  private readonly IResourceService _resourceService;
+  private readonly IClientService _clientService;
 
   public RedeemAuthorizationCodeGrantValidator(
     IdentityContext identityContext,
     ICodeDecoder codeDecoder,
-    IResourceService resourceService)
+    IClientService clientService)
   {
     _identityContext = identityContext;
     _codeDecoder = codeDecoder;
-    _resourceService = resourceService;
+    _clientService = clientService;
   }
 
   public async Task<ValidationResult> ValidateAsync(RedeemAuthorizationCodeGrantCommand value, CancellationToken cancellationToken = default)
@@ -120,7 +120,7 @@ public class RedeemAuthorizationCodeGrantValidator : IValidator<RedeemAuthorizat
     }
 
     var scope = string.Join(' ', code.Scopes);
-    var resourceValidation = await _resourceService.ValidateResources(value.Resource, scope);
+    var resourceValidation = await _clientService.ValidateResources(value.Resource, scope, cancellationToken);
     if (resourceValidation.IsError())
     {
       return new ValidationResult(

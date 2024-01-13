@@ -3,6 +3,7 @@ using System;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    partial class IdentityContextModelSnapshot : ModelSnapshot
+    [Migration("20240109213952_AddRoleWithManyToManyUser")]
+    partial class AddRoleWithManyToManyUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.10");
@@ -266,6 +268,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("SubjectType")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TokenEndpointAuthMethod")
@@ -398,28 +401,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("Nonce");
                 });
 
-            modelBuilder.Entity("Domain.PairwiseIdentifier", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ClientId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClientId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("PairwiseIdentifier");
-                });
-
             modelBuilder.Entity("Domain.RedirectUri", b =>
                 {
                     b.Property<int>("Id")
@@ -442,6 +423,34 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ClientId");
 
                     b.ToTable("RedirectUri");
+                });
+
+            modelBuilder.Entity("Domain.Resource", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Secret")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Uri")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("Uri")
+                        .IsUnique();
+
+                    b.ToTable("Resource");
                 });
 
             modelBuilder.Entity("Domain.ResponseType", b =>
@@ -646,6 +655,21 @@ namespace Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("User");
+                });
+
+            modelBuilder.Entity("ResourceScope", b =>
+                {
+                    b.Property<string>("ResourcesId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ScopesId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ResourcesId", "ScopesId");
+
+                    b.HasIndex("ScopesId");
+
+                    b.ToTable("ResourceScope");
                 });
 
             modelBuilder.Entity("RoleUser", b =>
@@ -854,25 +878,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("AuthorizationCodeGrant");
                 });
 
-            modelBuilder.Entity("Domain.PairwiseIdentifier", b =>
-                {
-                    b.HasOne("Domain.Client", "Client")
-                        .WithMany("PairwiseIdentifiers")
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.User", "User")
-                        .WithMany("PairwiseIdentifiers")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Client");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Domain.RedirectUri", b =>
                 {
                     b.HasOne("Domain.Client", "Client")
@@ -891,6 +896,21 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ResourceScope", b =>
+                {
+                    b.HasOne("Domain.Resource", null)
+                        .WithMany()
+                        .HasForeignKey("ResourcesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Scope", null)
+                        .WithMany()
+                        .HasForeignKey("ScopesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("RoleUser", b =>
@@ -945,8 +965,6 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("ConsentGrants");
 
-                    b.Navigation("PairwiseIdentifiers");
-
                     b.Navigation("RedirectUris");
                 });
 
@@ -958,8 +976,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.User", b =>
                 {
                     b.Navigation("ConsentGrants");
-
-                    b.Navigation("PairwiseIdentifiers");
 
                     b.Navigation("Sessions");
                 });

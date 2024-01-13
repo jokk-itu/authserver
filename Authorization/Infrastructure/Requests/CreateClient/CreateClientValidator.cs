@@ -296,7 +296,11 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
       return !SubjectTypeConstants.SubjectTypes.Contains(command.SubjectType);
     }
 
-    command.SubjectType = SubjectTypeConstants.Public;
+    if (command.GrantTypes.Contains(GrantTypeConstants.AuthorizationCode))
+    {
+      command.SubjectType = SubjectTypeConstants.Public;
+    }
+    
     return false;
   }
 

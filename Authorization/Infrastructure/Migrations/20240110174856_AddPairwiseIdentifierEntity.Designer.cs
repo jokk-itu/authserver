@@ -3,6 +3,7 @@ using System;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    partial class IdentityContextModelSnapshot : ModelSnapshot
+    [Migration("20240110174856_AddPairwiseIdentifierEntity")]
+    partial class AddPairwiseIdentifierEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.10");
@@ -444,6 +446,34 @@ namespace Infrastructure.Migrations
                     b.ToTable("RedirectUri");
                 });
 
+            modelBuilder.Entity("Domain.Resource", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Secret")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Uri")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("Uri")
+                        .IsUnique();
+
+                    b.ToTable("Resource");
+                });
+
             modelBuilder.Entity("Domain.ResponseType", b =>
                 {
                     b.Property<int>("Id")
@@ -646,6 +676,21 @@ namespace Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("User");
+                });
+
+            modelBuilder.Entity("ResourceScope", b =>
+                {
+                    b.Property<string>("ResourcesId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ScopesId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ResourcesId", "ScopesId");
+
+                    b.HasIndex("ScopesId");
+
+                    b.ToTable("ResourceScope");
                 });
 
             modelBuilder.Entity("RoleUser", b =>
@@ -891,6 +936,21 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ResourceScope", b =>
+                {
+                    b.HasOne("Domain.Resource", null)
+                        .WithMany()
+                        .HasForeignKey("ResourcesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Scope", null)
+                        .WithMany()
+                        .HasForeignKey("ScopesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("RoleUser", b =>

@@ -15,6 +15,7 @@ public class ClientServiceTests : BaseUnitTest
   [Theory]
   [InlineData("")]
   [InlineData(null)]
+  [Trait("Category", "Unit")]
   public async Task ValidateRedirectAuthorization_EmptyAndNullState_InvalidRequest(string state)
   {
     // Arrange
@@ -34,6 +35,7 @@ public class ClientServiceTests : BaseUnitTest
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task ValidateRedirectAuthorization_EmptyClientId_InvalidClient()
   {
     // Arrange
@@ -53,6 +55,7 @@ public class ClientServiceTests : BaseUnitTest
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task ValidateRedirectAuthorization_EmptyRedirectUriWithMultipleRegisteredRedirectUris_InvalidRequest()
   {
     // Arrange
@@ -81,6 +84,7 @@ public class ClientServiceTests : BaseUnitTest
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task ValidateRedirectAuthorization_InvalidRedirectUriForClient_UnauthorizedClient()
   {
     // Arrange
@@ -108,6 +112,7 @@ public class ClientServiceTests : BaseUnitTest
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task ValidateRedirectAuthorization_Ok()
   {
     // Arrange
@@ -136,6 +141,7 @@ public class ClientServiceTests : BaseUnitTest
   [Theory]
   [InlineData("")]
   [InlineData(null)]
+  [Trait("Category", "Unit")]
   public async Task IsConsentValid_NullAndEmptyScope_False(string scope)
   {
     // Arrange
@@ -153,6 +159,7 @@ public class ClientServiceTests : BaseUnitTest
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsConsentValid_NullUserIdAndClientId_False()
   {
     // Arrange
@@ -170,6 +177,7 @@ public class ClientServiceTests : BaseUnitTest
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsConsentValid_InadequateConsentedScopes_False()
   {
     // Arrange
@@ -206,6 +214,7 @@ public class ClientServiceTests : BaseUnitTest
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task IsConsentValid_True()
   {
     // Arrange
@@ -246,6 +255,7 @@ public class ClientServiceTests : BaseUnitTest
   [Theory]
   [InlineData("")]
   [InlineData(null)]
+  [Trait("Category", "Unit")]
   public async Task ValidateClientAuthorization_NullAndEmptyScope_InvalidRequest(string scope)
   {
     // Arrange
@@ -264,6 +274,7 @@ public class ClientServiceTests : BaseUnitTest
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task ValidateClientAuthorization_EmptyClientId_InvalidClient()
   {
     // Arrange
@@ -282,6 +293,7 @@ public class ClientServiceTests : BaseUnitTest
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task ValidateClientAuthorization_UnauthorizedForAuthorizationCodeGrant_UnauthorizedClient()
   {
     // Arrange
@@ -307,6 +319,7 @@ public class ClientServiceTests : BaseUnitTest
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task ValidateClientAuthorization_UnauthorizedForScope_UnauthorizedClient()
   {
     // Arrange
@@ -333,6 +346,7 @@ public class ClientServiceTests : BaseUnitTest
   }
 
   [Fact]
+  [Trait("Category", "Unit")]
   public async Task ValidateClientAuthorization_Ok()
   {
     // Arrange
@@ -353,6 +367,61 @@ public class ClientServiceTests : BaseUnitTest
       ScopeConstants.OpenId,
       client.Id,
       CancellationToken.None);
+
+    // Assert
+    Assert.False(validationResult.IsError());
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateResource_EmptyClient_ExpectInvalidTarget()
+  {
+    // Arrange
+    var serviceProvider = BuildServiceProvider();
+    var clientService = serviceProvider.GetRequiredService<IClientService>();
+
+    // Act
+    var validationResult = await clientService.ValidateResources(new List<string>(), string.Empty, CancellationToken.None);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+    Assert.Equal(ErrorCode.InvalidTarget, validationResult.ErrorCode);
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateResource_NonExistingClient_ExpectInvalidTarget()
+  {
+    // Arrange
+    var serviceProvider = BuildServiceProvider();
+    var clientService = serviceProvider.GetRequiredService<IClientService>();
+
+    // Act
+    var validationResult = await clientService.ValidateResources(new List<string>{"https://weather.authserver.dk"}, string.Empty, CancellationToken.None);
+
+    // Assert
+    Assert.True(validationResult.IsError());
+    Assert.Equal(ErrorCode.InvalidTarget, validationResult.ErrorCode);
+  }
+
+  [Fact]
+  [Trait("Category", "Unit")]
+  public async Task ValidateResource_ExistingClient_Ok()
+  {
+    // Arrange
+    var serviceProvider = BuildServiceProvider();
+    var clientService = serviceProvider.GetRequiredService<IClientService>();
+    var client = ClientBuilder
+      .Instance()
+      .AddSecret(CryptographyHelper.GetRandomString(16))
+      .AddScope(await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId))
+      .Build();
+    
+    await IdentityContext.AddAsync(client);
+    await IdentityContext.SaveChangesAsync();
+
+    // Act
+    var validationResult = await clientService.ValidateResources(new List<string>{client.ClientUri}, ScopeConstants.OpenId, CancellationToken.None);
 
     // Assert
     Assert.False(validationResult.IsError());

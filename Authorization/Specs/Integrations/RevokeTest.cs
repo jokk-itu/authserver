@@ -26,7 +26,16 @@ public class RevokeTest : BaseIntegrationTest
     UseReferenceTokens();
     const string scope = "weather:read";
     await BuildScope(scope);
-    await BuildResource(scope, CryptographyHelper.GetRandomString(32), "weatherservice", "https://weather.authserver.dk");
+
+    await RegisterEndpointBuilder
+      .Instance()
+      .AddGrantType(GrantTypeConstants.ClientCredentials)
+      .AddTokenEndpointAuthMethod(TokenEndpointAuthMethodConstants.ClientSecretBasic)
+      .AddScope(scope)
+      .AddClientName("weatherservice")
+      .AddClientUri("https://weather.authserver.dk")
+      .BuildClient(GetHttpClient());
+
     var client = await RegisterEndpointBuilder
       .Instance()
       .AddClientName("webapp")
@@ -35,7 +44,7 @@ public class RevokeTest : BaseIntegrationTest
       .AddGrantType(GrantTypeConstants.ClientCredentials)
       .BuildClient(GetHttpClient());
 
-    var tokens = await TokenEndpointBuilder
+    var tokenResponse = await TokenEndpointBuilder
       .Instance()
       .AddClientId(client.ClientId)
       .AddClientSecret(client.ClientSecret)
@@ -48,7 +57,7 @@ public class RevokeTest : BaseIntegrationTest
       .Instance()
       .AddClientId(client.ClientId)
       .AddClientSecret(client.ClientSecret)
-      .AddToken(tokens.AccessToken)
+      .AddToken(tokenResponse.AccessToken)
       .AddTokenTypeHint(TokenTypeConstants.AccessToken)
       .BuildRevoke(GetHttpClient());
 
@@ -100,7 +109,7 @@ public class RevokeTest : BaseIntegrationTest
       .Instance()
       .AddClientId(client.ClientId)
       .AddClientSecret(client.ClientSecret)
-      .AddToken(tokenResponse.RefreshToken)
+      .AddToken(tokenResponse.RefreshToken!)
       .AddTokenTypeHint(TokenTypeConstants.RefreshToken)
       .BuildRevoke(GetHttpClient());
 

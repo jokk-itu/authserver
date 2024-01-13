@@ -8,9 +8,10 @@ public class GetUserInfoResponse : Response
   {
   }
 
-  public GetUserInfoResponse(string? errorCode, string? errorDescription, HttpStatusCode statusCode) : base(errorCode, errorDescription, statusCode)
+  public GetUserInfoResponse(string errorCode, string errorDescription, HttpStatusCode statusCode)
+    : base(errorCode, errorDescription, statusCode)
   {
   }
 
-  public IDictionary<string, string> UserInfo { get; init; } = new Dictionary<string, string>();
+  public IEnumerable<KeyValuePair<string, object>> UserInfo { get; init; } = new Dictionary<string, object>();
 }

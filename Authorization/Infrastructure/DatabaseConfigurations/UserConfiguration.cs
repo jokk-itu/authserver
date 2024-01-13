@@ -44,6 +44,10 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
       .OnDelete(DeleteBehavior.Cascade);
 
     builder
+      .HasMany(x => x.Roles)
+      .WithMany(x => x.Users);
+
+    builder
       .HasIndex(x => x.UserName)
       .IsUnique();
 

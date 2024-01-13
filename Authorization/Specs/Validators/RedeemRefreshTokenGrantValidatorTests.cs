@@ -480,7 +480,6 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     await IdentityContext.SaveChangesAsync();
     var validator = serviceProvider.GetRequiredService<IValidator<RedeemRefreshTokenGrantCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<RefreshTokenArguments>>();
-    var scopes = new[] { ScopeConstants.OpenId };
     var token = await tokenBuilder.BuildToken(new RefreshTokenArguments
     {
       AuthorizationGrantId = authorizationGrant.Id,
@@ -562,8 +561,8 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     var scopes = new[] { ScopeConstants.OpenId };
     var clientSecret = CryptographyHelper.GetRandomString(32);
     var authorizationGrant = await GetAuthorizationGrant(clientSecret, scopes);
-    var resourceSecret = CryptographyHelper.GetRandomString(32);
-    var resource = await GetResource(resourceSecret);
+    var weatherClientSecret = CryptographyHelper.GetRandomString(32);
+    var weatherClient = await GetWeatherClient(weatherClientSecret);
     var validator = serviceProvider.GetRequiredService<IValidator<RedeemRefreshTokenGrantCommand>>();
     var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<RefreshTokenArguments>>();
     var token = await tokenBuilder.BuildToken(new RefreshTokenArguments
@@ -584,7 +583,7 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
       },
       RefreshToken = token,
       Scope = requestScope,
-      Resource = new[] { resource.Uri }
+      Resource = new[] { weatherClient.ClientUri }
     };
 
     // Act
@@ -605,8 +604,8 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     var scopes = new[] { ScopeConstants.OpenId };
     var clientSecret = CryptographyHelper.GetRandomString(32);
     var authorizationGrant = await GetAuthorizationGrant(clientSecret, scopes);
-    var resourceSecret = CryptographyHelper.GetRandomString(32);
-    var resource = await GetResource(resourceSecret);
+    var weatherClientSecret = CryptographyHelper.GetRandomString(32);
+    var weatherClient = await GetWeatherClient(weatherClientSecret);
     var identityConfiguration = serviceProvider.GetRequiredService<IdentityConfiguration>();
     identityConfiguration.UseReferenceTokens = true;
     var validator = serviceProvider.GetRequiredService<IValidator<RedeemRefreshTokenGrantCommand>>();
@@ -630,7 +629,7 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
       },
       RefreshToken = token,
       Scope = requestScope,
-      Resource = new[] { resource.Uri }
+      Resource = new[] { weatherClient.ClientUri }
     };
 
     // Act
@@ -640,17 +639,20 @@ public class RedeemRefreshTokenGrantValidatorTests : BaseUnitTest
     Assert.False(validationResponse.IsError());
   }
 
-  private async Task<Resource> GetResource(string resourceSecret)
+  private async Task<Client> GetWeatherClient(string secret)
   {
-    var resource = ResourceBuilder
+    var client = ClientBuilder
       .Instance()
-      .AddSecret(resourceSecret)
-      .AddScope(await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId))
+      .AddSecret(secret)
+      .AddClientUri("https://weather.authserver.dk")
+      .AddScopes(
+        ScopeBuilder.Instance().AddName("weather:read").Build(),
+        await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId))
       .Build();
 
-    await IdentityContext.AddAsync(resource);
+    await IdentityContext.AddAsync(client);
     await IdentityContext.SaveChangesAsync();
-    return resource;
+    return client;
   }
 
   private async Task<AuthorizationCodeGrant> GetAuthorizationGrant(

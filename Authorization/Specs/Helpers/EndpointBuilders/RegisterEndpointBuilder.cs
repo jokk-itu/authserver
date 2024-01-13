@@ -32,6 +32,12 @@ public class RegisterEndpointBuilder
     return new RegisterEndpointBuilder();
   }
 
+  public RegisterEndpointBuilder AddClientUri(string clientUri)
+  {
+    _clientUri = clientUri;
+    return this;
+  }
+
   public RegisterEndpointBuilder AddApplicationType(string applicationType)
   {
     _applicationType = applicationType;
