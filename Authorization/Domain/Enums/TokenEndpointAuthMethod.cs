@@ -12,4 +12,7 @@ public enum TokenEndpointAuthMethod
 
   [Description(TokenEndpointAuthMethodConstants.None)]
   None,
+
+  [Description(TokenEndpointAuthMethodConstants.PrivateKeyJwt)]
+  PrivateKeyJwt,
 }
