@@ -1,6 +1,6 @@
 ﻿using System.Net;
-using Domain;
 using Domain.Constants;
+using Domain.Entity;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.LogoutToken;
 using Infrastructure.Decoders.Token;

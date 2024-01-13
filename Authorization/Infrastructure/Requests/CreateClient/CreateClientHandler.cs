@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using Application;
-using Domain;
+using Domain.Entity;
 using Domain.Enums;
 using Domain.Extensions;
 using Infrastructure.Builders.Token.Abstractions;

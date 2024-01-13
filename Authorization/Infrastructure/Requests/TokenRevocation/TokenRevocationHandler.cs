@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using Domain;
+using Domain.Entity;
 using Infrastructure.Decoders.Token;
 using Infrastructure.Decoders.Token.Abstractions;
 using Infrastructure.Helpers;

@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using Domain;
+using Domain.Entity;
 using Infrastructure.Helpers;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

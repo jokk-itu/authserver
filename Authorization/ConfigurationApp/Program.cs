@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Security.Cryptography;
 using System.Text;
-using Domain;
+using Domain.Entity;
 using Domain.Enums;
 using Domain.Extensions;
 using Infrastructure;

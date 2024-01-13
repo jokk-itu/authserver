@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using Application;
 using Domain.Enums;
-using Domain;
 using Domain.Constants;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.GrantAccessToken;
@@ -14,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Specs.Helpers.EntityBuilders;
 using Xunit;
+using Domain.Entity;
 
 namespace Specs.Handlers;
 public class TokenRevocationHandlerTests : BaseUnitTest

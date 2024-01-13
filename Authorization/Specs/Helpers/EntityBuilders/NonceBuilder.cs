@@ -1,4 +1,4 @@
-﻿using Domain;
+﻿using Domain.Entity;
 using Infrastructure.Helpers;
 
 namespace Specs.Helpers.EntityBuilders;

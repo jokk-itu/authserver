@@ -1,5 +1,5 @@
-﻿using Domain;
-using Domain.Constants;
+﻿using Domain.Constants;
+using Domain.Entity;
 using Domain.Enums;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.IdToken;

@@ -1,11 +1,11 @@
 ﻿using Application;
 using Domain.Constants;
-using Domain;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Repositories;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.EntityFrameworkCore;
+using Domain.Entity;
 
 namespace Infrastructure.Builders.Token.ClientAccessToken;
 public class ClientAccessTokenBuilder : ITokenBuilder<ClientAccessTokenArguments>
@@ -72,7 +72,7 @@ public class ClientAccessTokenBuilder : ITokenBuilder<ClientAccessTokenArguments
 
     var now = DateTime.UtcNow;
 
-    var accessToken = new Domain.ClientAccessToken()
+    var accessToken = new Domain.Entity.ClientAccessToken()
     {
       Client = client,
       Audience = string.Join(" ", arguments.Resource),
@@ -83,7 +83,7 @@ public class ClientAccessTokenBuilder : ITokenBuilder<ClientAccessTokenArguments
       Issuer = _identityConfiguration.Issuer
     };
 
-    await _identityContext.Set<Domain.ClientAccessToken>().AddAsync(accessToken);
+    await _identityContext.Set<Domain.Entity.ClientAccessToken>().AddAsync(accessToken);
     return accessToken.Reference;
   }
 }

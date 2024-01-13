@@ -1,8 +1,8 @@
 ﻿using System.Net;
 using Application;
 using Application.Validation;
-using Domain;
 using Domain.Constants;
+using Domain.Entity;
 using Infrastructure.Helpers;
 using Infrastructure.Services.Abstract;
 using Microsoft.EntityFrameworkCore;

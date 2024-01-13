@@ -18,7 +18,7 @@ public class RegistrationTokenBuilder : ITokenBuilder<RegistrationTokenArguments
   public async Task<string> BuildToken(RegistrationTokenArguments arguments)
   {
     var now = DateTime.UtcNow;
-    var registrationToken = new Domain.RegistrationToken
+    var registrationToken = new Domain.Entity.RegistrationToken
     {
       Client = arguments.Client,
       Audience = arguments.Client.Id,
@@ -28,7 +28,7 @@ public class RegistrationTokenBuilder : ITokenBuilder<RegistrationTokenArguments
     };
 
     await _identityContext
-      .Set<Domain.RegistrationToken>()
+      .Set<Domain.Entity.RegistrationToken>()
       .AddAsync(registrationToken);
 
     return registrationToken.Reference;

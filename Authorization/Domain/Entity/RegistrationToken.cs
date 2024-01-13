@@ -1,4 +1,4 @@
-﻿namespace Domain;
+﻿namespace Domain.Entity;
 public class RegistrationToken : ClientToken
 {
 }

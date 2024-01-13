@@ -1,6 +1,6 @@
 ﻿using Application;
-using Domain;
 using Domain.Constants;
+using Domain.Entity;
 using Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;

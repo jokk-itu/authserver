@@ -1,9 +1,9 @@
 ﻿using Domain.Constants;
-using Domain;
 using System.Globalization;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Infrastructure.Services.Abstract;
+using Domain.Entity;
 
 namespace Infrastructure.Services;
 public class ClaimService : IClaimService

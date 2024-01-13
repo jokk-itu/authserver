@@ -1,5 +1,5 @@
-﻿using Domain;
-using Domain.Constants;
+﻿using Domain.Constants;
+using Domain.Entity;
 using Infrastructure.Helpers;
 using Infrastructure.Services;
 using Infrastructure.Services.Abstract;

@@ -1,6 +1,6 @@
 ﻿using Application;
-using Domain;
 using Domain.Constants;
+using Domain.Entity;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -47,7 +47,7 @@ public class RefreshTokenBuilder : ITokenBuilder<RefreshTokenArguments>
       .SingleAsync();
 
     var now = DateTime.UtcNow;
-    var refreshToken = new Domain.RefreshToken
+    var refreshToken = new Domain.Entity.RefreshToken
     {
       AuthorizationGrant = query.AuthorizationGrant,
       Audience = query.ClientId,
@@ -58,7 +58,7 @@ public class RefreshTokenBuilder : ITokenBuilder<RefreshTokenArguments>
       Scope = arguments.Scope
     };
     await _identityContext
-      .Set<Domain.RefreshToken>()
+      .Set<Domain.Entity.RefreshToken>()
       .AddAsync(refreshToken);
 
     return refreshToken.Reference;
@@ -79,7 +79,7 @@ public class RefreshTokenBuilder : ITokenBuilder<RefreshTokenArguments>
       .SingleAsync();
 
     var now = DateTime.UtcNow;
-    var refreshToken = new Domain.RefreshToken
+    var refreshToken = new Domain.Entity.RefreshToken
     {
       AuthorizationGrant = query.AuthorizationGrant,
       Audience = query.ClientId,
@@ -90,7 +90,7 @@ public class RefreshTokenBuilder : ITokenBuilder<RefreshTokenArguments>
       Scope = arguments.Scope
     };
 
-    await _identityContext.Set<Domain.RefreshToken>().AddAsync(refreshToken);
+    await _identityContext.Set<Domain.Entity.RefreshToken>().AddAsync(refreshToken);
 
     var claims = new Dictionary<string, object>
     {

@@ -1,6 +1,6 @@
 ﻿using Application;
-using Domain;
 using Domain.Constants;
+using Domain.Entity;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.RefreshToken;
 using Infrastructure.Helpers;

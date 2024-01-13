@@ -1,8 +1,8 @@
 ﻿using Application;
 using Application.Validation;
-using Domain;
 using System.Net;
 using Microsoft.EntityFrameworkCore;
+using Domain.Entity;
 
 namespace Infrastructure.Requests.ReadClient;
 public class ReadClientValidator : IValidator<ReadClientQuery>

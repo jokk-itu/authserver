@@ -1,10 +1,10 @@
-﻿using Domain;
-using MediatR;
+﻿using MediatR;
 using System.Net;
 using Infrastructure.Requests.Abstract;
 using Infrastructure.Services;
 using Infrastructure.Services.Abstract;
 using Microsoft.EntityFrameworkCore;
+using Domain.Entity;
 
 namespace Infrastructure.Requests.SilentCookieLogin;
 public class SilentCookieLoginHandler : AuthorizeHandler, IRequestHandler<SilentCookieLoginCommand, SilentCookieLoginResponse>

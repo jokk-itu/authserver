@@ -1,7 +1,7 @@
 ﻿using Application;
 using Application.Validation;
-using Domain;
 using Domain.Constants;
+using Domain.Entity;
 using Domain.Enums;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Helpers;

@@ -2,8 +2,8 @@
 using System.Net;
 using Application;
 using Application.Validation;
-using Domain;
 using Domain.Constants;
+using Domain.Entity;
 using Infrastructure.Decoders.Token;
 using Infrastructure.Decoders.Token.Abstractions;
 using Infrastructure.Requests.Abstract;

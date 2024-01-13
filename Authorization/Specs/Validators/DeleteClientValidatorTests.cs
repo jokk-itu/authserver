@@ -1,6 +1,6 @@
 ﻿using Application;
 using Application.Validation;
-using Domain;
+using Domain.Entity;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.RegistrationToken;
 using Infrastructure.Requests.DeleteClient;

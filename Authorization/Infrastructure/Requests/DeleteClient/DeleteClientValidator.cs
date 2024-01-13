@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using Application;
 using Application.Validation;
-using Domain;
+using Domain.Entity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Requests.DeleteClient;

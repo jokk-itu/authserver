@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using Application.Validation;
-using Domain;
 using Domain.Constants;
+using Domain.Entity;
 using Infrastructure.Requests.CreateClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;

@@ -1,4 +1,4 @@
-﻿using Domain;
+﻿using Domain.Entity;
 
 namespace Infrastructure.Builders.Token.RegistrationToken;
 #nullable disable

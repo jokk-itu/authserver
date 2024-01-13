@@ -1,6 +1,6 @@
 ﻿using Application;
 using Application.Validation;
-using Domain;
+using Domain.Entity;
 using Infrastructure.Services.Abstract;
 using Microsoft.EntityFrameworkCore;
 

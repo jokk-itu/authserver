@@ -1,4 +1,4 @@
-﻿using Domain;
+﻿using Domain.Entity;
 
 namespace Specs.Helpers.EntityBuilders;
 public class ScopeBuilder

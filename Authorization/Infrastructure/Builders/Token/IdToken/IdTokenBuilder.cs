@@ -1,7 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using Application;
-using Domain;
 using Domain.Constants;
+using Domain.Entity;
 using Domain.Enums;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Repositories;

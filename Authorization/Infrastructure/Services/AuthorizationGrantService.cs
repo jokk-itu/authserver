@@ -1,4 +1,4 @@
-﻿using Domain;
+﻿using Domain.Entity;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Services.Abstract;
 

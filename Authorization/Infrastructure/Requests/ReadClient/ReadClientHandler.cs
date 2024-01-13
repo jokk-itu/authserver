@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using Domain;
+using Domain.Entity;
 using Domain.Enums;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.RegistrationToken;

@@ -1,5 +1,5 @@
 ﻿using Bogus;
-using Domain;
+using Domain.Entity;
 using Domain.Enums;
 using Infrastructure.Helpers;
 

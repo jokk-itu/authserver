@@ -1,7 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using Application;
-using Domain;
 using Domain.Constants;
+using Domain.Entity;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -87,7 +87,7 @@ public class GrantAccessTokenBuilder : ITokenBuilder<GrantAccessTokenArguments>
 
     var now = DateTime.UtcNow;
 
-    var accessToken = new Domain.GrantAccessToken
+    var accessToken = new Domain.Entity.GrantAccessToken
     {
       AuthorizationGrant = grant,
       Audience = string.Join(" ", arguments.Resource),
@@ -98,7 +98,7 @@ public class GrantAccessTokenBuilder : ITokenBuilder<GrantAccessTokenArguments>
       Issuer = _identityConfiguration.Issuer
     };
 
-    await _identityContext.Set<Domain.GrantAccessToken>().AddAsync(accessToken);
+    await _identityContext.Set<Domain.Entity.GrantAccessToken>().AddAsync(accessToken);
     return accessToken.Reference;
   }
 }

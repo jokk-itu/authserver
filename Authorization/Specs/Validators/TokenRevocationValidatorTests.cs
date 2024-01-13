@@ -8,12 +8,12 @@ using Infrastructure.Requests.TokenRevocation;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Domain.Enums;
-using Domain;
 using Infrastructure.Builders.Token.RefreshToken;
 using Infrastructure.Helpers;
 using Infrastructure.Requests.Abstract;
 using Microsoft.EntityFrameworkCore;
 using Specs.Helpers.EntityBuilders;
+using Domain.Entity;
 
 namespace Specs.Validators;
 public class TokenRevocationValidatorTests : BaseUnitTest

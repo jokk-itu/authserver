@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Domain;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.RegistrationToken;
 using Infrastructure.Requests.DeleteClient;
@@ -7,6 +6,7 @@ using MediatR;
 using Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Specs.Helpers.EntityBuilders;
+using Domain.Entity;
 
 namespace Specs.Handlers;
 

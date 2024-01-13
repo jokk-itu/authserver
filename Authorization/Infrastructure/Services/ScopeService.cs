@@ -2,8 +2,8 @@
 using Application.Validation;
 using Domain.Constants;
 using Infrastructure.Services.Abstract;
-using Domain;
 using Microsoft.EntityFrameworkCore;
+using Domain.Entity;
 
 namespace Infrastructure.Services;
 public class ScopeService : IScopeService

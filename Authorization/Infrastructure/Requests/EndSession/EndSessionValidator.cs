@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using Application;
 using Application.Validation;
-using Domain;
+using Domain.Entity;
 using Domain.Enums;
 using Infrastructure.Decoders.Token;
 using Infrastructure.Decoders.Token.Abstractions;

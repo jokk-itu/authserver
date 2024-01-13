@@ -1,6 +1,6 @@
 ﻿using Application;
-using Domain;
 using Domain.Constants;
+using Domain.Entity;
 using Infrastructure;
 using Infrastructure.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

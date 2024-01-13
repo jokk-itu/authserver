@@ -1,8 +1,8 @@
 ﻿using System.Net;
 using Application;
 using Application.Validation;
-using Domain;
 using Domain.Constants;
+using Domain.Entity;
 using Domain.Enums;
 using Infrastructure.Helpers;
 using Infrastructure.Requests.CreateAuthorizationGrant;

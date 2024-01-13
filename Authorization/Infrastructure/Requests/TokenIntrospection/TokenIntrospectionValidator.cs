@@ -1,11 +1,11 @@
 using Application;
 using Application.Validation;
 using Domain.Constants;
-using Domain;
 using System.Net;
 using Infrastructure.Helpers;
 using Infrastructure.Requests.Abstract;
 using Microsoft.EntityFrameworkCore;
+using Domain.Entity;
 
 namespace Infrastructure.Requests.TokenIntrospection;
 

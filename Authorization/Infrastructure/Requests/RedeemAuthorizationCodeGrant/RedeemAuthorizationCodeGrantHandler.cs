@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using Application;
-using Domain;
 using Domain.Constants;
+using Domain.Entity;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.GrantAccessToken;
 using Infrastructure.Builders.Token.IdToken;

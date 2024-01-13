@@ -107,7 +107,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("ConsentGrantScope");
                 });
 
-            modelBuilder.Entity("Domain.AuthorizationCode", b =>
+            modelBuilder.Entity("Domain.Entity.AuthorizationCode", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -134,7 +134,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("AuthorizationCode");
                 });
 
-            modelBuilder.Entity("Domain.AuthorizationCodeGrant", b =>
+            modelBuilder.Entity("Domain.Entity.AuthorizationCodeGrant", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -163,7 +163,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("AuthorizationCodeGrant");
                 });
 
-            modelBuilder.Entity("Domain.Claim", b =>
+            modelBuilder.Entity("Domain.Entity.Claim", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -225,7 +225,7 @@ namespace Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Domain.Client", b =>
+            modelBuilder.Entity("Domain.Entity.Client", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -280,7 +280,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Client");
                 });
 
-            modelBuilder.Entity("Domain.ConsentGrant", b =>
+            modelBuilder.Entity("Domain.Entity.ConsentGrant", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -304,7 +304,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("ConsentGrant");
                 });
 
-            modelBuilder.Entity("Domain.Contact", b =>
+            modelBuilder.Entity("Domain.Entity.Contact", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -318,7 +318,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Contact");
                 });
 
-            modelBuilder.Entity("Domain.GrantType", b =>
+            modelBuilder.Entity("Domain.Entity.GrantType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -350,7 +350,7 @@ namespace Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Domain.Jwk", b =>
+            modelBuilder.Entity("Domain.Entity.Jwk", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -376,7 +376,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Jwk");
                 });
 
-            modelBuilder.Entity("Domain.Nonce", b =>
+            modelBuilder.Entity("Domain.Entity.Nonce", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -398,7 +398,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Nonce");
                 });
 
-            modelBuilder.Entity("Domain.PairwiseIdentifier", b =>
+            modelBuilder.Entity("Domain.Entity.PairwiseIdentifier", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -420,7 +420,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("PairwiseIdentifier");
                 });
 
-            modelBuilder.Entity("Domain.RedirectUri", b =>
+            modelBuilder.Entity("Domain.Entity.RedirectUri", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -444,7 +444,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("RedirectUri");
                 });
 
-            modelBuilder.Entity("Domain.ResponseType", b =>
+            modelBuilder.Entity("Domain.Entity.ResponseType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -466,7 +466,7 @@ namespace Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Domain.Role", b =>
+            modelBuilder.Entity("Domain.Entity.Role", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -484,7 +484,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Role");
                 });
 
-            modelBuilder.Entity("Domain.Scope", b =>
+            modelBuilder.Entity("Domain.Entity.Scope", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -533,7 +533,7 @@ namespace Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Domain.Session", b =>
+            modelBuilder.Entity("Domain.Entity.Session", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -551,7 +551,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Session");
                 });
 
-            modelBuilder.Entity("Domain.Token", b =>
+            modelBuilder.Entity("Domain.Entity.Token", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -594,7 +594,7 @@ namespace Infrastructure.Migrations
                     b.HasDiscriminator<int>("TokenType");
                 });
 
-            modelBuilder.Entity("Domain.User", b =>
+            modelBuilder.Entity("Domain.Entity.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -663,9 +663,9 @@ namespace Infrastructure.Migrations
                     b.ToTable("RoleUser");
                 });
 
-            modelBuilder.Entity("Domain.ClientToken", b =>
+            modelBuilder.Entity("Domain.Entity.ClientToken", b =>
                 {
-                    b.HasBaseType("Domain.Token");
+                    b.HasBaseType("Domain.Entity.Token");
 
                     b.Property<string>("ClientId")
                         .HasColumnType("TEXT");
@@ -673,9 +673,9 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ClientId");
                 });
 
-            modelBuilder.Entity("Domain.GrantToken", b =>
+            modelBuilder.Entity("Domain.Entity.GrantToken", b =>
                 {
-                    b.HasBaseType("Domain.Token");
+                    b.HasBaseType("Domain.Entity.Token");
 
                     b.Property<string>("AuthorizationGrantId")
                         .HasColumnType("TEXT");
@@ -683,43 +683,43 @@ namespace Infrastructure.Migrations
                     b.HasIndex("AuthorizationGrantId");
                 });
 
-            modelBuilder.Entity("Domain.ClientAccessToken", b =>
+            modelBuilder.Entity("Domain.Entity.ClientAccessToken", b =>
                 {
-                    b.HasBaseType("Domain.ClientToken");
+                    b.HasBaseType("Domain.Entity.ClientToken");
 
                     b.HasDiscriminator().HasValue(1);
                 });
 
-            modelBuilder.Entity("Domain.GrantAccessToken", b =>
+            modelBuilder.Entity("Domain.Entity.GrantAccessToken", b =>
                 {
-                    b.HasBaseType("Domain.GrantToken");
+                    b.HasBaseType("Domain.Entity.GrantToken");
 
                     b.HasDiscriminator().HasValue(2);
                 });
 
-            modelBuilder.Entity("Domain.RefreshToken", b =>
+            modelBuilder.Entity("Domain.Entity.RefreshToken", b =>
                 {
-                    b.HasBaseType("Domain.GrantToken");
+                    b.HasBaseType("Domain.Entity.GrantToken");
 
                     b.HasDiscriminator().HasValue(0);
                 });
 
-            modelBuilder.Entity("Domain.RegistrationToken", b =>
+            modelBuilder.Entity("Domain.Entity.RegistrationToken", b =>
                 {
-                    b.HasBaseType("Domain.ClientToken");
+                    b.HasBaseType("Domain.Entity.ClientToken");
 
                     b.HasDiscriminator().HasValue(3);
                 });
 
             modelBuilder.Entity("ClaimConsentGrant", b =>
                 {
-                    b.HasOne("Domain.ConsentGrant", null)
+                    b.HasOne("Domain.Entity.ConsentGrant", null)
                         .WithMany()
                         .HasForeignKey("ConsentGrantsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Claim", null)
+                    b.HasOne("Domain.Entity.Claim", null)
                         .WithMany()
                         .HasForeignKey("ConsentedClaimsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -728,13 +728,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("ClientContact", b =>
                 {
-                    b.HasOne("Domain.Client", null)
+                    b.HasOne("Domain.Entity.Client", null)
                         .WithMany()
                         .HasForeignKey("ClientsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Contact", null)
+                    b.HasOne("Domain.Entity.Contact", null)
                         .WithMany()
                         .HasForeignKey("ContactsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -743,13 +743,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("ClientGrantType", b =>
                 {
-                    b.HasOne("Domain.Client", null)
+                    b.HasOne("Domain.Entity.Client", null)
                         .WithMany()
                         .HasForeignKey("ClientsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.GrantType", null)
+                    b.HasOne("Domain.Entity.GrantType", null)
                         .WithMany()
                         .HasForeignKey("GrantTypesId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -758,13 +758,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("ClientResponseType", b =>
                 {
-                    b.HasOne("Domain.Client", null)
+                    b.HasOne("Domain.Entity.Client", null)
                         .WithMany()
                         .HasForeignKey("ClientsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.ResponseType", null)
+                    b.HasOne("Domain.Entity.ResponseType", null)
                         .WithMany()
                         .HasForeignKey("ResponseTypesId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -773,13 +773,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("ClientScope", b =>
                 {
-                    b.HasOne("Domain.Client", null)
+                    b.HasOne("Domain.Entity.Client", null)
                         .WithMany()
                         .HasForeignKey("ClientsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Scope", null)
+                    b.HasOne("Domain.Entity.Scope", null)
                         .WithMany()
                         .HasForeignKey("ScopesId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -788,22 +788,22 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("ConsentGrantScope", b =>
                 {
-                    b.HasOne("Domain.ConsentGrant", null)
+                    b.HasOne("Domain.Entity.ConsentGrant", null)
                         .WithMany()
                         .HasForeignKey("ConsentGrantsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Scope", null)
+                    b.HasOne("Domain.Entity.Scope", null)
                         .WithMany()
                         .HasForeignKey("ConsentedScopesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.AuthorizationCode", b =>
+            modelBuilder.Entity("Domain.Entity.AuthorizationCode", b =>
                 {
-                    b.HasOne("Domain.AuthorizationCodeGrant", "AuthorizationCodeGrant")
+                    b.HasOne("Domain.Entity.AuthorizationCodeGrant", "AuthorizationCodeGrant")
                         .WithMany("AuthorizationCodes")
                         .HasForeignKey("AuthorizationCodeGrantId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -811,14 +811,14 @@ namespace Infrastructure.Migrations
                     b.Navigation("AuthorizationCodeGrant");
                 });
 
-            modelBuilder.Entity("Domain.AuthorizationCodeGrant", b =>
+            modelBuilder.Entity("Domain.Entity.AuthorizationCodeGrant", b =>
                 {
-                    b.HasOne("Domain.Client", "Client")
+                    b.HasOne("Domain.Entity.Client", "Client")
                         .WithMany("AuthorizationCodeGrants")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Domain.Session", "Session")
+                    b.HasOne("Domain.Entity.Session", "Session")
                         .WithMany("AuthorizationCodeGrants")
                         .HasForeignKey("SessionId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -828,14 +828,14 @@ namespace Infrastructure.Migrations
                     b.Navigation("Session");
                 });
 
-            modelBuilder.Entity("Domain.ConsentGrant", b =>
+            modelBuilder.Entity("Domain.Entity.ConsentGrant", b =>
                 {
-                    b.HasOne("Domain.Client", "Client")
+                    b.HasOne("Domain.Entity.Client", "Client")
                         .WithMany("ConsentGrants")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Domain.User", "User")
+                    b.HasOne("Domain.Entity.User", "User")
                         .WithMany("ConsentGrants")
                         .HasForeignKey("UserId");
 
@@ -844,9 +844,9 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Nonce", b =>
+            modelBuilder.Entity("Domain.Entity.Nonce", b =>
                 {
-                    b.HasOne("Domain.AuthorizationCodeGrant", "AuthorizationCodeGrant")
+                    b.HasOne("Domain.Entity.AuthorizationCodeGrant", "AuthorizationCodeGrant")
                         .WithMany("Nonces")
                         .HasForeignKey("AuthorizationCodeGrantId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -854,15 +854,15 @@ namespace Infrastructure.Migrations
                     b.Navigation("AuthorizationCodeGrant");
                 });
 
-            modelBuilder.Entity("Domain.PairwiseIdentifier", b =>
+            modelBuilder.Entity("Domain.Entity.PairwiseIdentifier", b =>
                 {
-                    b.HasOne("Domain.Client", "Client")
+                    b.HasOne("Domain.Entity.Client", "Client")
                         .WithMany("PairwiseIdentifiers")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.User", "User")
+                    b.HasOne("Domain.Entity.User", "User")
                         .WithMany("PairwiseIdentifiers")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -873,9 +873,9 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.RedirectUri", b =>
+            modelBuilder.Entity("Domain.Entity.RedirectUri", b =>
                 {
-                    b.HasOne("Domain.Client", "Client")
+                    b.HasOne("Domain.Entity.Client", "Client")
                         .WithMany("RedirectUris")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -883,9 +883,9 @@ namespace Infrastructure.Migrations
                     b.Navigation("Client");
                 });
 
-            modelBuilder.Entity("Domain.Session", b =>
+            modelBuilder.Entity("Domain.Entity.Session", b =>
                 {
-                    b.HasOne("Domain.User", "User")
+                    b.HasOne("Domain.Entity.User", "User")
                         .WithMany("Sessions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -895,22 +895,22 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("RoleUser", b =>
                 {
-                    b.HasOne("Domain.Role", null)
+                    b.HasOne("Domain.Entity.Role", null)
                         .WithMany()
                         .HasForeignKey("RolesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.User", null)
+                    b.HasOne("Domain.Entity.User", null)
                         .WithMany()
                         .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.ClientToken", b =>
+            modelBuilder.Entity("Domain.Entity.ClientToken", b =>
                 {
-                    b.HasOne("Domain.Client", "Client")
+                    b.HasOne("Domain.Entity.Client", "Client")
                         .WithMany("ClientTokens")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.NoAction);
@@ -918,9 +918,9 @@ namespace Infrastructure.Migrations
                     b.Navigation("Client");
                 });
 
-            modelBuilder.Entity("Domain.GrantToken", b =>
+            modelBuilder.Entity("Domain.Entity.GrantToken", b =>
                 {
-                    b.HasOne("Domain.AuthorizationCodeGrant", "AuthorizationGrant")
+                    b.HasOne("Domain.Entity.AuthorizationCodeGrant", "AuthorizationGrant")
                         .WithMany("GrantTokens")
                         .HasForeignKey("AuthorizationGrantId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -928,7 +928,7 @@ namespace Infrastructure.Migrations
                     b.Navigation("AuthorizationGrant");
                 });
 
-            modelBuilder.Entity("Domain.AuthorizationCodeGrant", b =>
+            modelBuilder.Entity("Domain.Entity.AuthorizationCodeGrant", b =>
                 {
                     b.Navigation("AuthorizationCodes");
 
@@ -937,7 +937,7 @@ namespace Infrastructure.Migrations
                     b.Navigation("Nonces");
                 });
 
-            modelBuilder.Entity("Domain.Client", b =>
+            modelBuilder.Entity("Domain.Entity.Client", b =>
                 {
                     b.Navigation("AuthorizationCodeGrants");
 
@@ -950,12 +950,12 @@ namespace Infrastructure.Migrations
                     b.Navigation("RedirectUris");
                 });
 
-            modelBuilder.Entity("Domain.Session", b =>
+            modelBuilder.Entity("Domain.Entity.Session", b =>
                 {
                     b.Navigation("AuthorizationCodeGrants");
                 });
 
-            modelBuilder.Entity("Domain.User", b =>
+            modelBuilder.Entity("Domain.Entity.User", b =>
                 {
                     b.Navigation("ConsentGrants");
 

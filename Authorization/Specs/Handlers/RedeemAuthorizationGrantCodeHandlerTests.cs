@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using Application.Validation;
-using Domain;
 using Domain.Constants;
+using Domain.Entity;
 using Infrastructure.Builders.Abstractions;
 using Infrastructure.Helpers;
 using Infrastructure.Requests.Abstract;

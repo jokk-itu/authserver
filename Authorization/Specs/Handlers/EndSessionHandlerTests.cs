@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using Domain.Enums;
-using Domain;
 using Domain.Constants;
 using Infrastructure.Builders.Token.Abstractions;
 using Infrastructure.Builders.Token.IdToken;
@@ -12,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Specs.Helpers.EntityBuilders;
 using Xunit;
+using Domain.Entity;
 
 namespace Specs.Handlers;
 public class EndSessionHandlerTests : BaseUnitTest
