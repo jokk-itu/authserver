@@ -1,4 +1,5 @@
-﻿using Domain.Enums;
+﻿using Domain.Constants;
+using Domain.Enums;
 using Infrastructure.Requests.Abstract;
 using WebApp.Constants;
 
@@ -25,5 +26,33 @@ public static class FormCollectionExtensions
 
     var isClientSecretPost = !string.IsNullOrWhiteSpace(clientId) || !string.IsNullOrWhiteSpace(clientSecret);
     return isClientSecretPost ? clientAuthentication : null;
+  }
+
+  public static ClientAuthentication? GetPrivateKeyJwt(this IFormCollection formCollection)
+  {
+    var clientAuthentication = new ClientAuthentication
+    {
+      Method = TokenEndpointAuthMethod.PrivateKeyJwt
+    };
+
+    if (formCollection.TryGetValue(ParameterNames.ClientId, out var clientId))
+    {
+      clientAuthentication.ClientId = clientId;
+    }
+
+    if (formCollection.TryGetValue(ParameterNames.ClientAssertion, out var clientAssertion))
+    {
+      clientAuthentication.ClientAssertion = clientAssertion;
+    }
+
+    if (formCollection.TryGetValue(ParameterNames.ClientAssertionType, out var clientAssertionType))
+    {
+      clientAuthentication.ClientAssertionType = clientAssertionType;
+    }
+
+    var isPrivateKeyJwt = clientAuthentication.ClientAssertionType == ClientAssertionTypeConstants.PrivateKeyJwt
+                          && !string.IsNullOrWhiteSpace(clientAuthentication.ClientAssertion);
+
+    return isPrivateKeyJwt ? clientAuthentication : null;
   }
 }

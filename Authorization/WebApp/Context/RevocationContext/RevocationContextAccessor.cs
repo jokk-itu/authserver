@@ -31,6 +31,12 @@ public class RevocationContextAccessor : IContextAccessor<RevocationContext>
       context.ClientAuthentications.Add(clientSecretPost);
     }
 
+    var privateKeyJwt = body.GetPrivateKeyJwt();
+    if (privateKeyJwt is not null)
+    {
+      context.ClientAuthentications.Add(privateKeyJwt);
+    }
+
     return context;
   }
 }
