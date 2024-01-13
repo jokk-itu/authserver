@@ -70,4 +70,6 @@ public static class ParameterNames
   public const string Audience = "aud";
   public const string Jwks = "jwks";
   public const string JwksUri = "jwks_uri";
+  public const string ClientAssertion = "client_assertion";
+  public const string ClientAssertionType = "client_assertion_type";
 }
