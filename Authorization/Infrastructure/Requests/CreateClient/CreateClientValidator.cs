@@ -3,6 +3,7 @@ using Application;
 using Application.Validation;
 using Domain;
 using Domain.Constants;
+using Infrastructure.Services.Abstract;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -10,14 +11,14 @@ namespace Infrastructure.Requests.CreateClient;
 public class CreateClientValidator : IValidator<CreateClientCommand>
 {
   private readonly IdentityContext _identityContext;
-  private readonly HttpClient _httpClient;
+  private readonly IClientService _clientService;
 
   public CreateClientValidator(
     IdentityContext identityContext,
-    IHttpClientFactory httpClientFactory)
+    IClientService clientService)
   {
     _identityContext = identityContext;
-    _httpClient = httpClientFactory.CreateClient();
+    _clientService = clientService;
   }
 
   public async Task<ValidationResult> ValidateAsync(CreateClientCommand value, CancellationToken cancellationToken = default)
@@ -142,14 +143,16 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
       return true;
     }
 
+    var jwks = await _clientService.GetJwks(uri, cancellationToken);
+    if (string.IsNullOrWhiteSpace(jwks))
+    {
+      return true;
+    }
+
     try
     {
-      var request = new HttpRequestMessage(HttpMethod.Get, uri);
-      var response = await _httpClient.SendAsync(request, cancellationToken);
-      response.EnsureSuccessStatusCode();
-      var jwks = await response.Content.ReadAsStringAsync(cancellationToken: cancellationToken); 
-      var temp = JsonWebKeySet.Create(jwks);
-      var isValid = temp.GetSigningKeys().Any() && temp.GetSigningKeys().Count == temp.Keys.Count;
+      var jwkSet = JsonWebKeySet.Create(jwks);
+      var isValid = jwkSet.GetSigningKeys().Any() && jwkSet.GetSigningKeys().Count == jwkSet.Keys.Count;
       if (isValid)
       {
         command.Jwks = jwks;
@@ -157,7 +160,7 @@ public class CreateClientValidator : IValidator<CreateClientCommand>
 
       return !isValid;
     }
-    catch (Exception)
+    catch
     {
       return true;
     }

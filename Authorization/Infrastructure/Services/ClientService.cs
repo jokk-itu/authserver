@@ -5,18 +5,44 @@ using Domain.Constants;
 using Domain.Enums;
 using Infrastructure.Services.Abstract;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Services;
 
 public class ClientService : IClientService
 {
   private readonly IdentityContext _identityContext;
+  private readonly IHttpClientFactory _httpClientFactory;
+  private readonly ILogger<ClientService> _logger;
 
   public ClientService(
-    IdentityContext identityContext)
+    IdentityContext identityContext,
+    IHttpClientFactory httpClientFactory,
+    ILogger<ClientService> logger)
   {
     _identityContext = identityContext;
+    _httpClientFactory = httpClientFactory;
+    _logger = logger;
   }
+
+  public async Task<string?> GetJwks(Uri jwksUri, CancellationToken cancellationToken)
+  {
+    using var httpClient = _httpClientFactory.CreateClient();
+    var request = new HttpRequestMessage(HttpMethod.Get, jwksUri);
+
+    try
+    {
+      var response = await httpClient.SendAsync(request, cancellationToken: cancellationToken);
+      response.EnsureSuccessStatusCode();
+      var jwks = await response.Content.ReadAsStringAsync(cancellationToken: cancellationToken);
+      return jwks;
+    }
+    catch (Exception e)
+    {
+      _logger.LogWarning(e, "Request to {jwksUri} caused an exception", jwksUri);
+      return null;
+    }
+  } 
 
   public async Task<BaseValidationResult> ValidateResources(ICollection<string> resource, string scope, CancellationToken cancellationToken)
   {

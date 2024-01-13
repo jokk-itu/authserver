@@ -24,4 +24,6 @@ public interface IClientService
     ICollection<string> resource,
     string scope,
     CancellationToken cancellationToken);
+
+  Task<string?> GetJwks(Uri jwksUri, CancellationToken cancellationToken);
 }
