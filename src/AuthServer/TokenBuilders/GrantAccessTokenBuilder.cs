@@ -46,10 +46,10 @@ internal class GrantAccessTokenBuilder : ITokenBuilder<GrantAccessTokenArguments
             return await BuildReferenceToken(arguments, grantQuery);
         }
 
-        return await BuildStructuredToken(arguments, grantQuery);
+        return BuildStructuredToken(arguments, grantQuery);
     }
 
-    private async Task<string> BuildStructuredToken(GrantAccessTokenArguments arguments, GrantQuery grantQuery)
+    private string BuildStructuredToken(GrantAccessTokenArguments arguments, GrantQuery grantQuery)
     {
         var claims = new Dictionary<string, object>
         {

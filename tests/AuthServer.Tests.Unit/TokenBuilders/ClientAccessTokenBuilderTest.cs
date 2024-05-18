@@ -1,0 +1,109 @@
+﻿using AuthServer.Constants;
+using AuthServer.Entities;
+using AuthServer.Enums;
+using AuthServer.TokenBuilders.Abstractions;
+using AuthServer.TokenBuilders;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
+using Xunit.Abstractions;
+
+namespace AuthServer.Tests.Unit.TokenBuilders;
+
+public class ClientAccessTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTest(outputHelper)
+{
+    [Fact]
+    public async Task BuildToken_RequireReferenceToken_ExpectReferenceToken()
+    {
+        // Arrange
+        var serviceProvider = BuildServiceProvider();
+        var accessTokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<ClientAccessTokenArguments>>();
+        var client = await GetClient(true);
+
+        // Act
+        var accessToken = await accessTokenBuilder.BuildToken(new ClientAccessTokenArguments
+        {
+            ClientId = client.Id,
+            Scope = [ScopeConstants.OpenId],
+            Resource = ["https://localhost:5000"]
+        }, CancellationToken.None);
+        await IdentityContext.SaveChangesAsync();
+
+        // Assert
+        var token = IdentityContext.Set<ClientAccessToken>().Include(x => x.Client).Single();
+        Assert.Equal(accessToken, token.Reference);
+        Assert.Equal(client.Id, token.Client.Id);
+        Assert.Equal(DiscoveryDocument.Issuer, token.Issuer);
+        Assert.Equal(ScopeConstants.OpenId, token.Scope);
+        Assert.NotNull(token.ExpiresAt);
+        Assert.Equal("https://localhost:5000", token.Audience);
+    }
+
+    [Theory]
+    [InlineData(SigningAlg.RsaSha256)]
+    [InlineData(SigningAlg.RsaSha384)]
+    [InlineData(SigningAlg.RsaSha512)]
+    [InlineData(SigningAlg.RsaSsaPssSha256)]
+    [InlineData(SigningAlg.RsaSsaPssSha384)]
+    [InlineData(SigningAlg.RsaSsaPssSha512)]
+    [InlineData(SigningAlg.EcdsaSha256)]
+    [InlineData(SigningAlg.EcdsaSha384)]
+    [InlineData(SigningAlg.EcdsaSha512)]
+    public async Task BuildToken_StructuredToken_ExpectJwt(SigningAlg signingAlg)
+    {
+        // Arrange
+        var serviceProvider = BuildServiceProvider();
+        var grantAccessTokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<ClientAccessTokenArguments>>();
+        var client = await GetClient(false, signingAlg);
+
+        // Act
+        var accessToken = await grantAccessTokenBuilder.BuildToken(new ClientAccessTokenArguments
+        {
+            ClientId = client.Id,
+            Scope = [ScopeConstants.OpenId],
+            Resource = ["https://localhost:5000"]
+        }, CancellationToken.None);
+        await IdentityContext.SaveChangesAsync();
+
+        // Assert
+        var jsonWebTokenHandler = new JsonWebTokenHandler();
+        var validatedTokenResult = await jsonWebTokenHandler.ValidateTokenAsync(accessToken,
+            new TokenValidationParameters
+            {
+                IssuerSigningKey = JwksDocument.GetSigningKey(signingAlg),
+                ValidAudience = "https://localhost:5000",
+                ValidIssuer = DiscoveryDocument.Issuer,
+                ValidTypes = [TokenTypeHeaderConstants.AccessToken],
+                NameClaimType = ClaimNameConstants.Name,
+                RoleClaimType = ClaimNameConstants.Roles
+            });
+
+        Assert.NotNull(validatedTokenResult);
+        Assert.Null(validatedTokenResult.Exception);
+        Assert.True(validatedTokenResult.IsValid);
+        Assert.NotNull(validatedTokenResult.Claims[ClaimNameConstants.Jti].ToString());
+        Assert.Equal(ScopeConstants.OpenId, validatedTokenResult.Claims[ClaimNameConstants.Scope].ToString());
+        Assert.Equal(client.Id, validatedTokenResult.Claims[ClaimNameConstants.ClientId].ToString());
+        Assert.Equal(client.Id, validatedTokenResult.Claims[ClaimNameConstants.Sub].ToString());
+    }
+
+    private async Task<Client> GetClient(bool requireReferenceToken,
+        SigningAlg signingAlg = SigningAlg.RsaSha256)
+    {
+        var openIdScope = await IdentityContext
+            .Set<Scope>()
+            .SingleAsync(x => x.Name == ScopeConstants.OpenId);
+
+        var client = new Client("PinguApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic)
+        {
+            RequireReferenceToken = requireReferenceToken,
+            TokenEndpointAuthSigningAlg = signingAlg,
+            SubjectType = SubjectType.Public
+        };
+
+        client.Scopes.Add(openIdScope);
+        await AddEntity(client);
+        return client;
+    }
+}

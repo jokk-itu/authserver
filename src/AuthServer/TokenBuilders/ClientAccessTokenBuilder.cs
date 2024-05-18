@@ -39,10 +39,10 @@ internal class ClientAccessTokenBuilder : ITokenBuilder<ClientAccessTokenArgumen
             return await BuildReferenceToken(arguments, client);
         }
 
-        return await BuildStructuredToken(arguments, client);
+        return BuildStructuredToken(arguments, client);
     }
 
-    private async Task<string> BuildStructuredToken(ClientAccessTokenArguments arguments, Client client)
+    private string BuildStructuredToken(ClientAccessTokenArguments arguments, Client client)
     {
         var claims = new Dictionary<string, object>
         {
