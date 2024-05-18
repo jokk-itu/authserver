@@ -1,4 +1,5 @@
-﻿using AuthServer.Entities;
+﻿using AuthServer.Constants;
+using AuthServer.Entities;
 using AuthServer.Enums;
 using AuthServer.TokenBuilders;
 using AuthServer.TokenBuilders.Abstractions;
@@ -31,7 +32,7 @@ public class RegistrationTokenBuilderTest(ITestOutputHelper outputHelper) : Base
         Assert.Equal(registrationToken, token.Reference);
         Assert.Equal(client.Id, token.Client.Id);
         Assert.Equal(DiscoveryDocument.Issuer, token.Issuer);
-        Assert.Null(token.Scope);
+        Assert.Equal(ScopeConstants.ClientConfiguration, token.Scope);
         Assert.Null(token.ExpiresAt);
         Assert.Equal(client.Id, token.Audience);
     }

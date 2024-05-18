@@ -1,4 +1,5 @@
-﻿using AuthServer.Core;
+﻿using AuthServer.Constants;
+using AuthServer.Core;
 using AuthServer.Core.Discovery;
 using AuthServer.Entities;
 using AuthServer.TokenBuilders.Abstractions;
@@ -26,7 +27,7 @@ internal class RegistrationTokenBuilder : ITokenBuilder<RegistrationTokenArgumen
             .SingleAsync(x => x.Id == arguments.ClientId, cancellationToken);
 
         var registrationToken = new RegistrationToken(client, arguments.ClientId,
-            _discoveryDocumentOptions.Value.Issuer, null, null);
+            _discoveryDocumentOptions.Value.Issuer, ScopeConstants.ClientConfiguration, null);
 
         await _identityContext
             .Set<RegistrationToken>()

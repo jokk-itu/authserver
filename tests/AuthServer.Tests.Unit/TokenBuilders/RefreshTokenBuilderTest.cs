@@ -13,7 +13,6 @@ namespace AuthServer.Tests.Unit.TokenBuilders;
 
 public class RefreshTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTest(outputHelper)
 {
-    // BuildToken_StructuredToken_ExpectJwt
     [Fact]
     public async Task BuildToken_RequireReferenceToken_ExpectReferenceToken()
     {
