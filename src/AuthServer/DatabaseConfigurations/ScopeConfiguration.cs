@@ -24,8 +24,12 @@ internal sealed class ScopeConfiguration : IEntityTypeConfiguration<Scope>
             [
                 new ScopeSeed(1, ScopeConstants.OpenId),
                 new ScopeSeed(2, ScopeConstants.OfflineAccess),
-                new ScopeSeed(3, ScopeConstants.UserInfo),
-                new ScopeSeed(4, ScopeConstants.ClientConfiguration)
+                new ScopeSeed(3, ScopeConstants.Profile),
+                new ScopeSeed(4, ScopeConstants.Address),
+                new ScopeSeed(5, ScopeConstants.Email),
+                new ScopeSeed(6, ScopeConstants.Phone),
+                new ScopeSeed(7, ScopeConstants.UserInfo),
+                new ScopeSeed(8, ScopeConstants.ClientConfiguration)
             ]);
     }
 }
