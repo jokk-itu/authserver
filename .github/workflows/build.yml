@@ -17,13 +17,13 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 8.0.x
     - name: Restore dependencies
-      run: dotnet restore AuthorizationServer.sln
+      run: dotnet restore authserver.sln
     - name: Build
-      run: dotnet build AuthorizationServer.sln --no-restore
+      run: dotnet build authserver.sln --no-restore
     - name: Test
-      run: dotnet test AuthorizationServer.sln --no-build --verbosity normal
+      run: dotnet test authserver.sln --no-build --verbosity normal
   
   build_documentation:
     name: Build
@@ -33,30 +33,15 @@ jobs:
       - uses: actions/checkout@v3
       - name: Install and Build
         run: |
-          cd Documentation
+          cd doc
           npm install
           npm run build
-
-  build_dockerfiles:
-    name: Build Dockerfiles
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build Images
-      run: |
-        docker build . -f Authorization/WebApp/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/authorizationserver:latest
-        docker build . -f Authorization/ConfigurationApp/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/configurationapp:latest
-        docker build . -f Clients/WebApp/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/webapp:latest
-        docker build . -f ProtectedResources/WeatherService/Api/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/weatherservice:latest
-        docker build . -f Clients/BffApp/Server/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/bffapp:latest
 
   sonarscan:
     name: SonarScan
     needs:
       - build_solution
       - build_documentation
-      - build_dockerfiles
     if: github.event_name == 'pull_request' || github.ref_name == 'master'
     runs-on: windows-latest
     steps:
@@ -98,8 +83,8 @@ jobs:
         shell: powershell
         run: |
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"jokk-itu_authserver" /o:"jokk-itu" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
-          dotnet clean AuthorizationServer.sln
-          dotnet restore AuthorizationServer.sln
-          dotnet build AuthorizationServer.sln --no-restore
-          dotnet-coverage collect 'dotnet test AuthorizationServer.sln --no-restore' -f xml  -o 'coverage.xml'
+          dotnet clean authserver.sln
+          dotnet restore authserver.sln
+          dotnet build authserver.sln --no-restore
+          dotnet-coverage collect 'dotnet test authserver.sln --no-build' -f xml  -o 'coverage.xml'
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"

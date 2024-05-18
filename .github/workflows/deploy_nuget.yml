@@ -1,0 +1,36 @@
+name: Deploy NuGet
+
+on:
+  push:
+    branches:
+      - "master"
+
+env:
+  DOTNET_NOLOGO: true      
+
+jobs:
+  push_to_nuget_registry:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup GithubToken
+        run: |
+          GithubToken=${{ secrets.GITHUB_TOKEN }}
+          echo "GithubToken=$GithubToken" >> $GITHUB_ENV
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore authserver.sln
+
+      - name: Build
+        run: dotnet build authserver.sln -c Release --no-restore
+
+      - name: Push package to nuget registry
+        run: |
+          package=$(ls src/AuthServer/bin/Release/*nupkg)
+          dotnet nuget push "AuthServer" --source "github" --skip-duplicate
