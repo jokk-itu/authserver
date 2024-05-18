@@ -3,9 +3,9 @@ using AuthServer.Core;
 using Microsoft.AspNetCore.Http;
 
 namespace AuthServer.RequestAccessors.Register;
-internal class PostRegisterRequestAccessor : IRequestAccessor<PostRegisterRequest>
+internal class RegisterRequestAccessor : IRequestAccessor<RegisterRequest>
 {
-    public async Task<PostRegisterRequest> GetRequest(HttpRequest httpRequest)
+    public async Task<RegisterRequest> GetRequest(HttpRequest httpRequest)
     {
         var json = await JsonNode.ParseAsync(httpRequest.Body);
         if (json is null)
@@ -57,7 +57,7 @@ internal class PostRegisterRequestAccessor : IRequestAccessor<PostRegisterReques
         var grantTypes = json[Parameter.GrantTypes]?.GetValue<string[]>() ?? [];
         var contacts = json[Parameter.Contacts]?.GetValue<string[]>() ?? [];
 
-        return new PostRegisterRequest
+        return new RegisterRequest
         {
             ClientName = clientName,
             ApplicationType = applicationType,

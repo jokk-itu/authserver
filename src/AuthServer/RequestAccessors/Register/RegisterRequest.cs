@@ -1,6 +1,6 @@
 ﻿namespace AuthServer.RequestAccessors.Register;
 
-public abstract class RegisterRequest
+public class RegisterRequest
 {
     public required string ClientName { get; init; }
     public required string ApplicationType { get; init; }
