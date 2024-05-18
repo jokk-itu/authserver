@@ -21,8 +21,8 @@ internal class AuthorizeRequestAccessor : IRequestAccessor<AuthorizeRequest>
         var responseType = query.GetValueOrEmpty(Parameter.ResponseType);
         var nonce = query.GetValueOrEmpty(Parameter.Nonce);
         var state = query.GetValueOrEmpty(Parameter.State);
-        var scope = query.GetValueOrEmpty(Parameter.Scope).Split(' ');
-        var acrValues = query.GetValueOrEmpty(Parameter.AcrValues).Split(' ');
+        var scope = query.GetSpaceDelimitedValueOrEmpty(Parameter.Scope);
+        var acrValues = query.GetSpaceDelimitedValueOrEmpty(Parameter.AcrValues);
 
         return Task.FromResult(new AuthorizeRequest
         {

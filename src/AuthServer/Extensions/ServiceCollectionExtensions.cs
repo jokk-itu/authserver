@@ -8,7 +8,10 @@ using AuthServer.Core.RequestProcessing;
 using AuthServer.Introspection;
 using AuthServer.Options;
 using AuthServer.Repositories;
+using AuthServer.RequestAccessors.Authorize;
+using AuthServer.RequestAccessors.EndSession;
 using AuthServer.RequestAccessors.Introspection;
+using AuthServer.RequestAccessors.Register;
 using AuthServer.RequestAccessors.Revocation;
 using AuthServer.RequestAccessors.Token;
 using AuthServer.RequestAccessors.Userinfo;
@@ -45,7 +48,8 @@ public static class ServiceCollectionExtensions
             .AddRefreshToken()
             .AddClientCredentials()
             .AddRepositories()
-            .AddCache();
+            .AddCache()
+            .AddRequestAccessors();
 
         services.AddJwtAuthentication();
         services.AddJwtAuthorization();
@@ -85,6 +89,18 @@ public static class ServiceCollectionExtensions
                 policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.ClientConfiguration);
             });
         });
+    }
+
+    internal static IServiceCollection AddRequestAccessors(this IServiceCollection services)
+    {
+        return services
+            .AddScoped<IRequestAccessor<AuthorizeRequest>, AuthorizeRequestAccessor>()
+            .AddScoped<IRequestAccessor<EndSessionRequest>, EndSessionRequestAccessor>()
+            .AddScoped<IRequestAccessor<IntrospectionRequest>, IntrospectionRequestAccessor>()
+            .AddScoped<IRequestAccessor<RevocationRequest>, RevocationRequestAccessor>()
+            .AddScoped<IRequestAccessor<RegisterRequest>, RegisterRequestAccessor>()
+            .AddScoped<IRequestAccessor<TokenRequest>, TokenRequestAccessor>()
+            .AddScoped<IRequestAccessor<UserinfoRequest>, UserinfoRequestAccessor>();
     }
 
     internal static IServiceCollection AddCache(this IServiceCollection services)
