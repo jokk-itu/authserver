@@ -5,7 +5,7 @@ using AuthServer.Extensions;
 using AuthServer.TokenDecoders;
 
 namespace AuthServer.RequestAccessors.Introspection;
-internal class RevocationRequestAccessor : IRequestAccessor<IntrospectionRequest>
+internal class IntrospectionRequestAccessor : IRequestAccessor<IntrospectionRequest>
 {
     public async Task<IntrospectionRequest> GetRequest(HttpRequest httpRequest)
     {
