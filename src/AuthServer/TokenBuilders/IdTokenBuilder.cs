@@ -17,20 +17,20 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
     private readonly IdentityContext _identityContext;
     private readonly IOptionsSnapshot<DiscoveryDocument> _discoveryDocumentOptions;
     private readonly IOptionsSnapshot<JwksDocument> _jwksDocumentOptions;
-    private readonly IClientJwkService _clientJwkService;
+    private readonly ITokenSecurityService _tokenSecurityService;
     private readonly IUserClaimService _userClaimService;
 
     public IdTokenBuilder(
         IdentityContext identityContext,
         IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions,
         IOptionsSnapshot<JwksDocument> jwksDocumentOptions,
-        IClientJwkService clientJwkService,
+        ITokenSecurityService tokenSecurityService,
         IUserClaimService userClaimService)
     {
         _identityContext = identityContext;
         _discoveryDocumentOptions = discoveryDocumentOptions;
         _jwksDocumentOptions = jwksDocumentOptions;
-        _clientJwkService = clientJwkService;
+        _tokenSecurityService = tokenSecurityService;
         _userClaimService = userClaimService;
     }
 
@@ -89,18 +89,14 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
             Claims = claims
         };
 
-        var encryptionKey = await _clientJwkService.GetEncryptionKey(query.ClientId, cancellationToken);
-        var isEligibleForEncryption =
-            encryptionKey is not null && query.EncryptionAlg is not null && query.EncryptionEnc is not null;
-
-        if (isEligibleForEncryption)
+        if (query.EncryptionAlg is not null &&
+            query.EncryptionEnc is not null)
         {
-            var encryptingCredentials = new EncryptingCredentials(
-                encryptionKey,
-                query.EncryptionAlg!.GetDescription(),
-                query.EncryptionEnc!.GetDescription());
-
-            tokenDescriptor.EncryptingCredentials = encryptingCredentials;
+            tokenDescriptor.EncryptingCredentials = await _tokenSecurityService.GetEncryptingCredentials(
+            query.ClientId,
+                query.EncryptionAlg.Value,
+                query.EncryptionEnc.Value,
+                cancellationToken);
         }
 
         var tokenHandler = new JsonWebTokenHandler();

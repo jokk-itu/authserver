@@ -15,18 +15,18 @@ internal class LogoutTokenBuilder : ITokenBuilder<LogoutTokenArguments>
     private readonly IOptionsSnapshot<DiscoveryDocument> _discoveryDocumentOptions;
     private readonly IOptionsSnapshot<JwksDocument> _jwksDocumentOptions;
     private readonly ICachedClientStore _cachedClientStore;
-    private readonly IClientJwkService _clientJwkService;
+    private readonly ITokenSecurityService _tokenSecurityService;
 
     public LogoutTokenBuilder(
         IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions,
         IOptionsSnapshot<JwksDocument> jwksDocumentOptions,
         ICachedClientStore cachedClientStore,
-        IClientJwkService clientJwkService)
+        ITokenSecurityService tokenSecurityService)
     {
         _discoveryDocumentOptions = discoveryDocumentOptions;
         _jwksDocumentOptions = jwksDocumentOptions;
         _cachedClientStore = cachedClientStore;
-        _clientJwkService = clientJwkService;
+        _tokenSecurityService = tokenSecurityService;
     }
 
     public async Task<string> BuildToken(LogoutTokenArguments arguments, CancellationToken cancellationToken)
@@ -39,15 +39,18 @@ internal class LogoutTokenBuilder : ITokenBuilder<LogoutTokenArguments>
             { ClaimNameConstants.Sub, arguments.UserId },
             { ClaimNameConstants.Jti, Guid.NewGuid() },
             { ClaimNameConstants.ClientId, arguments.ClientId },
-            { ClaimNameConstants.Events, new Dictionary<string, object>
             {
-                { "http://schemas.openid.net/event/backchannel-logout", new() }
-            }}
+                ClaimNameConstants.Events, new Dictionary<string, object>
+                {
+                    { "http://schemas.openid.net/event/backchannel-logout", new Dictionary<string, object>() }
+                }
+            }
         };
 
         var now = DateTime.UtcNow;
         var signingKey = _jwksDocumentOptions.Value.GetSigningKey(cachedClient.IdTokenSignedResponseAlg);
-        var signingCredentials = new SigningCredentials(signingKey, cachedClient.IdTokenSignedResponseAlg.GetDescription());
+        var signingCredentials =
+            new SigningCredentials(signingKey, cachedClient.IdTokenSignedResponseAlg.GetDescription());
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
@@ -60,18 +63,14 @@ internal class LogoutTokenBuilder : ITokenBuilder<LogoutTokenArguments>
             Claims = claims
         };
 
-        var encryptionKey = await _clientJwkService.GetEncryptionKey(arguments.ClientId, cancellationToken);
-        var isEligibleForEncryption =
-        encryptionKey is not null && cachedClient.IdTokenEncryptedResponseAlg is not null && cachedClient.IdTokenEncryptedResponseEnc is not null;
-
-        if (isEligibleForEncryption)
+        if (cachedClient.IdTokenEncryptedResponseAlg is not null &&
+            cachedClient.IdTokenEncryptedResponseEnc is not null)
         {
-            var encryptingCredentials = new EncryptingCredentials(
-                encryptionKey,
-                cachedClient.IdTokenEncryptedResponseAlg!.GetDescription(),
-                cachedClient.IdTokenEncryptedResponseEnc!.GetDescription());
-
-            tokenDescriptor.EncryptingCredentials = encryptingCredentials;
+            tokenDescriptor.EncryptingCredentials = await _tokenSecurityService.GetEncryptingCredentials(
+                arguments.ClientId,
+                cachedClient.IdTokenEncryptedResponseAlg.Value,
+                cachedClient.IdTokenEncryptedResponseEnc.Value,
+                cancellationToken);
         }
 
         var tokenHandler = new JsonWebTokenHandler();
