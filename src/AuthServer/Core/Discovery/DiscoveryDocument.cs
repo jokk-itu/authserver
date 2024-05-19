@@ -57,7 +57,7 @@ public class DiscoveryDocument
     public ICollection<string> GrantTypesSupported => GrantTypeConstants.GrantTypes;
 
     [JsonPropertyName("acr_values_supported")]
-    public ICollection<string> AcrValuesSupported => AcrValueConstants.AcrValues;
+    public ICollection<string> AcrValuesSupported { get; set; } = [];
 
     [JsonPropertyName("challenge_methods_supported")]
     public ICollection<string> ChallengeMethodsSupported => CodeChallengeMethodConstants.CodeChallengeMethods;
@@ -71,44 +71,50 @@ public class DiscoveryDocument
     [JsonPropertyName("response_modes_supported")]
     public ICollection<string> ResponseModesSupported { get; set; } = [];
 
-    [JsonPropertyName("introspection_endpoint_auth_signing_alg_values_supported")]
-    public ICollection<string> IntrospectionEndpointAuthSigningAlgValuesSupported => IntrospectionEndpointAuthMethodConstants.AuthMethods;
+    [JsonPropertyName("introspection_endpoint_auth_methods_supported")]
+    public ICollection<string> IntrospectionEndpointAuthMethodsSupported => IntrospectionEndpointAuthMethodConstants.AuthMethods;
 
-    [JsonPropertyName("revocation_endpoint_auth_signing_alg_values_supported")]
-    public ICollection<string> RevocationEndpointAuthSigningAlgValuesSupported => RevocationEndpointAuthMethodConstants.AuthMethods;
+    [JsonPropertyName("revocation_endpoint_auth_methods_supported")]
+    public ICollection<string> RevocationEndpointAuthMethodsSupported => RevocationEndpointAuthMethodConstants.AuthMethods;
 
     [JsonPropertyName("token_endpoint_auth_methods_supported")]
     public ICollection<string> TokenEndpointAuthMethodsSupported => TokenEndpointAuthMethodConstants.AuthMethods;
 
     [JsonPropertyName("id_token_signing_alg_values_supported")]
-    public ICollection<string> IdTokenSigningAlgValuesSupported => [];
+    public ICollection<string> IdTokenSigningAlgValuesSupported { get; set; } = [];
 
     [JsonPropertyName("id_token_encryption_alg_values_supported")]
-    public ICollection<string> IdTokenEncryptionAlgValuesSupported => [];
+    public ICollection<string> IdTokenEncryptionAlgValuesSupported { get; set; } = [];
 
     [JsonPropertyName("id_token_encryption_enc_values_supported")]
-    public ICollection<string> IdTokenEncryptionEncValuesSupported => [];
+    public ICollection<string> IdTokenEncryptionEncValuesSupported { get; set; } = [];
 
     [JsonPropertyName("userinfo_signing_alg_values_supported")]
-    public ICollection<string> UserinfoSigningAlgValuesSupported => [];
+    public ICollection<string> UserinfoSigningAlgValuesSupported { get; set; } = [];
 
     [JsonPropertyName("userinfo_encryption_alg_values_supported")]
-    public ICollection<string> UserinfoEncryptionAlgValuesSupported => [];
+    public ICollection<string> UserinfoEncryptionAlgValuesSupported { get; set; } = [];
 
     [JsonPropertyName("userinfo_encryption_enc_values_supported")]
-    public ICollection<string> UserinfoEncryptionEncValuesSupported => [];
+    public ICollection<string> UserinfoEncryptionEncValuesSupported { get; set; } = [];
 
     [JsonPropertyName("request_object_signing_alg_values_supported")]
-    public ICollection<string> RequestObjectSigningAlgValuesSupported => [];
+    public ICollection<string> RequestObjectSigningAlgValuesSupported { get; set; } = [];
 
     [JsonPropertyName("request_object_encryption_alg_values_supported")]
-    public ICollection<string> RequestObjectEncryptionAlgValuesSupported => [];
+    public ICollection<string> RequestObjectEncryptionAlgValuesSupported { get; set; } = [];
 
     [JsonPropertyName("request_object_encryption_enc_values_supported")]
-    public ICollection<string> RequestObjectEncryptionEncValuesSupported => [];
+    public ICollection<string> RequestObjectEncryptionEncValuesSupported { get; set; } = [];
 
     [JsonPropertyName("token_endpoint_auth_signing_alg_values_supported")]
-    public ICollection<string> TokenEndpointAuthSigningAlgValuesSupported => [];
+    public ICollection<string> TokenEndpointAuthSigningAlgValuesSupported { get; set; } = [];
+
+    [JsonPropertyName("introspection_endpoint_auth_signing_alg_values_supported")]
+    public ICollection<string> IntrospectionEndpointAuthSigningAlgValuesSupported { get; set; } = [];
+
+    [JsonPropertyName("revocation_endpoint_auth_signing_alg_values_supported")]
+    public ICollection<string> RevocationEndpointAuthSigningAlgValuesSupported { get; set; } = [];
 
     [JsonPropertyName("authorization_response_iss_parameter_supported")]
     public bool AuthorizationResponseIssParameterSupported => true;
