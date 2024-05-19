@@ -12,19 +12,19 @@ using Microsoft.IdentityModel.Tokens;
 namespace AuthServer.Options;
 internal class ConfigureJwtBearerOptions : IConfigureOptions<JwtBearerOptions>
 {
-    private readonly IOptionsSnapshot<JwksDocument> _jwkDocumentOptions;
-    private readonly IOptionsSnapshot<DiscoveryDocument> _discoveryDocumentOptions;
+    private readonly IOptionsMonitor<JwksDocument> _jwkDocumentOptions;
+    private readonly IOptionsMonitor<DiscoveryDocument> _discoveryDocumentOptions;
 
     public ConfigureJwtBearerOptions(
-        IOptionsSnapshot<JwksDocument> jwkDocumentOptions,
-        IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions)
+        IOptionsMonitor<JwksDocument> jwkDocumentOptions,
+        IOptionsMonitor<DiscoveryDocument> discoveryDocumentOptions)
     {
         _jwkDocumentOptions = jwkDocumentOptions;
         _discoveryDocumentOptions = discoveryDocumentOptions;
     }
 
-    private JwksDocument JwkDocument => _jwkDocumentOptions.Value;
-    private DiscoveryDocument DiscoveryDocument => _discoveryDocumentOptions.Value;
+    private JwksDocument JwkDocument => _jwkDocumentOptions.CurrentValue;
+    private DiscoveryDocument DiscoveryDocument => _discoveryDocumentOptions.CurrentValue;
 
     public void Configure(JwtBearerOptions options)
     {
@@ -58,7 +58,7 @@ internal class ConfigureJwtBearerOptions : IConfigureOptions<JwtBearerOptions>
                         context.Success();
                     }
                 }
-            }
+            },
         };
     }
 }
