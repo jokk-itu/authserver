@@ -8,7 +8,7 @@ namespace AuthServer.Extensions;
 
 public static class EndpointRouteBuilderExtensions
 {
-    public static IEndpointRouteBuilder MapPostRegister(this IEndpointRouteBuilder endpointBuilder)
+    public static IEndpointRouteBuilder MapPostRegisterEndpoint(this IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
             .MapPost("connect/register", PostRegisterEndpoint.HandlePostRegister)
@@ -20,7 +20,7 @@ public static class EndpointRouteBuilderExtensions
         return endpointBuilder;
     }
 
-    public static IEndpointRouteBuilder MapUserinfo(this IEndpointRouteBuilder endpointBuilder)
+    public static IEndpointRouteBuilder MapUserinfoEndpoint(this IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
             .MapMethods("connect/userinfo", ["GET", "POST"], UserinfoEndpoint.HandleUserinfo)
@@ -33,7 +33,7 @@ public static class EndpointRouteBuilderExtensions
         return endpointBuilder;
     }
 
-    public static IEndpointRouteBuilder MapToken(this IEndpointRouteBuilder endpointBuilder)
+    public static IEndpointRouteBuilder MapTokenEndpoint(this IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
             .MapMethods("connect/token", ["POST"], TokenEndpoint.HandleToken)
