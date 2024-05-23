@@ -16,4 +16,10 @@ public static class JwsAlgConstants
     public const string RsaSsaPssSha256 = "PS256";
     public const string RsaSsaPssSha384 = "PS384";
     public const string RsaSsaPssSha512 = "PS512";
+
+    public static readonly string[] AlgValues =
+    [
+        EcdsaSha256, EcdsaSha384, EcdsaSha512, RsaSha256, RsaSha384, RsaSha512, RsaSsaPssSha256, RsaSsaPssSha384,
+        RsaSsaPssSha512
+    ];
 }

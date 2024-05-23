@@ -11,4 +11,7 @@ public static class JweAlgConstants
     public const string EcdhEsA128KW = "ECDH-ES+A128KW";
     public const string EcdhEsA192KW = "ECDH-ES+A192KW";
     public const string EcdhEsA256KW = "ECDH-ES+A256KW";
+
+    public static readonly string[] AlgValues =
+        [RsaPKCS1, RsaOAEP, RsaOAEP256, EcdhEsA128KW, EcdhEsA192KW, EcdhEsA256KW];
 }
