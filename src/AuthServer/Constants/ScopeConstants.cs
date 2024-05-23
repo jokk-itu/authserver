@@ -1,4 +1,5 @@
 ﻿namespace AuthServer.Constants;
+
 public static class ScopeConstants
 {
     public const string OfflineAccess = "offline_access";
@@ -11,5 +12,6 @@ public static class ScopeConstants
     public const string Address = "address";
     public const string Phone = "phone";
 
-    public static readonly string[] Scopes = [OfflineAccess, OpenId, ClientConfiguration, UserInfo];
+    public static readonly string[] Scopes =
+        [Profile, Email, Address, Phone, OfflineAccess, OpenId, ClientConfiguration, UserInfo];
 }
