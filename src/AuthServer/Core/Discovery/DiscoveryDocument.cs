@@ -69,10 +69,10 @@ public class DiscoveryDocument
     public ICollection<string> ScopesSupported { get; set; } = [];
 
     [JsonPropertyName("response_types_supported")]
-    public ICollection<string> ResponseTypesSupported { get; set; } = [];
+    public ICollection<string> ResponseTypesSupported => ResponseTypeConstants.ResponseTypes;
 
     [JsonPropertyName("response_modes_supported")]
-    public ICollection<string> ResponseModesSupported { get; set; } = [];
+    public ICollection<string> ResponseModesSupported => ResponseModeConstants.ResponseModes;
 
     [JsonPropertyName("introspection_endpoint_auth_methods_supported")]
     public ICollection<string> IntrospectionEndpointAuthMethodsSupported => IntrospectionEndpointAuthMethodConstants.AuthMethods;
