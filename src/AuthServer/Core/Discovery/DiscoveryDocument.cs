@@ -47,6 +47,9 @@ public class DiscoveryDocument
     [JsonPropertyName("claim_types_supported")]
     public ICollection<string> ClaimTypesSupported => ["normal"];
 
+    [JsonPropertyName("prompt_values_supported")]
+    public ICollection<string> PromptValuesSupported => PromptConstants.Prompts;
+
     [JsonPropertyName("display_values_supported")]
     public ICollection<string> DisplayValuesSupported => DisplayConstants.DisplayValues;
 
