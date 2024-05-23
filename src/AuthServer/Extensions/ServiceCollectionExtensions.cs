@@ -1,4 +1,4 @@
-﻿using AuthServer.Builders;
+﻿using AuthServer.Authorize;
 using AuthServer.Cache;
 using AuthServer.Codes;
 using AuthServer.Constants;
@@ -34,7 +34,9 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddAuthServer(this IServiceCollection services)
     {
-        services.ConfigureOptions<ConfigureDiscoveryDocumentOptions>();
+        services.ConfigureOptions<PostConfigureDiscoveryDocumentOptions>();
+        services.ConfigureOptions<ValidateDiscoveryDocumentOptions>();
+        services.ConfigureOptions<ValidateUserInteractionOptions>();
 
         services
             .AddCoreServices()
