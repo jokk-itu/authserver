@@ -1,4 +1,4 @@
-﻿namespace AuthServer.Repositories;
+﻿namespace AuthServer.Repositories.Abstract;
 internal interface IClientRepository
 {
     /// <summary>
