@@ -33,6 +33,18 @@ public static class EndpointRouteBuilderExtensions
         return endpointBuilder;
     }
 
+    public static IEndpointRouteBuilder MapAuthorizeEndpoint(this IEndpointRouteBuilder endpointBuilder)
+    {
+        endpointBuilder
+            .MapMethods("connect/authorize", ["GET", "POST"], AuthorizeEndpoint.HandleAuthorize)
+            .WithDisplayName("OpenId Connect Authorize")
+            .WithName("OpenId Connect Authorize")
+            .WithDescription("OpenId Connect Authorize")
+            .WithGroupName("Authorize");
+
+        return endpointBuilder;
+    }
+
     public static IEndpointRouteBuilder MapTokenEndpoint(this IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
