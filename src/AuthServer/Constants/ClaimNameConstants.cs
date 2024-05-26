@@ -34,7 +34,7 @@ public static class ClaimNameConstants
 
     /// <summary>
     /// Authentication Context Class Reference.
-    /// Values are defined at IANA.
+    /// Values are defined at discovery.
     /// </summary>
     public const string Acr = "acr";
 
