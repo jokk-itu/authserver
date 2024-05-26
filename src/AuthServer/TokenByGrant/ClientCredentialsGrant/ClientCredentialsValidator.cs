@@ -3,7 +3,7 @@ using AuthServer.Constants;
 using AuthServer.Core.Abstractions;
 using AuthServer.Core.RequestProcessing;
 using AuthServer.Extensions;
-using AuthServer.Repositories;
+using AuthServer.Repositories.Abstract;
 using AuthServer.RequestAccessors.Token;
 
 namespace AuthServer.TokenByGrant.ClientCredentialsGrant;

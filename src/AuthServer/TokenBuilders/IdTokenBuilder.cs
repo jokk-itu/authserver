@@ -61,7 +61,10 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
             { ClaimNameConstants.Jti, Guid.NewGuid() },
             { ClaimNameConstants.GrantId, arguments.AuthorizationGrantId },
             { ClaimNameConstants.Nonce, query.Nonce.Value },
-            { ClaimNameConstants.ClientId, query.ClientId }
+            { ClaimNameConstants.ClientId, query.ClientId },
+            { ClaimNameConstants.Azp, query.ClientId }
+            // TODO acr from claims in arguments, which must be extended
+            // TODO amr from arguments given from the Razor Pages
         };
 
         var authorizedClaimTypes = ClaimHelper.MapToClaims(arguments.Scope).ToList();

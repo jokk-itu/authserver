@@ -6,6 +6,7 @@ using AuthServer.Core.RequestProcessing;
 using AuthServer.Entities;
 using AuthServer.Helpers;
 using AuthServer.Repositories;
+using AuthServer.Repositories.Abstract;
 using AuthServer.RequestAccessors.Token;
 using AuthServer.TokenDecoders;
 using Microsoft.EntityFrameworkCore;

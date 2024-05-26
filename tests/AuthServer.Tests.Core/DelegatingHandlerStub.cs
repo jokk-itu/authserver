@@ -8,7 +8,7 @@ public class DelegatingHandlerStub : DelegatingHandler
     private readonly Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> _handlerFunc;
     public DelegatingHandlerStub(string content, HttpStatusCode statusCode)
     {
-        _handlerFunc = (request, cancellationToken) => Task.FromResult(new HttpResponseMessage(statusCode)
+        _handlerFunc = (_, _) => Task.FromResult(new HttpResponseMessage(statusCode)
         {
             Content = new StringContent(content, Encoding.UTF8, MimeTypeConstants.Json)
         });
