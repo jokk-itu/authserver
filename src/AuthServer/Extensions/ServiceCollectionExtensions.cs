@@ -1,4 +1,5 @@
 ﻿using AuthServer.Authorize;
+using AuthServer.Authorize.Abstract;
 using AuthServer.Cache;
 using AuthServer.Codes;
 using AuthServer.Constants;
@@ -8,6 +9,7 @@ using AuthServer.Core.RequestProcessing;
 using AuthServer.Introspection;
 using AuthServer.Options;
 using AuthServer.Repositories;
+using AuthServer.Repositories.Abstract;
 using AuthServer.RequestAccessors.Authorize;
 using AuthServer.RequestAccessors.EndSession;
 using AuthServer.RequestAccessors.Introspection;
@@ -40,9 +42,10 @@ public static class ServiceCollectionExtensions
 
         services
             .AddCoreServices()
-            .AddEncoders()
+            .AddCodeEncoders()
             .AddBuilders()
             .AddDecoders()
+            .AddAuthorize()
             .AddUserinfo()
             .AddIntrospection()
             .AddRevocation()
@@ -115,7 +118,6 @@ public static class ServiceCollectionExtensions
     internal static IServiceCollection AddBuilders(this IServiceCollection services)
     {
         return services
-            .AddScoped<IAuthorizeResponseBuilder, AuthorizeResponseBuilder>()
             .AddScoped<ITokenBuilder<LogoutTokenArguments>, LogoutTokenBuilder>()
             .AddScoped<ITokenBuilder<IdTokenArguments>, IdTokenBuilder>()
             .AddScoped<ITokenBuilder<ClientAccessTokenArguments>, ClientAccessTokenBuilder>()
@@ -142,7 +144,7 @@ public static class ServiceCollectionExtensions
             .AddScoped<ITokenSecurityService, TokenSecurityService>();
     }
 
-    internal static IServiceCollection AddEncoders(this IServiceCollection services)
+    internal static IServiceCollection AddCodeEncoders(this IServiceCollection services)
     {
         services.AddDataProtection();
         return services
@@ -155,6 +157,16 @@ public static class ServiceCollectionExtensions
             .AddDbContext<IdentityContext>()
             .AddScoped<IClientRepository, ClientRepository>()
             .AddScoped<IConsentGrantRepository, ConsentGrantRepository>();
+    }
+
+    internal static IServiceCollection AddAuthorize(this IServiceCollection services)
+    {
+        return services
+            .AddScoped<IAuthorizeInteractionProcessor, AuthorizeInteractionProcessor>()
+            .AddScoped<IAuthorizeResponseBuilder, AuthorizeResponseBuilder>()
+            .AddScoped<IUserAccessor, UserAccessor>()
+            .AddScoped<IRequestProcessor<AuthorizeRequest, string>, AuthorizeRequestProcessor>()
+            .AddScoped<IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>, AuthorizeRequestValidator>();
     }
 
     internal static IServiceCollection AddUserinfo(this IServiceCollection services)
