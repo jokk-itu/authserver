@@ -23,7 +23,7 @@ internal class CachedClientStore : ICachedClientStore
         _logger = logger;
     }
 
-    // <inheritDoc>
+    /// <inheritdoc/>
     public async Task<CachedClient?> TryGet(string entityId, CancellationToken cancellationToken)
     {
         var isInternalCacheHit = _internalCache.TryGetValue($"Client#{entityId}", out var internalCachedClient);
@@ -44,7 +44,7 @@ internal class CachedClientStore : ICachedClientStore
         return await Add(entityId, cancellationToken);
     }
 
-    // <inheritDoc>
+    /// <inheritdoc/>
     public async Task<CachedClient> Get(string entityId, CancellationToken cancellationToken)
     {
         var isInternalCacheHit = _internalCache.TryGetValue($"Client#{entityId}", out var internalCachedClient);
@@ -66,7 +66,7 @@ internal class CachedClientStore : ICachedClientStore
         return client ?? throw new ClientNotFoundException(entityId);
     }
 
-    // <inheritDoc>
+    /// <inheritdoc/>
     public async Task Delete(string entityId, CancellationToken cancellationToken)
     {
         _internalCache.Remove($"Client#{entityId}");
