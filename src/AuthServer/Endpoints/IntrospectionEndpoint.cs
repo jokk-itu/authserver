@@ -19,11 +19,7 @@ internal static class IntrospectionEndpoint
         var result = await requestProcessor.Process(request, cancellationToken);
         return result.Match(
             response => Results.Ok(MapToPostResponse(response)),
-            error => error.ResultCode switch
-            {
-                ResultCode.BadRequest => Results.Extensions.OAuthBadRequest(error),
-                _ => Results.Extensions.OAuthInternalServerError(error)
-            });
+            error => Results.Extensions.OAuthBadRequest(error));
     }
 
     private static PostIntrospectionResponse MapToPostResponse(IntrospectionResponse response)

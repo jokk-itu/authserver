@@ -18,10 +18,6 @@ internal static class RevocationEndpoint
         var response = await requestProcessor.Process(request, cancellationToken);
         return response.Match(
             _ => Results.Ok(),
-            error => error.ResultCode switch
-            {
-                ResultCode.BadRequest => Results.Extensions.OAuthBadRequest(error),
-                _ => Results.Extensions.OAuthInternalServerError(error)
-            });
+            error => Results.Extensions.OAuthBadRequest(error));
     }
 }

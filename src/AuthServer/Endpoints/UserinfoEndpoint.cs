@@ -27,7 +27,7 @@ internal class UserinfoEndpoint
             error => error.ResultCode switch
             {
                 ResultCode.Unauthorized => Results.Unauthorized(),
-                _ => Results.Extensions.OAuthInternalServerError(error)
+                _ => Results.Extensions.OAuthBadRequest(error)
             });
     }
 }
