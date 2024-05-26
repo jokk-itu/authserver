@@ -4,11 +4,10 @@ using AuthServer.Core;
 namespace AuthServer.Entities;
 public class AuthorizationCode : Entity<string>
 {
-    public AuthorizationCode(string value, DateTime issuedAt, AuthorizationGrant authorizationGrant)
+    public AuthorizationCode(AuthorizationGrant authorizationGrant)
     {
         Id = Guid.NewGuid().ToString();
-        Value = string.IsNullOrWhiteSpace(value) ? throw new ArgumentNullException(nameof(value)) : value;
-        IssuedAt = issuedAt;
+        IssuedAt = DateTime.UtcNow;
         AuthorizationGrant = authorizationGrant ?? throw new ArgumentNullException(nameof(authorizationGrant));
     }
 
@@ -17,7 +16,7 @@ public class AuthorizationCode : Entity<string>
     protected AuthorizationCode() { }
 #pragma warning restore
 
-    public string Value { get; private init; }
+    public string Value { get; private set; } = null!;
     public DateTime IssuedAt { get; private init; }
     public DateTime? RedeemedAt { get; private set; }
     public AuthorizationGrant AuthorizationGrant { get; private init; }
@@ -28,5 +27,10 @@ public class AuthorizationCode : Entity<string>
     public void Redeem()
     {
         RedeemedAt ??= DateTime.UtcNow;
+    }
+
+    public void SetValue(string value)
+    {
+        Value = value;
     }
 }
