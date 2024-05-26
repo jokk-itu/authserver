@@ -16,4 +16,9 @@ public class ProcessResult<TValue, TError>
         Func<TValue, TResponse> success,
         Func<TError, TResponse> failure)
         => IsSuccess ? success(Value!) : failure(Error!);
+
+    public Task<TResponse> Match<TResponse>(
+        Func<TValue, Task<TResponse>> success,
+        Func<TError, Task<TResponse>> failure)
+        => IsSuccess ? success(Value!) : failure(Error!);
 }
