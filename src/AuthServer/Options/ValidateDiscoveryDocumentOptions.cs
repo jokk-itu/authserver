@@ -14,7 +14,7 @@ public class ValidateDiscoveryDocumentOptions : IValidateOptions<DiscoveryDocume
             return ValidateOptionsResult.Fail($"{nameof(options.Issuer)} is not specified");
         }
 
-        if (Uri.IsWellFormedUriString(options.Issuer, UriKind.Absolute))
+        if (!Uri.IsWellFormedUriString(options.Issuer, UriKind.Absolute))
         {
             return ValidateOptionsResult.Fail($"{nameof(options.Issuer)} is not an absolute well formed uri");
         }

@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using AuthServer.Cache;
+using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;
 using AuthServer.Core.Discovery;
@@ -56,6 +57,7 @@ public abstract class BaseUnitTest
         services.AddOptions<DiscoveryDocument>().Configure(discoveryDocument =>
         {
             discoveryDocument.Issuer = "https://localhost:5000";
+            discoveryDocument.ClaimsSupported = ClaimNameConstants.SupportedEndUserClaims;
         });
         services.AddOptions<JwksDocument>().Configure(jwksDocument =>
         {
@@ -86,6 +88,12 @@ public abstract class BaseUnitTest
                 new(ecdsaSecurityKey, EncryptionAlg.EcdhEsA192KW),
                 new(ecdsaSecurityKey, EncryptionAlg.EcdhEsA256KW)
             ];
+        });
+        services.AddOptions<UserInteraction>().Configure(userInteraction =>
+        {
+            userInteraction.LoginUri = "https://localhost:5000/login";
+            userInteraction.ConsentUri = "https://localhost:5000/consent";
+            userInteraction.AccountSelectionUri = "https://localhost:5000/select-account";
         });
         services.AddAuthServer();
         services.AddScoped<IUsernameResolver, UsernameResolver>();
