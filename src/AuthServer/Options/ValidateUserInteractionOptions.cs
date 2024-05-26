@@ -18,14 +18,9 @@ public class ValidateUserInteractionOptions : IValidateOptions<UserInteraction>
             return ValidateOptionsResult.Fail($"{nameof(options.ConsentUri)} is not specified");
         }
 
-        if (options.CreateAccountUri.IsNullOrEmpty() || !Uri.IsWellFormedUriString(options.CreateAccountUri, UriKind.Absolute))
+        if (options.AccountSelectionUri.IsNullOrEmpty() || !Uri.IsWellFormedUriString(options.AccountSelectionUri, UriKind.Absolute))
         {
-            return ValidateOptionsResult.Fail($"{nameof(options.CreateAccountUri)} is not specified");
-        }
-
-        if (options.SelectAccountUri.IsNullOrEmpty() || !Uri.IsWellFormedUriString(options.SelectAccountUri, UriKind.Absolute))
-        {
-            return ValidateOptionsResult.Fail($"{nameof(options.SelectAccountUri)} is not specified");
+            return ValidateOptionsResult.Fail($"{nameof(options.AccountSelectionUri)} is not specified");
         }
 
         return ValidateOptionsResult.Success;
