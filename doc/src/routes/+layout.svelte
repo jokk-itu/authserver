@@ -5,7 +5,7 @@
 </script>
 
 <Navbar />
-<div class="mt-8 mx-6 flex flex-col sm:flex-row sm:justify-evenly">
+<main class="container mx-auto mt-8">
     <slot />
-</div>
+</main>
 <Footer />
