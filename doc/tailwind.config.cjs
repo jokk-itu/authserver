@@ -6,6 +6,9 @@ module.exports = {
       flexGrow: {
         3: 3
       },
+      colors: {
+        'openid': "#fc941c",
+      }
     },
   },
   plugins: [],
