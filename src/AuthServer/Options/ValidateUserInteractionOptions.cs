@@ -23,6 +23,12 @@ public class ValidateUserInteractionOptions : IValidateOptions<UserInteraction>
             return ValidateOptionsResult.Fail($"{nameof(options.AccountSelectionUri)} is not specified");
         }
 
+        if (options.EndSessionUri.IsNullOrEmpty() ||
+            !Uri.IsWellFormedUriString(options.EndSessionUri, UriKind.Absolute))
+        {
+            return ValidateOptionsResult.Fail($"{nameof(options.EndSessionUri)} is not specified");
+        }
+
         return ValidateOptionsResult.Success;
     }
 }

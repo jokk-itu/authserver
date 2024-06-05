@@ -94,8 +94,13 @@ public abstract class BaseUnitTest
             userInteraction.LoginUri = "https://localhost:5000/login";
             userInteraction.ConsentUri = "https://localhost:5000/consent";
             userInteraction.AccountSelectionUri = "https://localhost:5000/select-account";
+            userInteraction.EndSessionUri = "https://localhost:5000/logout";
         });
-        services.AddAuthServer();
+        services.AddAuthServer(contextOptions =>
+        {
+            contextOptions.UseSqlite(_connection,
+                optionsBuilder => { optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery); });
+        });
         services.AddScoped<IUsernameResolver, UsernameResolver>();
         services.AddScoped<IDistributedCache, InMemoryCache>();
         services.AddScoped<IUserClaimService, UserClaimService>();
