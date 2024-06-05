@@ -11,13 +11,13 @@ internal class ClientJwkService : IClientJwkService
 {
     private readonly ICachedClientStore _cachedClientStore;
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly IdentityContext _identityContext;
+    private readonly AuthorizationDbContext _identityContext;
     private readonly ILogger<ClientJwkService> _logger;
 
     public ClientJwkService(
         ICachedClientStore cachedClientStore,
         IHttpClientFactory httpClientFactory,
-        IdentityContext identityContext,
+        AuthorizationDbContext identityContext,
         ILogger<ClientJwkService> logger)
     {
         _cachedClientStore = cachedClientStore;

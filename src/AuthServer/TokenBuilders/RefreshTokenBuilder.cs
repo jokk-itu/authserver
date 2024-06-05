@@ -13,12 +13,12 @@ namespace AuthServer.TokenBuilders;
 
 internal class RefreshTokenBuilder : ITokenBuilder<RefreshTokenArguments>
 {
-    private readonly IdentityContext _identityContext;
+    private readonly AuthorizationDbContext _identityContext;
     private readonly IOptionsSnapshot<DiscoveryDocument> _discoveryDocumentOptions;
     private readonly IOptionsSnapshot<JwksDocument> _jwksDocumentOptions;
 
     public RefreshTokenBuilder(
-        IdentityContext identityContext,
+        AuthorizationDbContext identityContext,
         IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions,
         IOptionsSnapshot<JwksDocument> jwksDocumentOptions)
     {

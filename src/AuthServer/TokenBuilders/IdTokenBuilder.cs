@@ -14,14 +14,14 @@ using Microsoft.IdentityModel.Tokens;
 namespace AuthServer.TokenBuilders;
 internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
 {
-    private readonly IdentityContext _identityContext;
+    private readonly AuthorizationDbContext _identityContext;
     private readonly IOptionsSnapshot<DiscoveryDocument> _discoveryDocumentOptions;
     private readonly IOptionsSnapshot<JwksDocument> _jwksDocumentOptions;
     private readonly ITokenSecurityService _tokenSecurityService;
     private readonly IUserClaimService _userClaimService;
 
     public IdTokenBuilder(
-        IdentityContext identityContext,
+        AuthorizationDbContext identityContext,
         IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions,
         IOptionsSnapshot<JwksDocument> jwksDocumentOptions,
         ITokenSecurityService tokenSecurityService,

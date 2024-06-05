@@ -46,7 +46,7 @@ internal class ConfigureJwtBearerOptions : IConfigureOptions<JwtBearerOptions>
             {
                 if (!string.IsNullOrWhiteSpace(context.Token) && !TokenHelper.IsStructuredToken(context.Token))
                 {
-                    var identityContext = context.HttpContext.RequestServices.GetRequiredService<IdentityContext>();
+                    var identityContext = context.HttpContext.RequestServices.GetRequiredService<AuthorizationDbContext>();
                     var isValidReferenceToken = await identityContext
                         .Set<Token>()
                         .Where(x => x.Reference == context.Token)

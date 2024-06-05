@@ -12,13 +12,13 @@ namespace AuthServer.Authorize;
 internal class AuthorizeInteractionProcessor : IAuthorizeInteractionProcessor
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IdentityContext _identityContext;
+    private readonly AuthorizationDbContext _identityContext;
     private readonly ITokenDecoder<ServerIssuedTokenDecodeArguments> _serverIssuedTokenDecoder;
     private readonly IUserAccessor _userAccessor;
 
     public AuthorizeInteractionProcessor(
         IHttpContextAccessor httpContextAccessor,
-        IdentityContext identityContext,
+        AuthorizationDbContext identityContext,
         ITokenDecoder<ServerIssuedTokenDecodeArguments> serverIssuedTokenDecoder,
         IUserAccessor userAccessor)
     {

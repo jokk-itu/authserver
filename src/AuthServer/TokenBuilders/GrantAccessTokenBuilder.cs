@@ -13,12 +13,12 @@ namespace AuthServer.TokenBuilders;
 
 internal class GrantAccessTokenBuilder : ITokenBuilder<GrantAccessTokenArguments>
 {
-    private readonly IdentityContext _identityContext;
+    private readonly AuthorizationDbContext _identityContext;
     private readonly IOptionsSnapshot<DiscoveryDocument> _discoveryDocumentOptions;
     private readonly IOptionsSnapshot<JwksDocument> _jwksDocument;
 
     public GrantAccessTokenBuilder(
-        IdentityContext identityContext,
+        AuthorizationDbContext identityContext,
         IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions,
         IOptionsSnapshot<JwksDocument> jwksDocument)
     {

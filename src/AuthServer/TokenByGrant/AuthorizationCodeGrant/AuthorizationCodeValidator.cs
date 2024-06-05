@@ -14,7 +14,7 @@ namespace AuthServer.TokenByGrant.AuthorizationCodeGrant;
 
 internal class AuthorizationCodeValidator : IRequestValidator<TokenRequest, AuthorizationCodeValidatedRequest>
 {
-    private readonly IdentityContext _identityContext;
+    private readonly AuthorizationDbContext _identityContext;
     private readonly IAuthorizationCodeEncoder _authorizationCodeEncoder;
     private readonly IClientAuthenticationService _clientAuthenticationService;
     private readonly IClientRepository _clientRepository;
@@ -22,7 +22,7 @@ internal class AuthorizationCodeValidator : IRequestValidator<TokenRequest, Auth
     private readonly IConsentGrantRepository _consentGrantRepository;
 
     public AuthorizationCodeValidator(
-        IdentityContext identityContext,
+        AuthorizationDbContext identityContext,
         IAuthorizationCodeEncoder authorizationCodeEncoder,
         IClientAuthenticationService clientAuthenticationService,
         IClientRepository clientRepository,

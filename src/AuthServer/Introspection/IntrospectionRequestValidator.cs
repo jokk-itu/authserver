@@ -10,11 +10,11 @@ using Microsoft.EntityFrameworkCore;
 namespace AuthServer.Introspection;
 internal class IntrospectionRequestValidator : IRequestValidator<IntrospectionRequest, IntrospectionValidatedRequest>
 {
-    private readonly IdentityContext _identityContext;
+    private readonly AuthorizationDbContext _identityContext;
     private readonly IClientAuthenticationService _clientAuthenticationService;
 
     public IntrospectionRequestValidator(
-        IdentityContext identityContext,
+        AuthorizationDbContext identityContext,
         IClientAuthenticationService clientAuthenticationService)
     {
         _identityContext = identityContext;

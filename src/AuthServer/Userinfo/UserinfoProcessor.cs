@@ -10,12 +10,12 @@ using System.Text.Json;
 namespace AuthServer.Userinfo;
 internal class UserinfoProcessor : IUserinfoProcessor
 {
-    private readonly IdentityContext _identityContext;
+    private readonly AuthorizationDbContext _identityContext;
     private readonly ITokenBuilder<UserinfoTokenArguments> _userinfoTokenBuilder;
     private readonly IUserClaimService _userClaimService;
 
     public UserinfoProcessor(
-        IdentityContext identityContext,
+        AuthorizationDbContext identityContext,
         ITokenBuilder<UserinfoTokenArguments> userinfoTokenBuilder,
         IUserClaimService userClaimService)
     {

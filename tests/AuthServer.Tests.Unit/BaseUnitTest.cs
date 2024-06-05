@@ -22,7 +22,7 @@ namespace AuthServer.Tests.Unit;
 public abstract class BaseUnitTest
 {
     private readonly SqliteConnection _connection;
-    internal IdentityContext IdentityContext;
+    internal AuthorizationDbContext IdentityContext;
 
     protected ITestOutputHelper OutputHelper;
     protected ClientJwtBuilder ClientJwtBuilder;
@@ -49,11 +49,6 @@ public abstract class BaseUnitTest
 
     protected IServiceCollection ConfigureServices(IServiceCollection services)
     {
-        services.AddDbContext<IdentityContext>(contextOptions =>
-        {
-            contextOptions.UseSqlite(_connection,
-                optionsBuilder => { optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery); });
-        });
         services.AddOptions<DiscoveryDocument>().Configure(discoveryDocument =>
         {
             discoveryDocument.Issuer = "https://localhost:5000";
@@ -114,7 +109,7 @@ public abstract class BaseUnitTest
         ConfigureServices(services);
         configure?.Invoke(services);
         var serviceProvider = services.BuildServiceProvider();
-        var identityContext = serviceProvider.GetRequiredService<IdentityContext>();
+        var identityContext = serviceProvider.GetRequiredService<AuthorizationDbContext>();
         IdentityContext = identityContext;
         IdentityContext.Database.EnsureCreated();
 

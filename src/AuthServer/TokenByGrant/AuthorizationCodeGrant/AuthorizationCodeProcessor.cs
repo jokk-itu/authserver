@@ -9,14 +9,14 @@ using Microsoft.EntityFrameworkCore;
 namespace AuthServer.TokenByGrant.AuthorizationCodeGrant;
 internal class AuthorizationCodeProcessor : IAuthorizationCodeProcessor
 {
-    private readonly IdentityContext _identityContext;
+    private readonly AuthorizationDbContext _identityContext;
     private readonly ICachedClientStore _cachedClientStore;
     private readonly ITokenBuilder<GrantAccessTokenArguments> _accessTokenBuilder;
     private readonly ITokenBuilder<RefreshTokenArguments> _refreshTokenBuilder;
     private readonly ITokenBuilder<IdTokenArguments> _idTokenBuilder;
 
     public AuthorizationCodeProcessor(
-        IdentityContext identityContext,
+        AuthorizationDbContext identityContext,
         ICachedClientStore cachedClientStore,
         ITokenBuilder<GrantAccessTokenArguments> accessTokenBuilder,
         ITokenBuilder<RefreshTokenArguments> refreshTokenBuilder,

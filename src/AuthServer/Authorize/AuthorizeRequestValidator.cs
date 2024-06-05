@@ -14,13 +14,13 @@ namespace AuthServer.Authorize;
 internal class AuthorizeRequestValidator : IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>
 {
     private readonly ICachedClientStore _cachedClientStore;
-    private readonly IdentityContext _identityContext;
+    private readonly AuthorizationDbContext _identityContext;
     private readonly ITokenDecoder<ServerIssuedTokenDecodeArguments> _serverIssuedTokenDecoder;
     private readonly IAuthorizeInteractionProcessor _authorizeInteractionProcessor;
 
     public AuthorizeRequestValidator(
         ICachedClientStore cachedClientStore,
-        IdentityContext identityContext,
+        AuthorizationDbContext identityContext,
         ITokenDecoder<ServerIssuedTokenDecodeArguments> serverIssuedTokenDecoder,
         IAuthorizeInteractionProcessor authorizeInteractionProcessor)
     {

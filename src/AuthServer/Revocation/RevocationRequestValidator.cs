@@ -13,13 +13,13 @@ using Microsoft.Extensions.Logging;
 namespace AuthServer.Revocation;
 internal class RevocationRequestValidator : IRequestValidator<RevocationRequest, RevocationValidatedRequest>
 {
-    private readonly IdentityContext _identityContext;
+    private readonly AuthorizationDbContext _identityContext;
     private readonly ITokenDecoder<ServerIssuedTokenDecodeArguments> _serverIssuedTokenDecoder;
     private readonly IClientAuthenticationService _clientAuthenticationService;
     private readonly ILogger<RevocationRequestValidator> _logger;
 
     public RevocationRequestValidator(
-        IdentityContext identityContext,
+        AuthorizationDbContext identityContext,
         ITokenDecoder<ServerIssuedTokenDecodeArguments> serverIssuedTokenDecoder,
         IClientAuthenticationService clientAuthenticationService,
         ILogger<RevocationRequestValidator> logger)

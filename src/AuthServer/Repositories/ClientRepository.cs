@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 namespace AuthServer.Repositories;
 internal class ClientRepository : IClientRepository
 {
-    private readonly IdentityContext _identityContext;
+    private readonly AuthorizationDbContext _identityContext;
 
-    public ClientRepository(IdentityContext identityContext)
+    public ClientRepository(AuthorizationDbContext identityContext)
     {
         _identityContext = identityContext;
     }

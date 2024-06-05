@@ -13,12 +13,12 @@ namespace AuthServer.TokenBuilders;
 
 internal class ClientAccessTokenBuilder : ITokenBuilder<ClientAccessTokenArguments>
 {
-    private readonly IdentityContext _identityContext;
+    private readonly AuthorizationDbContext _identityContext;
     private readonly IOptionsSnapshot<JwksDocument> _jwksDocumentOptions;
     private readonly IOptionsSnapshot<DiscoveryDocument> _discoveryDocumentOptions;
 
     public ClientAccessTokenBuilder(
-        IdentityContext identityContext,
+        AuthorizationDbContext identityContext,
         IOptionsSnapshot<JwksDocument> jwksDocumentOptions,
         IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions)
     {

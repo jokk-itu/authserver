@@ -7,10 +7,10 @@ namespace AuthServer.Repositories;
 
 internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
 {
-    private readonly IdentityContext _identityContext;
+    private readonly AuthorizationDbContext _identityContext;
 
     public AuthorizationGrantRepository(
-        IdentityContext identityContext)
+        AuthorizationDbContext identityContext)
     {
         _identityContext = identityContext;
     }

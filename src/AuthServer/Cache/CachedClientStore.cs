@@ -9,13 +9,13 @@ namespace AuthServer.Cache;
 internal class CachedClientStore : ICachedClientStore
 {
     private readonly IDistributedCache _distributedCache;
-    private readonly IdentityContext _identityContext;
+    private readonly AuthorizationDbContext _identityContext;
     private readonly ILogger<CachedClientStore> _logger;
     private readonly Dictionary<string, CachedClient> _internalCache = [];
 
     public CachedClientStore(
         IDistributedCache distributedCache,
-        IdentityContext identityContext,
+        AuthorizationDbContext identityContext,
         ILogger<CachedClientStore> logger)
     {
         _distributedCache = distributedCache;

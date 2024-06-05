@@ -27,6 +27,7 @@ using AuthServer.TokenByGrant.RefreshTokenGrant;
 using AuthServer.TokenDecoders;
 using AuthServer.Userinfo;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
@@ -34,11 +35,13 @@ namespace AuthServer.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddAuthServer(this IServiceCollection services)
+    public static IServiceCollection AddAuthServer(this IServiceCollection services, Action<DbContextOptionsBuilder> databaseConfigurator)
     {
         services.ConfigureOptions<PostConfigureDiscoveryDocumentOptions>();
         services.ConfigureOptions<ValidateDiscoveryDocumentOptions>();
         services.ConfigureOptions<ValidateUserInteractionOptions>();
+
+        services.AddDbContext<AuthorizationDbContext>(databaseConfigurator);
 
         services
             .AddCoreServices()
@@ -66,10 +69,7 @@ public static class ServiceCollectionExtensions
     {
         services
             .ConfigureOptions<ConfigureJwtBearerOptions>()
-            .AddAuthentication(configureOptions =>
-            {
-                configureOptions.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
+            .AddAuthentication()
             .AddJwtBearer();
 
         return services;
@@ -154,7 +154,6 @@ public static class ServiceCollectionExtensions
     internal static IServiceCollection AddRepositories(this IServiceCollection services)
     {
         return services
-            .AddDbContext<IdentityContext>()
             .AddScoped<IClientRepository, ClientRepository>()
             .AddScoped<IConsentGrantRepository, ConsentGrantRepository>();
     }

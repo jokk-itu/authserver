@@ -15,7 +15,7 @@ namespace AuthServer.TokenByGrant.RefreshTokenGrant;
 
 internal class RefreshTokenValidator : IRequestValidator<TokenRequest, RefreshTokenValidatedRequest>
 {
-    private readonly IdentityContext _identityContext;
+    private readonly AuthorizationDbContext _identityContext;
     private readonly ITokenDecoder<ServerIssuedTokenDecodeArguments> _tokenDecoder;
     private readonly IClientAuthenticationService _clientAuthenticationService;
     private readonly ICachedClientStore _cachedClientStore;
@@ -23,7 +23,7 @@ internal class RefreshTokenValidator : IRequestValidator<TokenRequest, RefreshTo
     private readonly IConsentGrantRepository _consentGrantRepository;
 
     public RefreshTokenValidator(
-        IdentityContext identityContext,
+        AuthorizationDbContext identityContext,
         ITokenDecoder<ServerIssuedTokenDecodeArguments> tokenDecoder,
         IClientAuthenticationService clientAuthenticationService,
         ICachedClientStore cachedClientStore,

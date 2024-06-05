@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore;
 namespace AuthServer.Introspection;
 internal class TokenIntrospection : ITokenIntrospection
 {
-    private readonly IdentityContext _identityContext;
+    private readonly AuthorizationDbContext _identityContext;
     private readonly IUsernameResolver _usernameResolver;
 
     public TokenIntrospection(
-        IdentityContext identityContext,
+        AuthorizationDbContext identityContext,
         IUsernameResolver usernameResolver)
     {
         _identityContext = identityContext;

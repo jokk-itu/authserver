@@ -9,11 +9,11 @@ using Microsoft.Extensions.Options;
 namespace AuthServer.TokenBuilders;
 internal class RegistrationTokenBuilder : ITokenBuilder<RegistrationTokenArguments>
 {
-    private readonly IdentityContext _identityContext;
+    private readonly AuthorizationDbContext _identityContext;
     private readonly IOptionsSnapshot<DiscoveryDocument> _discoveryDocumentOptions;
 
     public RegistrationTokenBuilder(
-        IdentityContext identityContext,
+        AuthorizationDbContext identityContext,
         IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions)
     {
         _identityContext = identityContext;

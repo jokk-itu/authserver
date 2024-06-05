@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore;
 namespace AuthServer.Revocation;
 internal class TokenRevoker : ITokenRevoker
 {
-    private readonly IdentityContext _identityContext;
+    private readonly AuthorizationDbContext _identityContext;
     private readonly ITokenDecoder<ServerIssuedTokenDecodeArguments> _serverIssuedTokenDecoder;
 
     public TokenRevoker(
-        IdentityContext identityContext,
+        AuthorizationDbContext identityContext,
         ITokenDecoder<ServerIssuedTokenDecodeArguments> serverIssuedTokenDecoder)
     {
         _identityContext = identityContext;
