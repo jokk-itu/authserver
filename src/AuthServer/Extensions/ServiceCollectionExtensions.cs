@@ -162,6 +162,7 @@ public static class ServiceCollectionExtensions
     {
         return services
             .AddScoped<IAuthorizeInteractionProcessor, AuthorizeInteractionProcessor>()
+            .AddScoped<IAuthorizeProcessor, AuthorizeProcessor>()
             .AddScoped<IAuthorizeResponseBuilder, AuthorizeResponseBuilder>()
             .AddScoped<IUserAccessor, UserAccessor>()
             .AddScoped<IRequestProcessor<AuthorizeRequest, string>, AuthorizeRequestProcessor>()
