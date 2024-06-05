@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthServer.Core;
-internal sealed class AuthorizationDbContext(DbContextOptions<AuthorizationDbContext> options)
+public sealed class AuthorizationDbContext(DbContextOptions options)
     : DbContext(options)
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
