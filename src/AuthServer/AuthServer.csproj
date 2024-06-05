@@ -16,7 +16,7 @@
 		<PackageProjectUrl>https://github.com/jokk-itu/BookVacation</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/jokk-itu/authserver</RepositoryUrl>
 		<VersionSuffix>alpha</VersionSuffix>
-		<Version>1.0.0</Version>
+		<VersionPrefix>0.0.7</VersionPrefix>
 		<IncludeSymbols>true</IncludeSymbols>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -24,8 +24,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.3" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.6" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.6" />
 		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="7.5.1" />
 	</ItemGroup>
 

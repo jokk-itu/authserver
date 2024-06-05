@@ -19,12 +19,12 @@ internal sealed class ConsentGrantConfiguration : IEntityTypeConfiguration<Conse
         .HasOne(x => x.Client)
         .WithMany(x => x.ConsentGrants)
         .IsRequired()
-        .OnDelete(DeleteBehavior.Cascade);
+        .OnDelete(DeleteBehavior.ClientCascade);
 
     builder
         .HasOne(x => x.PublicSubjectIdentifier)
         .WithMany(x => x.ConsentGrants)
         .IsRequired()
-        .OnDelete(DeleteBehavior.Cascade);
+        .OnDelete(DeleteBehavior.ClientCascade);
   }
 }

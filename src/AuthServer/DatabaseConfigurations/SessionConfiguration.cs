@@ -11,6 +11,6 @@ internal sealed class SessionConfiguration : IEntityTypeConfiguration<Session>
           .HasOne(x => x.PublicSubjectIdentifier)
           .WithMany(x => x.Sessions)
           .IsRequired()
-          .OnDelete(DeleteBehavior.Cascade);
+          .OnDelete(DeleteBehavior.ClientCascade);
   }
 }

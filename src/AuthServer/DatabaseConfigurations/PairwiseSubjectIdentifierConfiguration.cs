@@ -11,12 +11,12 @@ internal sealed class PairwiseSubjectIdentifierConfiguration : IEntityTypeConfig
             .HasOne(x => x.PublicSubjectIdentifier)
             .WithMany(x => x.PairwiseSubjectIdentifiers)
             .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.ClientCascade);
 
         builder
             .HasOne(x => x.Client)
             .WithMany(x => x.PairwiseSubjectIdentifiers)
             .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.ClientCascade);
     }
 }

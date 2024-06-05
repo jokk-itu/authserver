@@ -12,6 +12,6 @@ internal class ClientTokenConfiguration : IEntityTypeConfiguration<ClientToken>
             .HasOne(x => x.Client)
             .WithMany(x => x.ClientTokens)
             .IsRequired()
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.ClientCascade);
     }
 }

@@ -12,18 +12,18 @@ internal sealed class AuthorizationGrantConfiguration : IEntityTypeConfiguration
             .HasOne(x => x.Client)
             .WithMany(x => x.AuthorizationGrants)
             .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.ClientCascade);
 
         builder
             .HasOne(x => x.Session)
             .WithMany(x => x.AuthorizationGrants)
             .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.ClientCascade);
 
         builder
             .HasOne(x => x.SubjectIdentifier)
             .WithMany(x => x.AuthorizationGrants)
             .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.ClientCascade);
     }
 }

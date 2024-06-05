@@ -155,7 +155,8 @@ public static class ServiceCollectionExtensions
     {
         return services
             .AddScoped<IClientRepository, ClientRepository>()
-            .AddScoped<IConsentGrantRepository, ConsentGrantRepository>();
+            .AddScoped<IConsentGrantRepository, ConsentGrantRepository>()
+            .AddScoped<IAuthorizationGrantRepository, AuthorizationGrantRepository>();
     }
 
     internal static IServiceCollection AddAuthorize(this IServiceCollection services)
