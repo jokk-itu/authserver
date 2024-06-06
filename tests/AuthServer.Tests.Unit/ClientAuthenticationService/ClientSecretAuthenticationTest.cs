@@ -9,7 +9,7 @@ using Xunit.Abstractions;
 
 namespace AuthServer.Tests.Unit.ClientAuthenticationService;
 
-public class ClientAuthenticationSecretTest(ITestOutputHelper outputHelper) : BaseUnitTest(outputHelper)
+public class ClientSecretAuthenticationTest(ITestOutputHelper outputHelper) : BaseUnitTest(outputHelper)
 {
     [Fact]
     public async Task AuthenticateClient_ClientDoesNotExist_NotAuthenticated()

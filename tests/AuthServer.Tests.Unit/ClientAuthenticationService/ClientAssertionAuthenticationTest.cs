@@ -11,7 +11,7 @@ using Xunit.Abstractions;
 
 namespace AuthServer.Tests.Unit.ClientAuthenticationService;
 
-public class ClientAuthenticationAssertionTest(ITestOutputHelper outputHelper) : BaseUnitTest(outputHelper)
+public class ClientAssertionAuthenticationTest(ITestOutputHelper outputHelper) : BaseUnitTest(outputHelper)
 {
     [Fact]
     public async Task AuthenticateClient_InvalidClientAssertionType_NotAuthenticated()
