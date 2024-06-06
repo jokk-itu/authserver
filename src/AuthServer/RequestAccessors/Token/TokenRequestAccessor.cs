@@ -17,8 +17,8 @@ internal class TokenRequestAccessor : IRequestAccessor<TokenRequest>
         var redirectUri = body.GetValueOrEmpty(Parameter.RedirectUri);
         var refreshToken = body.GetValueOrEmpty(Parameter.RefreshToken);
 
-        var scope = body.GetValueOrEmpty(Parameter.Scope).Split(' ');
-        var resource = body.GetValueOrEmpty(Parameter.Resource).Split(' ');
+        var scope = body.GetSpaceDelimitedValueOrEmpty(Parameter.Scope);
+        var resource = body.GetSpaceDelimitedValueOrEmpty(Parameter.Resource);
 
         var clientSecretBasic = httpRequest.GetClientSecretBasic();
         var clientSecretPost = body.GetClientSecretPost();
@@ -38,8 +38,8 @@ internal class TokenRequestAccessor : IRequestAccessor<TokenRequest>
             CodeVerifier = codeVerifier,
             RedirectUri = redirectUri,
             RefreshToken = refreshToken,
-            Scope = scope.AsReadOnly(),
-            Resource = resource.AsReadOnly(),
+            Scope = scope,
+            Resource = resource,
             ClientAuthentications = clientAuthentications
         };
     }
