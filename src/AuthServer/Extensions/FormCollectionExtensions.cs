@@ -50,4 +50,11 @@ public static class FormCollectionExtensions
         formCollection.TryGetValue(key, out var value);
         return value == StringValues.Empty ? string.Empty : value.ToString();
     }
+
+    public static IReadOnlyCollection<string> GetSpaceDelimitedValueOrEmpty(this IFormCollection formCollection, string key)
+    {
+	    formCollection.TryGetValue(key, out var value);
+	    var hasValue = !StringValues.IsNullOrEmpty(value);
+	    return !hasValue ? [] : value.ToString().Split(' ');
+	}
 }
