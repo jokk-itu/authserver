@@ -3,6 +3,14 @@
 namespace AuthServer.Extensions;
 public static class StringExtensions
 {
+    /// <summary>
+    /// Gets the Enum of type <see cref="T"/>,
+    /// based off string matching on the <see cref="DescriptionAttribute"/>
+    /// for the Enum values.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="value"></param>
+    /// <returns></returns>
     public static T? GetEnum<T>(this string value) where T : Enum
     {
         var @enum = typeof(T);
