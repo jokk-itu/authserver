@@ -1,4 +1,4 @@
 ﻿using AuthServer.Core;
 
 namespace AuthServer.DomainEvents;
-internal record RefreshTokenRevoked(Guid refreshTokenId) : IDomainEvent;
+internal record RefreshTokenRevoked(Guid RefreshTokenId) : IDomainEvent;
