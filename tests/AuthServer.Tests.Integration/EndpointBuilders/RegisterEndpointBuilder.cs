@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.Json;
 using AuthServer.Constants;
 using AuthServer.Core;
-using AuthServer.Endpoints;
+using AuthServer.Endpoints.Responses;
 
 namespace AuthServer.Tests.Integration.EndpointBuilders;
 public class RegisterEndpointBuilder
@@ -99,7 +99,7 @@ public class RegisterEndpointBuilder
     return this;
   }
 
-  public async Task<ClientResponse> BuildClient(HttpClient httpClient, CancellationToken cancellationToken = default)
+  internal async Task<PostRegisterResponse> BuildClient(HttpClient httpClient, CancellationToken cancellationToken = default)
   {
     var arguments = new Dictionary<string, object>
     {
@@ -129,7 +129,7 @@ public class RegisterEndpointBuilder
     };
     var clientResponse = await httpClient.SendAsync(request, cancellationToken);
     clientResponse.EnsureSuccessStatusCode();
-    var deserialized = await clientResponse.Content.ReadFromJsonAsync<ClientResponse>(cancellationToken: cancellationToken);
+    var deserialized = await clientResponse.Content.ReadFromJsonAsync<PostRegisterResponse>(cancellationToken: cancellationToken);
     return deserialized!;
   }
 }
