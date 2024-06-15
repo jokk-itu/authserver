@@ -1,4 +1,4 @@
-﻿using AuthServer.Cache;
+﻿using AuthServer.Cache.Abstractions;
 using AuthServer.Core.Abstractions;
 using AuthServer.Core.Exceptions;
 using AuthServer.Entities;
@@ -26,13 +26,16 @@ internal class ClientJwkService : IClientJwkService
         _logger = logger;
     }
 
-    public async Task<JsonWebKey?> GetEncryptionKey(string clientId, CancellationToken cancellationToken) =>
+    /// <inheritdoc/>
+	public async Task<JsonWebKey?> GetEncryptionKey(string clientId, CancellationToken cancellationToken) =>
         (await GetKeys(clientId, JsonWebKeyUseNames.Enc, cancellationToken)).FirstOrDefault();
 
-    public async Task<IEnumerable<JsonWebKey>> GetSigningKeys(string clientId, CancellationToken cancellationToken) =>
+    /// <inheritdoc/>
+	public async Task<IEnumerable<JsonWebKey>> GetSigningKeys(string clientId, CancellationToken cancellationToken) =>
         await GetKeys(clientId, JsonWebKeyUseNames.Sig, cancellationToken);
 
-    public async Task<IEnumerable<JsonWebKey>> GetKeys(string clientId, string use, CancellationToken cancellationToken)
+    /// <inheritdoc/>
+	public async Task<IEnumerable<JsonWebKey>> GetKeys(string clientId, string use, CancellationToken cancellationToken)
     {
         var cachedClient = await _cachedClientStore.Get(clientId, cancellationToken);
 
@@ -62,7 +65,22 @@ internal class ClientJwkService : IClientJwkService
         return JsonWebKeySet.Create(jwks).Keys.Where(k => k.Use == use);
     }
 
-    private async Task<string> RefreshJwks(string clientId, string jwksUri, CancellationToken cancellationToken)
+    /// <inheritdoc/>
+    public async Task<string?> GetJwks(string jwksUri, CancellationToken cancellationToken)
+    {
+	    _logger.LogDebug("Initial fetch of jwks using uri {JwksUri}", jwksUri);
+	    try
+	    {
+			return await RefreshJwks(null, jwksUri, cancellationToken);
+	    }
+	    catch (ClientJwkRefreshException e)
+	    {
+            _logger.LogError(e, "Unexpected error occurred during initial fetch of jwks {JwksUri}", jwksUri);
+		    return null;
+	    }
+    } 
+
+    private async Task<string> RefreshJwks(string? clientId, string jwksUri, CancellationToken cancellationToken)
     {
         // TODO implement retry delegate handler (5XX and 429)
         try

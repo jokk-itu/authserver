@@ -29,4 +29,13 @@ public interface IClientJwkService
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task<IEnumerable<JsonWebKey>> GetKeys(string clientId, string use, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gets the jwks from the given jwksUri.
+    /// This is only to be used in the Register flow, when validating JwksUri.
+    /// </summary>
+    /// <param name="jwksUri"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<string?> GetJwks(string jwksUri, CancellationToken cancellationToken);
 }
