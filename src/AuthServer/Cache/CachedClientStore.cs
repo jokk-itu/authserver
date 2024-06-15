@@ -1,4 +1,5 @@
-﻿using AuthServer.Cache.Entities;
+﻿using AuthServer.Cache.Abstractions;
+using AuthServer.Cache.Entities;
 using AuthServer.Core;
 using AuthServer.Core.Exceptions;
 using AuthServer.Entities;

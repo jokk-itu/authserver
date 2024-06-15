@@ -1,5 +1,5 @@
 ﻿using AuthServer.Authorize.Abstract;
-using AuthServer.Cache;
+using AuthServer.Cache.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.RequestProcessing;

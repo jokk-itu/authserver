@@ -1,4 +1,4 @@
-﻿namespace AuthServer.Revocation;
+﻿namespace AuthServer.Revocation.Abstractions;
 internal interface ITokenRevoker
 {
     /// <summary>

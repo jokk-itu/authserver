@@ -1,6 +1,6 @@
 using System.Net.Http.Json;
 using AuthServer.Core;
-using AuthServer.Endpoints;
+using AuthServer.Endpoints.Responses;
 
 namespace AuthServer.Tests.Integration.EndpointBuilders;
 public class TokenEndpointBuilder
@@ -74,7 +74,7 @@ public class TokenEndpointBuilder
     return this;
   }
 
-  public async Task<PostTokenResponse> BuildRedeemAuthorizationCode(HttpClient httpClient, CancellationToken cancellationToken = default)
+  internal async Task<PostTokenResponse> BuildRedeemAuthorizationCode(HttpClient httpClient, CancellationToken cancellationToken = default)
   {
     var body = new List<KeyValuePair<string, string>>
     {
@@ -99,7 +99,7 @@ public class TokenEndpointBuilder
     return deserialized!;
   }
 
-  public async Task<PostTokenResponse> BuildRedeemRefreshToken(HttpClient httpClient,
+  internal async Task<PostTokenResponse> BuildRedeemRefreshToken(HttpClient httpClient,
     CancellationToken cancellationToken = default)
   {
     var body = new List<KeyValuePair<string, string>>
@@ -123,7 +123,7 @@ public class TokenEndpointBuilder
     return deserialized!;
   }
 
-  public async Task<PostTokenResponse> BuildRedeemClientCredentials(HttpClient httpClient,
+  internal async Task<PostTokenResponse> BuildRedeemClientCredentials(HttpClient httpClient,
     CancellationToken cancellationToken = default)
   {
     var body = new List<KeyValuePair<string, string>>

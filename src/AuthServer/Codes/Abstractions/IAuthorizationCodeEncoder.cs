@@ -1,4 +1,4 @@
-﻿namespace AuthServer.Codes;
+﻿namespace AuthServer.Codes.Abstractions;
 internal interface IAuthorizationCodeEncoder
 {
     /// <summary>

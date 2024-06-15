@@ -1,4 +1,4 @@
-﻿using AuthServer.Cache;
+﻿using AuthServer.Cache.Abstractions;
 using AuthServer.TokenBuilders;
 using AuthServer.TokenBuilders.Abstractions;
 

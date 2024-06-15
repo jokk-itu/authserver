@@ -1,7 +1,9 @@
 ﻿using AuthServer.Authorize;
 using AuthServer.Authorize.Abstract;
 using AuthServer.Cache;
+using AuthServer.Cache.Abstractions;
 using AuthServer.Codes;
+using AuthServer.Codes.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;
@@ -18,6 +20,7 @@ using AuthServer.RequestAccessors.Revocation;
 using AuthServer.RequestAccessors.Token;
 using AuthServer.RequestAccessors.Userinfo;
 using AuthServer.Revocation;
+using AuthServer.Revocation.Abstractions;
 using AuthServer.TokenBuilders;
 using AuthServer.TokenBuilders.Abstractions;
 using AuthServer.TokenByGrant;

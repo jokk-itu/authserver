@@ -1,6 +1,7 @@
 ﻿using AuthServer.Core;
 using AuthServer.Entities;
 using AuthServer.Extensions;
+using AuthServer.Introspection.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthServer.Introspection;

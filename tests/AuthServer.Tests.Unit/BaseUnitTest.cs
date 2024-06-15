@@ -6,7 +6,7 @@ using AuthServer.Core.Abstractions;
 using AuthServer.Core.Discovery;
 using AuthServer.Enums;
 using AuthServer.Extensions;
-using AuthServer.Introspection;
+using AuthServer.Introspection.Abstractions;
 using AuthServer.Tests.Core;
 using AuthServer.Tests.Core.EntityBuilders;
 using Microsoft.Data.Sqlite;

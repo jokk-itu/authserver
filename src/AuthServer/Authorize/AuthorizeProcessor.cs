@@ -1,5 +1,6 @@
 ﻿using AuthServer.Authorize.Abstract;
 using AuthServer.Codes;
+using AuthServer.Codes.Abstractions;
 using AuthServer.Entities;
 using AuthServer.Repositories.Abstract;
 

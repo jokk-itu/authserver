@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Json;
 using AuthServer.Core;
-using AuthServer.Endpoints;
+using AuthServer.Endpoints.Responses;
 
 namespace AuthServer.Tests.Integration.EndpointBuilders;
 public class IntrospectionEndpointBuilder
@@ -39,7 +39,7 @@ public class IntrospectionEndpointBuilder
     return this;
   }
 
-  public async Task<PostIntrospectionResponse> BuildIntrospection(HttpClient httpClient)
+  internal async Task<PostIntrospectionResponse> BuildIntrospection(HttpClient httpClient)
   {
     var tokenContent = new FormUrlEncodedContent(new Dictionary<string, string>
     {

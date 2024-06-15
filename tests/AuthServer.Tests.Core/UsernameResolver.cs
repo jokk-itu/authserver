@@ -1,4 +1,4 @@
-﻿using AuthServer.Introspection;
+﻿using AuthServer.Introspection.Abstractions;
 
 namespace AuthServer.Tests.Core;
 public class UsernameResolver : IUsernameResolver

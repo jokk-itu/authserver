@@ -1,5 +1,6 @@
 ﻿using AuthServer.Core;
 using AuthServer.Core.RequestProcessing;
+using AuthServer.Endpoints.Responses;
 using AuthServer.Extensions;
 using AuthServer.Introspection;
 using AuthServer.RequestAccessors.Introspection;
