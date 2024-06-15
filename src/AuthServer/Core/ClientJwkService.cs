@@ -44,7 +44,7 @@ internal class ClientJwkService : IClientJwkService
             return [];
         }
 
-        var useJwks = cachedClient.JwksUri is null || DateTime.UtcNow < cachedClient.JwksExpiresAt;
+        var useJwks = DateTime.UtcNow < cachedClient.JwksExpiresAt;
         if (useJwks)
         {
             return JsonWebKeySet.Create(cachedClient.Jwks).Keys.Where(k => k.Use == use);
