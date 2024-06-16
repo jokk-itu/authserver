@@ -5,5 +5,6 @@ public class ClientIssuedTokenDecodeArguments
     public required string ClientId { get; init; }
     public string? SubjectId { get; init; }
     public required IReadOnlyCollection<string> TokenTypes { get; init; }
+    public required IReadOnlyCollection<string> Algorithms { get; init; }
     public required ClientTokenAudience Audience { get; init; }
 }

@@ -60,6 +60,7 @@ internal class ClientIssuedTokenDecoder : ITokenDecoder<ClientIssuedTokenDecodeA
             ValidTypes = arguments.TokenTypes,
             ValidIssuer = arguments.ClientId,
             ValidAudiences = [ GetAudience(arguments.Audience) ],
+            ValidAlgorithms = arguments.Algorithms,
             IssuerSigningKeys = await _clientJwkService.GetSigningKeys(arguments.ClientId, cancellationToken),
             TokenDecryptionKeys = _jwkDocumentOptions.Value.EncryptionKeys.Select(x => x.Key),
             TokenReplayCache = _tokenReplayCache, 
@@ -67,7 +68,7 @@ internal class ClientIssuedTokenDecoder : ITokenDecoder<ClientIssuedTokenDecodeA
             ValidateLifetime = arguments.ValidateLifetime,
             ValidateAudience = true,
             ValidateIssuerSigningKey = true,
-            ValidateIssuer = true
+            ValidateIssuer = true,
         };
 
         var handler = new JsonWebTokenHandler();

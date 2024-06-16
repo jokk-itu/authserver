@@ -3,6 +3,7 @@ using AuthServer.Constants;
 using AuthServer.Core.Abstractions;
 using AuthServer.Core.Models;
 using AuthServer.Enums;
+using AuthServer.Extensions;
 using AuthServer.TokenDecoders;
 using Microsoft.Extensions.Logging;
 
@@ -124,6 +125,7 @@ internal class ClientAuthenticationService : IClientAuthenticationService
             await _clientIssuedTokenDecoder.Validate(clientAssertionAuthentication.ClientAssertion, new ClientIssuedTokenDecodeArguments
             {
                 TokenTypes = [TokenTypeHeaderConstants.PrivateKeyToken],
+                Algorithms = [ client.TokenEndpointAuthSigningAlg.GetDescription() ],
                 ClientId = clientId,
                 Audience = clientAssertionAuthentication.Audience,
                 ValidateLifetime = true
