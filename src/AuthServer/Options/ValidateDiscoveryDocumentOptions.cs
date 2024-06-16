@@ -99,21 +99,21 @@ public class ValidateDiscoveryDocumentOptions : IValidateOptions<DiscoveryDocume
         }
 
         var invalidRevocationSigningAlgValues =
-            options.UserinfoSigningAlgValuesSupported.Where(x => !JwsAlgConstants.AlgValues.Contains(x)).ToList();
+            options.RevocationEndpointAuthSigningAlgValuesSupported.Where(x => !JwsAlgConstants.AlgValues.Contains(x)).ToList();
         if (invalidRevocationSigningAlgValues.Count != 0)
         {
             return ValidateOptionsResult.Fail($"{nameof(options.RevocationEndpointAuthSigningAlgValuesSupported)} have unrecognized values: {string.Join(',', invalidRevocationSigningAlgValues)}");
         }
 
         var invalidIntrospectionSigningAlgValues =
-            options.UserinfoSigningAlgValuesSupported.Where(x => !JwsAlgConstants.AlgValues.Contains(x)).ToList();
+            options.IntrospectionEndpointAuthSigningAlgValuesSupported.Where(x => !JwsAlgConstants.AlgValues.Contains(x)).ToList();
         if (invalidIntrospectionSigningAlgValues.Count != 0)
         {
             return ValidateOptionsResult.Fail($"{nameof(options.IntrospectionEndpointAuthSigningAlgValuesSupported)} have unrecognized values: {string.Join(',', invalidIntrospectionSigningAlgValues)}");
         }
 
         var invalidRequestObjectSigningAlgValues =
-            options.UserinfoSigningAlgValuesSupported.Where(x => !JwsAlgConstants.AlgValues.Contains(x)).ToList();
+            options.RequestObjectSigningAlgValuesSupported.Where(x => !JwsAlgConstants.AlgValues.Contains(x)).ToList();
         if (invalidRequestObjectSigningAlgValues.Count != 0)
         {
             return ValidateOptionsResult.Fail($"{nameof(options.RequestObjectSigningAlgValuesSupported)} have unrecognized values: {string.Join(',', invalidRequestObjectSigningAlgValues)}");
@@ -133,6 +133,27 @@ public class ValidateDiscoveryDocumentOptions : IValidateOptions<DiscoveryDocume
             return ValidateOptionsResult.Fail($"{nameof(options.RequestObjectEncryptionEncValuesSupported)} have unrecognized values: {string.Join(',', invalidRequestObjectEncryptionEncValues)}");
         }
 
-        return ValidateOptionsResult.Success;
+        var invalidAuthorizationSigningAlgValues =
+	        options.AuthorizationSigningAlgValuesSupported.Where(x => !JwsAlgConstants.AlgValues.Contains(x)).ToList();
+        if (invalidAuthorizationSigningAlgValues.Count != 0)
+        {
+	        return ValidateOptionsResult.Fail($"{nameof(options.AuthorizationSigningAlgValuesSupported)} have unrecognized values: {string.Join(',', invalidRequestObjectSigningAlgValues)}");
+        }
+
+        var invalidAuthorizationEncryptionAlgValues =
+	        options.AuthorizationEncryptionAlgValuesSupported.Where(x => !JwsAlgConstants.AlgValues.Contains(x)).ToList();
+        if (invalidAuthorizationEncryptionAlgValues.Count != 0)
+        {
+	        return ValidateOptionsResult.Fail($"{nameof(options.AuthorizationEncryptionAlgValuesSupported)} have unrecognized values: {string.Join(',', invalidRequestObjectEncryptionAlgValues)}");
+        }
+
+        var invalidAuthorizationEncryptionEncValues =
+	        options.AuthorizationEncryptionEncValuesSupported.Where(x => !JwsAlgConstants.AlgValues.Contains(x)).ToList();
+        if (invalidAuthorizationEncryptionEncValues.Count != 0)
+        {
+	        return ValidateOptionsResult.Fail($"{nameof(options.AuthorizationEncryptionEncValuesSupported)} have unrecognized values: {string.Join(',', invalidRequestObjectEncryptionEncValues)}");
+        }
+
+		return ValidateOptionsResult.Success;
     }
 }

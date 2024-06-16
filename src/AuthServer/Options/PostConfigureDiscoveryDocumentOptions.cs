@@ -7,31 +7,46 @@ namespace AuthServer.Options;
 
 internal class PostConfigureDiscoveryDocumentOptions : IPostConfigureOptions<DiscoveryDocument>
 {
-    public void PostConfigure(string? name, DiscoveryDocument options)
-    {
-        ScopeConstants.Scopes
-            .Where(x => !options.ScopesSupported.Contains(x))
-            .ToList()
-            .ForEach(options.ScopesSupported.Add);
+	public void PostConfigure(string? name, DiscoveryDocument options)
+	{
+		ScopeConstants.Scopes
+			.Where(x => !options.ScopesSupported.Contains(x))
+			.ToList()
+			.ForEach(options.ScopesSupported.Add);
 
-        if (options.IdTokenSigningAlgValuesSupported.IsNullOrEmpty())
-        {
-            options.IdTokenSigningAlgValuesSupported = [JwsAlgConstants.RsaSha256];
-        }
+		if (options.IdTokenSigningAlgValuesSupported.IsNullOrEmpty())
+		{
+			options.IdTokenSigningAlgValuesSupported = [JwsAlgConstants.RsaSha256];
+		}
 
-        if (options.TokenEndpointAuthSigningAlgValuesSupported.IsNullOrEmpty())
-        {
-            options.TokenEndpointAuthSigningAlgValuesSupported = [JwsAlgConstants.RsaSha256];
-        }
+		if (options.RequestObjectSigningAlgValuesSupported.IsNullOrEmpty())
+		{
+			options.RequestObjectSigningAlgValuesSupported = [JwsAlgConstants.RsaSha256];
+		}
 
-        if (options.IntrospectionEndpointAuthSigningAlgValuesSupported.IsNullOrEmpty())
-        {
-            options.IntrospectionEndpointAuthSigningAlgValuesSupported = [JwsAlgConstants.RsaSha256];
-        }
+		if (options.UserinfoSigningAlgValuesSupported.IsNullOrEmpty())
+		{
+			options.UserinfoSigningAlgValuesSupported = [JwsAlgConstants.RsaSha256];
+		}
 
-        if (options.RevocationEndpointAuthSigningAlgValuesSupported.IsNullOrEmpty())
-        {
-            options.RevocationEndpointAuthSigningAlgValuesSupported = [JwsAlgConstants.RsaSha256];
-        }
-    }
+		if (options.AuthorizationSigningAlgValuesSupported.IsNullOrEmpty())
+		{
+			options.AuthorizationSigningAlgValuesSupported = [JwsAlgConstants.RsaSha256];
+		}
+
+		if (options.TokenEndpointAuthSigningAlgValuesSupported.IsNullOrEmpty())
+		{
+			options.TokenEndpointAuthSigningAlgValuesSupported = [JwsAlgConstants.RsaSha256];
+		}
+
+		if (options.IntrospectionEndpointAuthSigningAlgValuesSupported.IsNullOrEmpty())
+		{
+			options.IntrospectionEndpointAuthSigningAlgValuesSupported = [JwsAlgConstants.RsaSha256];
+		}
+
+		if (options.RevocationEndpointAuthSigningAlgValuesSupported.IsNullOrEmpty())
+		{
+			options.RevocationEndpointAuthSigningAlgValuesSupported = [JwsAlgConstants.RsaSha256];
+		}
+	}
 }

@@ -110,6 +110,15 @@ public class DiscoveryDocument
     [JsonPropertyName("request_object_encryption_enc_values_supported")]
     public ICollection<string> RequestObjectEncryptionEncValuesSupported { get; set; } = [];
 
+    [JsonPropertyName("authorization_signing_alg_values_supported")]
+    public ICollection<string> AuthorizationSigningAlgValuesSupported { get; set; } = [];
+
+    [JsonPropertyName("authorization_encryption_alg_values_supported")]
+    public ICollection<string> AuthorizationEncryptionAlgValuesSupported { get; set; } = [];
+
+    [JsonPropertyName("authorization_encryption_enc_values_supported")]
+    public ICollection<string> AuthorizationEncryptionEncValuesSupported { get; set; } = [];
+
     [JsonPropertyName("token_endpoint_auth_signing_alg_values_supported")]
     public ICollection<string> TokenEndpointAuthSigningAlgValuesSupported { get; set; } = [];
 
