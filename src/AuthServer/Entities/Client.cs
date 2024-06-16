@@ -54,9 +54,9 @@ public class Client : Entity<string>
     public int AuthorizationCodeExpiration { get; set; }
 
     /// <summary>
-    /// Lifetime of cached jwks fetched from jwks_uri in seconds. 
+    /// Lifetime of jwks in seconds.
     /// </summary>
-    public int JwksExpiration { get; set; }
+    public int? JwksExpiration { get; set; }
 
     /// <summary>
     /// Uri to terms of service page
