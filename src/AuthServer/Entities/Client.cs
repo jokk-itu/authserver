@@ -138,6 +138,9 @@ public class Client : Entity<string>
     public EncryptionAlg? AuthorizationEncryptedResponseAlg { get; set; }
     public EncryptionEnc? AuthorizationEncryptedResponseEnc { get; set; }
 
+    /// <summary>
+    /// Algorithm used to sign tokens for client authentication private_key_jwt.
+    /// </summary>
     public SigningAlg TokenEndpointAuthSigningAlg { get; set; }
 
     public EncryptionEnc? UserinfoEncryptedResponseEnc { get; set; }
