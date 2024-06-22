@@ -21,6 +21,8 @@ internal class AuthorizeRequestAccessor : IRequestAccessor<AuthorizeRequest>
         var responseType = query.GetValueOrEmpty(Parameter.ResponseType);
         var nonce = query.GetValueOrEmpty(Parameter.Nonce);
         var state = query.GetValueOrEmpty(Parameter.State);
+        var requestObject = query.GetValueOrEmpty(Parameter.RequestObject);
+        var requestUri = query.GetValueOrEmpty(Parameter.RequestUri);
         var scope = query.GetSpaceDelimitedValueOrEmpty(Parameter.Scope);
         var acrValues = query.GetSpaceDelimitedValueOrEmpty(Parameter.AcrValues);
 
@@ -39,6 +41,8 @@ internal class AuthorizeRequestAccessor : IRequestAccessor<AuthorizeRequest>
             MaxAge = maxAge,
             State = state,
             ResponseMode = responseMode,
+            RequestObject = requestObject,
+            RequestUri = requestUri,
             Scope = scope,
             AcrValues = acrValues
         });

@@ -19,6 +19,7 @@ internal static class AuthorizeEndpoint
         CancellationToken cancellationToken)
     {
         // TODO find a way to get the UserId securely from the Interaction pages (login, consent and select_account)
+        // Just get the UserId from the HttpContext.User property
 
         var options = userInteractionOptions.Value;
         var request = await requestAccessor.GetRequest(httpContext.Request);

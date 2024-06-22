@@ -9,6 +9,8 @@ public static class Parameter
     public const string Scope = "scope";
     public const string State = "state";
     public const string Display = "display";
+    public const string RequestObject = "request_object";
+    public const string RequestUri = "request_uri";
     public const string CodeChallenge = "code_challenge";
     public const string CodeChallengeMethod = "code_challenge_method";
     public const string CodeVerifier = "code_verifier";
