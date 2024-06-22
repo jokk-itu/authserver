@@ -19,6 +19,7 @@ internal class PostRegisterValidatedRequest
 	public required string? LogoUri { get; init; }
 	public required string? BackchannelLogoutUri { get; init; }
 	public required bool RequireSignedRequestObject { get; init; }
+	public required bool RequireReferenceToken { get; init; } 
 	public required EncryptionEnc? RequestObjectEncryptionEnc { get; init; }
 	public required EncryptionAlg? RequestObjectEncryptionAlg { get; init; }
 	public required SigningAlg? RequestObjectSigningAlg { get; init; }

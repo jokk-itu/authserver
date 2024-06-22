@@ -2,4 +2,5 @@
 
 internal interface IPostRegisterProcessor
 {
+    Task<PostRegisterResponse> Register(PostRegisterValidatedRequest postRegisterValidatedRequest, CancellationToken cancellationToken);
 }
