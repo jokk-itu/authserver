@@ -1,4 +1,5 @@
-﻿using AuthServer.Core.RequestProcessing;
+﻿using System.Transactions;
+using AuthServer.Core.RequestProcessing;
 using AuthServer.RequestAccessors.Revocation;
 using AuthServer.Revocation.Abstractions;
 
@@ -17,7 +18,9 @@ internal class RevocationRequestProcessor : RequestProcessor<RevocationRequest, 
     }
     protected override async Task<ProcessResult<Unit, ProcessError>> ProcessRequest(RevocationValidatedRequest request, CancellationToken cancellationToken)
     {
+        using var transactionScope = new TransactionScope(TransactionScopeOption.Required, TransactionScopeAsyncFlowOption.Enabled);
         await _tokenRevoker.Revoke(request, cancellationToken);
+        transactionScope.Complete();
         return new ProcessResult<Unit, ProcessError>(Unit.Value);
     }
 

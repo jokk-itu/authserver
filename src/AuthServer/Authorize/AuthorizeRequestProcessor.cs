@@ -1,6 +1,7 @@
 ﻿using AuthServer.Authorize.Abstract;
 using AuthServer.Core.RequestProcessing;
 using AuthServer.RequestAccessors.Authorize;
+using System.Transactions;
 
 namespace AuthServer.Authorize;
 
@@ -19,7 +20,10 @@ internal class AuthorizeRequestProcessor : RequestProcessor<AuthorizeRequest, Au
 
     protected override async Task<ProcessResult<string, ProcessError>> ProcessRequest(AuthorizeValidatedRequest request, CancellationToken cancellationToken)
     {
-        return await _authorizeProcessor.Process(request, cancellationToken);
+        using var transactionScope = new TransactionScope(TransactionScopeOption.Required, TransactionScopeAsyncFlowOption.Enabled);
+        var result = await _authorizeProcessor.Process(request, cancellationToken);
+        transactionScope.Complete();
+        return result;
     }
 
     protected override async Task<ProcessResult<AuthorizeValidatedRequest, ProcessError>> ValidateRequest(AuthorizeRequest request, CancellationToken cancellationToken)
