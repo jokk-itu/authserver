@@ -10,6 +10,8 @@ using AuthServer.Core.Abstractions;
 using AuthServer.Core.RequestProcessing;
 using AuthServer.Introspection;
 using AuthServer.Options;
+using AuthServer.Register;
+using AuthServer.Register.Abstractions;
 using AuthServer.Repositories;
 using AuthServer.Repositories.Abstract;
 using AuthServer.RequestAccessors.Authorize;
@@ -40,17 +42,14 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddAuthServer(this IServiceCollection services, Action<DbContextOptionsBuilder> databaseConfigurator)
     {
-        services.ConfigureOptions<PostConfigureDiscoveryDocumentOptions>();
-        services.ConfigureOptions<ValidateDiscoveryDocumentOptions>();
-        services.ConfigureOptions<ValidateUserInteractionOptions>();
-
-        services.AddDbContext<AuthorizationDbContext>(databaseConfigurator);
-
         services
             .AddCoreServices()
             .AddCodeEncoders()
             .AddBuilders()
             .AddDecoders()
+            .AddDataStore(databaseConfigurator)
+            .AddOptions()
+            .AddRegister()
             .AddAuthorize()
             .AddUserinfo()
             .AddIntrospection()
@@ -66,6 +65,21 @@ public static class ServiceCollectionExtensions
         services.AddJwtAuthorization();
 
         return services;
+    }
+
+    internal static IServiceCollection AddOptions(this IServiceCollection services)
+    {
+        return services
+            .ConfigureOptions<PostConfigureDiscoveryDocumentOptions>()
+            .ConfigureOptions<ValidateDiscoveryDocumentOptions>()
+            .ConfigureOptions<ValidateUserInteractionOptions>();
+    }
+
+    internal static IServiceCollection AddDataStore(this IServiceCollection services, Action<DbContextOptionsBuilder> databaseConfigurator)
+    {
+        return services
+            .AddDbContext<AuthorizationDbContext>(databaseConfigurator)
+            .AddScoped<IUnitOfWork, UnitOfWork>();
     }
 
     internal static IServiceCollection AddJwtAuthentication(this IServiceCollection services)
@@ -114,6 +128,7 @@ public static class ServiceCollectionExtensions
     internal static IServiceCollection AddCache(this IServiceCollection services)
     {
         return services
+            .AddSingleton<IEntityInMemoryCache, EntityInMemoryCache>()
             .AddScoped<ICachedClientStore, CachedClientStore>()
             .AddScoped<ITokenReplayCache, TokenReplayCache>();
     }
@@ -160,6 +175,14 @@ public static class ServiceCollectionExtensions
             .AddScoped<IClientRepository, ClientRepository>()
             .AddScoped<IConsentGrantRepository, ConsentGrantRepository>()
             .AddScoped<IAuthorizationGrantRepository, AuthorizationGrantRepository>();
+    }
+
+    internal static IServiceCollection AddRegister(this IServiceCollection services)
+    {
+        return services
+            .AddScoped<IRequestProcessor<RegisterRequest, PostRegisterResponse>, PostRegisterRequestProcessor>()
+            .AddScoped<IRequestValidator<RegisterRequest, PostRegisterValidatedRequest>, PostRegisterRequestValidator>()
+            .AddScoped<IPostRegisterProcessor, PostRegisterProcessor>();
     }
 
     internal static IServiceCollection AddAuthorize(this IServiceCollection services)
