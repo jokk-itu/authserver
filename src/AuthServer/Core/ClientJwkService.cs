@@ -44,7 +44,7 @@ internal class ClientJwkService : IClientJwkService
             return [];
         }
 
-        var useJwks = DateTime.UtcNow < cachedClient.JwksExpiresAt;
+        var useJwks = cachedClient.JwksExpiresAt is null || DateTime.UtcNow < cachedClient.JwksExpiresAt;
         if (useJwks)
         {
             return JsonWebKeySet.Create(cachedClient.Jwks).Keys.Where(k => k.Use == use);
@@ -64,8 +64,8 @@ internal class ClientJwkService : IClientJwkService
 
         client.Jwks = jwks;
 
-        // Either Clients preset Expiration or a default of one day
-        client.JwksExpiresAt = DateTime.UtcNow.AddSeconds(client.JwksExpiration ?? 86400);
+        // The JwksExpiration will always be set if JwksUri is set
+        client.JwksExpiresAt = DateTime.UtcNow.AddSeconds(client.JwksExpiration!.Value);
 
         // TODO implement CachedClient deletion as a database interceptor
 

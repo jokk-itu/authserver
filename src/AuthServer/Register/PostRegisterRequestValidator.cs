@@ -447,7 +447,7 @@ internal class PostRegisterRequestValidator : IRequestValidator<RegisterRequest,
 			requireSignedRequestObject = parsedRequireSignedRequestObject;
 		}
 
-		/* RequireReferenceToken */
+		/* RequireReferenceToken is OPTIONAL */
         var requireReferenceToken = false;
         if (!string.IsNullOrEmpty(request.RequireReferenceToken))
         {
@@ -649,6 +649,11 @@ internal class PostRegisterRequestValidator : IRequestValidator<RegisterRequest,
 
 			jwksExpiration = parsedJwksExpiration;
 		}
+		else if (!string.IsNullOrEmpty(jwksUri))
+        {
+			// default to one day, but only for reference jwks
+            jwksExpiration = 86400;
+        }
 
 
 		/* TokenEndpointAuthSigningAlg is OPTIONAL. If not provided, it is set to RS256. */
