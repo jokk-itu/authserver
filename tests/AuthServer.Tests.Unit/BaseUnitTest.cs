@@ -83,6 +83,9 @@ public abstract class BaseUnitTest
                 new(ecdsaSecurityKey, EncryptionAlg.EcdhEsA192KW),
                 new(ecdsaSecurityKey, EncryptionAlg.EcdhEsA256KW)
             ];
+
+            jwksDocument.GetTokenSigningKey =
+                () => jwksDocument.SigningKeys.Single(x => x.Alg == SigningAlg.RsaSha256);
         });
         services.AddOptions<UserInteraction>().Configure(userInteraction =>
         {

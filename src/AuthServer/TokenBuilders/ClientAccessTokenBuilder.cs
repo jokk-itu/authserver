@@ -54,8 +54,8 @@ internal class ClientAccessTokenBuilder : ITokenBuilder<ClientAccessTokenArgumen
         };
 
         var now = DateTime.UtcNow;
-        var signingKey = _jwksDocumentOptions.Value.GetSigningKey(client.TokenEndpointAuthSigningAlg);
-        var signingCredentials = new SigningCredentials(signingKey, client.TokenEndpointAuthSigningAlg.GetDescription());
+        var signingKey = _jwksDocumentOptions.Value.GetTokenSigningKey();
+        var signingCredentials = new SigningCredentials(signingKey.Key, signingKey.Alg.GetDescription());
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {

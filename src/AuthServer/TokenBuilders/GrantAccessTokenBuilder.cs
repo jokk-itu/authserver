@@ -63,8 +63,8 @@ internal class GrantAccessTokenBuilder : ITokenBuilder<GrantAccessTokenArguments
         };
 
         var now = DateTime.UtcNow;
-        var signingKey = _jwksDocument.Value.GetSigningKey(grantQuery.Client.TokenEndpointAuthSigningAlg);
-        var signingCredentials = new SigningCredentials(signingKey, grantQuery.Client.TokenEndpointAuthSigningAlg.GetDescription());
+        var signingKey = _jwksDocument.Value.GetTokenSigningKey();
+        var signingCredentials = new SigningCredentials(signingKey.Key, signingKey.Alg.GetDescription());
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {

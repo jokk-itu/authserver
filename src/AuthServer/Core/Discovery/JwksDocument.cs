@@ -9,6 +9,11 @@ public class JwksDocument
     public IReadOnlyCollection<SigningKey> SigningKeys { get; set; } = [];
     public IReadOnlyCollection<EncryptionKey> EncryptionKeys { get; set; } = [];
 
+    /// <summary>
+    /// Used at the token endpoint when signing access tokens and refresh tokens.
+    /// </summary>
+    public Func<SigningKey> GetTokenSigningKey { get; set; } = null!;
+
     public AsymmetricSecurityKey GetSigningKey(SigningAlg signingAlg)
         => SigningKeys
             .Where(x => x.Alg == signingAlg)
