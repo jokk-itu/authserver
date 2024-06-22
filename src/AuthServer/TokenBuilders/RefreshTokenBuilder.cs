@@ -53,7 +53,7 @@ internal class RefreshTokenBuilder : ITokenBuilder<RefreshTokenArguments>
     {
         var refreshToken = new RefreshToken(
             grantQuery.AuthorizationGrant, grantQuery.Client.Id, _discoveryDocumentOptions.Value.Issuer,
-            string.Join(' ', arguments.Scope), DateTime.UtcNow.AddSeconds(grantQuery.Client.RefreshTokenExpiration));
+            string.Join(' ', arguments.Scope), DateTime.UtcNow.AddSeconds(grantQuery.Client.RefreshTokenExpiration!.Value));
 
         await _identityContext
             .Set<RefreshToken>()
@@ -67,7 +67,7 @@ internal class RefreshTokenBuilder : ITokenBuilder<RefreshTokenArguments>
         var now = DateTime.UtcNow;
         var refreshToken = new RefreshToken(
             grantQuery.AuthorizationGrant, grantQuery.Client.Id, _discoveryDocumentOptions.Value.Issuer,
-            string.Join(' ', arguments.Scope), now.AddSeconds(grantQuery.Client.RefreshTokenExpiration));
+            string.Join(' ', arguments.Scope), now.AddSeconds(grantQuery.Client.RefreshTokenExpiration!.Value));
 
         await _identityContext.Set<RefreshToken>().AddAsync(refreshToken);
 
@@ -81,13 +81,13 @@ internal class RefreshTokenBuilder : ITokenBuilder<RefreshTokenArguments>
             { ClaimNameConstants.ClientId, grantQuery.Client.Id }
         };
 
-        var signingKey = _jwksDocumentOptions.Value.GetSigningKey(grantQuery.Client.TokenEndpointAuthSigningAlg);
-        var signingCredentials = new SigningCredentials(signingKey, grantQuery.Client.TokenEndpointAuthSigningAlg.GetDescription());
+        var signingKey = _jwksDocumentOptions.Value.GetTokenSigningKey();
+        var signingCredentials = new SigningCredentials(signingKey.Key, signingKey.Alg.GetDescription());
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             IssuedAt = now,
-            Expires = now.AddSeconds(grantQuery.Client.RefreshTokenExpiration),
+            Expires = now.AddSeconds(grantQuery.Client.RefreshTokenExpiration!.Value),
             NotBefore = now,
             Issuer = _discoveryDocumentOptions.Value.Issuer,
             SigningCredentials = signingCredentials,

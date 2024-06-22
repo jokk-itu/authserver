@@ -48,7 +48,7 @@ internal class LogoutTokenBuilder : ITokenBuilder<LogoutTokenArguments>
         };
 
         var now = DateTime.UtcNow;
-        var signingKey = _jwksDocumentOptions.Value.GetSigningKey(cachedClient.IdTokenSignedResponseAlg);
+        var signingKey = _jwksDocumentOptions.Value.GetSigningKey(cachedClient.IdTokenSignedResponseAlg!.Value);
         var signingCredentials =
             new SigningCredentials(signingKey, cachedClient.IdTokenSignedResponseAlg.GetDescription());
 

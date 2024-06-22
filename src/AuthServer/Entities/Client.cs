@@ -4,13 +4,12 @@ using AuthServer.Enums;
 namespace AuthServer.Entities;
 public class Client : Entity<string>
 {
-    public Client(string name, ApplicationType applicationType, TokenEndpointAuthMethod tokenEndpointAuthMethod, long? defaultMaxAge = null)
+    public Client(string name, ApplicationType applicationType, TokenEndpointAuthMethod tokenEndpointAuthMethod)
     {
         Id = Guid.NewGuid().ToString();
         Name = string.IsNullOrWhiteSpace(name) ? throw new ArgumentNullException(nameof(name)) : name;
         ApplicationType = applicationType;
         TokenEndpointAuthMethod = tokenEndpointAuthMethod;
-        DefaultMaxAge = defaultMaxAge is null or >= 0 ? defaultMaxAge : throw new ArgumentException("Must be zero or a positive number", nameof(defaultMaxAge));
     }
 
 #pragma warning disable CS8618
@@ -46,12 +45,12 @@ public class Client : Entity<string>
     /// <summary>
     /// Refresh token lifetime in seconds
     /// </summary>
-    public int RefreshTokenExpiration { get; set; }
+    public int? RefreshTokenExpiration { get; set; }
 
     /// <summary>
     /// Authorization code lifetime in seconds
     /// </summary>
-    public int AuthorizationCodeExpiration { get; set; }
+    public int? AuthorizationCodeExpiration { get; set; }
 
     /// <summary>
     /// Lifetime of jwks in seconds.
@@ -114,6 +113,12 @@ public class Client : Entity<string>
     public bool RequireConsent { get; set; }
 
     /// <summary>
+    /// All authorize calls require a request_object parameter,
+    /// either directly or by reference.
+    /// </summary>
+    public bool RequireSignedRequestObject { get; set; }
+
+    /// <summary>
     /// Maximum age since last authentication by end user in epoch format
     /// Zero means it always requires authentication by end user
     /// </summary>
@@ -153,20 +158,20 @@ public class Client : Entity<string>
 
     public EncryptionEnc? IdTokenEncryptedResponseEnc { get; set; }
     public EncryptionAlg? IdTokenEncryptedResponseAlg { get; set; }
-    public SigningAlg IdTokenSignedResponseAlg { get; set; }
+    public SigningAlg? IdTokenSignedResponseAlg { get; set; }
 
     
-    public ICollection<RedirectUri> RedirectUris { get; private init; } = [];
-    public ICollection<PostLogoutRedirectUri> PostLogoutRedirectUris { get; private init; } = [];
-    public ICollection<RequestUri> RequestUris { get; private init; } = [];
-    public ICollection<GrantType> GrantTypes { get; private init; } = [];
-    public ICollection<ConsentGrant> ConsentGrants { get; private init; } = [];
-    public ICollection<Scope> Scopes { get; private init; } = [];
-    public ICollection<Contact> Contacts { get; private init; } = [];
-    public ICollection<ResponseType> ResponseTypes { get; private init; } = [];
-    public ICollection<AuthorizationGrant> AuthorizationGrants { get; private init; } = [];
-    public ICollection<ClientToken> ClientTokens { get; private init; } = [];
-    public ICollection<PairwiseSubjectIdentifier> PairwiseSubjectIdentifiers { get; private init; } = [];
+    public ICollection<RedirectUri> RedirectUris { get; set; } = [];
+    public ICollection<PostLogoutRedirectUri> PostLogoutRedirectUris { get; set; } = [];
+    public ICollection<RequestUri> RequestUris { get; set; } = [];
+    public ICollection<GrantType> GrantTypes { get; set; } = [];
+    public ICollection<ConsentGrant> ConsentGrants { get; set; } = [];
+    public ICollection<Scope> Scopes { get; set; } = [];
+    public ICollection<Contact> Contacts { get; set; } = [];
+    public ICollection<ResponseType> ResponseTypes { get; set; } = [];
+    public ICollection<AuthorizationGrant> AuthorizationGrants { get; set; } = [];
+    public ICollection<ClientToken> ClientTokens { get; set; } = [];
+    public ICollection<PairwiseSubjectIdentifier> PairwiseSubjectIdentifiers { get; set; } = [];
 
     public void SetSecret(string secretHash)
     {

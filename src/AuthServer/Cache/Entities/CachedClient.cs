@@ -9,9 +9,9 @@ internal class CachedClient
     public required DateTime? SecretExpiresAt { get; init; }
     public required int? SecretExpiration { get; init; }
     public required int AccessTokenExpiration { get; init; }
-    public required int RefreshTokenExpiration { get; init; }
-    public required int AuthorizationCodeExpiration { get; init; }
-    public required int JwksExpiration { get; init; }
+    public required int? RefreshTokenExpiration { get; init; }
+    public required int? AuthorizationCodeExpiration { get; init; }
+    public required int? JwksExpiration { get; init; }
     public required string? JwksUri { get; set; }
     public required string? Jwks { get; init; }
     public required DateTime? JwksExpiresAt { get; init; }
@@ -23,6 +23,7 @@ internal class CachedClient
     public required string? BackchannelLogoutUri { get; init; }
     public required bool RequireReferenceToken { get; init; }
     public required bool RequireConsent { get; init; }
+    public required bool RequireSignedRequestObject { get; init; }
     public required long? DefaultMaxAge { get; init; }
     public required ApplicationType ApplicationType { get; init; }
     public required TokenEndpointAuthMethod TokenEndpointAuthMethod { get; init; }
@@ -44,7 +45,7 @@ internal class CachedClient
 
     public required EncryptionEnc? IdTokenEncryptedResponseEnc { get; set; }
     public required EncryptionAlg? IdTokenEncryptedResponseAlg { get; set; }
-    public required SigningAlg IdTokenSignedResponseAlg { get; set; }
+    public required SigningAlg? IdTokenSignedResponseAlg { get; set; }
 
     public required IReadOnlyCollection<string> Scopes { get; init; }
     public required IReadOnlyCollection<string> GrantTypes { get; init; }

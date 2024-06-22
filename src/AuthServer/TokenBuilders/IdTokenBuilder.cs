@@ -78,7 +78,7 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
         }
 
         var now = DateTime.UtcNow;
-        var signingKey = _jwksDocumentOptions.Value.GetSigningKey(query.SigningAlg);
+        var signingKey = _jwksDocumentOptions.Value.GetSigningKey(query.SigningAlg!.Value);
         var signingCredentials = new SigningCredentials(signingKey, query.SigningAlg.GetDescription());
 
         var tokenDescriptor = new SecurityTokenDescriptor

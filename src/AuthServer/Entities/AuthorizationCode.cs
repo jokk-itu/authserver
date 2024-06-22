@@ -22,7 +22,7 @@ public class AuthorizationCode : Entity<string>
     public AuthorizationGrant AuthorizationGrant { get; private init; }
 
     public static Expression<Func<AuthorizationCode, bool>> IsValid(Client client) => a =>
-      a.RedeemedAt == null && a.IssuedAt.AddSeconds(client.AuthorizationCodeExpiration) > DateTime.UtcNow;
+      a.RedeemedAt == null && a.IssuedAt.AddSeconds(client.AuthorizationCodeExpiration!.Value) > DateTime.UtcNow;
 
     public void Redeem()
     {

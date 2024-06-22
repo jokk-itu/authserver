@@ -114,6 +114,7 @@ internal class CachedClientStore : ICachedClientStore
             BackchannelLogoutUri = client.BackchannelLogoutUri,
             RequireReferenceToken = client.RequireReferenceToken,
             RequireConsent = client.RequireConsent,
+            RequireSignedRequestObject = client.RequireSignedRequestObject,
             DefaultMaxAge = client.DefaultMaxAge,
             ApplicationType = client.ApplicationType,
             TokenEndpointAuthMethod = client.TokenEndpointAuthMethod,
