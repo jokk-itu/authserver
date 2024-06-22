@@ -1,4 +1,5 @@
-﻿using AuthServer.Constants;
+﻿using System.Text.Json;
+using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Discovery;
 using AuthServer.Entities;
@@ -54,8 +55,8 @@ internal class GrantAccessTokenBuilder : ITokenBuilder<GrantAccessTokenArguments
         var claims = new Dictionary<string, object>
         {
             { ClaimNameConstants.Jti, Guid.NewGuid() },
-            { ClaimNameConstants.Scope, arguments.Scope },
-            { ClaimNameConstants.Aud, arguments.Resource },
+            { ClaimNameConstants.Scope, JsonSerializer.SerializeToElement(arguments.Scope) },
+            { ClaimNameConstants.Aud, JsonSerializer.SerializeToElement(arguments.Resource) },
             { ClaimNameConstants.GrantId, arguments.AuthorizationGrantId },
             { ClaimNameConstants.Sub, grantQuery.SubjectId },
             { ClaimNameConstants.Sid, grantQuery.SessionId },
