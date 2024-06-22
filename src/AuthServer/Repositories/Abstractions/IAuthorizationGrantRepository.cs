@@ -1,6 +1,6 @@
 ﻿using AuthServer.Entities;
 
-namespace AuthServer.Repositories.Abstract;
+namespace AuthServer.Repositories.Abstractions;
 
 internal interface IAuthorizationGrantRepository
 {

@@ -1,5 +1,5 @@
 ﻿using System.Security.Cryptography;
-using AuthServer.Cache;
+using AuthServer.Cache.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;

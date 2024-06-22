@@ -1,4 +1,5 @@
 ﻿using AuthServer.Core;
+using AuthServer.Core.Abstractions;
 using AuthServer.RequestAccessors.EndSession;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;

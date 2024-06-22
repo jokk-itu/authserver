@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using AuthServer.Core;
+using AuthServer.Core.Abstractions;
 using AuthServer.RequestAccessors.Introspection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;

@@ -3,6 +3,7 @@ using AuthServer.Core.Models;
 using Microsoft.AspNetCore.Http;
 using AuthServer.Extensions;
 using AuthServer.TokenDecoders;
+using AuthServer.Core.Abstractions;
 
 namespace AuthServer.RequestAccessors.Token;
 

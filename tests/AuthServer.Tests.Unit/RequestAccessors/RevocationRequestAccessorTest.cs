@@ -6,6 +6,7 @@ using System.Text;
 using AuthServer.RequestAccessors.Revocation;
 using Xunit.Abstractions;
 using Newtonsoft.Json.Linq;
+using AuthServer.Core.Abstractions;
 
 namespace AuthServer.Tests.Unit.RequestAccessors;
 

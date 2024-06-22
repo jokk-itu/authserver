@@ -1,4 +1,5 @@
 ﻿using AuthServer.Core;
+using AuthServer.Core.Abstractions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;

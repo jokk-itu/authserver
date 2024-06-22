@@ -1,6 +1,6 @@
 ﻿using AuthServer.Core;
 using AuthServer.Entities;
-using AuthServer.Repositories.Abstract;
+using AuthServer.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthServer.Repositories;

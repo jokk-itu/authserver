@@ -1,6 +1,6 @@
 ﻿using AuthServer.Entities;
 
-namespace AuthServer.Repositories;
+namespace AuthServer.Repositories.Abstractions;
 internal interface IConsentGrantRepository
 {
     /// <summary>

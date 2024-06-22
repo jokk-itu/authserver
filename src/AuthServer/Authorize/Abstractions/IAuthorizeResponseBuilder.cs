@@ -1,7 +1,7 @@
 ﻿using AuthServer.RequestAccessors.Authorize;
 using Microsoft.AspNetCore.Http;
 
-namespace AuthServer.Authorize.Abstract;
+namespace AuthServer.Authorize.Abstractions;
 
 internal interface IAuthorizeResponseBuilder
 {

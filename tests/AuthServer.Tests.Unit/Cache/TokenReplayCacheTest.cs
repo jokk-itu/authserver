@@ -1,4 +1,4 @@
-﻿using AuthServer.Cache;
+﻿using AuthServer.Cache.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Moq;

@@ -1,5 +1,6 @@
-﻿using AuthServer.Authorize.Abstract;
+﻿using AuthServer.Authorize.Abstractions;
 using AuthServer.Core;
+using AuthServer.Core.Abstractions;
 using AuthServer.Core.RequestProcessing;
 using AuthServer.Extensions;
 using AuthServer.RequestAccessors.Authorize;

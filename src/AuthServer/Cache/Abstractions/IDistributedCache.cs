@@ -1,4 +1,4 @@
-﻿namespace AuthServer.Cache;
+﻿namespace AuthServer.Cache.Abstractions;
 
 /// <summary>
 /// Must be a distributed cache, if using multiple server architecture to ensure reliable data.

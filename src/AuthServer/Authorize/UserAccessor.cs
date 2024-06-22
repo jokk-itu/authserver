@@ -1,4 +1,4 @@
-﻿using AuthServer.Authorize.Abstract;
+﻿using AuthServer.Authorize.Abstractions;
 
 namespace AuthServer.Authorize;
 

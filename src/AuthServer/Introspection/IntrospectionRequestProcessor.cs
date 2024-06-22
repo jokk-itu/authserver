@@ -1,4 +1,5 @@
 ﻿using AuthServer.Core.RequestProcessing;
+using AuthServer.Introspection.Abstractions;
 using AuthServer.RequestAccessors.Introspection;
 
 namespace AuthServer.Introspection;

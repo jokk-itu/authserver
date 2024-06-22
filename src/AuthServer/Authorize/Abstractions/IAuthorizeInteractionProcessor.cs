@@ -1,7 +1,7 @@
 ﻿using AuthServer.Constants;
 using AuthServer.RequestAccessors.Authorize;
 
-namespace AuthServer.Authorize.Abstract;
+namespace AuthServer.Authorize.Abstractions;
 
 internal interface IAuthorizeInteractionProcessor
 {

@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Nodes;
 using AuthServer.Core;
+using AuthServer.Core.Abstractions;
 using Microsoft.AspNetCore.Http;
 
 namespace AuthServer.RequestAccessors.Register;

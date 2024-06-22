@@ -1,4 +1,4 @@
-﻿namespace AuthServer.Introspection;
+﻿namespace AuthServer.Introspection.Abstractions;
 
 internal interface ITokenIntrospection
 {

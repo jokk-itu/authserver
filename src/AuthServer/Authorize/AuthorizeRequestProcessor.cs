@@ -1,7 +1,7 @@
-﻿using AuthServer.Authorize.Abstract;
-using AuthServer.Core.RequestProcessing;
+﻿using AuthServer.Core.RequestProcessing;
 using AuthServer.RequestAccessors.Authorize;
 using System.Transactions;
+using AuthServer.Authorize.Abstractions;
 
 namespace AuthServer.Authorize;
 

@@ -1,4 +1,4 @@
-﻿using AuthServer.Core;
+﻿using AuthServer.Core.Abstractions;
 using AuthServer.Core.RequestProcessing;
 using AuthServer.Extensions;
 using AuthServer.RequestAccessors.Revocation;

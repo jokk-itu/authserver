@@ -1,7 +1,7 @@
 ﻿using AuthServer.Constants;
 using AuthServer.Entities;
 using AuthServer.Enums;
-using AuthServer.Repositories.Abstract;
+using AuthServer.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;

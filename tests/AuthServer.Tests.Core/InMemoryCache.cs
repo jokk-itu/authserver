@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using AuthServer.Cache;
+using AuthServer.Cache.Abstractions;
 
 namespace AuthServer.Tests.Core;
 public class InMemoryCache : IDistributedCache

@@ -1,4 +1,4 @@
-﻿namespace AuthServer.Authorize.Abstract;
+﻿namespace AuthServer.Authorize.Abstractions;
 
 internal interface IUserAccessor
 {

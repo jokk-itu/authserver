@@ -1,4 +1,4 @@
-﻿using AuthServer.Authorize.Abstract;
+﻿using AuthServer.Authorize.Abstractions;
 using AuthServer.Cache.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;

@@ -1,4 +1,4 @@
-﻿using AuthServer.Core;
+﻿using AuthServer.Core.Abstractions;
 using AuthServer.RequestAccessors.Register;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

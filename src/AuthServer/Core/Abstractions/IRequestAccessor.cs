@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace AuthServer.Core;
+namespace AuthServer.Core.Abstractions;
 public interface IRequestAccessor<TRequest>
     where TRequest : class
 {

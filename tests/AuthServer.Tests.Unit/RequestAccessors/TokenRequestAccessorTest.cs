@@ -5,6 +5,7 @@ using Microsoft.Extensions.Primitives;
 using AuthServer.RequestAccessors.Token;
 using Xunit.Abstractions;
 using System.Text;
+using AuthServer.Core.Abstractions;
 
 namespace AuthServer.Tests.Unit.RequestAccessors;
 

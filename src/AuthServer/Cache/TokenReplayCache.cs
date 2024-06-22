@@ -1,4 +1,5 @@
-﻿using AuthServer.Helpers;
+﻿using AuthServer.Cache.Abstractions;
+using AuthServer.Helpers;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 

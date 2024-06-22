@@ -1,8 +1,8 @@
-﻿using AuthServer.Authorize.Abstract;
+﻿using AuthServer.Authorize.Abstractions;
 using AuthServer.Codes;
 using AuthServer.Codes.Abstractions;
 using AuthServer.Entities;
-using AuthServer.Repositories.Abstract;
+using AuthServer.Repositories.Abstractions;
 
 namespace AuthServer.Authorize;
 

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using AuthServer.Core.Abstractions;
 
 namespace AuthServer.Core;
 
