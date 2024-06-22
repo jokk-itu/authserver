@@ -53,9 +53,10 @@ public class ClientAccessTokenBuilderTest(ITestOutputHelper outputHelper) : Base
     public async Task BuildToken_StructuredToken_ExpectJwt(SigningAlg signingAlg)
     {
         // Arrange
+        TokenSigningAlg = signingAlg;
         var serviceProvider = BuildServiceProvider();
         var grantAccessTokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<ClientAccessTokenArguments>>();
-        var client = await GetClient(false, signingAlg);
+        var client = await GetClient(false);
 
         // Act
         var accessToken = await grantAccessTokenBuilder.BuildToken(new ClientAccessTokenArguments
@@ -74,9 +75,7 @@ public class ClientAccessTokenBuilderTest(ITestOutputHelper outputHelper) : Base
                 IssuerSigningKey = JwksDocument.GetSigningKey(signingAlg),
                 ValidAudience = "https://localhost:5000",
                 ValidIssuer = DiscoveryDocument.Issuer,
-                ValidTypes = [TokenTypeHeaderConstants.AccessToken],
-                NameClaimType = ClaimNameConstants.Name,
-                RoleClaimType = ClaimNameConstants.Roles
+                ValidTypes = [TokenTypeHeaderConstants.AccessToken]
             });
 
         Assert.NotNull(validatedTokenResult);
@@ -88,8 +87,7 @@ public class ClientAccessTokenBuilderTest(ITestOutputHelper outputHelper) : Base
         Assert.Equal(client.Id, validatedTokenResult.Claims[ClaimNameConstants.Sub].ToString());
     }
 
-    private async Task<Client> GetClient(bool requireReferenceToken,
-        SigningAlg signingAlg = SigningAlg.RsaSha256)
+    private async Task<Client> GetClient(bool requireReferenceToken)
     {
         var openIdScope = await IdentityContext
             .Set<Scope>()
@@ -98,7 +96,7 @@ public class ClientAccessTokenBuilderTest(ITestOutputHelper outputHelper) : Base
         var client = new Client("PinguApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic)
         {
             RequireReferenceToken = requireReferenceToken,
-            TokenEndpointAuthSigningAlg = signingAlg,
+            AccessTokenExpiration = 300,
             SubjectType = SubjectType.Public
         };
 

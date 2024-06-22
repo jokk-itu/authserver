@@ -29,6 +29,7 @@ public abstract class BaseUnitTest
     protected DiscoveryDocument DiscoveryDocument;
     protected JwksDocument JwksDocument;
     protected ClientBuilder ClientBuilder;
+    protected SigningAlg TokenSigningAlg = SigningAlg.RsaSha256;
 
     protected BaseUnitTest(ITestOutputHelper outputHelper)
     {
@@ -85,7 +86,7 @@ public abstract class BaseUnitTest
             ];
 
             jwksDocument.GetTokenSigningKey =
-                () => jwksDocument.SigningKeys.Single(x => x.Alg == SigningAlg.RsaSha256);
+                () => jwksDocument.SigningKeys.Single(x => x.Alg == TokenSigningAlg);
         });
         services.AddOptions<UserInteraction>().Configure(userInteraction =>
         {

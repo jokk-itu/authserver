@@ -1,10 +1,12 @@
 ﻿using AuthServer.Constants;
+using AuthServer.Core.Discovery;
 using AuthServer.Entities;
 using AuthServer.Enums;
 using AuthServer.TokenBuilders;
 using AuthServer.TokenBuilders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Xunit.Abstractions;
@@ -52,9 +54,10 @@ public class RefreshTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitT
     public async Task BuildToken_StructuredToken_ExpectJwt(SigningAlg signingAlg)
     {
         // Arrange
+        TokenSigningAlg = signingAlg;
         var serviceProvider = BuildServiceProvider();
         var refreshTokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<RefreshTokenArguments>>();
-        var authorizationGrant = await GetAuthorizationGrant(false, signingAlg);
+        var authorizationGrant = await GetAuthorizationGrant(false);
 
         // Act
         var refreshToken = await refreshTokenBuilder.BuildToken(new RefreshTokenArguments
@@ -93,8 +96,7 @@ public class RefreshTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitT
         Assert.Equal(authorizationGrant.Client.Id, validatedTokenResult.Claims[ClaimNameConstants.ClientId].ToString());
     }
 
-    private async Task<AuthorizationGrant> GetAuthorizationGrant(bool requireReferenceToken,
-        SigningAlg signingAlg = SigningAlg.RsaSha256)
+    private async Task<AuthorizationGrant> GetAuthorizationGrant(bool requireReferenceToken)
     {
         var openIdScope = await IdentityContext
             .Set<Scope>()
@@ -103,7 +105,7 @@ public class RefreshTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitT
         var client = new Client("PinguApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic)
         {
             RequireReferenceToken = requireReferenceToken,
-            TokenEndpointAuthSigningAlg = signingAlg,
+            RefreshTokenExpiration = 86400,
             SubjectType = SubjectType.Public
         };
 

@@ -53,9 +53,10 @@ public class GrantAccessTokenBuilderTest(ITestOutputHelper outputHelper) : BaseU
     public async Task BuildToken_StructuredToken_ExpectJwt(SigningAlg signingAlg)
     {
         // Arrange
+        TokenSigningAlg = signingAlg;
         var serviceProvider = BuildServiceProvider();
         var grantAccessTokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<GrantAccessTokenArguments>>();
-        var authorizationGrant = await GetAuthorizationGrant(false, signingAlg);
+        var authorizationGrant = await GetAuthorizationGrant(false);
 
         // Act
         var accessToken = await grantAccessTokenBuilder.BuildToken(new GrantAccessTokenArguments
@@ -90,8 +91,7 @@ public class GrantAccessTokenBuilderTest(ITestOutputHelper outputHelper) : BaseU
         Assert.Equal(authorizationGrant.Client.Id, validatedTokenResult.Claims[ClaimNameConstants.ClientId].ToString());
     }
 
-    private async Task<AuthorizationGrant> GetAuthorizationGrant(bool requireReferenceToken,
-        SigningAlg signingAlg = SigningAlg.RsaSha256)
+    private async Task<AuthorizationGrant> GetAuthorizationGrant(bool requireReferenceToken)
     {
         var openIdScope = await IdentityContext
             .Set<Scope>()
@@ -100,7 +100,7 @@ public class GrantAccessTokenBuilderTest(ITestOutputHelper outputHelper) : BaseU
         var client = new Client("PinguApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic)
         {
             RequireReferenceToken = requireReferenceToken,
-            TokenEndpointAuthSigningAlg = signingAlg,
+            AccessTokenExpiration = 300,
             SubjectType = SubjectType.Public
         };
 
