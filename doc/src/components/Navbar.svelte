@@ -1,5 +1,7 @@
 <script lang="ts">
   let isMobileMenuInactive: boolean = true;
+
+  import { base } from '$app/paths';
 </script>
 
 <nav class="bg-gray-100">
@@ -8,7 +10,7 @@
       <!-- logo -->
       <div class="flex space-x-4">
         <a
-          href="/"
+          href="{base}"
           class="flex items-center py-5 px-2 text-gray-700 hover:text-gray-900"
         >
           <svg
@@ -29,13 +31,13 @@
 
       <!-- primary nav -->
       <div class="hidden md:flex items-center space-x-1">
-        <a href="/introduction" class="py-5 px-3 text-gray-700 hover:text-gray-900"
+        <a href="{base}/introduction" class="py-5 px-3 text-gray-700 hover:text-gray-900"
           >Introduction</a
         >
-        <a href="/quick-start" class="py-5 px-3 text-gray-700 hover:text-gray-900"
+        <a href="{base}/quick-start" class="py-5 px-3 text-gray-700 hover:text-gray-900"
           >Quick Start</a
         >
-        <a href="/documentation" class="py-5 px-3 text-gray-700 hover:text-gray-900"
+        <a href="{base}/documentation" class="py-5 px-3 text-gray-700 hover:text-gray-900"
           >Documentation</a
         >
       </div>
@@ -43,7 +45,7 @@
       <!-- secondary nav -->
       <div class="hidden md:flex items-center space-x-1">
         <a href="https://github.com/jokk-itu/authserver" target="_blank" class="py-5 px-3">
-          <img src="/github.svg" alt="Github" height="20px" width="20px" />
+          <img src="{base}/github.svg" alt="Github" height="20px" width="20px" />
         </a>
       </div>
 
@@ -92,13 +94,13 @@
       </button>
     </div>
     <div class="flex items-center space-x-1">
-      <a href="/" class="py-5 px-3 text-gray-700 hover:text-gray-900"
+      <a href="{base}/introduction" class="py-5 px-3 text-gray-700 hover:text-gray-900"
           >Introduction</a
         >
-        <a href="/" class="py-5 px-3 text-gray-700 hover:text-gray-900"
+        <a href="{base}/quick-start" class="py-5 px-3 text-gray-700 hover:text-gray-900"
           >Quickstarts</a
         >
-        <a href="/" class="py-5 px-3 text-gray-700 hover:text-gray-900"
+        <a href="{base}/documentation" class="py-5 px-3 text-gray-700 hover:text-gray-900"
           >Documentation</a
         >
     </div>
