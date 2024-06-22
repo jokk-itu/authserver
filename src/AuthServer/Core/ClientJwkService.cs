@@ -49,6 +49,11 @@ internal class ClientJwkService : IClientJwkService
         {
             return JsonWebKeySet.Create(cachedClient.Jwks).Keys.Where(k => k.Use == use);
         }
+        
+        if (cachedClient.JwksUri is null)
+        {
+            return Array.Empty<JsonWebKey>();
+        }
 
         _logger.LogDebug("Refreshing jwks for client {ClientId}", clientId);
         var jwks = await RefreshJwks(clientId, cachedClient.JwksUri!, cancellationToken);
@@ -58,7 +63,9 @@ internal class ClientJwkService : IClientJwkService
             .SingleAsync(x => x.Id == clientId, cancellationToken);
 
         client.Jwks = jwks;
-        client.JwksExpiresAt = DateTime.UtcNow.AddSeconds(client.JwksExpiration);
+
+        // Either Clients preset Expiration or a default of one day
+        client.JwksExpiresAt = DateTime.UtcNow.AddSeconds(client.JwksExpiration ?? 86400);
 
         // TODO implement CachedClient deletion as a database interceptor
 
