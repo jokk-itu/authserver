@@ -69,8 +69,6 @@ internal class AuthorizationCodeProcessor : IAuthorizationCodeProcessor
             Scope = request.Scope
         }, cancellationToken);
 
-        await _identityContext.SaveChangesAsync(cancellationToken: cancellationToken);
-
         return new TokenResponse
         {
             AccessToken = accessToken,
