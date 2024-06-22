@@ -447,6 +447,18 @@ internal class PostRegisterRequestValidator : IRequestValidator<RegisterRequest,
 			requireSignedRequestObject = parsedRequireSignedRequestObject;
 		}
 
+		/* RequireReferenceToken */
+        var requireReferenceToken = false;
+        if (!string.IsNullOrEmpty(request.RequireReferenceToken))
+        {
+            if (!bool.TryParse(request.RequireReferenceToken, out var parsedRequireReferenceToken))
+            {
+                // TODO invalid RequireReferenceToken given
+            }
+
+            requireReferenceToken = parsedRequireReferenceToken;
+        }
+
 
 		/* SubjectType is OPTIONAL. If not provided, it is set to Public if OIDC applicable GrantType is requested. */
 		if (!string.IsNullOrEmpty(request.SubjectType)
@@ -866,6 +878,7 @@ internal class PostRegisterRequestValidator : IRequestValidator<RegisterRequest,
 			Jwks = jwks,
 			JwksUri = jwksUri,
 			RequireSignedRequestObject = requireSignedRequestObject,
+			RequireReferenceToken = requireReferenceToken,
 			SubjectType = subjectType,
 			DefaultMaxAge = defaultMaxAge,
 			DefaultAcrValues = defaultAcrValues,

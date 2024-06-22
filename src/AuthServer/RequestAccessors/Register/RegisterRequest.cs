@@ -17,6 +17,7 @@ public class RegisterRequest
     public required string LogoUri { get; init; }
     public required string BackchannelLogoutUri { get; init; }
     public required string RequireSignedRequestObject { get; init; }
+    public required string RequireReferenceToken { get; init; }
     public required string RequestObjectEncryptionEnc { get; init; }
     public required string RequestObjectEncryptionAlg { get; init; }
     public required string RequestObjectSigningAlg { get; init; }

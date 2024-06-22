@@ -28,6 +28,7 @@ internal class RegisterRequestAccessor : IRequestAccessor<RegisterRequest>
         var logoUri = json[Parameter.LogoUri]?.GetValue<string>() ?? string.Empty;
         var backchannelLogoutUri = json[Parameter.BackchannelLogoutUri]?.GetValue<string>() ?? string.Empty;
         var requireSignedRequestObject = json[Parameter.RequireSignedRequestObject]?.GetValue<string>() ?? string.Empty;
+        var requireReferenceToken = json[Parameter.RequireReferenceToken]?.GetValue<string>() ?? string.Empty;
         var requestObjectEncryptionEnc = json[Parameter.RequestObjectEncryptionEnc]?.GetValue<string>() ?? string.Empty;
         var requestObjectEncryptionAlg = json[Parameter.RequestObjectEncryptionAlg]?.GetValue<string>() ?? string.Empty;
         var requestObjectSigningAlg = json[Parameter.RequestObjectSigningAlg]?.GetValue<string>() ?? string.Empty;
@@ -74,6 +75,7 @@ internal class RegisterRequestAccessor : IRequestAccessor<RegisterRequest>
             LogoUri = logoUri,
             BackchannelLogoutUri = backchannelLogoutUri,
             RequireSignedRequestObject = requireSignedRequestObject,
+            RequireReferenceToken = requireReferenceToken,
             RequestObjectEncryptionEnc = requestObjectEncryptionEnc,
             RequestObjectEncryptionAlg = requestObjectEncryptionAlg,
             RequestObjectSigningAlg = requestObjectSigningAlg,
