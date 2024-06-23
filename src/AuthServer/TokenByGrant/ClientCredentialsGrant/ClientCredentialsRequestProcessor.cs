@@ -1,26 +1,29 @@
 ﻿using AuthServer.Core.RequestProcessing;
 using AuthServer.RequestAccessors.Token;
-using System.Transactions;
+using AuthServer.Core.Abstractions;
 
 namespace AuthServer.TokenByGrant.ClientCredentialsGrant;
 internal class ClientCredentialsRequestProcessor : RequestProcessor<TokenRequest, ClientCredentialsValidatedRequest, TokenResponse>
 {
-    private readonly IRequestValidator<TokenRequest, ClientCredentialsValidatedRequest> _requestValidator;
+	private readonly IUnitOfWork _unitOfWork;
+	private readonly IRequestValidator<TokenRequest, ClientCredentialsValidatedRequest> _requestValidator;
     private readonly IClientCredentialsProcessor _clientCredentialsProcessor;
 
     public ClientCredentialsRequestProcessor(
+        IUnitOfWork unitOfWork,
         IRequestValidator<TokenRequest, ClientCredentialsValidatedRequest> requestValidator,
         IClientCredentialsProcessor clientCredentialsProcessor)
     {
-        _requestValidator = requestValidator;
+	    _unitOfWork = unitOfWork;
+	    _requestValidator = requestValidator;
         _clientCredentialsProcessor = clientCredentialsProcessor;
     }
 
     protected override async Task<ProcessResult<TokenResponse, ProcessError>> ProcessRequest(ClientCredentialsValidatedRequest request, CancellationToken cancellationToken)
     {
-        using var transactionScope = new TransactionScope(TransactionScopeOption.Required, TransactionScopeAsyncFlowOption.Enabled);
+	    using var transaction = _unitOfWork.Begin();
         var result = await _clientCredentialsProcessor.Process(request, cancellationToken);
-        transactionScope.Complete();
+        await _unitOfWork.Commit();
         return result;
     }
 

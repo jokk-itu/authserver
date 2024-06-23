@@ -1,4 +1,4 @@
-﻿using System.Transactions;
+﻿using AuthServer.Core.Abstractions;
 using AuthServer.Core.RequestProcessing;
 using AuthServer.RequestAccessors.Token;
 
@@ -7,20 +7,23 @@ internal class AuthorizationCodeRequestProcessor : RequestProcessor<TokenRequest
 {
     private readonly IAuthorizationCodeProcessor _processor;
     private readonly IRequestValidator<TokenRequest, AuthorizationCodeValidatedRequest> _validator;
+    private readonly IUnitOfWork _unitOfWork;
 
     public AuthorizationCodeRequestProcessor(
         IAuthorizationCodeProcessor processor,
-        IRequestValidator<TokenRequest, AuthorizationCodeValidatedRequest> validator)
+        IRequestValidator<TokenRequest, AuthorizationCodeValidatedRequest> validator,
+        IUnitOfWork unitOfWork)
     {
         _processor = processor;
         _validator = validator;
+        _unitOfWork = unitOfWork;
     }
 
     protected override async Task<ProcessResult<TokenResponse, ProcessError>> ProcessRequest(AuthorizationCodeValidatedRequest request, CancellationToken cancellationToken)
     {
-        using var transactionScope = new TransactionScope(TransactionScopeOption.Required, TransactionScopeAsyncFlowOption.Enabled);
+	    using var transaction = _unitOfWork.Begin();
         var result = await _processor.Process(request, cancellationToken);
-        transactionScope.Complete();
+        await _unitOfWork.Commit();
         return result;
     }
 

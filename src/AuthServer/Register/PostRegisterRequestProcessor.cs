@@ -1,28 +1,31 @@
 ﻿using AuthServer.Core.RequestProcessing;
 using AuthServer.Register.Abstractions;
 using AuthServer.RequestAccessors.Register;
-using System.Transactions;
+using AuthServer.Core.Abstractions;
 
 namespace AuthServer.Register;
 
 internal class PostRegisterRequestProcessor : RequestProcessor<RegisterRequest, PostRegisterValidatedRequest, PostRegisterResponse>
 {
+	private readonly IUnitOfWork _unitOfWork;
 	private readonly IRequestValidator<RegisterRequest, PostRegisterValidatedRequest> _requestValidator;
     private readonly IPostRegisterProcessor _postRegisterProcessor;
 
     public PostRegisterRequestProcessor(
+        IUnitOfWork unitOfWork,
 		IRequestValidator<RegisterRequest, PostRegisterValidatedRequest> requestValidator,
 		IPostRegisterProcessor postRegisterProcessor)
     {
-        _requestValidator = requestValidator;
+	    _unitOfWork = unitOfWork;
+	    _requestValidator = requestValidator;
         _postRegisterProcessor = postRegisterProcessor;
     }
 
 	protected override async Task<ProcessResult<PostRegisterResponse, ProcessError>> ProcessRequest(PostRegisterValidatedRequest request, CancellationToken cancellationToken)
-    {
-        using var transactionScope = new TransactionScope(TransactionScopeOption.Required, TransactionScopeAsyncFlowOption.Enabled);
+	{
+		using var transaction = _unitOfWork.Begin();
         var result = await _postRegisterProcessor.Register(request, cancellationToken);
-        transactionScope.Complete();
+        await _unitOfWork.Commit();
         return result;
     }
 

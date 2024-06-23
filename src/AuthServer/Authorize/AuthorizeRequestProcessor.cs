@@ -1,28 +1,31 @@
 ﻿using AuthServer.Core.RequestProcessing;
 using AuthServer.RequestAccessors.Authorize;
-using System.Transactions;
 using AuthServer.Authorize.Abstractions;
+using AuthServer.Core.Abstractions;
 
 namespace AuthServer.Authorize;
 
 internal class AuthorizeRequestProcessor : RequestProcessor<AuthorizeRequest, AuthorizeValidatedRequest, string>
 {
-    private readonly IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest> _requestValidator;
+	private readonly IUnitOfWork _unitOfWork;
+	private readonly IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest> _requestValidator;
     private readonly IAuthorizeProcessor _authorizeProcessor;
 
     public AuthorizeRequestProcessor(
+        IUnitOfWork unitOfWork,
         IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest> requestValidator,
         IAuthorizeProcessor authorizeProcessor)
     {
-        _requestValidator = requestValidator;
+	    _unitOfWork = unitOfWork;
+	    _requestValidator = requestValidator;
         _authorizeProcessor = authorizeProcessor;
     }
 
     protected override async Task<ProcessResult<string, ProcessError>> ProcessRequest(AuthorizeValidatedRequest request, CancellationToken cancellationToken)
     {
-        using var transactionScope = new TransactionScope(TransactionScopeOption.Required, TransactionScopeAsyncFlowOption.Enabled);
+	    using var transaction = _unitOfWork.Begin();
         var result = await _authorizeProcessor.Process(request, cancellationToken);
-        transactionScope.Complete();
+        await _unitOfWork.Commit();
         return result;
     }
 

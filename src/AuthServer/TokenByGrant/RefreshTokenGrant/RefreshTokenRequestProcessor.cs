@@ -1,26 +1,29 @@
 ﻿using AuthServer.Core.RequestProcessing;
 using AuthServer.RequestAccessors.Token;
-using System.Transactions;
+using AuthServer.Core.Abstractions;
 
 namespace AuthServer.TokenByGrant.RefreshTokenGrant;
 internal class RefreshTokenRequestProcessor : RequestProcessor<TokenRequest, RefreshTokenValidatedRequest, TokenResponse>
 {
-    private readonly IRequestValidator<TokenRequest, RefreshTokenValidatedRequest> _requestValidator;
+	private readonly IUnitOfWork _unitOfWork;
+	private readonly IRequestValidator<TokenRequest, RefreshTokenValidatedRequest> _requestValidator;
     private readonly IRefreshTokenProcessor _refreshTokenProcessor;
 
     public RefreshTokenRequestProcessor(
+        IUnitOfWork unitOfWork,
         IRequestValidator<TokenRequest, RefreshTokenValidatedRequest> requestValidator,
         IRefreshTokenProcessor refreshTokenProcessor)
     {
-        _requestValidator = requestValidator;
+	    _unitOfWork = unitOfWork;
+	    _requestValidator = requestValidator;
         _refreshTokenProcessor = refreshTokenProcessor;
     }
 
     protected override async Task<ProcessResult<TokenResponse, ProcessError>> ProcessRequest(RefreshTokenValidatedRequest request, CancellationToken cancellationToken)
     {
-        using var transactionScope = new TransactionScope(TransactionScopeOption.Required, TransactionScopeAsyncFlowOption.Enabled);
+	    using var transaction = _unitOfWork.Begin();
         var result = await _refreshTokenProcessor.Process(request, cancellationToken);
-        transactionScope.Complete();
+        await _unitOfWork.Commit();
         return result;
     }
 
