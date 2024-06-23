@@ -10,14 +10,14 @@
             <!-- Client Authentication -->
             <li>
                 <a
-                    href="{base}/documentation/token"
+                    href="{base}/documentation/client-authentication"
                     class="text-lg"
                 >
                 Client Authentication
                 </a>
                 <ul class="list-disc list-inside">
-                    <li>Client Secret</li>
-                    <li>Client Assertion</li>
+                    <li><a href="{base}/documentation/client-authentication/client-secret">Client Secret</a></li>
+                    <li><a href="{base}/documentation/client-authentication/client-assertion">Client Assertion</a></li>
                 </ul>
             </li>
 
@@ -27,9 +27,9 @@
                     Token
                 </a>
                 <ul class="list-disc list-inside">
-                    <li>Authorization Code</li>
-                    <li>Refresh Token</li>
-                    <li>Client Credentials</li>
+                    <li><a href="{base}/documentation/token/authorization-code">Authorization Code</a></li>
+                    <li><a href="{base}/documentation/token/refresh-token">Refresh Token</a></li>
+                    <li><a href="{base}/documentation/token/client-credentials">Client Credentials</a></li>
                 </ul>
             </li>
 
