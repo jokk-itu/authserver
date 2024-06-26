@@ -19,8 +19,8 @@ public static class HttpRequestExtensions
         var decodedBytes = Convert.FromBase64String(authenticationHeader.Parameter);
         var decoded = Encoding.UTF8.GetString(decodedBytes).Split(":");
 
-        var clientId = decoded.ElementAtOrDefault(0);
-        var clientSecret = decoded.ElementAtOrDefault(1);
+        var clientId = decoded.ElementAtOrDefault(0).FormUrlDecode();
+        var clientSecret = decoded.ElementAtOrDefault(1).FormUrlDecode();
 
         var isClientSecretBasic = !string.IsNullOrWhiteSpace(clientId) && !string.IsNullOrWhiteSpace(clientSecret);
 

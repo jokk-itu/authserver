@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Primitives;
 
 namespace AuthServer.Extensions;
 public static class StringExtensions
@@ -28,4 +30,24 @@ public static class StringExtensions
 
         return default;
     }
+
+    public static string FormUrlDecode(this string? value)
+    {
+	    if (string.IsNullOrEmpty(value))
+	    {
+		    return string.Empty;
+	    }
+
+	    return Uri.UnescapeDataString(value).Replace("+", " ");
+    }
+
+	public static string FormUrlEncode(this string? value)
+    {
+	    if (string.IsNullOrEmpty(value))
+	    {
+		    return string.Empty;
+	    }
+
+	    return Uri.EscapeDataString(value).Replace("%20", "+");
+	}
 }

@@ -7,6 +7,7 @@ using AuthServer.RequestAccessors.Revocation;
 using Xunit.Abstractions;
 using Newtonsoft.Json.Linq;
 using AuthServer.Core.Abstractions;
+using AuthServer.Extensions;
 
 namespace AuthServer.Tests.Unit.RequestAccessors;
 
@@ -72,7 +73,7 @@ public class RevocationRequestAccessorTest(ITestOutputHelper outputHelper) : Bas
 				Form = new FormCollection(formUrlContent),
 				Headers =
 				{
-					Authorization = $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{actual}:{actual}"))}"
+					Authorization = $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{actual.FormUrlEncode()}:{actual.FormUrlEncode()}"))}"
 				}
 			}
 		};

@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;
+using AuthServer.Extensions;
 using AuthServer.RequestAccessors.Introspection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -70,7 +71,7 @@ public class IntrospectionRequesterAccessorTest(ITestOutputHelper outputHelper) 
 				Form = new FormCollection(formUrlContent),
 				Headers =
 				{
-					Authorization = $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{value}:{value}"))}"
+					Authorization = $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{value.FormUrlEncode()}:{value.FormUrlEncode()}"))}"
 				}
 			}
 		};

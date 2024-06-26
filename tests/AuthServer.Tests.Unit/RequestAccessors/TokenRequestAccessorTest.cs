@@ -6,6 +6,7 @@ using AuthServer.RequestAccessors.Token;
 using Xunit.Abstractions;
 using System.Text;
 using AuthServer.Core.Abstractions;
+using AuthServer.Extensions;
 
 namespace AuthServer.Tests.Unit.RequestAccessors;
 
@@ -80,7 +81,7 @@ public class TokenRequestAccessorTest(ITestOutputHelper outputHelper) : BaseUnit
 				Form = new FormCollection(formUrlContent),
 				Headers =
 				{
-					Authorization = $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{value}:{value}"))}"
+					Authorization = $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{value.FormUrlEncode()}:{value.FormUrlEncode()}"))}"
 				}
 			}
 		};
