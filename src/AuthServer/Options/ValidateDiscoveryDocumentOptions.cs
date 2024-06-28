@@ -44,11 +44,6 @@ public class ValidateDiscoveryDocumentOptions : IValidateOptions<DiscoveryDocume
             return ValidateOptionsResult.Fail($"{nameof(options.ScopesSupported)} is not specified");
         }
 
-        if (options.AcrValuesSupported.IsNullOrEmpty())
-        {
-            return ValidateOptionsResult.Fail($"{nameof(options.AcrValuesSupported)} is not specified");
-        }
-
         var invalidTokenEndpointAuthSigningAlgValues =
             options.TokenEndpointAuthSigningAlgValuesSupported.Where(x => !JwsAlgConstants.AlgValues.Contains(x)).ToList();
         if (invalidTokenEndpointAuthSigningAlgValues.Count != 0)
