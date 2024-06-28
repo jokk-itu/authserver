@@ -134,7 +134,7 @@ public class Client : Entity<string>
     /// Maximum age since last authentication by end user in epoch format
     /// Zero means it always requires authentication by end user
     /// </summary>
-    public long? DefaultMaxAge { get; set; }
+    public int? DefaultMaxAge { get; set; }
 
     /// <summary>
     /// Type of the client
