@@ -10,6 +10,7 @@ public class Client : Entity<string>
         Name = string.IsNullOrWhiteSpace(name) ? throw new ArgumentNullException(nameof(name)) : name;
         ApplicationType = applicationType;
         TokenEndpointAuthMethod = tokenEndpointAuthMethod;
+        CreatedAt = DateTime.UtcNow;
     }
 
 #pragma warning disable CS8618
@@ -21,6 +22,11 @@ public class Client : Entity<string>
     /// Name of client
     /// </summary>
     public string Name { get; set; }
+
+    /// <summary>
+    /// Timestamp at the creation of the client
+    /// </summary>
+    public DateTime CreatedAt { get; private init; }
 
     /// <summary>
     /// Secret of client
