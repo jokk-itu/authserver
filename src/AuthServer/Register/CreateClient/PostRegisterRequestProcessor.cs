@@ -156,7 +156,7 @@ internal class PostRegisterRequestProcessor : IRequestProcessor<PostRegisterVali
             TosUri = request.TosUri,
             InitiateLoginUri = request.InitiateLoginUri,
             LogoUri = request.LogoUri,
-            Jwks = request.Jwks,
+            Jwks = string.IsNullOrEmpty(request.JwksUri) ? request.Jwks : null,
             JwksUri = request.JwksUri,
             RequireSignedRequestObject = request.RequireSignedRequestObject,
             RequireReferenceToken = request.RequireReferenceToken,

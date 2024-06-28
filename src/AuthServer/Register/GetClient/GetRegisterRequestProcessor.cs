@@ -92,7 +92,7 @@ internal class GetRegisterRequestProcessor : IRequestProcessor<GetRegisterValida
 			TosUri = client.TosUri,
 			InitiateLoginUri = client.InitiateLoginUri,
 			LogoUri = client.LogoUri,
-			Jwks = client.Jwks,
+			Jwks = string.IsNullOrEmpty(client.JwksUri) ? client.Jwks : null,
 			JwksUri = client.JwksUri,
 			RequireSignedRequestObject = client.RequireSignedRequestObject,
 			RequireReferenceToken = client.RequireReferenceToken,
