@@ -99,7 +99,7 @@ public class RegisterEndpointBuilder
     return this;
   }
 
-  internal async Task<PostRegisterResponse> BuildClient(HttpClient httpClient, CancellationToken cancellationToken = default)
+  internal async Task<RegisterResponse> BuildClient(HttpClient httpClient, CancellationToken cancellationToken = default)
   {
     var arguments = new Dictionary<string, object>
     {
@@ -129,7 +129,7 @@ public class RegisterEndpointBuilder
     };
     var clientResponse = await httpClient.SendAsync(request, cancellationToken);
     clientResponse.EnsureSuccessStatusCode();
-    var deserialized = await clientResponse.Content.ReadFromJsonAsync<PostRegisterResponse>(cancellationToken: cancellationToken);
+    var deserialized = await clientResponse.Content.ReadFromJsonAsync<RegisterResponse>(cancellationToken: cancellationToken);
     return deserialized!;
   }
 }
