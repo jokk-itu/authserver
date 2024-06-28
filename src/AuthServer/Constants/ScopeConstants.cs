@@ -4,7 +4,7 @@ public static class ScopeConstants
 {
     public const string OfflineAccess = "offline_access";
     public const string OpenId = "openid";
-    public const string ClientConfiguration = "authserver:clientconfiguration";
+    public const string Register = "authserver:register";
     public const string UserInfo = "authserver:userinfo";
 
     public const string Profile = "profile";
@@ -13,5 +13,5 @@ public static class ScopeConstants
     public const string Phone = "phone";
 
     public static readonly string[] Scopes =
-        [Profile, Email, Address, Phone, OfflineAccess, OpenId, ClientConfiguration, UserInfo];
+        [Profile, Email, Address, Phone, OfflineAccess, OpenId, Register, UserInfo];
 }

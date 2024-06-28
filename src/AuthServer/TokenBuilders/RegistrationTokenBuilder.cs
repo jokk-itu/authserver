@@ -27,7 +27,7 @@ internal class RegistrationTokenBuilder : ITokenBuilder<RegistrationTokenArgumen
             .SingleAsync(x => x.Id == arguments.ClientId, cancellationToken);
 
         var registrationToken = new RegistrationToken(client, arguments.ClientId,
-            _discoveryDocumentOptions.Value.Issuer, ScopeConstants.ClientConfiguration, null);
+            _discoveryDocumentOptions.Value.Issuer, ScopeConstants.Register, null);
 
         await _identityContext
             .Set<RegistrationToken>()

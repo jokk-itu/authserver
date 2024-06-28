@@ -29,7 +29,7 @@ internal sealed class ScopeConfiguration : IEntityTypeConfiguration<Scope>
                 new ScopeSeed(5, ScopeConstants.Email),
                 new ScopeSeed(6, ScopeConstants.Phone),
                 new ScopeSeed(7, ScopeConstants.UserInfo),
-                new ScopeSeed(8, ScopeConstants.ClientConfiguration)
+                new ScopeSeed(8, ScopeConstants.Register)
             ]);
     }
 }
