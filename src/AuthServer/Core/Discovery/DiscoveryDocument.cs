@@ -60,7 +60,7 @@ public class DiscoveryDocument
     public ICollection<string> GrantTypesSupported => GrantTypeConstants.GrantTypes;
 
     [JsonPropertyName("acr_values_supported")]
-    public ICollection<string> AcrValuesSupported => AcrValueConstants.AcrValues;
+    public ICollection<string> AcrValuesSupported { get; set; } = [];
 
     [JsonPropertyName("challenge_methods_supported")]
     public ICollection<string> ChallengeMethodsSupported => CodeChallengeMethodConstants.CodeChallengeMethods;
