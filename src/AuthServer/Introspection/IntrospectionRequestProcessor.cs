@@ -1,32 +1,70 @@
-﻿using AuthServer.Core.RequestProcessing;
+﻿using AuthServer.Core;
+using AuthServer.Core.Request;
+using AuthServer.Entities;
+using AuthServer.Extensions;
 using AuthServer.Introspection.Abstractions;
-using AuthServer.RequestAccessors.Introspection;
+using Microsoft.EntityFrameworkCore;
 
 namespace AuthServer.Introspection;
-
-internal class
-    IntrospectionRequestProcessor : RequestProcessor<IntrospectionRequest, IntrospectionValidatedRequest, IntrospectionResponse>
+internal class IntrospectionRequestProcessor : IRequestProcessor<IntrospectionValidatedRequest, IntrospectionResponse>
 {
-    private readonly ITokenIntrospection _tokenIntrospection;
-    private readonly IRequestValidator<IntrospectionRequest, IntrospectionValidatedRequest> _requestValidator;
+    private readonly AuthorizationDbContext _identityContext;
+    private readonly IUsernameResolver _usernameResolver;
 
     public IntrospectionRequestProcessor(
-        ITokenIntrospection tokenIntrospection,
-        IRequestValidator<IntrospectionRequest, IntrospectionValidatedRequest> requestValidator)
+        AuthorizationDbContext identityContext,
+        IUsernameResolver usernameResolver)
     {
-        _tokenIntrospection = tokenIntrospection;
-        _requestValidator = requestValidator;
+        _identityContext = identityContext;
+        _usernameResolver = usernameResolver;
     }
 
-    protected override async Task<ProcessResult<IntrospectionResponse, ProcessError>> ProcessRequest(
-        IntrospectionValidatedRequest request, CancellationToken cancellationToken)
+    public async Task<IntrospectionResponse> Process(IntrospectionValidatedRequest request, CancellationToken cancellationToken)
     {
-        return await _tokenIntrospection.GetIntrospection(request, cancellationToken);
+        var query = await _identityContext
+            .Set<Token>()
+            .Where(x => x.Reference == request.Token)
+            .Select(x => new TokenQuery
+            {
+                Token = x,
+                SubjectIdentifier = (x as GrantToken)!.AuthorizationGrant.SubjectIdentifier.Id,
+            })
+            .SingleOrDefaultAsync(cancellationToken: cancellationToken);
+
+        if (query is null)
+        {
+            return new IntrospectionResponse
+            {
+                Active = false
+            };
+        }
+
+        long? expiresAt = query.Token.ExpiresAt is null
+            ? null
+            : new DateTimeOffset(query.Token.ExpiresAt.Value).ToUnixTimeSeconds();
+
+        var username = await _usernameResolver.GetUsername(query.SubjectIdentifier);
+
+        return new IntrospectionResponse
+        {
+            Active = query.Token.RevokedAt is null,
+            JwtId = query.Token.Id.ToString(),
+            ClientId = request.ClientId,
+            ExpiresAt = expiresAt,
+            Issuer = query.Token.Issuer,
+            Audience = query.Token.Audience.Split(' '),
+            IssuedAt = new DateTimeOffset(query.Token.IssuedAt).ToUnixTimeSeconds(),
+            NotBefore = new DateTimeOffset(query.Token.NotBefore).ToUnixTimeSeconds(),
+            Scope = query.Token.Scope,
+            Subject = query.SubjectIdentifier,
+            TokenType = query.Token.TokenType.GetDescription(),
+            Username = username
+        };
     }
 
-    protected override async Task<ProcessResult<IntrospectionValidatedRequest, ProcessError>> ValidateRequest(IntrospectionRequest request,
-        CancellationToken cancellationToken)
+    private sealed class TokenQuery
     {
-        return await _requestValidator.Validate(request, cancellationToken);
+        public required Token Token { get; init; }
+        public required string SubjectIdentifier { get; init; }
     }
 }

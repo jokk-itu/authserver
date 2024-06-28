@@ -1,5 +1,5 @@
 ﻿using AuthServer.Constants;
-using AuthServer.Core.RequestProcessing;
+using AuthServer.Core.Request;
 using AuthServer.RequestAccessors.Userinfo;
 using AuthServer.TokenDecoders;
 

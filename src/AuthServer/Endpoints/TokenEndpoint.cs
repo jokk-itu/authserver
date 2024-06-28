@@ -1,6 +1,6 @@
 ﻿using AuthServer.Constants;
 using AuthServer.Core.Abstractions;
-using AuthServer.Core.RequestProcessing;
+using AuthServer.Core.Request;
 using AuthServer.Endpoints.Responses;
 using AuthServer.Extensions;
 using AuthServer.RequestAccessors.Token;
@@ -25,8 +25,8 @@ internal static class TokenEndpoint
             return Results.Extensions.OAuthBadRequest(TokenError.UnsupportedGrantType);
         }
 
-        var requestProcessor = serviceProvider.GetRequiredKeyedService<IRequestProcessor<TokenRequest, TokenResponse>>(request.GrantType);
-        var result = await requestProcessor.Process(request, cancellationToken);
+        var requestHandler = serviceProvider.GetRequiredKeyedService<IRequestHandler<TokenRequest, TokenResponse>>(request.GrantType);
+        var result = await requestHandler.Handle(request, cancellationToken);
 
         return result.Match(
             response => Results.Ok(new PostTokenResponse

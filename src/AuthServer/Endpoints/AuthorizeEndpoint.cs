@@ -1,10 +1,11 @@
 ﻿using AuthServer.Authorize.Abstractions;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;
-using AuthServer.Core.RequestProcessing;
+using AuthServer.Core.Request;
 using AuthServer.Extensions;
 using AuthServer.RequestAccessors.Authorize;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
 namespace AuthServer.Endpoints;
@@ -13,10 +14,10 @@ internal static class AuthorizeEndpoint
 {
     public static async Task<IResult> HandleAuthorize(
         HttpContext httpContext,
-        IRequestAccessor<AuthorizeRequest> requestAccessor,
-        IRequestProcessor<AuthorizeRequest, string> requestProcessor,
-        IAuthorizeResponseBuilder authorizeResponseBuilder,
-        IOptionsSnapshot<UserInteraction> userInteractionOptions,
+        [FromServices] IRequestAccessor<AuthorizeRequest> requestAccessor,
+        [FromServices] IRequestHandler<AuthorizeRequest, string> requestHandler,
+        [FromServices] IAuthorizeResponseBuilder authorizeResponseBuilder,
+        [FromServices] IOptionsSnapshot<UserInteraction> userInteractionOptions,
         CancellationToken cancellationToken)
     {
         // TODO find a way to get the UserId securely from the Interaction pages (login, consent and select_account)
@@ -24,7 +25,7 @@ internal static class AuthorizeEndpoint
 
         var options = userInteractionOptions.Value;
         var request = await requestAccessor.GetRequest(httpContext.Request);
-        var response = await requestProcessor.Process(request, cancellationToken);
+        var response = await requestHandler.Handle(request, cancellationToken);
         return await response.Match(
             async code => await authorizeResponseBuilder.BuildResponse(request, new Dictionary<string, string>{ { Parameter.Code, code } }, cancellationToken),
             async error => string.IsNullOrEmpty(request.Prompt)

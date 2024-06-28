@@ -1,34 +1,48 @@
-﻿using AuthServer.Core.Abstractions;
-using AuthServer.Core.RequestProcessing;
-using AuthServer.RequestAccessors.Revocation;
-using AuthServer.Revocation.Abstractions;
+﻿using AuthServer.Core;
+using AuthServer.Core.Request;
+using AuthServer.Entities;
+using AuthServer.Helpers;
+using AuthServer.TokenDecoders;
+using Microsoft.EntityFrameworkCore;
 
 namespace AuthServer.Revocation;
-internal class RevocationRequestProcessor : RequestProcessor<RevocationRequest, RevocationValidatedRequest, Unit>
+internal class RevocationRequestProcessor : IRequestProcessor<RevocationValidatedRequest, Unit>
 {
-	private readonly IUnitOfWork _unitOfWork;
-	private readonly ITokenRevoker _tokenRevoker;
-    private readonly IRequestValidator<RevocationRequest, RevocationValidatedRequest> _requestValidator;
+    private readonly AuthorizationDbContext _identityContext;
+    private readonly ITokenDecoder<ServerIssuedTokenDecodeArguments> _serverIssuedTokenDecoder;
 
     public RevocationRequestProcessor(
-        IUnitOfWork unitOfWork,
-        ITokenRevoker tokenRevoker,
-        IRequestValidator<RevocationRequest, RevocationValidatedRequest> requestValidator)
+        AuthorizationDbContext identityContext,
+        ITokenDecoder<ServerIssuedTokenDecodeArguments> serverIssuedTokenDecoder)
     {
-	    _unitOfWork = unitOfWork;
-	    _tokenRevoker = tokenRevoker;
-        _requestValidator = requestValidator;
-    }
-    protected override async Task<ProcessResult<Unit, ProcessError>> ProcessRequest(RevocationValidatedRequest request, CancellationToken cancellationToken)
-    {
-	    using var transaction = _unitOfWork.Begin();
-        await _tokenRevoker.Revoke(request, cancellationToken);
-        await _unitOfWork.Commit();
-        return new ProcessResult<Unit, ProcessError>(Unit.Value);
+        _identityContext = identityContext;
+        _serverIssuedTokenDecoder = serverIssuedTokenDecoder;
     }
 
-    protected override async Task<ProcessResult<RevocationValidatedRequest, ProcessError>> ValidateRequest(RevocationRequest request, CancellationToken cancellationToken)
+    public async Task<Unit> Process(RevocationValidatedRequest request, CancellationToken cancellationToken)
     {
-        return await _requestValidator.Validate(request, cancellationToken);
+        var token = await GetToken(request, cancellationToken);
+        token?.Revoke();
+        return Unit.Value;
+    }
+
+    private async Task<Token?> GetToken(RevocationValidatedRequest request, CancellationToken cancellationToken)
+    {
+        if (!TokenHelper.IsJws(request.Token))
+        {
+            return await _identityContext
+                .Set<Token>()
+                .Where(x => x.RevokedAt == null)
+                .SingleOrDefaultAsync(x => x.Reference == request.Token,
+                    cancellationToken: cancellationToken);
+        }
+
+        var jsonWebToken = await _serverIssuedTokenDecoder.Read(request.Token);
+        var id = Guid.Parse(jsonWebToken.Id);
+
+        return await _identityContext
+            .Set<Token>()
+            .Where(x => x.RevokedAt == null)
+            .SingleOrDefaultAsync(x => x.Id == id, cancellationToken: cancellationToken);
     }
 }

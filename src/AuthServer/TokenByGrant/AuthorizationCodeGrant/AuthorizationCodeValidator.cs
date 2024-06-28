@@ -2,7 +2,7 @@
 using AuthServer.Codes.Abstractions;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;
-using AuthServer.Core.RequestProcessing;
+using AuthServer.Core.Request;
 using AuthServer.Entities;
 using AuthServer.Helpers;
 using AuthServer.Repositories.Abstractions;

@@ -8,11 +8,12 @@ public abstract class Token : AggregateRoot<Guid>
 {
     protected Token(TokenType tokenType, string audience, string issuer, string? scope, DateTime? expiresAt)
     {
+        var now = DateTime.UtcNow;
         Id = Guid.NewGuid();
         Reference = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-        IssuedAt = DateTime.UtcNow;
+        IssuedAt = now;
         TokenType = tokenType;
-        NotBefore = DateTime.UtcNow;
+        NotBefore = now;
         Audience = string.IsNullOrWhiteSpace(audience) ? throw new ArgumentNullException(nameof(audience)) : audience;
         Issuer = string.IsNullOrWhiteSpace(issuer) ? throw new ArgumentNullException(nameof(issuer)) : issuer;
         Scope = scope;

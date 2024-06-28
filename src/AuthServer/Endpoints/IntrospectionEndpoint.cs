@@ -1,5 +1,5 @@
 ﻿using AuthServer.Core.Abstractions;
-using AuthServer.Core.RequestProcessing;
+using AuthServer.Core.Request;
 using AuthServer.Endpoints.Responses;
 using AuthServer.Extensions;
 using AuthServer.Introspection;
@@ -13,11 +13,11 @@ internal static class IntrospectionEndpoint
     public static async Task<IResult> HandleIntrospection(
         HttpContext httpContext,
         [FromServices] IRequestAccessor<IntrospectionRequest> requestAccessor,
-        [FromServices] IRequestProcessor<IntrospectionRequest, IntrospectionResponse> requestProcessor,
+        [FromServices] IRequestHandler<IntrospectionRequest, IntrospectionResponse> requestHandler,
         CancellationToken cancellationToken)
     {
         var request = await requestAccessor.GetRequest(httpContext.Request);
-        var result = await requestProcessor.Process(request, cancellationToken);
+        var result = await requestHandler.Handle(request, cancellationToken);
         return result.Match(
             response => Results.Ok(MapToPostResponse(response)),
             error => Results.Extensions.OAuthBadRequest(error));

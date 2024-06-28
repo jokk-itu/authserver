@@ -1,5 +1,5 @@
 ﻿using AuthServer.Core;
-using AuthServer.Core.RequestProcessing;
+using AuthServer.Core.Request;
 
 namespace AuthServer.Revocation;
 

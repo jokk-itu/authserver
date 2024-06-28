@@ -1,4 +1,4 @@
-﻿namespace AuthServer.Core.RequestProcessing;
+﻿namespace AuthServer.Core.Request;
 internal interface IRequestValidator<in TRequest, TValidatedRequest>
     where TRequest : notnull
 {

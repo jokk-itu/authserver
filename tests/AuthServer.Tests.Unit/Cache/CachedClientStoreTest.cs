@@ -3,8 +3,6 @@ using AuthServer.Cache;
 using AuthServer.Cache.Abstractions;
 using AuthServer.Cache.Entities;
 using AuthServer.Core.Exceptions;
-using AuthServer.Entities;
-using AuthServer.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit.Abstractions;

@@ -1,4 +1,4 @@
-﻿namespace AuthServer.Core.RequestProcessing;
+﻿namespace AuthServer.Core.Request;
 
 public enum ResultCode
 {

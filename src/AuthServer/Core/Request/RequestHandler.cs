@@ -1,10 +1,10 @@
-﻿namespace AuthServer.Core.RequestProcessing;
-public abstract class RequestProcessor<TRequest, TValidatedRequest, TResponse> : IRequestProcessor<TRequest, TResponse>
+﻿namespace AuthServer.Core.Request;
+public abstract class RequestHandler<TRequest, TValidatedRequest, TResponse> : IRequestHandler<TRequest, TResponse>
     where TRequest : notnull
     where TValidatedRequest : notnull
 {
     /// <inheritdoc cref="IRequestProcessor{TRequest,TResponse}"/>
-    public async Task<ProcessResult<TResponse, ProcessError>> Process(TRequest request, CancellationToken cancellationToken)
+    public async Task<ProcessResult<TResponse, ProcessError>> Handle(TRequest request, CancellationToken cancellationToken)
     {
         var validationResult = await ValidateRequest(request, cancellationToken);
         return await validationResult.Match(

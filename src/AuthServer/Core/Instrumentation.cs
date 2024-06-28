@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Diagnostics.Metrics;
 
 namespace AuthServer.Core;
 

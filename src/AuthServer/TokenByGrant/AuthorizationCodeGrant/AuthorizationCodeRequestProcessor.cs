@@ -1,34 +1,82 @@
-﻿using AuthServer.Core.Abstractions;
-using AuthServer.Core.RequestProcessing;
-using AuthServer.RequestAccessors.Token;
+﻿using AuthServer.Cache.Abstractions;
+using AuthServer.Constants;
+using AuthServer.Core;
+using AuthServer.Core.Request;
+using AuthServer.Entities;
+using AuthServer.TokenBuilders;
+using AuthServer.TokenBuilders.Abstractions;
+using Microsoft.EntityFrameworkCore;
 
 namespace AuthServer.TokenByGrant.AuthorizationCodeGrant;
-internal class AuthorizationCodeRequestProcessor : RequestProcessor<TokenRequest, AuthorizationCodeValidatedRequest, TokenResponse>
+internal class AuthorizationCodeRequestProcessor : IRequestProcessor<AuthorizationCodeValidatedRequest, TokenResponse>
 {
-    private readonly IAuthorizationCodeProcessor _processor;
-    private readonly IRequestValidator<TokenRequest, AuthorizationCodeValidatedRequest> _validator;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly AuthorizationDbContext _identityContext;
+    private readonly ICachedClientStore _cachedClientStore;
+    private readonly ITokenBuilder<GrantAccessTokenArguments> _accessTokenBuilder;
+    private readonly ITokenBuilder<RefreshTokenArguments> _refreshTokenBuilder;
+    private readonly ITokenBuilder<IdTokenArguments> _idTokenBuilder;
 
     public AuthorizationCodeRequestProcessor(
-        IAuthorizationCodeProcessor processor,
-        IRequestValidator<TokenRequest, AuthorizationCodeValidatedRequest> validator,
-        IUnitOfWork unitOfWork)
+        AuthorizationDbContext identityContext,
+        ICachedClientStore cachedClientStore,
+        ITokenBuilder<GrantAccessTokenArguments> accessTokenBuilder,
+        ITokenBuilder<RefreshTokenArguments> refreshTokenBuilder,
+        ITokenBuilder<IdTokenArguments> idTokenBuilder)
     {
-        _processor = processor;
-        _validator = validator;
-        _unitOfWork = unitOfWork;
+        _identityContext = identityContext;
+        _cachedClientStore = cachedClientStore;
+        _accessTokenBuilder = accessTokenBuilder;
+        _refreshTokenBuilder = refreshTokenBuilder;
+        _idTokenBuilder = idTokenBuilder;
     }
 
-    protected override async Task<ProcessResult<TokenResponse, ProcessError>> ProcessRequest(AuthorizationCodeValidatedRequest request, CancellationToken cancellationToken)
+    public async Task<TokenResponse> Process(AuthorizationCodeValidatedRequest request, CancellationToken cancellationToken)
     {
-	    using var transaction = _unitOfWork.Begin();
-        var result = await _processor.Process(request, cancellationToken);
-        await _unitOfWork.Commit();
-        return result;
-    }
+        var query = await _identityContext
+            .Set<AuthorizationGrant>()
+            .Where(x => x.Id == request.AuthorizationGrantId)
+            .Select(x => new
+            {
+                AuthorizationCodeGrant = x,
+                ClientId = x.Client.Id,
+                AuthorizationCode = x.AuthorizationCodes.Single(y => y.Id == request.AuthorizationCodeId)
+            })
+            .SingleAsync(cancellationToken: cancellationToken);
 
-    protected override async Task<ProcessResult<AuthorizationCodeValidatedRequest, ProcessError>> ValidateRequest(TokenRequest request, CancellationToken cancellationToken)
-    {
-        return await _validator.Validate(request, cancellationToken);
+        query.AuthorizationCode.Redeem();
+
+        var cachedClient = await _cachedClientStore.Get(query.ClientId, cancellationToken);
+
+        string? refreshToken = null;
+        if (cachedClient.GrantTypes.Any(x => x == GrantTypeConstants.RefreshToken))
+        {
+            refreshToken = await _refreshTokenBuilder.BuildToken(new RefreshTokenArguments
+            {
+                AuthorizationGrantId = query.AuthorizationCodeGrant.Id,
+                Scope = request.Scope
+            }, cancellationToken);
+        }
+
+        var accessToken = await _accessTokenBuilder.BuildToken(new GrantAccessTokenArguments
+        {
+            AuthorizationGrantId = query.AuthorizationCodeGrant.Id,
+            Scope = request.Scope,
+            Resource = request.Resource
+        }, cancellationToken);
+
+        var idToken = await _idTokenBuilder.BuildToken(new IdTokenArguments
+        {
+            AuthorizationGrantId = query.AuthorizationCodeGrant.Id,
+            Scope = request.Scope
+        }, cancellationToken);
+
+        return new TokenResponse
+        {
+            AccessToken = accessToken,
+            IdToken = idToken,
+            RefreshToken = refreshToken,
+            ExpiresIn = cachedClient.AccessTokenExpiration,
+            Scope = string.Join(' ', request.Scope),
+        };
     }
 }

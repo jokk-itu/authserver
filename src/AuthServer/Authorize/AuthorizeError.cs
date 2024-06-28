@@ -1,5 +1,5 @@
-﻿using AuthServer.Core.RequestProcessing;
-using AuthServer.Core;
+﻿using AuthServer.Core;
+using AuthServer.Core.Request;
 
 namespace AuthServer.Authorize;
 

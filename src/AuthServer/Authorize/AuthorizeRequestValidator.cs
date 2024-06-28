@@ -2,12 +2,14 @@
 using AuthServer.Cache.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
-using AuthServer.Core.RequestProcessing;
+using AuthServer.Core.Discovery;
+using AuthServer.Core.Request;
 using AuthServer.Entities;
 using AuthServer.Helpers;
 using AuthServer.RequestAccessors.Authorize;
 using AuthServer.TokenDecoders;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace AuthServer.Authorize;
 
@@ -17,17 +19,20 @@ internal class AuthorizeRequestValidator : IRequestValidator<AuthorizeRequest, A
     private readonly AuthorizationDbContext _identityContext;
     private readonly ITokenDecoder<ServerIssuedTokenDecodeArguments> _serverIssuedTokenDecoder;
     private readonly IAuthorizeInteractionProcessor _authorizeInteractionProcessor;
+    private readonly IOptionsSnapshot<DiscoveryDocument> _discoveryDocumentOptions;
 
     public AuthorizeRequestValidator(
         ICachedClientStore cachedClientStore,
         AuthorizationDbContext identityContext,
         ITokenDecoder<ServerIssuedTokenDecodeArguments> serverIssuedTokenDecoder,
-        IAuthorizeInteractionProcessor authorizeInteractionProcessor)
+        IAuthorizeInteractionProcessor authorizeInteractionProcessor,
+        IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions)
     {
         _cachedClientStore = cachedClientStore;
         _identityContext = identityContext;
         _serverIssuedTokenDecoder = serverIssuedTokenDecoder;
         _authorizeInteractionProcessor = authorizeInteractionProcessor;
+        _discoveryDocumentOptions = discoveryDocumentOptions;
     }
 
     public async Task<ProcessResult<AuthorizeValidatedRequest, ProcessError>> Validate(AuthorizeRequest request,
@@ -147,7 +152,7 @@ internal class AuthorizeRequestValidator : IRequestValidator<AuthorizeRequest, A
             return AuthorizeError.InvalidPrompt;
         }
 
-        if (AcrValueConstants.AcrValues.Except(request.AcrValues).Any())
+        if (_discoveryDocumentOptions.Value.AcrValuesSupported.Except(request.AcrValues).Any())
         {
             return AuthorizeError.InvalidAcr;
         }

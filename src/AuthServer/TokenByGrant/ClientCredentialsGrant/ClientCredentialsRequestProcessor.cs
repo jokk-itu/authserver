@@ -1,34 +1,38 @@
-﻿using AuthServer.Core.RequestProcessing;
-using AuthServer.RequestAccessors.Token;
-using AuthServer.Core.Abstractions;
+﻿using AuthServer.Cache.Abstractions;
+using AuthServer.Core.Request;
+using AuthServer.TokenBuilders;
+using AuthServer.TokenBuilders.Abstractions;
 
 namespace AuthServer.TokenByGrant.ClientCredentialsGrant;
-internal class ClientCredentialsRequestProcessor : RequestProcessor<TokenRequest, ClientCredentialsValidatedRequest, TokenResponse>
+
+internal class ClientCredentialsRequestProcessor : IRequestProcessor<ClientCredentialsValidatedRequest, TokenResponse>
 {
-	private readonly IUnitOfWork _unitOfWork;
-	private readonly IRequestValidator<TokenRequest, ClientCredentialsValidatedRequest> _requestValidator;
-    private readonly IClientCredentialsProcessor _clientCredentialsProcessor;
+    private readonly ITokenBuilder<ClientAccessTokenArguments> _tokenBuilder;
+    private readonly ICachedClientStore _cachedClientStore;
 
     public ClientCredentialsRequestProcessor(
-        IUnitOfWork unitOfWork,
-        IRequestValidator<TokenRequest, ClientCredentialsValidatedRequest> requestValidator,
-        IClientCredentialsProcessor clientCredentialsProcessor)
+        ITokenBuilder<ClientAccessTokenArguments> tokenBuilder,
+        ICachedClientStore cachedClientStore)
     {
-	    _unitOfWork = unitOfWork;
-	    _requestValidator = requestValidator;
-        _clientCredentialsProcessor = clientCredentialsProcessor;
+        _tokenBuilder = tokenBuilder;
+        _cachedClientStore = cachedClientStore;
     }
 
-    protected override async Task<ProcessResult<TokenResponse, ProcessError>> ProcessRequest(ClientCredentialsValidatedRequest request, CancellationToken cancellationToken)
+    public async Task<TokenResponse> Process(ClientCredentialsValidatedRequest request, CancellationToken cancellationToken)
     {
-	    using var transaction = _unitOfWork.Begin();
-        var result = await _clientCredentialsProcessor.Process(request, cancellationToken);
-        await _unitOfWork.Commit();
-        return result;
-    }
+        var cachedClient = await _cachedClientStore.Get(request.ClientId, cancellationToken);
+        var accessToken = await _tokenBuilder.BuildToken(new ClientAccessTokenArguments
+        {
+            ClientId = request.ClientId,
+            Resource = request.Resource,
+            Scope = request.Scope
+        }, cancellationToken);
 
-    protected override async Task<ProcessResult<ClientCredentialsValidatedRequest, ProcessError>> ValidateRequest(TokenRequest request, CancellationToken cancellationToken)
-    {
-        return await _requestValidator.Validate(request, cancellationToken);
+        return new TokenResponse
+        {
+            AccessToken = accessToken,
+            Scope = string.Join(' ', request.Scope),
+            ExpiresIn = cachedClient.AccessTokenExpiration
+        };
     }
 }

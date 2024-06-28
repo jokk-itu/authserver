@@ -1,5 +1,5 @@
 ﻿using System.Text.Json.Serialization;
-using AuthServer.Core.RequestProcessing;
+using AuthServer.Core.Request;
 
 namespace AuthServer.Core;
 

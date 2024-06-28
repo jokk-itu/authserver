@@ -1,36 +1,61 @@
-﻿using AuthServer.Core.RequestProcessing;
-using AuthServer.RequestAccessors.Authorize;
-using AuthServer.Authorize.Abstractions;
-using AuthServer.Core.Abstractions;
+﻿using AuthServer.Authorize.Abstractions;
+using AuthServer.Codes;
+using AuthServer.Codes.Abstractions;
+using AuthServer.Core.Request;
+using AuthServer.Entities;
+using AuthServer.Repositories.Abstractions;
 
 namespace AuthServer.Authorize;
 
-internal class AuthorizeRequestProcessor : RequestProcessor<AuthorizeRequest, AuthorizeValidatedRequest, string>
+internal class AuthorizeRequestProcessor : IRequestProcessor<AuthorizeValidatedRequest, string>
 {
-	private readonly IUnitOfWork _unitOfWork;
-	private readonly IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest> _requestValidator;
-    private readonly IAuthorizeProcessor _authorizeProcessor;
+    private readonly IAuthorizationCodeEncoder _authorizationCodeEncoder;
+    private readonly IUserAccessor _userAccessor;
+    private readonly IAuthorizationGrantRepository _authorizationGrantRepository;
 
     public AuthorizeRequestProcessor(
-        IUnitOfWork unitOfWork,
-        IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest> requestValidator,
-        IAuthorizeProcessor authorizeProcessor)
+        IAuthorizationCodeEncoder authorizationCodeEncoder,
+        IUserAccessor userAccessor,
+        IAuthorizationGrantRepository authorizationGrantRepository)
     {
-	    _unitOfWork = unitOfWork;
-	    _requestValidator = requestValidator;
-        _authorizeProcessor = authorizeProcessor;
+        _authorizationCodeEncoder = authorizationCodeEncoder;
+        _userAccessor = userAccessor;
+        _authorizationGrantRepository = authorizationGrantRepository;
     }
 
-    protected override async Task<ProcessResult<string, ProcessError>> ProcessRequest(AuthorizeValidatedRequest request, CancellationToken cancellationToken)
+    public async Task<string> Process(AuthorizeValidatedRequest request, CancellationToken cancellationToken)
     {
-	    using var transaction = _unitOfWork.Begin();
-        var result = await _authorizeProcessor.Process(request, cancellationToken);
-        await _unitOfWork.Commit();
-        return result;
-    }
+        var user = _userAccessor.GetUser();
+        long? maxAge = null;
+        var isParsed = long.TryParse(request.MaxAge, out var parsedMaxAge);
+        if (isParsed)
+        {
+            maxAge = parsedMaxAge;
+        }
 
-    protected override async Task<ProcessResult<AuthorizeValidatedRequest, ProcessError>> ValidateRequest(AuthorizeRequest request, CancellationToken cancellationToken)
-    {
-        return await _requestValidator.Validate(request, cancellationToken);
+        var authorizationGrant = await _authorizationGrantRepository.CreateAuthorizationGrant(
+            user.SubjectIdentifier, request.ClientId, maxAge, cancellationToken);
+
+        var authorizationCode = new AuthorizationCode(authorizationGrant);
+        var nonce = new Nonce(request.Nonce, authorizationGrant);
+
+        authorizationGrant.AuthorizationCodes.Add(authorizationCode);
+        authorizationGrant.Nonces.Add(nonce);
+
+        var encodedAuthorizationCode = _authorizationCodeEncoder.EncodeAuthorizationCode(
+            new EncodedAuthorizationCode
+            {
+                AuthorizationGrantId = authorizationGrant.Id,
+                AuthorizationCodeId = authorizationCode.Id,
+                NonceId = nonce.Id,
+                Scope = request.Scope,
+                RedirectUri = request.RedirectUri,
+                CodeChallengeMethod = request.CodeChallengeMethod,
+                CodeChallenge = request.CodeChallenge
+            });
+
+        authorizationCode.SetValue(encodedAuthorizationCode);
+
+        return encodedAuthorizationCode;
     }
 }

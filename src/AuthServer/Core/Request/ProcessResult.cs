@@ -1,4 +1,4 @@
-﻿namespace AuthServer.Core.RequestProcessing;
+﻿namespace AuthServer.Core.Request;
 public class ProcessResult<TValue, TError>
 {
     public readonly TValue? Value;

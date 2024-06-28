@@ -1,34 +1,58 @@
-﻿using AuthServer.Core.RequestProcessing;
-using AuthServer.RequestAccessors.Token;
-using AuthServer.Core.Abstractions;
+﻿using AuthServer.Cache.Abstractions;
+using AuthServer.Core.Request;
+using AuthServer.TokenBuilders;
+using AuthServer.TokenBuilders.Abstractions;
 
 namespace AuthServer.TokenByGrant.RefreshTokenGrant;
-internal class RefreshTokenRequestProcessor : RequestProcessor<TokenRequest, RefreshTokenValidatedRequest, TokenResponse>
+
+internal class RefreshTokenRequestProcessor : IRequestProcessor<RefreshTokenValidatedRequest, TokenResponse>
 {
-	private readonly IUnitOfWork _unitOfWork;
-	private readonly IRequestValidator<TokenRequest, RefreshTokenValidatedRequest> _requestValidator;
-    private readonly IRefreshTokenProcessor _refreshTokenProcessor;
+    private readonly ITokenBuilder<GrantAccessTokenArguments> _accessTokenBuilder;
+    private readonly ITokenBuilder<RefreshTokenArguments> _refreshTokenBuilder;
+    private readonly ITokenBuilder<IdTokenArguments> _idTokenBuilder;
+    private readonly ICachedClientStore _cachedEntityStore;
 
     public RefreshTokenRequestProcessor(
-        IUnitOfWork unitOfWork,
-        IRequestValidator<TokenRequest, RefreshTokenValidatedRequest> requestValidator,
-        IRefreshTokenProcessor refreshTokenProcessor)
+        ITokenBuilder<GrantAccessTokenArguments> accessTokenBuilder,
+        ITokenBuilder<RefreshTokenArguments> refreshTokenBuilder,
+        ITokenBuilder<IdTokenArguments> idTokenBuilder,
+        ICachedClientStore cachedEntityStore)
     {
-	    _unitOfWork = unitOfWork;
-	    _requestValidator = requestValidator;
-        _refreshTokenProcessor = refreshTokenProcessor;
+        _accessTokenBuilder = accessTokenBuilder;
+        _refreshTokenBuilder = refreshTokenBuilder;
+        _idTokenBuilder = idTokenBuilder;
+        _cachedEntityStore = cachedEntityStore;
     }
 
-    protected override async Task<ProcessResult<TokenResponse, ProcessError>> ProcessRequest(RefreshTokenValidatedRequest request, CancellationToken cancellationToken)
+    public async Task<TokenResponse> Process(RefreshTokenValidatedRequest request, CancellationToken cancellationToken)
     {
-	    using var transaction = _unitOfWork.Begin();
-        var result = await _refreshTokenProcessor.Process(request, cancellationToken);
-        await _unitOfWork.Commit();
-        return result;
-    }
+        var cachedClient = await _cachedEntityStore.Get(request.ClientId, cancellationToken);
+        var accessToken = await _accessTokenBuilder.BuildToken(new GrantAccessTokenArguments
+        {
+            AuthorizationGrantId = request.AuthorizationGrantId,
+            Resource = request.Resource,
+            Scope = request.Scope
+        }, cancellationToken);
 
-    protected override async Task<ProcessResult<RefreshTokenValidatedRequest, ProcessError>> ValidateRequest(TokenRequest request, CancellationToken cancellationToken)
-    {
-        return await _requestValidator.Validate(request, cancellationToken);
+        var refreshToken = await _refreshTokenBuilder.BuildToken(new RefreshTokenArguments
+        {
+            AuthorizationGrantId = request.AuthorizationGrantId,
+            Scope = request.Scope
+        }, cancellationToken);
+
+        var idToken = await _idTokenBuilder.BuildToken(new IdTokenArguments
+        {
+            AuthorizationGrantId = request.AuthorizationGrantId,
+            Scope = request.Scope
+        }, cancellationToken);
+
+        return new TokenResponse
+        {
+            AccessToken = accessToken,
+            RefreshToken = refreshToken,
+            IdToken = idToken,
+            Scope = string.Join(' ', request.Scope),
+            ExpiresIn = cachedClient.AccessTokenExpiration
+        };
     }
 }

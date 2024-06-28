@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using AuthServer.Constants;
 using AuthServer.Core.Abstractions;
-using AuthServer.Core.RequestProcessing;
+using AuthServer.Core.Request;
 using AuthServer.Extensions;
 using AuthServer.Helpers;
 using AuthServer.RequestAccessors.Userinfo;
@@ -13,11 +13,11 @@ internal class UserinfoEndpoint
     public static async Task<IResult> HandleUserinfo(
         HttpContext httpContext,
         IRequestAccessor<UserinfoRequest> requestAccessor,
-        IRequestProcessor<UserinfoRequest, string> requestProcessor,
+        IRequestHandler<UserinfoRequest, string> requestHandler,
         CancellationToken cancellationToken)
     {
         var request = await requestAccessor.GetRequest(httpContext.Request);
-        var response = await requestProcessor.Process(request, cancellationToken);
+        var response = await requestHandler.Handle(request, cancellationToken);
         return response.Match(
             userinfo =>
             {

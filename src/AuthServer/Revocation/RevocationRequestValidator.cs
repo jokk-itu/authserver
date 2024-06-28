@@ -1,7 +1,7 @@
 ﻿using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;
-using AuthServer.Core.RequestProcessing;
+using AuthServer.Core.Request;
 using AuthServer.Entities;
 using AuthServer.Extensions;
 using AuthServer.Helpers;
