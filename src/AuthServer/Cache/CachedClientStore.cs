@@ -106,6 +106,7 @@ internal class CachedClientStore : ICachedClientStore
             JwksUri = client.JwksUri,
             Jwks = client.Jwks,
             JwksExpiresAt = client.JwksExpiresAt,
+            DefaultAcrValues = client.DefaultAcrValues,
             TosUri = client.TosUri,
             PolicyUri = client.PolicyUri,
             ClientUri = client.ClientUri,

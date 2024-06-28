@@ -15,6 +15,7 @@ internal class CachedClient
     public required string? JwksUri { get; set; }
     public required string? Jwks { get; init; }
     public required DateTime? JwksExpiresAt { get; init; }
+    public required string? DefaultAcrValues { get; init; }
     public required string? TosUri { get; init; }
     public required string? PolicyUri { get; init; }
     public required string? ClientUri { get; init; }
@@ -24,7 +25,7 @@ internal class CachedClient
     public required bool RequireReferenceToken { get; init; }
     public required bool RequireConsent { get; init; }
     public required bool RequireSignedRequestObject { get; init; }
-    public required long? DefaultMaxAge { get; init; }
+    public required int? DefaultMaxAge { get; init; }
     public required ApplicationType ApplicationType { get; init; }
     public required TokenEndpointAuthMethod TokenEndpointAuthMethod { get; init; }
     public required SubjectType? SubjectType { get; init; }
