@@ -2,7 +2,7 @@
 
 namespace AuthServer.Register;
 
-internal class PostRegisterValidatedRequest
+internal abstract class RegisterValidatedRequest
 {
 	public required string ClientName { get; init; }
 	public required ApplicationType ApplicationType { get; init; }
