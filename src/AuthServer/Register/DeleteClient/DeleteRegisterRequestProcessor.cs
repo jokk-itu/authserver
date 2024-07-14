@@ -18,6 +18,16 @@ internal class DeleteRegisterRequestProcessor : IRequestProcessor<DeleteRegister
     public async Task<Unit> Process(DeleteRegisterValidatedRequest request, CancellationToken cancellationToken)
     {
         await _authorizationDbContext
+            .Set<ClientToken>()
+            .Where(t => t.Client.Id == request.ClientId)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        await _authorizationDbContext
+            .Set<GrantToken>()
+            .Where(t => t.AuthorizationGrant.Client.Id == request.ClientId)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        await _authorizationDbContext
             .Set<Client>()
             .Where(c => c.Id == request.ClientId)
             .ExecuteDeleteAsync(cancellationToken);

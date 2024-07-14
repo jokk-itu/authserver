@@ -1,4 +1,5 @@
-﻿using AuthServer.Core;
+﻿using AuthServer.Authentication;
+using AuthServer.Core;
 using AuthServer.Core.Abstractions;
 using AuthServer.Extensions;
 using Microsoft.AspNetCore.Authentication;
@@ -11,7 +12,7 @@ internal class DeleteRegisterRequestAccessor : IRequestAccessor<DeleteRegisterRe
 	public async Task<DeleteRegisterRequest> GetRequest(HttpRequest httpRequest)
 	{
 		var clientId = httpRequest.Query.GetValueOrEmpty(Parameter.ClientId);
-		var registrationAccessToken = await httpRequest.HttpContext.GetTokenAsync(Parameter.AccessToken) ?? string.Empty;
+		var registrationAccessToken = await httpRequest.HttpContext.GetTokenAsync(ReferenceTokenAuthenticationDefaults.AuthenticationScheme, Parameter.AccessToken) ?? string.Empty;
 
 		return new DeleteRegisterRequest
 		{
