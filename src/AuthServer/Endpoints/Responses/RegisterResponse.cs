@@ -1,5 +1,4 @@
-﻿using AuthServer.Enums;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using AuthServer.Core;
 
 namespace AuthServer.Endpoints.Responses;
@@ -30,21 +29,21 @@ internal class RegisterResponse
 	public required string ClientName { get; init; }
 
 	[JsonPropertyName(Parameter.ApplicationType)]
-	public required ApplicationType ApplicationType { get; init; }
+	public required string ApplicationType { get; init; }
 
 	[JsonPropertyName(Parameter.SubjectType)]
 	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-	public SubjectType? SubjectType { get; init; }
+	public string? SubjectType { get; init; }
 
 	[JsonPropertyName(Parameter.DefaultMaxAge)]
 	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 	public int? DefaultMaxAge { get; init; }
 
 	[JsonPropertyName(Parameter.TokenEndpointAuthMethod)]
-	public required TokenEndpointAuthMethod TokenEndpointAuthMethod { get; init; }
+	public required string TokenEndpointAuthMethod { get; init; }
 
 	[JsonPropertyName(Parameter.TokenEndpointAuthSigningAlg)]
-	public required SigningAlg TokenEndpointAuthSigningAlg { get; init; }
+	public required string TokenEndpointAuthSigningAlg { get; init; }
 
 	[JsonPropertyName(Parameter.Jwks)]
 	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -86,51 +85,51 @@ internal class RegisterResponse
 
 	[JsonPropertyName(Parameter.RequestObjectEncryptionEnc)]
 	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-	public EncryptionEnc? RequestObjectEncryptionEnc { get; init; }
+	public string? RequestObjectEncryptionEnc { get; init; }
 
 	[JsonPropertyName(Parameter.RequestObjectEncryptionAlg)]
 	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-	public EncryptionAlg? RequestObjectEncryptionAlg { get; init; }
+	public string? RequestObjectEncryptionAlg { get; init; }
 
 	[JsonPropertyName(Parameter.RequestObjectSigningAlg)]
 	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-	public SigningAlg? RequestObjectSigningAlg { get; init; }
+	public string? RequestObjectSigningAlg { get; init; }
 
 	[JsonPropertyName(Parameter.UserinfoEncryptedResponseEnc)]
 	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-	public EncryptionEnc? UserinfoEncryptedResponseEnc { get; init; }
+	public string? UserinfoEncryptedResponseEnc { get; init; }
 
 	[JsonPropertyName(Parameter.UserinfoEncryptedResponseAlg)]
 	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-	public EncryptionAlg? UserinfoEncryptedResponseAlg { get; init; }
+	public string? UserinfoEncryptedResponseAlg { get; init; }
 
 	[JsonPropertyName(Parameter.UserinfoSignedResponseAlg)]
 	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-	public SigningAlg? UserinfoSignedResponseAlg { get; init; }
+	public string? UserinfoSignedResponseAlg { get; init; }
 
 	[JsonPropertyName(Parameter.IdTokenEncryptedResponseEnc)]
 	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-	public EncryptionEnc? IdTokenEncryptedResponseEnc { get; init; }
+	public string? IdTokenEncryptedResponseEnc { get; init; }
 
 	[JsonPropertyName(Parameter.IdTokenEncryptedResponseAlg)]
 	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-	public EncryptionAlg? IdTokenEncryptedResponseAlg { get; init; }
+	public string? IdTokenEncryptedResponseAlg { get; init; }
 
 	[JsonPropertyName(Parameter.IdTokenSignedResponseAlg)]
 	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-	public SigningAlg? IdTokenSignedResponseAlg { get; init; }
+	public string? IdTokenSignedResponseAlg { get; init; }
 
 	[JsonPropertyName(Parameter.AuthorizationEncryptedResponseEnc)]
 	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-	public EncryptionEnc? AuthorizationEncryptedResponseEnc { get; init; }
+	public string? AuthorizationEncryptedResponseEnc { get; init; }
 
 	[JsonPropertyName(Parameter.AuthorizationEncryptedResponseAlg)]
 	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-	public EncryptionAlg? AuthorizationEncryptedResponseAlg { get; init; }
+	public string? AuthorizationEncryptedResponseAlg { get; init; }
 
 	[JsonPropertyName(Parameter.AuthorizationSignedResponseAlg)]
 	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-	public SigningAlg? AuthorizationSignedResponseAlg { get; init; }
+	public string? AuthorizationSignedResponseAlg { get; init; }
 
 	[JsonPropertyName(Parameter.AuthorizationCodeExpiration)]
 	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

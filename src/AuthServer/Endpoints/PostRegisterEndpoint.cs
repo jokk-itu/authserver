@@ -12,8 +12,8 @@ internal class PostRegisterEndpoint
 {
 	public static async Task<IResult> HandlePostRegister(
 		HttpContext httpContext,
-		[FromServices] IRequestAccessor<RegisterRequest> requestAccessor,
-		[FromServices] IRequestHandler<RegisterRequest, RegisterResponse> requestHandler,
+		[FromServices] IRequestAccessor<PostRegisterRequest> requestAccessor,
+		[FromServices] IRequestHandler<PostRegisterRequest, Register.RegisterResponse> requestHandler,
 		CancellationToken cancellationToken)
 	{
 		var request = await requestAccessor.GetRequest(httpContext.Request);
@@ -30,8 +30,8 @@ internal class PostRegisterEndpoint
 						ClientSecretExpiresAt = client.ClientSecretExpiresAt,
 						RegistrationClientUri = client.RegistrationClientUri,
 						RegistrationAccessToken = client.RegistrationAccessToken,
-						ApplicationType = client.ApplicationType,
-						TokenEndpointAuthMethod = client.TokenEndpointAuthMethod,
+						ApplicationType = client.ApplicationType.GetDescription(),
+						TokenEndpointAuthMethod = client.TokenEndpointAuthMethod.GetDescription(),
 						ClientName = client.ClientName,
 						GrantTypes = client.GrantTypes,
 						Scope = client.Scope,
@@ -49,7 +49,7 @@ internal class PostRegisterEndpoint
 						JwksUri = client.JwksUri,
 						RequireSignedRequestObject = client.RequireSignedRequestObject,
 						RequireReferenceToken = client.RequireReferenceToken,
-						SubjectType = client.SubjectType,
+						SubjectType = client.SubjectType?.GetDescription(),
 						DefaultMaxAge = client.DefaultMaxAge,
 						DefaultAcrValues = client.DefaultAcrValues,
 						Contacts = client.Contacts,
@@ -58,19 +58,19 @@ internal class PostRegisterEndpoint
 						RefreshTokenExpiration = client.RefreshTokenExpiration,
 						ClientSecretExpiration = client.ClientSecretExpiration,
 						JwksExpiration = client.JwksExpiration,
-						TokenEndpointAuthSigningAlg = client.TokenEndpointAuthSigningAlg,
-						RequestObjectSigningAlg = client.RequestObjectSigningAlg,
-						RequestObjectEncryptionAlg = client.RequestObjectEncryptionAlg,
-						RequestObjectEncryptionEnc = client.RequestObjectEncryptionEnc,
-						UserinfoSignedResponseAlg = client.UserinfoSignedResponseAlg,
-						UserinfoEncryptedResponseAlg = client.UserinfoEncryptedResponseAlg,
-						UserinfoEncryptedResponseEnc = client.UserinfoEncryptedResponseEnc,
-						IdTokenSignedResponseAlg = client.IdTokenSignedResponseAlg,
-						IdTokenEncryptedResponseAlg = client.IdTokenEncryptedResponseAlg,
-						IdTokenEncryptedResponseEnc = client.IdTokenEncryptedResponseEnc,
-						AuthorizationSignedResponseAlg = client.AuthorizationSignedResponseAlg,
-						AuthorizationEncryptedResponseAlg = client.AuthorizationEncryptedResponseAlg,
-						AuthorizationEncryptedResponseEnc = client.AuthorizationEncryptedResponseEnc
+						TokenEndpointAuthSigningAlg = client.TokenEndpointAuthSigningAlg.GetDescription(),
+						RequestObjectSigningAlg = client.RequestObjectSigningAlg?.GetDescription(),
+						RequestObjectEncryptionAlg = client.RequestObjectEncryptionAlg?.GetDescription(),
+						RequestObjectEncryptionEnc = client.RequestObjectEncryptionEnc?.GetDescription(),
+						UserinfoSignedResponseAlg = client.UserinfoSignedResponseAlg?.GetDescription(),
+						UserinfoEncryptedResponseAlg = client.UserinfoEncryptedResponseAlg?.GetDescription(),
+						UserinfoEncryptedResponseEnc = client.UserinfoEncryptedResponseEnc?.GetDescription(),
+						IdTokenSignedResponseAlg = client.IdTokenSignedResponseAlg?.GetDescription(),
+						IdTokenEncryptedResponseAlg = client.IdTokenEncryptedResponseAlg?.GetDescription(),
+						IdTokenEncryptedResponseEnc = client.IdTokenEncryptedResponseEnc?.GetDescription(),
+						AuthorizationSignedResponseAlg = client.AuthorizationSignedResponseAlg?.GetDescription(),
+						AuthorizationEncryptedResponseAlg = client.AuthorizationEncryptedResponseAlg?.GetDescription(),
+						AuthorizationEncryptedResponseEnc = client.AuthorizationEncryptedResponseEnc?.GetDescription()
 					}),
 			error => Results.Extensions.OAuthBadRequest(error));
 	}
