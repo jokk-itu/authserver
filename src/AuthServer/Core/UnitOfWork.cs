@@ -15,7 +15,7 @@ internal class UnitOfWork : IUnitOfWork
 
     public IDisposable Begin()
     {
-        if (_currentTransaction == null)
+        if (_currentTransaction != null)
         {
             throw new InvalidOperationException();
         }
