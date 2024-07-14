@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthServer.Tests.Integratio
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthServer.Tests.Unit", "tests\AuthServer.Tests.Unit\AuthServer.Tests.Unit.csproj", "{7CB6380A-9C50-4C66-965C-03279B5E1495}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthServer.TestIdentityProvider", "src\AuthServer.TestIdentityProvider\AuthServer.TestIdentityProvider.csproj", "{81F64379-DDE4-4E5E-9008-49934E8ABDC3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{7CB6380A-9C50-4C66-965C-03279B5E1495}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7CB6380A-9C50-4C66-965C-03279B5E1495}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7CB6380A-9C50-4C66-965C-03279B5E1495}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81F64379-DDE4-4E5E-9008-49934E8ABDC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81F64379-DDE4-4E5E-9008-49934E8ABDC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81F64379-DDE4-4E5E-9008-49934E8ABDC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81F64379-DDE4-4E5E-9008-49934E8ABDC3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
