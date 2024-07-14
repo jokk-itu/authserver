@@ -114,7 +114,7 @@ public static class ServiceCollectionExtensions
             });
             options.AddPolicy(AuthorizationConstants.Register, policy =>
             {
-                policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+                policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme, ReferenceTokenAuthenticationDefaults.AuthenticationScheme);
                 policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.Register);
             });
         });
@@ -129,6 +129,8 @@ public static class ServiceCollectionExtensions
             .AddScoped<IRequestAccessor<RevocationRequest>, RevocationRequestAccessor>()
             .AddScoped<IRequestAccessor<PostRegisterRequest>, PostRegisterRequestAccessor>()
             .AddScoped<IRequestAccessor<PutRegisterRequest>, PutRegisterRequestAccessor>()
+            .AddScoped<IRequestAccessor<DeleteRegisterRequest>, DeleteRegisterRequestAccessor>()
+            .AddScoped<IRequestAccessor<GetRegisterRequest>, GetRegisterRequestAccessor>()
             .AddScoped<IRequestAccessor<TokenRequest>, TokenRequestAccessor>()
             .AddScoped<IRequestAccessor<UserinfoRequest>, UserinfoRequestAccessor>();
     }
@@ -182,7 +184,8 @@ public static class ServiceCollectionExtensions
         return services
             .AddScoped<IClientRepository, ClientRepository>()
             .AddScoped<IConsentGrantRepository, ConsentGrantRepository>()
-            .AddScoped<IAuthorizationGrantRepository, AuthorizationGrantRepository>();
+            .AddScoped<IAuthorizationGrantRepository, AuthorizationGrantRepository>()
+            .AddScoped<ITokenRepository, TokenRepository>();
     }
 
     internal static IServiceCollection AddPostRegister(this IServiceCollection services)
