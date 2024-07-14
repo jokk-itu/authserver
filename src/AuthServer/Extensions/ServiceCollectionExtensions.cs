@@ -1,4 +1,5 @@
-﻿using AuthServer.Authorize;
+﻿using AuthServer.Authentication;
+using AuthServer.Authorize;
 using AuthServer.Authorize.Abstractions;
 using AuthServer.Cache;
 using AuthServer.Cache.Abstractions;
@@ -66,8 +67,8 @@ public static class ServiceCollectionExtensions
             .AddCache()
             .AddRequestAccessors();
 
-        services.AddJwtAuthentication();
-        services.AddJwtAuthorization();
+        services.AddAuthServerAuthentication();
+        services.AddAuthServerAuthorization();
 
         return services;
     }
@@ -87,23 +88,24 @@ public static class ServiceCollectionExtensions
             .AddScoped<IUnitOfWork, UnitOfWork>();
     }
 
-    internal static IServiceCollection AddJwtAuthentication(this IServiceCollection services)
+    internal static IServiceCollection AddAuthServerAuthentication(this IServiceCollection services)
     {
         services
             .ConfigureOptions<ConfigureJwtBearerOptions>()
             .AddAuthentication()
-            .AddJwtBearer();
+            .AddJwtBearer()
+            .AddScheme<ReferenceTokenAuthenticationOptions, ReferenceTokenAuthenticationHandler>(ReferenceTokenAuthenticationDefaults.AuthenticationScheme, null);
 
         return services;
     }
 
-    internal static IServiceCollection AddJwtAuthorization(this IServiceCollection services)
+    internal static IServiceCollection AddAuthServerAuthorization(this IServiceCollection services)
     {
         return services.AddAuthorization(options =>
         {
             options.AddPolicy(AuthorizationConstants.Userinfo, policy =>
             {
-                policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+                policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme, ReferenceTokenAuthenticationDefaults.AuthenticationScheme);
                 policy.RequireAssertion(context =>
                 {
                     var scope = context.User.Claims.SingleOrDefault(x => x.Type == ClaimNameConstants.Scope)?.Value;
