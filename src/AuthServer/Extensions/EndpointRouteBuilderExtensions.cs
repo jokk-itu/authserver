@@ -12,8 +12,8 @@ public static class EndpointRouteBuilderExtensions
 	{
 		endpointBuilder
 			.MapGet("connect/register", GetRegisterEndpoint.HandleGetRegister)
-			.WithDisplayName("OpenId Connect Dynamic Client Registration")
-			.WithName("OpenId Connect Dynamic Client Registration")
+			.WithDisplayName("OpenId Connect Dynamic Get Client Registration")
+			.WithName("OpenId Connect Dynamic Get Client Registration")
 			.WithDescription("Get Endpoint to get a client")
 			.WithGroupName("Register")
 			.RequireAuthorization(AuthorizationConstants.Register);
@@ -25,8 +25,8 @@ public static class EndpointRouteBuilderExtensions
 	{
 		endpointBuilder
 			.MapDelete("connect/register", DeleteRegisterEndpoint.HandleDeleteRegister)
-			.WithDisplayName("OpenId Connect Dynamic Client Registration")
-			.WithName("OpenId Connect Dynamic Client Registration")
+			.WithDisplayName("OpenId Connect Dynamic Delete Client Registration")
+			.WithName("OpenId Connect Dynamic Delete Client Registration")
 			.WithDescription("Delete Endpoint to delete a client")
 			.WithGroupName("Register")
 			.RequireAuthorization(AuthorizationConstants.Register);
@@ -38,8 +38,8 @@ public static class EndpointRouteBuilderExtensions
 	{
 		endpointBuilder
 			.MapPut("connect/register", PutRegisterEndpoint.HandlePutRegister)
-			.WithDisplayName("OpenId Connect Dynamic Client Registration")
-			.WithName("OpenId Connect Dynamic Client Registration")
+			.WithDisplayName("OpenId Connect Dynamic Update Client Registration")
+			.WithName("OpenId Connect Dynamic Update Client Registration")
 			.WithDescription("Put Endpoint to update a client")
 			.WithGroupName("Register")
 			.RequireAuthorization(AuthorizationConstants.Register);
@@ -51,8 +51,8 @@ public static class EndpointRouteBuilderExtensions
     {
         endpointBuilder
             .MapPost("connect/register", PostRegisterEndpoint.HandlePostRegister)
-            .WithDisplayName("OpenId Connect Dynamic Client Registration")
-            .WithName("OpenId Connect Dynamic Client Registration")
+            .WithDisplayName("OpenId Connect Dynamic Create Client Registration")
+            .WithName("OpenId Connect Dynamic Create Client Registration")
             .WithDescription("Post Endpoint to register a client")
             .WithGroupName("Register");
 
