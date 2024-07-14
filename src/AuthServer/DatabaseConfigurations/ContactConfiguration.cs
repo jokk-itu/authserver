@@ -16,6 +16,6 @@ internal class ContactConfiguration : IEntityTypeConfiguration<Contact>
             .HasOne(x => x.Client)
             .WithMany(x => x.Contacts)
             .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.ClientCascade);
     }
 }

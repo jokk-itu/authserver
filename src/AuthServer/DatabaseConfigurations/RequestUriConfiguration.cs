@@ -16,6 +16,6 @@ internal sealed class RequestUriConfiguration : IEntityTypeConfiguration<Request
             .HasOne(x => x.Client)
             .WithMany(x => x.RequestUris)
             .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.ClientCascade);
     }
 }

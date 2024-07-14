@@ -16,6 +16,6 @@ internal sealed class PostLogoutRedirectUriConfiguration : IEntityTypeConfigurat
             .HasOne(x => x.Client)
             .WithMany(x => x.PostLogoutRedirectUris)
             .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.ClientCascade);
     }
 }

@@ -11,6 +11,6 @@ internal class GrantTokenConfiguration : IEntityTypeConfiguration<GrantToken>
             .HasOne(x => x.AuthorizationGrant)
             .WithMany(x => x.GrantTokens)
             .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.ClientCascade);
     }
 }

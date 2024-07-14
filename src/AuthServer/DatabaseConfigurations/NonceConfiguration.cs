@@ -17,6 +17,6 @@ internal sealed class NonceConfiguration : IEntityTypeConfiguration<Nonce>
             .HasOne(x => x.AuthorizationGrant)
             .WithMany(x => x.Nonces)
             .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.ClientCascade);
     }
 }
