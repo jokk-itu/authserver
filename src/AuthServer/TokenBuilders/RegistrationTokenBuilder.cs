@@ -3,7 +3,6 @@ using AuthServer.Core;
 using AuthServer.Core.Discovery;
 using AuthServer.Entities;
 using AuthServer.TokenBuilders.Abstractions;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace AuthServer.TokenBuilders;
@@ -22,9 +21,7 @@ internal class RegistrationTokenBuilder : ITokenBuilder<RegistrationTokenArgumen
 
     public async Task<string> BuildToken(RegistrationTokenArguments arguments, CancellationToken cancellationToken)
     {
-        var client = await _identityContext
-            .Set<Client>()
-            .SingleAsync(x => x.Id == arguments.ClientId, cancellationToken);
+        var client = (await _identityContext.FindAsync<Client>(arguments.ClientId, cancellationToken))!;
 
         var registrationToken = new RegistrationToken(client, arguments.ClientId,
             _discoveryDocumentOptions.Value.Issuer, ScopeConstants.Register, null);
