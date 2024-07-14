@@ -139,7 +139,7 @@ internal class PostRegisterRequestProcessor : IRequestProcessor<PostRegisterVali
             ClientIdIssuedAt = client.CreatedAt.Ticks,
             ClientSecret = plainSecret,
             ClientSecretExpiresAt = client.SecretExpiresAt?.Ticks ?? 0,
-            RegistrationClientUri = $"{_discoveryDocumentOptions.Value.RegistrationEndpoint}?clientId={client.Id}",
+            RegistrationClientUri = $"{_discoveryDocumentOptions.Value.RegistrationEndpoint}?client_id={client.Id}",
             RegistrationAccessToken = registrationToken,
             ApplicationType = request.ApplicationType,
             TokenEndpointAuthMethod = request.TokenEndpointAuthMethod,
