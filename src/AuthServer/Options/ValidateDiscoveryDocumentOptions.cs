@@ -66,7 +66,7 @@ public class ValidateDiscoveryDocumentOptions : IValidateOptions<DiscoveryDocume
         }
 
         var invalidIdTokenEncryptionEncValues =
-            options.IdTokenEncryptionAlgValuesSupported.Where(x => !JweEncConstants.EncValues.Contains(x)).ToList();
+            options.IdTokenEncryptionEncValuesSupported.Where(x => !JweEncConstants.EncValues.Contains(x)).ToList();
         if (invalidIdTokenEncryptionEncValues.Count != 0)
         {
             return ValidateOptionsResult.Fail($"{nameof(options.IdTokenEncryptionEncValuesSupported)} have unrecognized values: {string.Join(',', invalidIdTokenEncryptionEncValues)}");
@@ -115,14 +115,14 @@ public class ValidateDiscoveryDocumentOptions : IValidateOptions<DiscoveryDocume
         }
 
         var invalidRequestObjectEncryptionAlgValues =
-            options.RequestObjectEncryptionAlgValuesSupported.Where(x => !JwsAlgConstants.AlgValues.Contains(x)).ToList();
+            options.RequestObjectEncryptionAlgValuesSupported.Where(x => !JweAlgConstants.AlgValues.Contains(x)).ToList();
         if (invalidRequestObjectEncryptionAlgValues.Count != 0)
         {
             return ValidateOptionsResult.Fail($"{nameof(options.RequestObjectEncryptionAlgValuesSupported)} have unrecognized values: {string.Join(',', invalidRequestObjectEncryptionAlgValues)}");
         }
 
         var invalidRequestObjectEncryptionEncValues =
-            options.RequestObjectEncryptionEncValuesSupported.Where(x => !JwsAlgConstants.AlgValues.Contains(x)).ToList();
+            options.RequestObjectEncryptionEncValuesSupported.Where(x => !JweEncConstants.EncValues.Contains(x)).ToList();
         if (invalidRequestObjectEncryptionEncValues.Count != 0)
         {
             return ValidateOptionsResult.Fail($"{nameof(options.RequestObjectEncryptionEncValuesSupported)} have unrecognized values: {string.Join(',', invalidRequestObjectEncryptionEncValues)}");
@@ -136,14 +136,14 @@ public class ValidateDiscoveryDocumentOptions : IValidateOptions<DiscoveryDocume
         }
 
         var invalidAuthorizationEncryptionAlgValues =
-	        options.AuthorizationEncryptionAlgValuesSupported.Where(x => !JwsAlgConstants.AlgValues.Contains(x)).ToList();
+	        options.AuthorizationEncryptionAlgValuesSupported.Where(x => !JweAlgConstants.AlgValues.Contains(x)).ToList();
         if (invalidAuthorizationEncryptionAlgValues.Count != 0)
         {
 	        return ValidateOptionsResult.Fail($"{nameof(options.AuthorizationEncryptionAlgValuesSupported)} have unrecognized values: {string.Join(',', invalidRequestObjectEncryptionAlgValues)}");
         }
 
         var invalidAuthorizationEncryptionEncValues =
-	        options.AuthorizationEncryptionEncValuesSupported.Where(x => !JwsAlgConstants.AlgValues.Contains(x)).ToList();
+	        options.AuthorizationEncryptionEncValuesSupported.Where(x => !JweEncConstants.EncValues.Contains(x)).ToList();
         if (invalidAuthorizationEncryptionEncValues.Count != 0)
         {
 	        return ValidateOptionsResult.Fail($"{nameof(options.AuthorizationEncryptionEncValuesSupported)} have unrecognized values: {string.Join(',', invalidRequestObjectEncryptionEncValues)}");
