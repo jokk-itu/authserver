@@ -14,7 +14,7 @@ jobs:
     
     services:
       mssql:
-        image: mcr.microsoft.com/mssql/server:2022
+        image: mcr.microsoft.com/mssql/server:2022-latest
         env:
           SA_PASSWORD: 'Password12!'
           ACCEPT_EULA: 'Y'
