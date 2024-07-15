@@ -6,6 +6,6 @@ public class MockUsernameResolver : IUsernameResolver
 {
 	public Task<string?> GetUsername(string subjectIdentifier)
     {
-        return Task.FromResult((string?)"johndoe");
+        return Task.FromResult((string?)UserConstants.Username);
     }
 }

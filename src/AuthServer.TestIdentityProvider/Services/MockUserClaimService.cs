@@ -10,8 +10,8 @@ public class MockUserClaimService : IUserClaimService
     {
         return Task.FromResult((IEnumerable<Claim>)
         [
-            new Claim(ClaimNameConstants.GivenName, "John"),
-            new Claim(ClaimNameConstants.FamilyName, "Doe")
+            new Claim(ClaimNameConstants.GivenName, UserConstants.GivenName),
+            new Claim(ClaimNameConstants.FamilyName, UserConstants.FamilyName)
         ]);
     }
 }
