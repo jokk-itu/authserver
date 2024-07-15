@@ -5,6 +5,7 @@ using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;
 using AuthServer.Entities;
+using AuthServer.Helpers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -37,12 +38,17 @@ internal class ReferenceTokenAuthenticationHandler : AuthenticationHandler<Refer
             return AuthenticateResult.NoResult();
         }
 
-        if (parsedHeader!.Scheme != "Bearer")
+        var token = parsedHeader!.Parameter!;
+
+        if (parsedHeader.Scheme != "Bearer")
         {
             return AuthenticateResult.NoResult();
         }
 
-        var token = parsedHeader.Parameter;
+        if (TokenHelper.IsStructuredToken(token))
+        {
+            return AuthenticateResult.NoResult();
+        }
 
         var query = await _authorizationDbContext
             .Set<Token>()
