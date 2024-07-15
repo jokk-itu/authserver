@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Http;
 using System.Text.Json.Nodes;
 using AuthServer.Core;
 using AuthServer.Extensions;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace AuthServer.RequestAccessors.Register;
 
@@ -19,7 +17,7 @@ internal class PutRegisterRequestAccessor : IRequestAccessor<PutRegisterRequest>
 		}
 		
 		var clientId = httpRequest.Query.GetValueOrEmpty(Parameter.ClientId);
-		var registrationAccessToken = await httpRequest.HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, Parameter.AccessToken) ?? string.Empty;
+        var registrationAccessToken = await httpRequest.HttpContext.GetToken(Parameter.AccessToken);
 
 		var clientName = json.GetValueOrEmpty(Parameter.ClientName);
 		var applicationType = json.GetValueOrEmpty(Parameter.ApplicationType);
