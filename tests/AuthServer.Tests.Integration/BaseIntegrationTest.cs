@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.Testing;
+﻿using AuthServer.Core;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
 
@@ -15,6 +17,9 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
         _factory = factory;
         TestOutputHelper = testOutputHelper;
         ServiceProvider = _factory.Services.CreateScope().ServiceProvider;
+
+        ServiceProvider.GetRequiredService<AuthorizationDbContext>().Database.EnsureDeleted();
+        ServiceProvider.GetRequiredService<AuthorizationDbContext>().Database.Migrate();
     }
 
     protected HttpClient GetHttpClient() => _factory.CreateClient(new WebApplicationFactoryClientOptions
