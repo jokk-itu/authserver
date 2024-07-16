@@ -8,6 +8,7 @@ using AuthServer.Helpers;
 using AuthServer.Repositories.Abstractions;
 using AuthServer.RequestAccessors.Token;
 using AuthServer.TokenDecoders;
+using AuthServer.TokenDecoders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthServer.TokenByGrant.RefreshTokenGrant;

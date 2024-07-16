@@ -1,6 +1,6 @@
 ﻿using Microsoft.IdentityModel.JsonWebTokens;
 
-namespace AuthServer.TokenDecoders;
+namespace AuthServer.TokenDecoders.Abstractions;
 public interface ITokenDecoder<in TArguments>
     where TArguments : notnull
 {

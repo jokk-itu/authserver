@@ -3,6 +3,7 @@ using AuthServer.Core.Abstractions;
 using AuthServer.Core.Models;
 using AuthServer.Tests.Core;
 using AuthServer.TokenDecoders;
+using AuthServer.TokenDecoders.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;

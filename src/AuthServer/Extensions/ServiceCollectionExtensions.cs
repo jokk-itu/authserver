@@ -33,6 +33,7 @@ using AuthServer.TokenByGrant.AuthorizationCodeGrant;
 using AuthServer.TokenByGrant.ClientCredentialsGrant;
 using AuthServer.TokenByGrant.RefreshTokenGrant;
 using AuthServer.TokenDecoders;
+using AuthServer.TokenDecoders.Abstractions;
 using AuthServer.Userinfo;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;

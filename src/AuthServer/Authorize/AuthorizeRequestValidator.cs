@@ -8,6 +8,7 @@ using AuthServer.Entities;
 using AuthServer.Helpers;
 using AuthServer.RequestAccessors.Authorize;
 using AuthServer.TokenDecoders;
+using AuthServer.TokenDecoders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 

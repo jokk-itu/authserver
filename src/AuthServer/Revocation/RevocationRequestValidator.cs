@@ -7,6 +7,7 @@ using AuthServer.Extensions;
 using AuthServer.Helpers;
 using AuthServer.RequestAccessors.Revocation;
 using AuthServer.TokenDecoders;
+using AuthServer.TokenDecoders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 

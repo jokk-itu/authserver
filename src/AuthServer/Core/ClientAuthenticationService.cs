@@ -5,6 +5,7 @@ using AuthServer.Core.Models;
 using AuthServer.Enums;
 using AuthServer.Extensions;
 using AuthServer.TokenDecoders;
+using AuthServer.TokenDecoders.Abstractions;
 using Microsoft.Extensions.Logging;
 
 namespace AuthServer.Core;

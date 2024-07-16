@@ -1,5 +1,6 @@
 ﻿using AuthServer.Core.Discovery;
 using AuthServer.Helpers;
+using AuthServer.TokenDecoders.Abstractions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;

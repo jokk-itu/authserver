@@ -2,6 +2,7 @@
 using AuthServer.Core.Request;
 using AuthServer.RequestAccessors.Userinfo;
 using AuthServer.TokenDecoders;
+using AuthServer.TokenDecoders.Abstractions;
 
 namespace AuthServer.Userinfo;
 

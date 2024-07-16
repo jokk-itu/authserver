@@ -3,6 +3,7 @@ using AuthServer.Core.Request;
 using AuthServer.Entities;
 using AuthServer.Helpers;
 using AuthServer.TokenDecoders;
+using AuthServer.TokenDecoders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthServer.Revocation;
