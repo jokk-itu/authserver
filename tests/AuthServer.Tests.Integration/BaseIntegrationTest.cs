@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
 
 namespace AuthServer.Tests.Integration;
+[Collection("IntegrationTest")]
 public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly WebApplicationFactory<Program> _factory;
