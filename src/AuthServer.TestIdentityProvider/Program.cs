@@ -10,11 +10,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using AuthServer.Core;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRazorPages();
-builder.Services.AddAuthentication();
+builder.Services
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+    {
+        options.LoginPath = builder.Configuration.GetSection("Identity").GetValue<string>("LoginUri");
+    });
 
 builder.Services
     .AddOptions<DiscoveryDocument>()
@@ -103,6 +108,7 @@ builder.Services.AddAuthServer(dbContextConfigurator =>
 });
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddRazorPages();
 
 
 var app = builder.Build();
