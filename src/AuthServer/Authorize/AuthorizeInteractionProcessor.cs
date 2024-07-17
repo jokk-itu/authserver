@@ -1,9 +1,11 @@
-﻿using AuthServer.Authorize.Abstractions;
+﻿using System.Text.Json;
+using AuthServer.Authorize.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Entities;
 using AuthServer.RequestAccessors.Authorize;
 using AuthServer.TokenDecoders;
+using AuthServer.TokenDecoders.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,10 +34,10 @@ internal class AuthorizeInteractionProcessor : IAuthorizeInteractionProcessor
     public async Task<string> ProcessForInteraction(AuthorizeRequest authorizeRequest, CancellationToken cancellationToken)
     {
         // covers the scenario where the user was redirected for interaction
-        var user = _userAccessor.TryGetUser();
-        if (user is not null)
+        var authenticatedUser = _userAccessor.TryGetUser();
+        if (authenticatedUser is not null)
         {
-            return await GetPrompt(user.SubjectIdentifier, authorizeRequest, cancellationToken);
+            return await GetPrompt(authenticatedUser.SubjectIdentifier, authorizeRequest, authenticatedUser.Amr, cancellationToken);
         }
 
         // client provided prompt overrides automatically deducing prompt
@@ -48,11 +50,12 @@ internal class AuthorizeInteractionProcessor : IAuthorizeInteractionProcessor
         if (!string.IsNullOrEmpty(authorizeRequest.IdTokenHint))
         {
             var decodedIdToken = await _serverIssuedTokenDecoder.Read(authorizeRequest.IdTokenHint);
-            return await GetPrompt(decodedIdToken.Subject, authorizeRequest, cancellationToken);
+            var amr = JsonSerializer.Deserialize<IEnumerable<string>>(decodedIdToken.GetClaim(ClaimNameConstants.Amr).Value)!;
+            return await GetPrompt(decodedIdToken.Subject, authorizeRequest, amr, cancellationToken);
         }
 
         var users = _httpContextAccessor.HttpContext?.User?.Identities ?? [];
-        var activeUsers = users.Where(x => x.IsAuthenticated).ToList() ?? [];
+        var activeUsers = users.Where(x => x.IsAuthenticated).ToList();
         switch (activeUsers.Count)
         {
             case 0:
@@ -60,15 +63,14 @@ internal class AuthorizeInteractionProcessor : IAuthorizeInteractionProcessor
             case > 1:
                 return PromptConstants.SelectAccount;
             default:
-                var subjectIdentifier = activeUsers
-                    .Single().Claims
-                    .Single(x => x.Type == ClaimNameConstants.Sub).Value;
-
-                return await GetPrompt(subjectIdentifier, authorizeRequest, cancellationToken);
+                var claims = activeUsers.Single().Claims.ToList();
+                var subjectIdentifier = claims.Single(x => x.Type == ClaimNameConstants.Sub).Value;
+                var amr = JsonSerializer.Deserialize<IEnumerable<string>>(claims.Single(x => x.Type == ClaimNameConstants.Amr).Value)!;
+                return await GetPrompt(subjectIdentifier, authorizeRequest, amr, cancellationToken);
         }
     }
 
-    private async Task<string> GetPrompt(string subjectIdentifier, AuthorizeRequest authorizeRequest, CancellationToken cancellationToken)
+    private async Task<string> GetPrompt(string subjectIdentifier, AuthorizeRequest authorizeRequest, IEnumerable<string> amr, CancellationToken cancellationToken)
     {
         var authorizationGrant = await _identityContext
             .Set<AuthorizationGrant>()
@@ -86,7 +88,8 @@ internal class AuthorizeInteractionProcessor : IAuthorizeInteractionProcessor
 
         if (!authorizationGrant.Client.RequireConsent)
         {
-            _userAccessor.TrySetUser(new User(subjectIdentifier, []));
+            // only try set, because the user might already be set from interaction
+            _userAccessor.TrySetUser(new AuthenticatedUser(subjectIdentifier, amr));
             return PromptConstants.None;
         }
 
@@ -107,7 +110,8 @@ internal class AuthorizeInteractionProcessor : IAuthorizeInteractionProcessor
             return PromptConstants.Consent;
         }
 
-        _userAccessor.TrySetUser(new User(subjectIdentifier, []));
+        // only try set, because the user might already be set from the interaction
+        _userAccessor.TrySetUser(new AuthenticatedUser(subjectIdentifier, amr));
         return PromptConstants.None;
     }
 }
