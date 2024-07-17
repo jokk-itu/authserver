@@ -1,35 +1,39 @@
 ﻿namespace AuthServer.Authorize.Abstractions;
 
-internal interface IUserAccessor
+public interface IUserAccessor
 {
     /// <summary>
-    /// Gets the authenticated user.
+    /// Gets the authenticatedUser.
     ///
-    /// Throws an exception if it is not set.
+    /// Throws an exception if authenticatedUser is not set.
     /// </summary>
-    /// <returns>authenticated user</returns>
-    User GetUser();
+    /// <returns>authenticatedUser</returns>
+    AuthenticatedUser GetUser();
 
     /// <summary>
-    /// Gets the authenticated user if it exists.
+    /// Gets the authenticatedUser if it exists.
     /// </summary>
-    /// <returns>authenticated user or null</returns>
-    User? TryGetUser();
+    /// <returns>authenticatedUser or null</returns>
+    AuthenticatedUser? TryGetUser();
 
     /// <summary>
-    /// Sets an authenticated user.
+    /// Sets an authenticated authenticatedUser.
     ///
-    /// Throws an exception if a user has already been set.
+    /// Throws an exception if an authenticatedUser has already been set.
     /// </summary>
-    /// <param name="user"></param>
-    void SetUser(User user);
+    /// <param name="authenticatedUser"></param>
+    void SetUser(AuthenticatedUser authenticatedUser);
 
     /// <summary>
-    /// Tries to set an authenticated user.
+    /// Tries to set an authenticatedUser.
     /// </summary>
-    /// <param name="user"></param>
-    /// <returns>true if the user is set, false otherwise.</returns>
-    bool TrySetUser(User user);
+    /// <param name="authenticatedUser"></param>
+    /// <returns>true if the authenticatedUser is set, false otherwise.</returns>
+    bool TrySetUser(AuthenticatedUser authenticatedUser);
+
+    /// <summary>
+    /// Clears the authenticatedUser if it exists.
+    /// </summary>
+    /// <returns>true if a authenticatedUser has been set and is then cleared, false if a authenticatedUser was not set and therefore cannot be cleared.</returns>
+    bool ClearUser();
 }
-
-public record User(string SubjectIdentifier, IEnumerable<string> Amr);
