@@ -17,9 +17,4 @@ public class Session : Entity<string>
     public DateTime? RevokedAt { get; private set; }
     public PublicSubjectIdentifier PublicSubjectIdentifier { get; private init; }
     public ICollection<AuthorizationGrant> AuthorizationGrants { get; private init; } = [];
-
-    public void Revoke()
-    {
-        RevokedAt ??= DateTime.UtcNow;
-    }
 }
