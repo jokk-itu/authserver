@@ -5,15 +5,15 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthServer", "src\AuthServer\AuthServer.csproj", "{C98FAAD0-0DBC-42CA-99C2-D5C43D4DF0B6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthServer.Tests.Architecture", "tests\AuthServer.Tests.Architecture\AuthServer.Tests.Architecture.csproj", "{07FBB232-3B80-4335-B75E-E195E46754EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthServer.Tests.ArchitectureTest", "tests\AuthServer.Tests.ArchitectureTest\AuthServer.Tests.ArchitectureTest.csproj", "{07FBB232-3B80-4335-B75E-E195E46754EB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthServer.Tests.Core", "tests\AuthServer.Tests.Core\AuthServer.Tests.Core.csproj", "{057AB97C-D946-4BB7-B79E-A79FBB6AE108}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthServer.Tests.Integration", "tests\AuthServer.Tests.Integration\AuthServer.Tests.Integration.csproj", "{B1B31CD2-08D3-4967-B52A-6B983A9A00A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthServer.Tests.IntegrationTest", "tests\AuthServer.Tests.IntegrationTest\AuthServer.Tests.IntegrationTest.csproj", "{B1B31CD2-08D3-4967-B52A-6B983A9A00A7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthServer.Tests.Unit", "tests\AuthServer.Tests.Unit\AuthServer.Tests.Unit.csproj", "{7CB6380A-9C50-4C66-965C-03279B5E1495}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthServer.Tests.UnitTest", "tests\AuthServer.Tests.UnitTest\AuthServer.Tests.UnitTest.csproj", "{7CB6380A-9C50-4C66-965C-03279B5E1495}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthServer.TestIdentityProvider", "src\AuthServer.TestIdentityProvider\AuthServer.TestIdentityProvider.csproj", "{81F64379-DDE4-4E5E-9008-49934E8ABDC3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthServer.TestIdentityProvider", "src\AuthServer.TestIdentityProvider\AuthServer.TestIdentityProvider.csproj", "{81F64379-DDE4-4E5E-9008-49934E8ABDC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
