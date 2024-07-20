@@ -5,6 +5,7 @@ using AuthServer.Helpers;
 using AuthServer.TokenDecoders;
 using AuthServer.TokenDecoders.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace AuthServer.Revocation;
 internal class RevocationRequestProcessor : IRequestProcessor<RevocationValidatedRequest, Unit>
@@ -38,9 +39,18 @@ internal class RevocationRequestProcessor : IRequestProcessor<RevocationValidate
                     cancellationToken: cancellationToken);
         }
 
-        var jsonWebToken = await _serverIssuedTokenDecoder.Read(request.Token);
-        var id = Guid.Parse(jsonWebToken.Id);
+        JsonWebToken jsonWebToken;
+        try
+        {
+            jsonWebToken = await _serverIssuedTokenDecoder.Read(request.Token);
+        }
+        catch
+        {
+            // if the token is invalid, then it is ignored per rfc 7009
+            return null;
+        }
 
+        var id = Guid.Parse(jsonWebToken.Id);
         return await _identityContext
             .Set<Token>()
             .Where(x => x.RevokedAt == null)
