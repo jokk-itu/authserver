@@ -41,6 +41,10 @@ internal class RevocationRequestValidator : IRequestValidator<RevocationRequest,
             return RevocationError.UnsupportedTokenType;
         }
 
+        /*
+         * the token parameter is required per rf 7009,
+         * and if the value itself is allowed to be invalid
+         */
         var isTokenInvalid = string.IsNullOrWhiteSpace(request.Token);
         if (isTokenInvalid)
         {
@@ -54,7 +58,7 @@ internal class RevocationRequestValidator : IRequestValidator<RevocationRequest,
         }
 
         var clientAuthentication = request.ClientAuthentications.Single();
-        if (RevocationEndpointAuthMethodConstants.AuthMethods.Contains(clientAuthentication.Method.GetDescription()))
+        if (!RevocationEndpointAuthMethodConstants.AuthMethods.Contains(clientAuthentication.Method.GetDescription()))
         {
             return RevocationError.InvalidClient;
         }
@@ -104,7 +108,7 @@ internal class RevocationRequestValidator : IRequestValidator<RevocationRequest,
         {
             _logger.LogWarning(e, "Extracting clientId failed");
 
-            // If the token is invalid, the error is ignored.
+            // If the token is invalid, the toke is ignored per rfc 7009
             return null;
         }
     }
