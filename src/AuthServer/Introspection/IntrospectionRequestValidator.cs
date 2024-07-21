@@ -1,24 +1,22 @@
-﻿using AuthServer.Constants;
-using AuthServer.Core;
+﻿using AuthServer.Cache.Abstractions;
+using AuthServer.Constants;
 using AuthServer.Core.Abstractions;
 using AuthServer.Core.Request;
-using AuthServer.Entities;
 using AuthServer.Extensions;
 using AuthServer.RequestAccessors.Introspection;
-using Microsoft.EntityFrameworkCore;
 
 namespace AuthServer.Introspection;
 internal class IntrospectionRequestValidator : IRequestValidator<IntrospectionRequest, IntrospectionValidatedRequest>
 {
-    private readonly AuthorizationDbContext _identityContext;
     private readonly IClientAuthenticationService _clientAuthenticationService;
+    private readonly ICachedClientStore _cachedClientStore;
 
     public IntrospectionRequestValidator(
-        AuthorizationDbContext identityContext,
-        IClientAuthenticationService clientAuthenticationService)
+        IClientAuthenticationService clientAuthenticationService,
+        ICachedClientStore cachedClientStore)
     {
-        _identityContext = identityContext;
         _clientAuthenticationService = clientAuthenticationService;
+        _cachedClientStore = cachedClientStore;
     }
 
     public async Task<ProcessResult<IntrospectionValidatedRequest, ProcessError>> Validate(IntrospectionRequest request, CancellationToken cancellationToken)
@@ -31,6 +29,10 @@ internal class IntrospectionRequestValidator : IRequestValidator<IntrospectionRe
             return IntrospectionError.UnsupportedTokenType;
         }
 
+        /*
+         * the token parameter is required per rf 7662,
+         * and if the value itself is allowed to be invalid
+         */
         var isTokenInvalid = string.IsNullOrWhiteSpace(request.Token);
         if (isTokenInvalid)
         {
@@ -44,7 +46,7 @@ internal class IntrospectionRequestValidator : IRequestValidator<IntrospectionRe
         }
 
         var clientAuthentication = request.ClientAuthentications.Single();
-        if (IntrospectionEndpointAuthMethodConstants.AuthMethods.Contains(clientAuthentication.Method.GetDescription()))
+        if (!IntrospectionEndpointAuthMethodConstants.AuthMethods.Contains(clientAuthentication.Method.GetDescription()))
         {
             return IntrospectionError.InvalidClient;
         }
@@ -55,46 +57,13 @@ internal class IntrospectionRequestValidator : IRequestValidator<IntrospectionRe
             return IntrospectionError.InvalidClient;
         }
 
-        var error = await AuthorizeClient(request.Token, cancellationToken);
-        if (error is not null)
-        {
-            return error;
-        }
+        var cachedClient = await _cachedClientStore.Get(clientAuthenticationResult.ClientId, cancellationToken);
 
         return new IntrospectionValidatedRequest
         {
             ClientId = clientAuthenticationResult.ClientId,
-            Token = request.Token
+            Token = request.Token,
+            Scope = cachedClient.Scopes
         };
-    }
-
-    private async Task<ProcessError?> AuthorizeClient(string referenceToken, CancellationToken cancellationToken)
-    {
-        var query = await _identityContext
-            .Set<Token>()
-            .Where(x => x.Reference == referenceToken)
-            .Select(x => new
-            {
-                Token = x,
-                ClientIdFromGrant = (x as GrantToken)!.AuthorizationGrant.Client.Id,
-                ClientIdFromClientToken = (x as ClientAccessToken)!.Client.Id
-            })
-            .SingleOrDefaultAsync(cancellationToken: cancellationToken);
-
-        var clientIdFromToken = query?.ClientIdFromClientToken ?? query?.ClientIdFromGrant;
-
-        if (string.IsNullOrWhiteSpace(clientIdFromToken))
-        {
-            return null;
-        }
-
-        var client = await _identityContext
-            .Set<Client>()
-            .Include(x => x.Scopes)
-            .SingleAsync(cancellationToken: cancellationToken);
-
-        var scope = query!.Token.Scope?.Split(' ') ?? [];
-        var isAuthorizedForScope = client.Scopes.Select(s => s.Name).Intersect(scope).Any();
-        return !isAuthorizedForScope ? IntrospectionError.ClientIsUnauthorizedForScope : null;
     }
 }
