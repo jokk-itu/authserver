@@ -108,7 +108,7 @@ internal class RevocationRequestValidator : IRequestValidator<RevocationRequest,
         {
             _logger.LogWarning(e, "Extracting clientId failed");
 
-            // If the token is invalid, the toke is ignored per rfc 7009
+            // If the token is invalid, error is ignored per rfc 7009
             return null;
         }
     }
