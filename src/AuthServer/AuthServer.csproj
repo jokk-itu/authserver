@@ -35,9 +35,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<InternalsVisibleTo Include="$(AssemblyName).Tests.Unit" />
-		<InternalsVisibleTo Include="$(AssemblyName).Tests.Integration" />
-		<InternalsVisibleTo Include="$(AssemblyName).Tests.Architecture" />
+		<InternalsVisibleTo Include="$(AssemblyName).Tests.UnitTest" />
+		<InternalsVisibleTo Include="$(AssemblyName).Tests.IntegrationTest" />
+		<InternalsVisibleTo Include="$(AssemblyName).Tests.ArchitectureTest" />
 		<InternalsVisibleTo Include="$(AssemblyName).Tests.Core" />
 	</ItemGroup>
 
