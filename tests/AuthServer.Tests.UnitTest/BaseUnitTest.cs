@@ -40,7 +40,6 @@ public abstract class BaseUnitTest
     }
 
     protected Task SaveChangesAsync() => IdentityContext.SaveChangesAsync();
-    protected DbSet<T> DbSet<T>() where T : class => IdentityContext.Set<T>();
 
     protected async Task AddEntity<T>(T entity) where T : class
     {
@@ -98,7 +97,10 @@ public abstract class BaseUnitTest
         services.AddAuthServer(contextOptions =>
         {
             contextOptions.UseSqlite(_connection,
-                optionsBuilder => { optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery); });
+                optionsBuilder =>
+                {
+                    optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+                });
         });
         services.AddScoped<IUsernameResolver, UsernameResolver>();
         services.AddScoped<IDistributedCache, InMemoryCache>();
