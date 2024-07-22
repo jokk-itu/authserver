@@ -59,11 +59,13 @@ public class ClientAccessTokenBuilderTest(ITestOutputHelper outputHelper) : Base
         var client = await GetClient(false);
 
         // Act
+        var scope = new[] { ScopeConstants.OpenId, ScopeConstants.UserInfo };
+        var resource = new[] { "https://localhost:5000", "https://localhost:5001" };
         var accessToken = await grantAccessTokenBuilder.BuildToken(new ClientAccessTokenArguments
         {
             ClientId = client.Id,
-            Scope = [ScopeConstants.OpenId],
-            Resource = ["https://localhost:5000"]
+            Scope = scope,
+            Resource = resource
         }, CancellationToken.None);
         await IdentityContext.SaveChangesAsync();
 
@@ -82,9 +84,10 @@ public class ClientAccessTokenBuilderTest(ITestOutputHelper outputHelper) : Base
         Assert.Null(validatedTokenResult.Exception);
         Assert.True(validatedTokenResult.IsValid);
         Assert.NotNull(validatedTokenResult.Claims[ClaimNameConstants.Jti].ToString());
-        Assert.Equal(ScopeConstants.OpenId, validatedTokenResult.Claims[ClaimNameConstants.Scope].ToString());
+        Assert.Equal(scope, validatedTokenResult.Claims[ClaimNameConstants.Scope].ToString()!.Split(' '));
         Assert.Equal(client.Id, validatedTokenResult.Claims[ClaimNameConstants.ClientId].ToString());
         Assert.Equal(client.Id, validatedTokenResult.Claims[ClaimNameConstants.Sub].ToString());
+        Assert.Equal(resource, validatedTokenResult.Claims[ClaimNameConstants.Aud]);
     }
 
     private async Task<Client> GetClient(bool requireReferenceToken)

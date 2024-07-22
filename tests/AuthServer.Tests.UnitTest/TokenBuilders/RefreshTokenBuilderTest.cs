@@ -58,10 +58,11 @@ public class RefreshTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitT
         var authorizationGrant = await GetAuthorizationGrant(false);
 
         // Act
+        var scope = new[] { ScopeConstants.OpenId, ScopeConstants.UserInfo };
         var refreshToken = await refreshTokenBuilder.BuildToken(new RefreshTokenArguments
         {
             AuthorizationGrantId = authorizationGrant.Id,
-            Scope = [ScopeConstants.OpenId]
+            Scope = scope
         }, CancellationToken.None);
         await IdentityContext.SaveChangesAsync();
 
@@ -80,7 +81,7 @@ public class RefreshTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitT
 
         Assert.Equal(authorizationGrant.Id, token.AuthorizationGrant.Id);
         Assert.Equal(DiscoveryDocument.Issuer, token.Issuer);
-        Assert.Equal(ScopeConstants.OpenId, token.Scope);
+        Assert.Equal(string.Join(' ', scope), token.Scope);
         Assert.NotNull(token.ExpiresAt);
         Assert.Equal(authorizationGrant.Client.Id, token.Audience);
 
@@ -92,6 +93,7 @@ public class RefreshTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitT
         Assert.Equal(token.Id.ToString(), validatedTokenResult.Claims[ClaimNameConstants.Jti].ToString());
         Assert.Equal(authorizationGrant.Id, validatedTokenResult.Claims[ClaimNameConstants.GrantId].ToString());
         Assert.Equal(authorizationGrant.Client.Id, validatedTokenResult.Claims[ClaimNameConstants.ClientId].ToString());
+        Assert.Equal(string.Join(' ', scope), validatedTokenResult.Claims[ClaimNameConstants.Scope]);
     }
 
     private async Task<AuthorizationGrant> GetAuthorizationGrant(bool requireReferenceToken)

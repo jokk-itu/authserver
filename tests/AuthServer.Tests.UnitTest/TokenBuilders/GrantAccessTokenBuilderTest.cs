@@ -59,11 +59,13 @@ public class GrantAccessTokenBuilderTest(ITestOutputHelper outputHelper) : BaseU
         var authorizationGrant = await GetAuthorizationGrant(false);
 
         // Act
+        var scope = new[] { ScopeConstants.OpenId, ScopeConstants.UserInfo };
+        var resource = new[] { "https://localhost:5000", "https://localhost:5001" };
         var accessToken = await grantAccessTokenBuilder.BuildToken(new GrantAccessTokenArguments
         {
             AuthorizationGrantId = authorizationGrant.Id,
-            Scope = [ScopeConstants.OpenId],
-            Resource = ["https://localhost:5000"]
+            Scope = scope,
+            Resource = resource
         }, CancellationToken.None);
         await IdentityContext.SaveChangesAsync();
 
@@ -73,7 +75,7 @@ public class GrantAccessTokenBuilderTest(ITestOutputHelper outputHelper) : BaseU
             new TokenValidationParameters
             {
                 IssuerSigningKey = JwksDocument.GetSigningKey(signingAlg),
-                ValidAudience = "https://localhost:5000",
+                ValidAudiences = resource,
                 ValidIssuer = DiscoveryDocument.Issuer,
                 ValidTypes = [TokenTypeHeaderConstants.AccessToken],
                 NameClaimType = ClaimNameConstants.Name,
@@ -83,7 +85,7 @@ public class GrantAccessTokenBuilderTest(ITestOutputHelper outputHelper) : BaseU
         Assert.NotNull(validatedTokenResult);
         Assert.Null(validatedTokenResult.Exception);
         Assert.True(validatedTokenResult.IsValid);
-        Assert.Equal(ScopeConstants.OpenId, validatedTokenResult.Claims[ClaimNameConstants.Scope].ToString());
+        Assert.Equal(scope, validatedTokenResult.Claims[ClaimNameConstants.Scope].ToString()!.Split(' '));
         Assert.Equal(authorizationGrant.Session.Id, validatedTokenResult.Claims[ClaimNameConstants.Sid].ToString());
         Assert.Equal(authorizationGrant.SubjectIdentifier.Id, validatedTokenResult.Claims[ClaimNameConstants.Sub].ToString());
         Assert.NotNull(validatedTokenResult.Claims[ClaimNameConstants.Jti].ToString());

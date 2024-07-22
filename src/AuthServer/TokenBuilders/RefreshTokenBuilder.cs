@@ -78,7 +78,8 @@ internal class RefreshTokenBuilder : ITokenBuilder<RefreshTokenArguments>
             { ClaimNameConstants.Sub, grantQuery.SubjectId },
             { ClaimNameConstants.Jti, refreshToken.Id },
             { ClaimNameConstants.GrantId, arguments.AuthorizationGrantId },
-            { ClaimNameConstants.ClientId, grantQuery.Client.Id }
+            { ClaimNameConstants.ClientId, grantQuery.Client.Id },
+            { ClaimNameConstants.Scope, string.Join(' ', arguments.Scope) }
         };
 
         var signingKey = _jwksDocumentOptions.Value.GetTokenSigningKey();

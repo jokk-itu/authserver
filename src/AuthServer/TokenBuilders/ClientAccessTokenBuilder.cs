@@ -48,7 +48,7 @@ internal class ClientAccessTokenBuilder : ITokenBuilder<ClientAccessTokenArgumen
         var claims = new Dictionary<string, object>
         {
             { ClaimNameConstants.Jti, Guid.NewGuid() },
-            { ClaimNameConstants.Scope, JsonSerializer.SerializeToElement(arguments.Scope) },
+            { ClaimNameConstants.Scope, string.Join(' ', arguments.Scope) },
             { ClaimNameConstants.Aud, JsonSerializer.SerializeToElement(arguments.Resource) },
             { ClaimNameConstants.ClientId, arguments.ClientId },
             { ClaimNameConstants.Sub, arguments.ClientId }
