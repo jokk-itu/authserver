@@ -18,11 +18,7 @@ internal static class ProofKeyForCodeExchangeHelper
             return false;
         }
 
-        return Regex.IsMatch(
-            codeChallenge,
-            "^[0-9a-zA-Z-_~.]{43,128}$",
-            RegexOptions.Compiled,
-            TimeSpan.FromMilliseconds(100));
+        return IsCodeValid(codeChallenge);
     }
 
     public static bool IsCodeVerifierValid(string codeVerifier, string codeChallenge)
@@ -33,19 +29,21 @@ internal static class ProofKeyForCodeExchangeHelper
             return false;
         }
 
-        var isCodeVerifierFormatValid = Regex.IsMatch(
-            codeVerifier,
-            "^[0-9a-zA-Z-_~.]{43,128}$",
-            RegexOptions.Compiled,
-            TimeSpan.FromMilliseconds(100));
-
+        var isCodeVerifierFormatValid = IsCodeValid(codeVerifier);
         if (!isCodeVerifierFormatValid)
         {
             return false;
         }
+
         var bytes = Encoding.UTF8.GetBytes(codeVerifier);
         var hashed = SHA256.HashData(bytes);
         var encoded = Base64UrlEncoder.Encode(hashed);
         return encoded == codeChallenge;
     }
+
+    private static bool IsCodeValid(string code) => Regex.IsMatch(
+        code,
+        "^[0-9a-zA-Z-_~.]{43,128}$",
+        RegexOptions.Compiled,
+        TimeSpan.FromMilliseconds(100));
 }
