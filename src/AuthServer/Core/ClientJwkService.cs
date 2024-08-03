@@ -52,7 +52,7 @@ internal class ClientJwkService : IClientJwkService
         
         if (cachedClient.JwksUri is null)
         {
-            return Array.Empty<JsonWebKey>();
+            return [];
         }
 
         _logger.LogDebug("Refreshing jwks for client {ClientId}", clientId);
@@ -89,6 +89,7 @@ internal class ClientJwkService : IClientJwkService
 
     private async Task<string> RefreshJwks(string? clientId, string jwksUri, CancellationToken cancellationToken)
     {
+        // TODO implement a Timeout to reduce Denial-Of-Service attacks
         // TODO implement retry delegate handler (5XX and 429)
         try
         {
