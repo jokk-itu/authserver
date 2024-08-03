@@ -50,6 +50,10 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
             .HasMaxLength(int.MaxValue);
 
         builder
+            .Property(x => x.DefaultAcrValues)
+            .HasMaxLength(255);
+
+        builder
             .Property(client => client.ApplicationType)
             .HasConversion<int>();
 

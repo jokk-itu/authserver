@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AuthServer.TestIdentityProvider.Migrations
 {
     [DbContext(typeof(AuthorizationDbContext))]
-    [Migration("20240714210747_Initial Migration")]
+    [Migration("20240802190412_Initial Migration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -226,15 +226,6 @@ namespace AuthServer.TestIdentityProvider.Migrations
                     b.Property<int?>("AuthorizationCodeExpiration")
                         .HasColumnType("int");
 
-                    b.Property<int?>("AuthorizationEncryptedResponseAlg")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("AuthorizationEncryptedResponseEnc")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("AuthorizationSignedResponseAlg")
-                        .HasColumnType("int");
-
                     b.Property<string>("BackchannelLogoutUri")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
@@ -247,7 +238,8 @@ namespace AuthServer.TestIdentityProvider.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DefaultAcrValues")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int?>("DefaultMaxAge")
                         .HasColumnType("int");
