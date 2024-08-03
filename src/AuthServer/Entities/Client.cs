@@ -151,10 +151,6 @@ public class Client : Entity<string>
     /// </summary>
     public SubjectType? SubjectType { get; set; }
 
-    public SigningAlg? AuthorizationSignedResponseAlg { get; set; }
-    public EncryptionAlg? AuthorizationEncryptedResponseAlg { get; set; }
-    public EncryptionEnc? AuthorizationEncryptedResponseEnc { get; set; }
-
     /// <summary>
     /// Algorithm used to sign tokens for client authentication private_key_jwt.
     /// </summary>

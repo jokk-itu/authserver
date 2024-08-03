@@ -35,9 +35,6 @@ internal class RegisterResponse
 	public required EncryptionEnc? IdTokenEncryptedResponseEnc { get; init; }
 	public required EncryptionAlg? IdTokenEncryptedResponseAlg { get; init; }
 	public required SigningAlg? IdTokenSignedResponseAlg { get; init; }
-	public required EncryptionEnc? AuthorizationEncryptedResponseEnc { get; init; }
-	public required EncryptionAlg? AuthorizationEncryptedResponseAlg { get; init; }
-	public required SigningAlg? AuthorizationSignedResponseAlg { get; init; }
 	public required int? AuthorizationCodeExpiration { get; init; }
 	public required int AccessTokenExpiration { get; init; }
 	public required int? RefreshTokenExpiration { get; init; }

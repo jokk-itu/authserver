@@ -29,11 +29,6 @@ internal class PostConfigureDiscoveryDocumentOptions : IPostConfigureOptions<Dis
 			options.UserinfoSigningAlgValuesSupported = [JwsAlgConstants.RsaSha256];
 		}
 
-		if (options.AuthorizationSigningAlgValuesSupported.IsNullOrEmpty())
-		{
-			options.AuthorizationSigningAlgValuesSupported = [JwsAlgConstants.RsaSha256];
-		}
-
 		if (options.TokenEndpointAuthSigningAlgValuesSupported.IsNullOrEmpty())
 		{
 			options.TokenEndpointAuthSigningAlgValuesSupported = [JwsAlgConstants.RsaSha256];

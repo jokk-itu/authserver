@@ -88,9 +88,6 @@ public static class Parameter
     public const string IdTokenEncryptedResponseEnc = "id_token_encrypted_response_enc";
     public const string IdTokenEncryptedResponseAlg = "id_token_encrypted_response_alg";
     public const string IdTokenSignedResponseAlg = "id_token_signed_response_alg";
-    public const string AuthorizationEncryptedResponseEnc = "authorization_encrypted_response_enc";
-    public const string AuthorizationEncryptedResponseAlg = "authorization_encrypted_response_alg";
-    public const string AuthorizationSignedResponseAlg = "authorization_signed_response_alg";
     public const string ClientAssertionType = "client_assertion_type";
     public const string ClientAssertion = "client_assertion";
 }

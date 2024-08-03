@@ -62,17 +62,6 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
             .HasConversion<int>();
 
         builder
-            .Property(client => client.AuthorizationSignedResponseAlg)
-            .HasConversion<int>();
-
-        builder
-            .Property(client => client.AuthorizationEncryptedResponseAlg)
-            .HasConversion<int>();
-        builder
-            .Property(client => client.AuthorizationEncryptedResponseEnc)
-            .HasConversion<int>();
-
-        builder
             .HasMany(client => client.Scopes)
             .WithMany(scope => scope.Clients);
 

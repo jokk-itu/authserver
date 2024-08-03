@@ -119,18 +119,6 @@ internal class RegisterResponse
 	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 	public string? IdTokenSignedResponseAlg { get; init; }
 
-	[JsonPropertyName(Parameter.AuthorizationEncryptedResponseEnc)]
-	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-	public string? AuthorizationEncryptedResponseEnc { get; init; }
-
-	[JsonPropertyName(Parameter.AuthorizationEncryptedResponseAlg)]
-	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-	public string? AuthorizationEncryptedResponseAlg { get; init; }
-
-	[JsonPropertyName(Parameter.AuthorizationSignedResponseAlg)]
-	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-	public string? AuthorizationSignedResponseAlg { get; init; }
-
 	[JsonPropertyName(Parameter.AuthorizationCodeExpiration)]
 	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 	public int? AuthorizationCodeExpiration { get; init; }

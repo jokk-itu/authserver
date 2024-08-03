@@ -2,47 +2,47 @@
 
 namespace AuthServer.Register;
 
-internal abstract class RegisterValidatedRequest
+internal class RegisterValidatedRequest
 {
-	public required string ClientName { get; init; }
-	public required ApplicationType ApplicationType { get; init; }
-	public required SubjectType? SubjectType { get; init; }
-	public required int? DefaultMaxAge { get; init; }
-	public required TokenEndpointAuthMethod TokenEndpointAuthMethod { get; init; }
-	public required SigningAlg TokenEndpointAuthSigningAlg { get; init; }
-	public required string? Jwks { get; init; }
-	public required string? JwksUri { get; init; }
-	public required string? ClientUri { get; init; }
-	public required string? PolicyUri { get; init; }
-	public required string? TosUri { get; init; }
-	public required string? InitiateLoginUri { get; init; }
-	public required string? LogoUri { get; init; }
-	public required string? BackchannelLogoutUri { get; init; }
-	public required bool RequireSignedRequestObject { get; init; }
-	public required bool RequireReferenceToken { get; init; } 
-	public required EncryptionEnc? RequestObjectEncryptionEnc { get; init; }
-	public required EncryptionAlg? RequestObjectEncryptionAlg { get; init; }
-	public required SigningAlg? RequestObjectSigningAlg { get; init; }
-	public required EncryptionEnc? UserinfoEncryptedResponseEnc { get; init; }
-	public required EncryptionAlg? UserinfoEncryptedResponseAlg { get; init; }
-	public required SigningAlg? UserinfoSignedResponseAlg { get; init; }
-	public required EncryptionEnc? IdTokenEncryptedResponseEnc { get; init; }
-	public required EncryptionAlg? IdTokenEncryptedResponseAlg { get; init; }
-	public required SigningAlg? IdTokenSignedResponseAlg { get; init; }
-	public required EncryptionEnc? AuthorizationEncryptedResponseEnc { get; init; }
-	public required EncryptionAlg? AuthorizationEncryptedResponseAlg { get; init; }
-	public required SigningAlg? AuthorizationSignedResponseAlg { get; init; }
-	public required int? AuthorizationCodeExpiration { get; init; }
-	public required int AccessTokenExpiration { get; init; }
-	public required int? RefreshTokenExpiration { get; init; }
-	public required int? ClientSecretExpiration { get; init; }
-	public required int? JwksExpiration { get; init; }
-	public required IReadOnlyCollection<string> DefaultAcrValues { get; init; }
-	public required IReadOnlyCollection<string> Scope { get; init; }
-	public required IReadOnlyCollection<string> RedirectUris { get; init; }
-	public required IReadOnlyCollection<string> PostLogoutRedirectUris { get; init; }
-	public required IReadOnlyCollection<string> RequestUris { get; init; }
-	public required IReadOnlyCollection<string> ResponseTypes { get; init; }
-	public required IReadOnlyCollection<string> GrantTypes { get; init; }
-	public required IReadOnlyCollection<string> Contacts { get; init; }
+    public HttpMethod Method { get; init; } = null!;
+    public string ClientId { get; set; } = null!;
+    public string RegistrationAccessToken { get; set; } = null!;
+    public string ClientName { get; set; } = null!;
+	public ApplicationType ApplicationType { get; set; }
+	public SubjectType? SubjectType { get; set; }
+	public int? DefaultMaxAge { get; set; }
+	public TokenEndpointAuthMethod TokenEndpointAuthMethod { get; set; }
+	public SigningAlg TokenEndpointAuthSigningAlg { get; set; }
+	public string? Jwks { get; set; }
+	public string? JwksUri { get; set; }
+	public string? ClientUri { get; set; }
+	public string? PolicyUri { get; set; }
+	public string? TosUri { get; set; }
+	public string? InitiateLoginUri { get; set; }
+	public string? LogoUri { get; set; }
+	public string? BackchannelLogoutUri { get; set; }
+	public bool RequireSignedRequestObject { get; set; }
+	public bool RequireReferenceToken { get; set; } 
+	public EncryptionEnc? RequestObjectEncryptionEnc { get; set; }
+	public EncryptionAlg? RequestObjectEncryptionAlg { get; set; }
+	public SigningAlg? RequestObjectSigningAlg { get; set; }
+	public EncryptionEnc? UserinfoEncryptedResponseEnc { get; set; }
+	public EncryptionAlg? UserinfoEncryptedResponseAlg { get; set; }
+	public SigningAlg? UserinfoSignedResponseAlg { get; set; }
+	public EncryptionEnc? IdTokenEncryptedResponseEnc { get; set; }
+	public EncryptionAlg? IdTokenEncryptedResponseAlg { get; set; }
+	public SigningAlg? IdTokenSignedResponseAlg { get; set; }
+	public int? AuthorizationCodeExpiration { get; set; }
+	public int AccessTokenExpiration { get; set; }
+	public int? RefreshTokenExpiration { get; set; }
+	public int? ClientSecretExpiration { get; set; }
+	public int? JwksExpiration { get; set; }
+	public IReadOnlyCollection<string> DefaultAcrValues { get; set; } = [];
+    public IReadOnlyCollection<string> Scope { get; set; } = [];
+    public IReadOnlyCollection<string> RedirectUris { get; set; } = [];
+    public IReadOnlyCollection<string> PostLogoutRedirectUris { get; set; } = [];
+    public IReadOnlyCollection<string> RequestUris { get; set; } = [];
+    public IReadOnlyCollection<string> ResponseTypes { get; set; } = [];
+    public IReadOnlyCollection<string> GrantTypes { get; set; } = [];
+    public IReadOnlyCollection<string> Contacts { get; set; } = [];
 }

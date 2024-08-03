@@ -128,27 +128,6 @@ public class ValidateDiscoveryDocumentOptions : IValidateOptions<DiscoveryDocume
             return ValidateOptionsResult.Fail($"{nameof(options.RequestObjectEncryptionEncValuesSupported)} have unrecognized values: {string.Join(',', invalidRequestObjectEncryptionEncValues)}");
         }
 
-        var invalidAuthorizationSigningAlgValues =
-	        options.AuthorizationSigningAlgValuesSupported.Where(x => !JwsAlgConstants.AlgValues.Contains(x)).ToList();
-        if (invalidAuthorizationSigningAlgValues.Count != 0)
-        {
-	        return ValidateOptionsResult.Fail($"{nameof(options.AuthorizationSigningAlgValuesSupported)} have unrecognized values: {string.Join(',', invalidRequestObjectSigningAlgValues)}");
-        }
-
-        var invalidAuthorizationEncryptionAlgValues =
-	        options.AuthorizationEncryptionAlgValuesSupported.Where(x => !JweAlgConstants.AlgValues.Contains(x)).ToList();
-        if (invalidAuthorizationEncryptionAlgValues.Count != 0)
-        {
-	        return ValidateOptionsResult.Fail($"{nameof(options.AuthorizationEncryptionAlgValuesSupported)} have unrecognized values: {string.Join(',', invalidRequestObjectEncryptionAlgValues)}");
-        }
-
-        var invalidAuthorizationEncryptionEncValues =
-	        options.AuthorizationEncryptionEncValuesSupported.Where(x => !JweEncConstants.EncValues.Contains(x)).ToList();
-        if (invalidAuthorizationEncryptionEncValues.Count != 0)
-        {
-	        return ValidateOptionsResult.Fail($"{nameof(options.AuthorizationEncryptionEncValuesSupported)} have unrecognized values: {string.Join(',', invalidRequestObjectEncryptionEncValues)}");
-        }
-
 		return ValidateOptionsResult.Success;
     }
 }
