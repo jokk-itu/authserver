@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\tests\AuthServer.Tests.Core\AuthServer.Tests.Core.csproj" />
     <ProjectReference Include="..\AuthServer\AuthServer.csproj" />
   </ItemGroup>
 
