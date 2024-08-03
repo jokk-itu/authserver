@@ -5,7 +5,7 @@ internal static class MaxAgeHelper
     public static bool IsMaxAgeValid(string? maxAge)
     {
         return string.IsNullOrWhiteSpace(maxAge)
-               || long.TryParse(maxAge, out var parsedMaxAge)
+               || int.TryParse(maxAge, out var parsedMaxAge)
                && parsedMaxAge > -1;
     }
 }
