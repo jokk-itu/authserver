@@ -20,6 +20,7 @@ internal class AuthorizeRequestValidator : IRequestValidator<AuthorizeRequest, A
     private readonly AuthorizationDbContext _identityContext;
     private readonly ITokenDecoder<ServerIssuedTokenDecodeArguments> _serverIssuedTokenDecoder;
     private readonly IAuthorizeInteractionProcessor _authorizeInteractionProcessor;
+    private readonly IAuthorizeRequestParameterProcessor _authorizeRequestParameterProcessor;
     private readonly IOptionsSnapshot<DiscoveryDocument> _discoveryDocumentOptions;
 
     public AuthorizeRequestValidator(
@@ -27,29 +28,60 @@ internal class AuthorizeRequestValidator : IRequestValidator<AuthorizeRequest, A
         AuthorizationDbContext identityContext,
         ITokenDecoder<ServerIssuedTokenDecodeArguments> serverIssuedTokenDecoder,
         IAuthorizeInteractionProcessor authorizeInteractionProcessor,
+        IAuthorizeRequestParameterProcessor authorizeRequestParameterProcessor,
         IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions)
     {
         _cachedClientStore = cachedClientStore;
         _identityContext = identityContext;
         _serverIssuedTokenDecoder = serverIssuedTokenDecoder;
         _authorizeInteractionProcessor = authorizeInteractionProcessor;
+        _authorizeRequestParameterProcessor = authorizeRequestParameterProcessor;
         _discoveryDocumentOptions = discoveryDocumentOptions;
     }
 
     public async Task<ProcessResult<AuthorizeValidatedRequest, ProcessError>> Validate(AuthorizeRequest request,
         CancellationToken cancellationToken)
     {
-        // TODO if request_object or request_uri is present, use make a new AuthorizeRequest from that in a new service
-
-        if (string.IsNullOrEmpty(request.State))
-        {
-            return AuthorizeError.InvalidState;
-        }
-
         var cachedClient = await _cachedClientStore.TryGet(request.ClientId, cancellationToken);
         if (cachedClient == null)
         {
             return AuthorizeError.InvalidClient;
+        }
+
+        if (!string.IsNullOrEmpty(request.RequestObject) && !string.IsNullOrEmpty(request.RequestUri))
+        {
+            return AuthorizeError.InvalidRequestObjectAndUri;
+        }
+        else if (!string.IsNullOrEmpty(request.RequestUri))
+        {
+            if (!Uri.TryCreate(request.RequestUri, UriKind.Absolute, out var requestUri))
+            {
+                return AuthorizeError.InvalidRequestUri;
+            }
+
+            if (!cachedClient.RequestUris.Contains(requestUri.GetLeftPart(UriPartial.Path)))
+            {
+                return AuthorizeError.UnauthorizedRequestUri;
+            }
+
+            var newRequest = await _authorizeRequestParameterProcessor.GetRequestByReference(requestUri, request.ClientId, cancellationToken);
+            if (newRequest is null)
+            {
+                return AuthorizeError.InvalidObjectFromRequestUri;
+            }
+        }
+        else if (!string.IsNullOrEmpty(request.RequestObject))
+        {
+            var newRequest = await _authorizeRequestParameterProcessor.GetRequestByObject(request.RequestObject, request.ClientId, cancellationToken);
+            if (newRequest is null)
+            {
+                return AuthorizeError.InvalidRequestObject;
+            }
+        }
+
+        if (string.IsNullOrEmpty(request.State))
+        {
+            return AuthorizeError.InvalidState;
         }
 
         if (string.IsNullOrEmpty(request.RedirectUri)
@@ -77,7 +109,7 @@ internal class AuthorizeRequestValidator : IRequestValidator<AuthorizeRequest, A
         }
 
         // it is currently only code which is supported
-        if (cachedClient.GrantTypes.Any(x => x == GrantTypeConstants.AuthorizationCode))
+        if (cachedClient.GrantTypes.All(x => x != GrantTypeConstants.AuthorizationCode))
         {
             return AuthorizeError.UnauthorizedResponseType;
         }
@@ -88,7 +120,7 @@ internal class AuthorizeRequestValidator : IRequestValidator<AuthorizeRequest, A
             return AuthorizeError.InvalidDisplay;
         }
 
-        if (!string.IsNullOrEmpty(request.Nonce))
+        if (string.IsNullOrEmpty(request.Nonce))
         {
             return AuthorizeError.InvalidNonce;
         }
@@ -153,7 +185,8 @@ internal class AuthorizeRequestValidator : IRequestValidator<AuthorizeRequest, A
             return AuthorizeError.InvalidPrompt;
         }
 
-        if (_discoveryDocumentOptions.Value.AcrValuesSupported.Except(request.AcrValues).Any())
+        if (request.AcrValues.Count != 0 &&
+            _discoveryDocumentOptions.Value.AcrValuesSupported.Except(request.AcrValues).Any())
         {
             return AuthorizeError.InvalidAcr;
         }
