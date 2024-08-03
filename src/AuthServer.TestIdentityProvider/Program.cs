@@ -5,21 +5,19 @@ using AuthServer.Core.Discovery;
 using AuthServer.Enums;
 using AuthServer.Extensions;
 using AuthServer.Introspection.Abstractions;
-using AuthServer.TestIdentityProvider.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
+using AuthServer.Authorize.Abstractions;
 using AuthServer.Core;
+using AuthServer.Tests.Core;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-    {
-        options.LoginPath = builder.Configuration.GetSection("Identity").GetValue<string>("LoginUri");
-    });
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
 
 builder.Services
     .AddOptions<DiscoveryDocument>()
@@ -30,6 +28,7 @@ builder.Services
         options.ClaimsSupported = ClaimNameConstants.SupportedEndUserClaims;
         options.RequestParameterSupported = true;
         options.RequestUriParameterSupported = true;
+        options.AcrValuesSupported = ["pwd", "2fa", "mfa"];
 
         ICollection<string> signingAlgorithms =
             [JwsAlgConstants.RsaSha256, JwsAlgConstants.EcdsaSha256, JwsAlgConstants.RsaSsaPssSha256];
@@ -96,15 +95,20 @@ builder.Services
         options.EndSessionUri = identity.GetValue<string>("EndSessionUri")!;
     });
 
-builder.Services.AddSingleton<IDistributedCache, MockDistributedCache>();
-builder.Services.AddScoped<IUserClaimService, MockUserClaimService>();
-builder.Services.AddScoped<IUsernameResolver, MockUsernameResolver>();
+builder.Services.AddSingleton<IDistributedCache, InMemoryCache>();
+builder.Services.AddScoped<IUserClaimService, UserClaimService>();
+builder.Services.AddScoped<IUsernameResolver, UsernameResolver>();
+builder.Services.AddScoped<IAcrClaimMapper, AcrClaimMapper>();
 
 builder.Services.AddAuthServer(dbContextConfigurator =>
 {
     dbContextConfigurator.UseSqlServer(
         builder.Configuration.GetConnectionString("Default"),
-        optionsBuilder => optionsBuilder.MigrationsAssembly("AuthServer.TestIdentityProvider"));
+        optionsBuilder =>
+        { 
+            optionsBuilder.MigrationsAssembly("AuthServer.TestIdentityProvider");
+            optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+        });
 });
 
 builder.Services.AddHttpContextAccessor();
@@ -122,10 +126,8 @@ app.UseAuthorization();
 app.MapRazorPages();
 
 app.MapAuthorizeEndpoint();
-app.MapPostRegisterEndpoint();
-app.MapPutRegisterEndpoint();
-app.MapDeleteRegisterEndpoint();
-app.MapGetRegisterEndpoint();
+app.MapDynamicClientManagementEndpoint();
+app.MapDynamicClientRegistrationEndpoint();
 app.MapUserinfoEndpoint();
 app.MapTokenEndpoint();
 app.MapRevocationEndpoint();
