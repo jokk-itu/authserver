@@ -43,7 +43,7 @@ public class LogoutTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTe
         {
             ClientId = authorizationGrant.Client.Id,
             SessionId = authorizationGrant.Session.Id,
-            UserId = authorizationGrant.SubjectIdentifier.Id
+            SubjectIdentifier = authorizationGrant.SubjectIdentifier.Id
         }, CancellationToken.None);
 
         // Assert
@@ -88,7 +88,7 @@ public class LogoutTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTe
         {
             ClientId = authorizationGrant.Client.Id,
             SessionId = authorizationGrant.Session.Id,
-            UserId = authorizationGrant.SubjectIdentifier.Id
+            SubjectIdentifier = authorizationGrant.SubjectIdentifier.Id
         }, CancellationToken.None);
 
         // Assert
@@ -124,7 +124,7 @@ public class LogoutTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTe
         {
             ClientId = authorizationGrant.Client.Id,
             SessionId = authorizationGrant.Session.Id,
-            UserId = authorizationGrant.SubjectIdentifier.Id
+            SubjectIdentifier = authorizationGrant.SubjectIdentifier.Id
         }, CancellationToken.None);
 
         // Assert

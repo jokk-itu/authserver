@@ -35,7 +35,7 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
             .Set<Session>()
             .Include(x => x.PublicSubjectIdentifier)
             .Where(x => x.PublicSubjectIdentifier.Id == subjectIdentifier)
-            .Where(x => x.RevokedAt == null)
+            .Where(Session.IsActive)
             .SingleOrDefaultAsync(cancellationToken);
 
         if (session is not null)

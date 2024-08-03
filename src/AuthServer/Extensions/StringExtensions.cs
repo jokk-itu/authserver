@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Primitives;
 
 namespace AuthServer.Extensions;
 public static class StringExtensions

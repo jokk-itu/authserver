@@ -1,12 +1,10 @@
 ﻿using AuthServer.Authorize.Abstractions;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;
-using AuthServer.Core.Discovery;
 using AuthServer.Core.Request;
 using AuthServer.Extensions;
 using AuthServer.RequestAccessors.Authorize;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -20,8 +18,7 @@ internal static class AuthorizeEndpoint
         [FromServices] IRequestHandler<AuthorizeRequest, string> requestHandler,
         [FromServices] IAuthorizeResponseBuilder authorizeResponseBuilder,
         [FromServices] IOptionsSnapshot<UserInteraction> userInteractionOptions,
-        [FromServices] IUserAccessor userAccessor,
-        [FromServices] IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions,
+        [FromServices] IAuthorizeUserAccessor userAccessor,
         CancellationToken cancellationToken)
     {
         var options = userInteractionOptions.Value;
@@ -31,32 +28,26 @@ internal static class AuthorizeEndpoint
         return await response.Match(
             async code =>
             {
+                // remove the authenticated user to reset the interaction flow
                 userAccessor.ClearUser();
                 return await authorizeResponseBuilder.BuildResponse(request,
-                    new Dictionary<string, string> { { Parameter.Code, code } }, cancellationToken);
+                    new Dictionary<string, string> { { Parameter.Code, code } }, httpContext.Response, cancellationToken);
             },
             async error => string.IsNullOrEmpty(request.Prompt)
                 ? error switch
                 {
                     { ResultCode: ResultCode.BadRequest } => Results.Extensions.OAuthBadRequest(error),
-                    { Error: ErrorCode.LoginRequired } => Redirect(options.LoginUri, httpContext, discoveryDocumentOptions.Value),
-                    { Error: ErrorCode.ConsentRequired } => Results.Extensions.OAuthSeeOtherRedirect(options.ConsentUri, httpContext.Response),
-                    { Error: ErrorCode.AccountSelectionRequired } => Results.Extensions.OAuthSeeOtherRedirect(options.AccountSelectionUri, httpContext.Response),
-                    { ResultCode: ResultCode.Redirect} => await authorizeResponseBuilder.BuildResponse(request, error.ToDictionary(), cancellationToken),
+                    { Error: ErrorCode.LoginRequired } => Results.Extensions.LocalRedirect(options.LoginUri, httpContext),
+                    { Error: ErrorCode.ConsentRequired } => Results.Extensions.LocalRedirect(options.ConsentUri, httpContext),
+                    { Error: ErrorCode.AccountSelectionRequired } => Results.Extensions.LocalRedirect(options.AccountSelectionUri, httpContext),
+                    { ResultCode: ResultCode.Redirect} => await authorizeResponseBuilder.BuildResponse(request, error.ToDictionary(), httpContext.Response, cancellationToken),
                     _ => Results.Extensions.OAuthBadRequest(error)
                 }
                 : error switch
                 {
                     { ResultCode: ResultCode.BadRequest } => Results.Extensions.OAuthBadRequest(error),
-                    { ResultCode: ResultCode.Redirect } => Results.Ok(),
+                    { ResultCode: ResultCode.Redirect } => await authorizeResponseBuilder.BuildResponse(request, error.ToDictionary(), httpContext.Response, cancellationToken),
                     _ => Results.Extensions.OAuthBadRequest(error)
                 });
-    }
-
-    private static IResult Redirect(string url, HttpContext httpContext, DiscoveryDocument discoveryDocument)
-    {
-        var returnUrl = httpContext.Request.GetEncodedUrl();
-        var location = $"{url}?returnUrl={returnUrl}";
-        return Results.Extensions.OAuthSeeOtherRedirect(location, httpContext.Response);
     }
 }

@@ -32,11 +32,11 @@ internal class LogoutTokenBuilder : ITokenBuilder<LogoutTokenArguments>
     public async Task<string> BuildToken(LogoutTokenArguments arguments, CancellationToken cancellationToken)
     {
         var cachedClient = await _cachedClientStore.Get(arguments.ClientId, cancellationToken);
-        var claims = new Dictionary<string, object>
+        var claims = new Dictionary<string, object?>
         {
             { ClaimNameConstants.Aud, arguments.ClientId },
             { ClaimNameConstants.Sid, arguments.SessionId },
-            { ClaimNameConstants.Sub, arguments.UserId },
+            { ClaimNameConstants.Sub, arguments.SubjectIdentifier },
             { ClaimNameConstants.Jti, Guid.NewGuid() },
             { ClaimNameConstants.ClientId, arguments.ClientId },
             {

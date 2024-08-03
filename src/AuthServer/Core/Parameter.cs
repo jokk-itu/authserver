@@ -50,7 +50,6 @@ public static class Parameter
     public const string LoginHint = "login_hint";
     public const string AcrValues = "acr_values";
     public const string Resource = "resource";
-    public const string Locale = "locale";
     public const string Issuer = "iss";
     public const string DefaultMaxAge = "default_max_age";
     public const string InitiateLoginUri = "initiate_login_uri";

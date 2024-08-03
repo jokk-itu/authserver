@@ -11,8 +11,6 @@ namespace AuthServer.Tests.UnitTest.Cache;
 
 public class CachedClientStoreTest(ITestOutputHelper outputHelper) : BaseUnitTest(outputHelper)
 {
-    // Get_ClientNotFoundException
-
     [Fact]
     public async Task TryGet_InternalCacheHit_CachedClientNotNull()
     {

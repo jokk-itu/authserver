@@ -8,6 +8,8 @@ internal class AuthorizeRequestAccessor : IRequestAccessor<AuthorizeRequest>
 {
     public Task<AuthorizeRequest> GetRequest(HttpRequest httpRequest)
     {
+        // TODO support method POST, and get the parameters from the body
+
         var query = httpRequest.Query;
         var loginHint = query.GetValueOrEmpty(Parameter.LoginHint);
         var display = query.GetValueOrEmpty(Parameter.Display);
@@ -22,7 +24,7 @@ internal class AuthorizeRequestAccessor : IRequestAccessor<AuthorizeRequest>
         var responseType = query.GetValueOrEmpty(Parameter.ResponseType);
         var nonce = query.GetValueOrEmpty(Parameter.Nonce);
         var state = query.GetValueOrEmpty(Parameter.State);
-        var requestObject = query.GetValueOrEmpty(Parameter.RequestObject);
+        var requestObject = query.GetValueOrEmpty(Parameter.Request);
         var requestUri = query.GetValueOrEmpty(Parameter.RequestUri);
         var scope = query.GetSpaceDelimitedValueOrEmpty(Parameter.Scope);
         var acrValues = query.GetSpaceDelimitedValueOrEmpty(Parameter.AcrValues);

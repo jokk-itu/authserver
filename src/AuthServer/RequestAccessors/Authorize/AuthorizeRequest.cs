@@ -16,7 +16,7 @@ public class AuthorizeRequest
     public required string State { get; init; }
     public required string ResponseMode { get; init; }
     public required string RequestObject { get; init; }
-    public required string RequestUri {get ; init; }
+    public required string RequestUri { get ; init; }
     public required IReadOnlyCollection<string> Scope { get; init; }
     public required IReadOnlyCollection<string> AcrValues { get; init; }
 }
