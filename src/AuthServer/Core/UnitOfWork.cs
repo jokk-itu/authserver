@@ -24,8 +24,6 @@ internal class UnitOfWork : IUnitOfWork
         return _currentTransaction;
     }
 
-    public IDisposable Current() => _currentTransaction ?? throw new InvalidOperationException();
-
     public async Task SaveChanges()
     {
         if (_currentTransaction == null)
