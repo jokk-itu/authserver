@@ -9,13 +9,11 @@ using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;
 using AuthServer.Core.Request;
+using AuthServer.EndSession;
+using AuthServer.EndSession.Abstractions;
 using AuthServer.Introspection;
 using AuthServer.Options;
 using AuthServer.Register;
-using AuthServer.Register.CreateClient;
-using AuthServer.Register.DeleteClient;
-using AuthServer.Register.GetClient;
-using AuthServer.Register.UpdateClient;
 using AuthServer.Repositories;
 using AuthServer.Repositories.Abstractions;
 using AuthServer.RequestAccessors.Authorize;
@@ -53,10 +51,8 @@ public static class ServiceCollectionExtensions
             .AddDecoders()
             .AddDataStore(databaseConfigurator)
             .AddOptions()
-            .AddPostRegister()
-            .AddPutRegister()
-            .AddDeleteRegister()
-            .AddGetRegister()
+            .AddRegister()
+            .AddEndSession()
             .AddAuthorize()
             .AddUserinfo()
             .AddIntrospection()
@@ -128,10 +124,7 @@ public static class ServiceCollectionExtensions
             .AddScoped<IRequestAccessor<EndSessionRequest>, EndSessionRequestAccessor>()
             .AddScoped<IRequestAccessor<IntrospectionRequest>, IntrospectionRequestAccessor>()
             .AddScoped<IRequestAccessor<RevocationRequest>, RevocationRequestAccessor>()
-            .AddScoped<IRequestAccessor<PostRegisterRequest>, PostRegisterRequestAccessor>()
-            .AddScoped<IRequestAccessor<PutRegisterRequest>, PutRegisterRequestAccessor>()
-            .AddScoped<IRequestAccessor<DeleteRegisterRequest>, DeleteRegisterRequestAccessor>()
-            .AddScoped<IRequestAccessor<GetRegisterRequest>, GetRegisterRequestAccessor>()
+            .AddScoped<IRequestAccessor<RegisterRequest>, RegisterRequestAccessor>()
             .AddScoped<IRequestAccessor<TokenRequest>, TokenRequestAccessor>()
             .AddScoped<IRequestAccessor<UserinfoRequest>, UserinfoRequestAccessor>();
     }
@@ -139,7 +132,6 @@ public static class ServiceCollectionExtensions
     internal static IServiceCollection AddCache(this IServiceCollection services)
     {
         return services
-            .AddSingleton<IEntityInMemoryCache, EntityInMemoryCache>()
             .AddScoped<ICachedClientStore, CachedClientStore>()
             .AddScoped<ITokenReplayCache, TokenReplayCache>();
     }
@@ -189,36 +181,21 @@ public static class ServiceCollectionExtensions
             .AddScoped<ITokenRepository, TokenRepository>();
     }
 
-    internal static IServiceCollection AddPostRegister(this IServiceCollection services)
+    internal static IServiceCollection AddRegister(this IServiceCollection services)
     {
         return services
-            .AddScoped<IRequestHandler<PostRegisterRequest, RegisterResponse>, PostRegisterRequestHandler>()
-            .AddScoped<IRequestValidator<PostRegisterRequest, PostRegisterValidatedRequest>, PostRegisterRequestValidator>()
-            .AddScoped<IRequestProcessor<PostRegisterValidatedRequest, RegisterResponse>, PostRegisterRequestProcessor>();
+            .AddScoped<IRequestHandler<RegisterRequest, ProcessResult<RegisterResponse, Unit>>, RegisterRequestHandler>()
+            .AddScoped<IRequestValidator<RegisterRequest, RegisterValidatedRequest>, RegisterRequestValidator>()
+            .AddScoped<IRequestProcessor<RegisterValidatedRequest, ProcessResult<RegisterResponse, Unit>>, RegisterRequestProcessor>();
     }
 
-    internal static IServiceCollection AddPutRegister(this IServiceCollection services)
+    internal static IServiceCollection AddEndSession(this IServiceCollection services)
     {
-	    return services
-		    .AddScoped<IRequestHandler<PutRegisterRequest, RegisterResponse>, PutRegisterRequestHandler>()
-		    .AddScoped<IRequestValidator<PutRegisterRequest, PutRegisterValidatedRequest>, PutRegisterRequestValidator>()
-		    .AddScoped<IRequestProcessor<PutRegisterValidatedRequest, RegisterResponse>, PutRegisterRequestProcessor>();
-    }
-
-    internal static IServiceCollection AddDeleteRegister(this IServiceCollection services)
-    {
-	    return services
-		    .AddScoped<IRequestHandler<DeleteRegisterRequest, Unit>, DeleteRegisterRequestHandler>()
-		    .AddScoped<IRequestValidator<DeleteRegisterRequest, DeleteRegisterValidatedRequest>, DeleteRegisterRequestValidator>()
-		    .AddScoped<IRequestProcessor<DeleteRegisterValidatedRequest, Unit>, DeleteRegisterRequestProcessor>();
-    }
-
-    internal static IServiceCollection AddGetRegister(this IServiceCollection services)
-    {
-	    return services
-		    .AddScoped<IRequestHandler<GetRegisterRequest, RegisterResponse>, GetRegisterRequestHandler>()
-		    .AddScoped<IRequestProcessor<GetRegisterValidatedRequest, RegisterResponse>, GetRegisterRequestProcessor>()
-		    .AddScoped<IRequestValidator<GetRegisterRequest, GetRegisterValidatedRequest>, GetRegisterRequestValidator>();
+        return services
+            .AddScoped<IEndSessionUserAccessor, EndSessionUserAccessor>()
+            .AddScoped<IRequestHandler<EndSessionRequest, Unit>, EndSessionRequestHandler>()
+            .AddScoped<IRequestValidator<EndSessionRequest, EndSessionValidatedRequest>, EndSessionRequestValidator>()
+            .AddScoped<IRequestProcessor<EndSessionValidatedRequest, Unit>, EndSessionRequestProcessor>();
     }
 
 	internal static IServiceCollection AddAuthorize(this IServiceCollection services)
@@ -226,7 +203,8 @@ public static class ServiceCollectionExtensions
         return services
             .AddScoped<IAuthorizeInteractionProcessor, AuthorizeInteractionProcessor>()
             .AddScoped<IAuthorizeResponseBuilder, AuthorizeResponseBuilder>()
-            .AddScoped<IUserAccessor, UserAccessor>()
+            .AddScoped<IAuthorizeUserAccessor, AuthorizeUserAccessor>()
+            .AddScoped<IAuthorizeRequestParameterProcessor, AuthorizeRequestParameterProcessor>()
             .AddScoped<IRequestHandler<AuthorizeRequest, string>, AuthorizeRequestHandler>()
             .AddScoped<IRequestProcessor<AuthorizeValidatedRequest, string>, AuthorizeRequestProcessor>()
             .AddScoped<IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>, AuthorizeRequestValidator>();
