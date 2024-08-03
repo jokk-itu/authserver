@@ -16,13 +16,13 @@ internal class AuthorizeInteractionProcessor : IAuthorizeInteractionProcessor
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly AuthorizationDbContext _identityContext;
     private readonly ITokenDecoder<ServerIssuedTokenDecodeArguments> _serverIssuedTokenDecoder;
-    private readonly IUserAccessor _userAccessor;
+    private readonly IAuthorizeUserAccessor _userAccessor;
 
     public AuthorizeInteractionProcessor(
         IHttpContextAccessor httpContextAccessor,
         AuthorizationDbContext identityContext,
         ITokenDecoder<ServerIssuedTokenDecodeArguments> serverIssuedTokenDecoder,
-        IUserAccessor userAccessor)
+        IAuthorizeUserAccessor userAccessor)
     {
         _httpContextAccessor = httpContextAccessor;
         _identityContext = identityContext;
@@ -89,7 +89,7 @@ internal class AuthorizeInteractionProcessor : IAuthorizeInteractionProcessor
         if (!authorizationGrant.Client.RequireConsent)
         {
             // only try set, because the user might already be set from interaction
-            _userAccessor.TrySetUser(new AuthenticatedUser(subjectIdentifier, amr));
+            _userAccessor.TrySetUser(new AuthorizeUser(subjectIdentifier, amr));
             return PromptConstants.None;
         }
 
@@ -111,7 +111,7 @@ internal class AuthorizeInteractionProcessor : IAuthorizeInteractionProcessor
         }
 
         // only try set, because the user might already be set from the interaction
-        _userAccessor.TrySetUser(new AuthenticatedUser(subjectIdentifier, amr));
+        _userAccessor.TrySetUser(new AuthorizeUser(subjectIdentifier, amr));
         return PromptConstants.None;
     }
 }

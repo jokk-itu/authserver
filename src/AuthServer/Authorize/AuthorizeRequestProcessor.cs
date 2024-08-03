@@ -10,12 +10,12 @@ namespace AuthServer.Authorize;
 internal class AuthorizeRequestProcessor : IRequestProcessor<AuthorizeValidatedRequest, string>
 {
     private readonly IAuthorizationCodeEncoder _authorizationCodeEncoder;
-    private readonly IUserAccessor _userAccessor;
+    private readonly IAuthorizeUserAccessor _userAccessor;
     private readonly IAuthorizationGrantRepository _authorizationGrantRepository;
 
     public AuthorizeRequestProcessor(
         IAuthorizationCodeEncoder authorizationCodeEncoder,
-        IUserAccessor userAccessor,
+        IAuthorizeUserAccessor userAccessor,
         IAuthorizationGrantRepository authorizationGrantRepository)
     {
         _authorizationCodeEncoder = authorizationCodeEncoder;
