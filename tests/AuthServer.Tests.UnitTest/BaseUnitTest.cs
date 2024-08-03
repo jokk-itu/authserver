@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography;
+using AuthServer.Authorize.Abstractions;
 using AuthServer.Cache.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
@@ -105,6 +106,7 @@ public abstract class BaseUnitTest
         services.AddScoped<IUsernameResolver, UsernameResolver>();
         services.AddScoped<IDistributedCache, InMemoryCache>();
         services.AddScoped<IUserClaimService, UserClaimService>();
+        services.AddScoped<IAcrClaimMapper, AcrClaimMapper>();
 
         return services;
     }
