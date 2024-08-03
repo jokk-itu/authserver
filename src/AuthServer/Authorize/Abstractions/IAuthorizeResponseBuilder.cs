@@ -10,8 +10,9 @@ internal interface IAuthorizeResponseBuilder
     /// </summary>
     /// <param name="request"></param>
     /// <param name="additionalParameters"></param>
+    /// <param name="httpResponse"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task<IResult> BuildResponse(AuthorizeRequest request, IDictionary<string, string> additionalParameters,
-        CancellationToken cancellationToken);
+        HttpResponse httpResponse, CancellationToken cancellationToken);
 }
