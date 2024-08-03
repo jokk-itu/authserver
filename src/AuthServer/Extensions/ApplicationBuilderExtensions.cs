@@ -5,56 +5,41 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
 namespace AuthServer.Extensions;
-
-public static class EndpointRouteBuilderExtensions
+public static class ApplicationBuilderExtensions
 {
-	public static IEndpointRouteBuilder MapGetRegisterEndpoint(this IEndpointRouteBuilder endpointBuilder)
-	{
-		endpointBuilder
-			.MapGet("connect/register", GetRegisterEndpoint.HandleGetRegister)
-			.WithDisplayName("OpenId Connect Dynamic Get Client Registration")
-			.WithName("OpenId Connect Dynamic Get Client Registration")
-			.WithDescription("Get Endpoint to get a client")
-			.WithGroupName("Register")
-			.RequireAuthorization(AuthorizationConstants.Register);
-
-		return endpointBuilder;
-	}
-
-	public static IEndpointRouteBuilder MapDeleteRegisterEndpoint(this IEndpointRouteBuilder endpointBuilder)
-	{
-		endpointBuilder
-			.MapDelete("connect/register", DeleteRegisterEndpoint.HandleDeleteRegister)
-			.WithDisplayName("OpenId Connect Dynamic Delete Client Registration")
-			.WithName("OpenId Connect Dynamic Delete Client Registration")
-			.WithDescription("Delete Endpoint to delete a client")
-			.WithGroupName("Register")
-			.RequireAuthorization(AuthorizationConstants.Register);
-
-		return endpointBuilder;
-	}
-
-	public static IEndpointRouteBuilder MapPutRegisterEndpoint(this IEndpointRouteBuilder endpointBuilder)
-	{
-		endpointBuilder
-			.MapPut("connect/register", PutRegisterEndpoint.HandlePutRegister)
-			.WithDisplayName("OpenId Connect Dynamic Update Client Registration")
-			.WithName("OpenId Connect Dynamic Update Client Registration")
-			.WithDescription("Put Endpoint to update a client")
-			.WithGroupName("Register")
-			.RequireAuthorization(AuthorizationConstants.Register);
-
-		return endpointBuilder;
-	}
-
-	public static IEndpointRouteBuilder MapPostRegisterEndpoint(this IEndpointRouteBuilder endpointBuilder)
+    public static IEndpointRouteBuilder MapEndSessionEndpoint(this IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapPost("connect/register", PostRegisterEndpoint.HandlePostRegister)
-            .WithDisplayName("OpenId Connect Dynamic Create Client Registration")
-            .WithName("OpenId Connect Dynamic Create Client Registration")
-            .WithDescription("Post Endpoint to register a client")
+            .MapMethods("connect/end-session", ["GET", "POST"], EndSessionEndpoint.HandleEndSession)
+            .WithDisplayName("OpenId Connect EndSession")
+            .WithName("OpenId Connect EndSession")
+            .WithDescription("Endpoint to end the session")
+            .WithGroupName("EndSession");
+
+        return endpointBuilder;
+    }
+
+    public static IEndpointRouteBuilder MapDynamicClientRegistrationEndpoint(this IEndpointRouteBuilder endpointBuilder)
+    {
+        endpointBuilder
+            .MapMethods("connect/register", ["POST"], RegisterEndpoint.HandleRegister)
+            .WithDisplayName("OpenId Connect Dynamic Registration")
+            .WithName("OpenId Connect Dynamic Registration")
+            .WithDescription("Endpoint to register a client")
             .WithGroupName("Register");
+
+        return endpointBuilder;
+    }
+
+    public static IEndpointRouteBuilder MapDynamicClientManagementEndpoint(this IEndpointRouteBuilder endpointBuilder)
+    {
+        endpointBuilder
+            .MapMethods("connect/register", ["GET", "PUT", "DELETE"], RegisterEndpoint.HandleRegister)
+            .WithDisplayName("OpenId Connect Dynamic Management")
+            .WithName("OpenId Connect Dynamic Management")
+            .WithDescription("Endpoint to manage a client")
+            .WithGroupName("Register")
+            .RequireAuthorization(AuthorizationConstants.Register);
 
         return endpointBuilder;
     }
@@ -99,7 +84,7 @@ public static class EndpointRouteBuilderExtensions
     public static IEndpointRouteBuilder MapRevocationEndpoint(this IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapMethods("oauth/revoke", ["POST"], RevocationEndpoint.HandleRevocation)
+            .MapMethods("connect/revoke", ["POST"], RevocationEndpoint.HandleRevocation)
             .WithDisplayName("OAuth Revocation")
             .WithName("OAuth Revocation")
             .WithDescription("Endpoint to revoke a given token")
@@ -111,7 +96,7 @@ public static class EndpointRouteBuilderExtensions
     public static IEndpointRouteBuilder MapIntrospectionEndpoint(this IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapMethods("oauth/introspection", ["POST"], IntrospectionEndpoint.HandleIntrospection)
+            .MapMethods("connect/introspection", ["POST"], IntrospectionEndpoint.HandleIntrospection)
             .WithDisplayName("OAuth Introspection")
             .WithName("OAuth Introspection")
             .WithDescription("Endpoint to get a structured token from a reference")
