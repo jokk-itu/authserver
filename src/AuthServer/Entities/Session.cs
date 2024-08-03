@@ -1,4 +1,5 @@
-﻿using AuthServer.Core;
+﻿using System.Linq.Expressions;
+using AuthServer.Core;
 
 namespace AuthServer.Entities;
 public class Session : Entity<string>
@@ -17,4 +18,11 @@ public class Session : Entity<string>
     public DateTime? RevokedAt { get; private set; }
     public PublicSubjectIdentifier PublicSubjectIdentifier { get; private init; }
     public ICollection<AuthorizationGrant> AuthorizationGrants { get; private init; } = [];
+
+    public static Expression<Func<Session, bool>> IsActive = s => s.RevokedAt == null;
+
+    public void Revoke()
+    {
+        RevokedAt ??= DateTime.UtcNow;
+    }
 }
