@@ -29,6 +29,7 @@ builder.Services
         options.RequestParameterSupported = true;
         options.RequestUriParameterSupported = true;
         options.AcrValuesSupported = ["pwd", "2fa", "mfa"];
+        options.ScopesSupported = ["weather:read"];
 
         ICollection<string> signingAlgorithms =
             [JwsAlgConstants.RsaSha256, JwsAlgConstants.EcdsaSha256, JwsAlgConstants.RsaSsaPssSha256];
