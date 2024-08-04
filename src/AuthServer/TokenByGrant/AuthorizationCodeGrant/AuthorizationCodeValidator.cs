@@ -4,6 +4,7 @@ using AuthServer.Core;
 using AuthServer.Core.Abstractions;
 using AuthServer.Core.Request;
 using AuthServer.Entities;
+using AuthServer.Extensions;
 using AuthServer.Helpers;
 using AuthServer.Repositories.Abstractions;
 using AuthServer.RequestAccessors.Token;
@@ -116,7 +117,7 @@ internal class AuthorizationCodeValidator : IRequestValidator<TokenRequest, Auth
                 return TokenError.ConsentRequired;
             }
 
-            if (scope.Except(consentedScopes).Any())
+            if (scope.ExceptAny(consentedScopes))
             {
                 return TokenError.ScopeExceedsConsentedScope;
             }

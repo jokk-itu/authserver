@@ -4,6 +4,7 @@ using AuthServer.Core;
 using AuthServer.Core.Abstractions;
 using AuthServer.Core.Request;
 using AuthServer.Entities;
+using AuthServer.Extensions;
 using AuthServer.Helpers;
 using AuthServer.Repositories.Abstractions;
 using AuthServer.RequestAccessors.Token;
@@ -120,7 +121,7 @@ internal class RefreshTokenValidator : IRequestValidator<TokenRequest, RefreshTo
             requestComparableScope = cachedClient.Scopes;
         }
 
-        var isRequestedScopeInvalid = isScopeRequested && request.Scope.Except(requestComparableScope).Any();
+        var isRequestedScopeInvalid = isScopeRequested && request.Scope.ExceptAny(requestComparableScope);
         if (isRequestedScopeInvalid)
         {
             return TokenError.ScopeExceedsConsentedScope;

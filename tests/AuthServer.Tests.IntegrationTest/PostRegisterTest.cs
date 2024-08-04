@@ -53,7 +53,7 @@ public class PostRegisterTest : BaseIntegrationTest
         // Arrange
         var arguments = new Dictionary<string, object>
         {
-            { Parameter.ClientName, "webapp" },
+            { Parameter.ClientName, "worker-app" },
             { Parameter.GrantTypes, new[] { GrantTypeConstants.ClientCredentials } }
         };
         var request = new HttpRequestMessage(HttpMethod.Post, "connect/register")

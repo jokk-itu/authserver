@@ -3,6 +3,7 @@ using AuthServer.Authorize.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Entities;
+using AuthServer.Extensions;
 using AuthServer.RequestAccessors.Authorize;
 using AuthServer.TokenDecoders;
 using AuthServer.TokenDecoders.Abstractions;
@@ -105,7 +106,7 @@ internal class AuthorizeInteractionProcessor : IAuthorizeInteractionProcessor
             return PromptConstants.Consent;
         }
 
-        if (consentGrant.ConsentedScopes.Select(x => x.Name).Except(authorizeRequest.Scope).Any())
+        if (authorizeRequest.Scope.ExceptAny(consentGrant.ConsentedScopes.Select(x => x.Name)))
         {
             return PromptConstants.Consent;
         }

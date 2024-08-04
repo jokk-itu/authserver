@@ -352,7 +352,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     private ProcessError? ValidateGrantTypes(RegisterRequest request, RegisterValidatedRequest validatedRequest)
     {
         if (request.GrantTypes.Count != 0
-            && request.GrantTypes.Except(DiscoveryDocument.GrantTypesSupported).Any())
+            && request.GrantTypes.ExceptAny(DiscoveryDocument.GrantTypesSupported))
         {
             return RegisterError.InvalidGrantTypes;
         }
@@ -381,8 +381,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     {
         if (request.Scope.Count != 0)
         {
-            var existingScope = DiscoveryDocument.ScopesSupported.Count;
-            if (existingScope != request.Scope.Count)
+            if (request.Scope.ExceptAny(DiscoveryDocument.ScopesSupported))
             {
                 return RegisterError.InvalidScope;
             }
@@ -406,7 +405,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     private ProcessError? ValidateResponseTypes(RegisterRequest request, RegisterValidatedRequest validatedRequest)
     {
         if (request.ResponseTypes.Count != 0
-            && DiscoveryDocument.ResponseTypesSupported.Except(request.ResponseTypes).Any())
+            && request.ResponseTypes.ExceptAny(DiscoveryDocument.ResponseTypesSupported))
         {
             return RegisterError.InvalidResponseTypes;
         }
@@ -812,7 +811,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
             return null;
         }
 
-        if (DiscoveryDocument.AcrValuesSupported.Except(request.DefaultAcrValues).Any())
+        if (request.DefaultAcrValues.ExceptAny(DiscoveryDocument.AcrValuesSupported))
         {
             return RegisterError.InvalidDefaultAcrValues;
         }

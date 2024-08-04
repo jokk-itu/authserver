@@ -64,7 +64,7 @@ internal class ClientCredentialsValidator : IRequestValidator<TokenRequest, Clie
             return TokenError.UnauthorizedForGrantType;
         }
 
-        if (request.Scope.All(x => cachedClient.Scopes.Any(y => y == x)))
+        if (request.Scope.ExceptAny(cachedClient.Scopes))
         {
             return TokenError.UnauthorizedForScope;
         }

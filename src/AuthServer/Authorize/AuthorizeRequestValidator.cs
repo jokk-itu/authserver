@@ -5,6 +5,7 @@ using AuthServer.Core;
 using AuthServer.Core.Discovery;
 using AuthServer.Core.Request;
 using AuthServer.Entities;
+using AuthServer.Extensions;
 using AuthServer.Helpers;
 using AuthServer.RequestAccessors.Authorize;
 using AuthServer.TokenDecoders;
@@ -149,7 +150,7 @@ internal class AuthorizeRequestValidator : IRequestValidator<AuthorizeRequest, A
             return AuthorizeError.InvalidOpenIdScope;
         }
 
-        var isClientUnauthorizedForScope = cachedClient.Scopes.Except(request.Scope).Any();
+        var isClientUnauthorizedForScope = request.Scope.ExceptAny(cachedClient.Scopes);
         if (isClientUnauthorizedForScope)
         {
             return AuthorizeError.UnauthorizedScope;
@@ -186,7 +187,7 @@ internal class AuthorizeRequestValidator : IRequestValidator<AuthorizeRequest, A
         }
 
         if (request.AcrValues.Count != 0 &&
-            _discoveryDocumentOptions.Value.AcrValuesSupported.Except(request.AcrValues).Any())
+            request.AcrValues.ExceptAny(_discoveryDocumentOptions.Value.AcrValuesSupported))
         {
             return AuthorizeError.InvalidAcr;
         }
