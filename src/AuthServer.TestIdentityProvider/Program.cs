@@ -82,6 +82,9 @@ builder.Services
             new JwksDocument.SigningKey(rsaSecurityKey, SigningAlg.RsaSsaPssSha384),
             new JwksDocument.SigningKey(rsaSecurityKey, SigningAlg.RsaSsaPssSha512),
         ];
+
+        options.GetTokenSigningKey =
+            () => options.SigningKeys.Single(x => x.Alg == SigningAlg.RsaSha256);
     });
 
 builder.Services
@@ -105,7 +108,7 @@ builder.Services.AddAuthServer(dbContextConfigurator =>
     dbContextConfigurator.UseSqlServer(
         builder.Configuration.GetConnectionString("Default"),
         optionsBuilder =>
-        { 
+        {
             optionsBuilder.MigrationsAssembly("AuthServer.TestIdentityProvider");
             optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
         });
