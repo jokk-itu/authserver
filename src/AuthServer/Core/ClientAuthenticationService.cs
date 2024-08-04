@@ -44,7 +44,7 @@ internal class ClientAuthenticationService : IClientAuthenticationService
 
         if (client is null)
         {
-            _logger.LogTrace("ClientId {ClientId} does not exist", clientIdAuthentication.ClientId);
+            _logger.LogDebug("ClientId {ClientId} does not exist", clientIdAuthentication.ClientId);
             return new ClientAuthenticationResult(null, false);
         }
 
@@ -62,7 +62,7 @@ internal class ClientAuthenticationService : IClientAuthenticationService
 
         if (client is null)
         {
-            _logger.LogTrace("ClientId {ClientId} does not exist", clientSecretAuthentication.ClientId);
+            _logger.LogDebug("ClientId {ClientId} does not exist", clientSecretAuthentication.ClientId);
             return new ClientAuthenticationResult(null, false);
         }
 
@@ -77,14 +77,13 @@ internal class ClientAuthenticationService : IClientAuthenticationService
         if (client.SecretExpiresAt is not null
             && client.SecretExpiresAt < DateTime.UtcNow)
         {
-            _logger.LogTrace("ClientSecret has expired at {Expiration}", client.SecretExpiresAt);
+            _logger.LogDebug("ClientSecret has expired at {Expiration}", client.SecretExpiresAt);
             return new ClientAuthenticationResult(null, false);
         }
 
-        if (string.IsNullOrWhiteSpace(clientSecretAuthentication.ClientSecret)
-            || !BCrypt.CheckPassword(clientSecretAuthentication.ClientSecret, client.SecretHash))
+        if (!BCrypt.CheckPassword(clientSecretAuthentication.ClientSecret, client.SecretHash))
         {
-            _logger.LogTrace("ClientSecret is invalid");
+            _logger.LogDebug("ClientSecret is invalid");
             return new ClientAuthenticationResult(null, false);
         }
 
@@ -98,6 +97,7 @@ internal class ClientAuthenticationService : IClientAuthenticationService
 
         if (!clientAssertionIsPrivateKey)
         {
+            _logger.LogDebug("Incorrect client_assertion_type");
             return new ClientAuthenticationResult(null, false);
         }
 
@@ -112,7 +112,7 @@ internal class ClientAuthenticationService : IClientAuthenticationService
 
         if (client is null)
         {
-            _logger.LogTrace("ClientId {ClientId} does not exist", clientId);
+            _logger.LogDebug("ClientId {ClientId} does not exist", clientId);
             return new ClientAuthenticationResult(null, false);
         }
 
@@ -136,7 +136,7 @@ internal class ClientAuthenticationService : IClientAuthenticationService
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Token validation failed");
+            _logger.LogWarning(e, "Token validation failed");
             return new ClientAuthenticationResult(null, false);
         }
     }

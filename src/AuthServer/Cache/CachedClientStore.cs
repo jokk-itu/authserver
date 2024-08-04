@@ -89,6 +89,7 @@ internal class CachedClientStore : ICachedClientStore
 
         if (client is null)
         {
+            _logger.LogInformation("Client {ClientId} does not exist", entityId);
             return null;
         }
 
