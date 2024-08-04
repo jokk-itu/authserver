@@ -66,11 +66,9 @@ internal class ClientAuthenticationService : IClientAuthenticationService
             return new ClientAuthenticationResult(null, false);
         }
 
-        var isClientAuthorizedForAuthenticationMethod = new[] { TokenEndpointAuthMethod.ClientSecretBasic, TokenEndpointAuthMethod.ClientSecretPost }
-            .Contains(client.TokenEndpointAuthMethod);
-
-        if (!isClientAuthorizedForAuthenticationMethod)
+        if (client.TokenEndpointAuthMethod != clientSecretAuthentication.Method)
         {
+            _logger.LogDebug("Client {ClientId} is not registered for {TokenEndpointAuthMethod}", client.Id, clientSecretAuthentication.Method);
             return new ClientAuthenticationResult(null, false);
         }
 
