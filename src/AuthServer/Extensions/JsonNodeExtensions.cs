@@ -9,7 +9,7 @@ internal static class JsonNodeExtensions
 		return node[key]?.GetValue<string>() ?? string.Empty;
 	}
 
-	public static IReadOnlyCollection<string> GetSpaceDelimitedValueOrEmpty(this JsonNode node, string key)
+	public static IReadOnlyCollection<string> GetCollectionValue(this JsonNode node, string key)
     {
         return node[key]?
                    .AsArray()
@@ -17,5 +17,10 @@ internal static class JsonNodeExtensions
                    .ToList()
                    .AsReadOnly()
                ?? new List<string>().AsReadOnly();
+    }
+
+    public static IReadOnlyCollection<string> GetSpaceDelimitedValueOrEmpty(this JsonNode node, string key)
+    {
+        return node[key]?.GetValue<string>()?.Split(' ') ?? [];
     }
 }

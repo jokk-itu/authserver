@@ -63,12 +63,13 @@ internal class RegisterRequestAccessor : IRequestAccessor<RegisterRequest>
 
 		var defaultAcrValues = json.GetSpaceDelimitedValueOrEmpty(Parameter.DefaultAcrValues);
 		var scope = json.GetSpaceDelimitedValueOrEmpty(Parameter.Scope);
-		var redirectUris = json.GetSpaceDelimitedValueOrEmpty(Parameter.RedirectUris);
-		var postLogoutRedirectUris = json.GetSpaceDelimitedValueOrEmpty(Parameter.PostLogoutRedirectUris);
-		var requestUris = json.GetSpaceDelimitedValueOrEmpty(Parameter.RequestUris);
-		var responseTypes = json.GetSpaceDelimitedValueOrEmpty(Parameter.ResponseTypes);
-		var grantTypes = json.GetSpaceDelimitedValueOrEmpty(Parameter.GrantTypes);
-		var contacts = json.GetSpaceDelimitedValueOrEmpty(Parameter.Contacts);
+
+		var redirectUris = json.GetCollectionValue(Parameter.RedirectUris);
+		var postLogoutRedirectUris = json.GetCollectionValue(Parameter.PostLogoutRedirectUris);
+		var requestUris = json.GetCollectionValue(Parameter.RequestUris);
+		var responseTypes = json.GetCollectionValue(Parameter.ResponseTypes);
+		var grantTypes = json.GetCollectionValue(Parameter.GrantTypes);
+		var contacts = json.GetCollectionValue(Parameter.Contacts);
 
 		return new RegisterRequest
         {
