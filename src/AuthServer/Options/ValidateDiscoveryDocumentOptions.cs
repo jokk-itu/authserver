@@ -19,17 +19,17 @@ public class ValidateDiscoveryDocumentOptions : IValidateOptions<DiscoveryDocume
             return ValidateOptionsResult.Fail($"{nameof(options.Issuer)} is not an absolute well formed uri");
         }
 
-        if (!options.ServiceDocumentation.IsNullOrEmpty() && Uri.IsWellFormedUriString(options.ServiceDocumentation, UriKind.Absolute))
+        if (!options.ServiceDocumentation.IsNullOrEmpty() && !Uri.IsWellFormedUriString(options.ServiceDocumentation, UriKind.Absolute))
         {
             return ValidateOptionsResult.Fail($"{nameof(options.ServiceDocumentation)} is not an absolute well formed uri");
         }
 
-        if (!options.OpPolicyUri.IsNullOrEmpty() && Uri.IsWellFormedUriString(options.OpPolicyUri, UriKind.Absolute))
+        if (!options.OpPolicyUri.IsNullOrEmpty() && !Uri.IsWellFormedUriString(options.OpPolicyUri, UriKind.Absolute))
         {
             return ValidateOptionsResult.Fail($"{nameof(options.OpPolicyUri)} is not an absolute well formed uri");
         }
 
-        if (!options.OpTosUri.IsNullOrEmpty() && Uri.IsWellFormedUriString(options.OpTosUri, UriKind.Absolute))
+        if (!options.OpTosUri.IsNullOrEmpty() && !Uri.IsWellFormedUriString(options.OpTosUri, UriKind.Absolute))
         {
             return ValidateOptionsResult.Fail($"{nameof(options.OpTosUri)} is not an absolute well formed uri");
         }
