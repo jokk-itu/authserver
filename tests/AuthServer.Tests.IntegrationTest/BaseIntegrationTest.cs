@@ -1,5 +1,7 @@
 ﻿using AuthServer.Core;
 using AuthServer.Core.Discovery;
+using AuthServer.Entities;
+using AuthServer.Enums;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,4 +41,33 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     {
         AllowAutoRedirect = false
     });
+
+    protected async Task<string> AddWeatherReadScope()
+    {
+        var dbContext = ServiceProvider.GetRequiredService<AuthorizationDbContext>();
+
+        const string scopeName = "weather:read";
+        var scope = new Scope(scopeName);
+
+        dbContext.Add(scope);
+        await dbContext.SaveChangesAsync();
+
+        return scopeName;
+    }
+
+    protected async Task<Client> AddWeatherClient()
+    {
+        var dbContext = ServiceProvider.GetRequiredService<AuthorizationDbContext>();
+
+        var weatherScope = await dbContext.Set<Scope>().SingleAsync(x => x.Name == "weather:read");
+        var client = new Client("weather-api", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic)
+        {
+            Scopes = [ weatherScope ],
+            ClientUri = "https://weather.authserver.dk"
+        };
+        dbContext.Add(client);
+        await dbContext.SaveChangesAsync();
+
+        return client;
+    }
 }
