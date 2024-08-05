@@ -75,6 +75,7 @@ public static class ServiceCollectionExtensions
         return services
             .ConfigureOptions<PostConfigureDiscoveryDocumentOptions>()
             .ConfigureOptions<ValidateDiscoveryDocumentOptions>()
+            .ConfigureOptions<ValidateJwksDocument>()
             .ConfigureOptions<ValidateUserInteractionOptions>();
     }
 
