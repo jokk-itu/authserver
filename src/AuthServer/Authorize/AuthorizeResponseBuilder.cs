@@ -72,7 +72,7 @@ internal class AuthorizeResponseBuilder : IAuthorizeResponseBuilder
         builder.Append('?');
         AddParameters(builder, additionalParameters);
         var query = builder.ToString();
-        return Results.Extensions.OAuthSeeOtherRedirect($"{redirectUri}{query}", httpResponse);
+        return Results.Extensions.OAuthSeeOtherRedirect(redirectUri + query, httpResponse);
     }
 
     private static IResult BuildFragment(string redirectUri, IDictionary<string, string> additionalParameters, HttpResponse httpResponse)
@@ -81,17 +81,12 @@ internal class AuthorizeResponseBuilder : IAuthorizeResponseBuilder
         builder.Append('#');
         AddParameters(builder, additionalParameters);
         var fragment = builder.ToString();
-        return Results.Extensions.OAuthSeeOtherRedirect($"{redirectUri}{fragment}", httpResponse);
+        return Results.Extensions.OAuthSeeOtherRedirect(redirectUri + fragment, httpResponse);
     }
 
     private static void AddParameters(StringBuilder builder, IDictionary<string, string> parameters)
     {
-        foreach (var (key, value) in parameters)
-        {
-            builder.Append(UrlEncoder.Default.Encode(key));
-            builder.Append('=');
-            builder.Append(UrlEncoder.Default.Encode(value));
-        }
+        builder.AppendJoin('&', parameters.Select(x => x.Key + '=' + x.Value));
     }
 
     private static IResult BuildFormPost(string redirectUri, IDictionary<string, string> additionalParameters)
