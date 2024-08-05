@@ -58,10 +58,16 @@ public abstract class BaseUnitTest
         services.AddOptions<JwksDocument>().Configure(jwksDocument =>
         {
             var rsa = RSA.Create(3072);
-            var rsaSecurityKey = new RsaSecurityKey(rsa);
+            var rsaSecurityKey = new RsaSecurityKey(rsa)
+            {
+                KeyId = Guid.NewGuid().ToString()
+            };
 
             var ecdsa = ECDsa.Create();
-            var ecdsaSecurityKey = new ECDsaSecurityKey(ecdsa);
+            var ecdsaSecurityKey = new ECDsaSecurityKey(ecdsa)
+            {
+                KeyId = Guid.NewGuid().ToString()
+            };
 
             jwksDocument.SigningKeys =
             [
