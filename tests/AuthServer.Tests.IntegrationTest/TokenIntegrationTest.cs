@@ -27,6 +27,7 @@ public class TokenIntegrationTest : BaseIntegrationTest
             {
                 { Parameter.ClientName, "worker-app" },
                 { Parameter.GrantTypes, new[] { GrantTypeConstants.ClientCredentials } },
+                { Parameter.TokenEndpointAuthMethod, TokenEndpointAuthMethodConstants.ClientSecretPost },
                 { Parameter.Scope, scope }
             });
         registerResponseMessage.EnsureSuccessStatusCode();
@@ -55,7 +56,7 @@ public class TokenIntegrationTest : BaseIntegrationTest
         Assert.Equal(scope, tokenResponse.Scope);
         Assert.Equal("Bearer", tokenResponse.TokenType);
         Assert.Null(tokenResponse.RefreshToken);
-        Assert.Null(tokenResponse.RefreshToken);
+        Assert.Null(tokenResponse.IdToken);
         Assert.NotNull(tokenResponse.AccessToken);
         Assert.Equal(registerResponse.AccessTokenExpiration, tokenResponse.ExpiresIn);
     }
