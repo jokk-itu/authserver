@@ -179,7 +179,7 @@ internal class RegisterRequestProcessor : IRequestProcessor<RegisterValidatedReq
         client.LogoUri = request.LogoUri;
         client.Jwks = request.Jwks;
         client.JwksUri = request.JwksUri;
-        client.DefaultAcrValues = string.Join(' ', request.DefaultAcrValues);
+        client.DefaultAcrValues = request.DefaultAcrValues.Count == 0 ? null : string.Join(' ', request.DefaultAcrValues);
         client.RequireSignedRequestObject = request.RequireSignedRequestObject;
         client.RequireReferenceToken = request.RequireReferenceToken;
         client.SubjectType = request.SubjectType;
