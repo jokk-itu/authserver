@@ -69,7 +69,7 @@ public class PostRegisterTest : BaseIntegrationTest
 
         // Assert
         Assert.NotNull(registerResponse);
-        Assert.Equal("webapp", registerResponse.ClientName);
+        Assert.Equal("worker-app", registerResponse.ClientName);
         Assert.Collection(registerResponse.GrantTypes, x => Assert.Equal(GrantTypeConstants.ClientCredentials, x));
     }
 
