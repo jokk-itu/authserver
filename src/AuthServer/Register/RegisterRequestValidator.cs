@@ -385,13 +385,13 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
             {
                 return RegisterError.InvalidScope;
             }
+            validatedRequest.Scope = request.Scope;
         }
         else if (validatedRequest.GrantTypes.Contains(GrantTypeConstants.AuthorizationCode))
         {
             validatedRequest.Scope = [ScopeConstants.OpenId];
         }
 
-        validatedRequest.Scope = request.Scope;
         return null;
     }
 
