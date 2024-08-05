@@ -84,16 +84,12 @@ internal static class TokenHelper
 
     private static ECCurve GetNamedECCurve(string curveId)
     {
-        switch (curveId)
+        return curveId switch
         {
-            case JsonWebKeyECTypes.P256:
-                return ECCurve.NamedCurves.nistP256;
-            case JsonWebKeyECTypes.P384:
-                return ECCurve.NamedCurves.nistP384;
-            case JsonWebKeyECTypes.P521:
-                return ECCurve.NamedCurves.nistP521;
-            default:
-                throw new ArgumentException("unknown curve", nameof(curveId));
-        }
+            JsonWebKeyECTypes.P256 => ECCurve.NamedCurves.nistP256,
+            JsonWebKeyECTypes.P384 => ECCurve.NamedCurves.nistP384,
+            JsonWebKeyECTypes.P521 => ECCurve.NamedCurves.nistP521,
+            _ => throw new ArgumentException("unknown curve", nameof(curveId))
+        };
     }
 }
