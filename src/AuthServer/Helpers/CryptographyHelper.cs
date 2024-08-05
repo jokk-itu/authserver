@@ -1,18 +1,14 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 
 namespace AuthServer.Helpers;
 internal static class CryptographyHelper
 {
-    public static string GetUrlEncodedRandomString(int length)
-    {
-        return Base64UrlEncoder.Encode(RandomNumberGenerator.GetBytes(length));
-    }
+    private const string Characters = "0123456789!$()[]{}%abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     public static string GetRandomString(int length)
     {
-        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(length));
+        return RandomNumberGenerator.GetString(Characters, length);
     }
 
     public static string Sha256(this string data)
