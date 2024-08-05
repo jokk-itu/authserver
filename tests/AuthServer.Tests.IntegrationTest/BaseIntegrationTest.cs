@@ -24,6 +24,9 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     private readonly IOptionsMonitor<UserInteraction> _userInteractionOptions;
     protected UserInteraction UserInteraction => _userInteractionOptions.CurrentValue;
 
+    private readonly IOptionsMonitor<JwksDocument> _jwksDocumentOptions;
+    protected JwksDocument JwksDocument => _jwksDocumentOptions.CurrentValue;
+
     protected BaseIntegrationTest(WebApplicationFactory<Program> factory, ITestOutputHelper testOutputHelper)
     {
         _factory = factory;
@@ -32,6 +35,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 
         _discoveryDocumentOptions = _factory.Services.GetRequiredService<IOptionsMonitor<DiscoveryDocument>>();
         _userInteractionOptions = _factory.Services.GetRequiredService<IOptionsMonitor<UserInteraction>>();
+        _jwksDocumentOptions = _factory.Services.GetRequiredService<IOptionsMonitor<JwksDocument>>();
 
         ServiceProvider.GetRequiredService<AuthorizationDbContext>().Database.EnsureDeleted();
         ServiceProvider.GetRequiredService<AuthorizationDbContext>().Database.Migrate();
