@@ -12,6 +12,7 @@ using AuthServer.Authorize.Abstractions;
 using AuthServer.Core;
 using AuthServer.Tests.Core;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.IdentityModel.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,16 +54,21 @@ builder.Services
         options.UserinfoEncryptionEncValuesSupported = encoderAlgorithms;
     });
 
+var ecdsa = ECDsa.Create();
+var rsa = RSA.Create(3072);
+
+var ecdsaSecurityKey = new ECDsaSecurityKey(ecdsa)
+{
+    KeyId = Guid.NewGuid().ToString()
+};
+var rsaSecurityKey = new RsaSecurityKey(rsa)
+{
+    KeyId = Guid.NewGuid().ToString()
+};
 builder.Services
     .AddOptions<JwksDocument>()
     .Configure(options =>
     {
-        var ecdsa = ECDsa.Create();
-        var rsa = RSA.Create(3072);
-
-        var ecdsaSecurityKey = new ECDsaSecurityKey(ecdsa);
-        var rsaSecurityKey = new RsaSecurityKey(rsa);
-
         options.EncryptionKeys =
         [
             new JwksDocument.EncryptionKey(ecdsaSecurityKey, EncryptionAlg.EcdhEsA128KW),
