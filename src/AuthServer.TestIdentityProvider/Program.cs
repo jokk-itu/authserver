@@ -127,6 +127,8 @@ builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
+IdentityModelEventSource.ShowPII = true;
+
 app.UseHsts();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -136,6 +138,7 @@ app.UseAuthorization();
 app.MapRazorPages();
 
 app.MapAuthorizeEndpoint();
+app.MapEndSessionEndpoint();
 app.MapDynamicClientManagementEndpoint();
 app.MapDynamicClientRegistrationEndpoint();
 app.MapUserinfoEndpoint();
