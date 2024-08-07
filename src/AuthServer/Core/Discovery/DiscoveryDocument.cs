@@ -131,9 +131,6 @@ public class DiscoveryDocument
     [JsonPropertyName("claims_parameter_supported")]
     public bool ClaimsParameterSupported => false;
 
-    [JsonPropertyName("claims_locales_supported")]
-    public bool ClaimsLocalesSupported => false;
-
     [JsonPropertyName("request_parameter_supported")]
     public bool RequestParameterSupported { get; set; }
 
