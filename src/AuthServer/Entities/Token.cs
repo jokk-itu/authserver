@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
-using System.Security.Cryptography;
 using AuthServer.Core;
 using AuthServer.Enums;
+using AuthServer.Helpers;
 
 namespace AuthServer.Entities;
 public abstract class Token : AggregateRoot<Guid>
@@ -10,7 +10,7 @@ public abstract class Token : AggregateRoot<Guid>
     {
         var now = DateTime.UtcNow;
         Id = Guid.NewGuid();
-        Reference = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+        Reference = CryptographyHelper.GetRandomString(16);
         IssuedAt = now;
         TokenType = tokenType;
         NotBefore = now;
