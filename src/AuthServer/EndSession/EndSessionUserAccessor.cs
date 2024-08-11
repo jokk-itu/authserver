@@ -1,10 +1,8 @@
 ﻿using System.Text;
 using System.Text.Json;
-using AuthServer.Core.Discovery;
 using AuthServer.EndSession.Abstractions;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
 
 namespace AuthServer.EndSession;
 
@@ -19,8 +17,7 @@ internal class EndSessionUserAccessor : IEndSessionUserAccessor
 
     public EndSessionUserAccessor(
         IHttpContextAccessor httpContextAccessor,
-        IDataProtectionProvider dataProtectionProvider,
-        IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions)
+        IDataProtectionProvider dataProtectionProvider)
     {
         _dataProtector = dataProtectionProvider.CreateProtector("EndSessionUserCookie");
         _httpContextAccessor = httpContextAccessor;
@@ -31,8 +28,7 @@ internal class EndSessionUserAccessor : IEndSessionUserAccessor
             IsEssential = true,
             Secure = true,
             SameSite = SameSiteMode.Strict,
-            MaxAge = TimeSpan.FromMinutes(5),
-            Domain = discoveryDocumentOptions.Value.Issuer
+            MaxAge = TimeSpan.FromMinutes(5)
         };
     }
 

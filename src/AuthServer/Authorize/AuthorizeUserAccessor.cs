@@ -1,10 +1,8 @@
 ﻿using System.Text;
 using System.Text.Json;
 using AuthServer.Authorize.Abstractions;
-using AuthServer.Core.Discovery;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
 
 namespace AuthServer.Authorize;
 
@@ -19,8 +17,7 @@ internal class AuthorizeUserAccessor : IAuthorizeUserAccessor
 
     public AuthorizeUserAccessor(
         IHttpContextAccessor httpContextAccessor,
-        IDataProtectionProvider dataProtectionProvider,
-        IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions)
+        IDataProtectionProvider dataProtectionProvider)
     {
         _dataProtector = dataProtectionProvider.CreateProtector("AuthorizeUserCookie");
         _httpContextAccessor = httpContextAccessor;
@@ -32,7 +29,6 @@ internal class AuthorizeUserAccessor : IAuthorizeUserAccessor
             Secure = true,
             SameSite = SameSiteMode.Strict,
             MaxAge = TimeSpan.FromMinutes(5),
-            Domain = discoveryDocumentOptions.Value.Issuer
         };
     }
 
