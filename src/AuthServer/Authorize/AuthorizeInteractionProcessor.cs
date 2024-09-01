@@ -2,43 +2,43 @@
 using AuthServer.Authorize.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
+using AuthServer.Core.Abstractions;
 using AuthServer.Entities;
 using AuthServer.Extensions;
 using AuthServer.RequestAccessors.Authorize;
 using AuthServer.TokenDecoders;
 using AuthServer.TokenDecoders.Abstractions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthServer.Authorize;
 
 internal class AuthorizeInteractionProcessor : IAuthorizeInteractionProcessor
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly AuthorizationDbContext _identityContext;
     private readonly ITokenDecoder<ServerIssuedTokenDecodeArguments> _serverIssuedTokenDecoder;
     private readonly IAuthorizeUserAccessor _userAccessor;
+    private readonly IAuthenticatedUserAccessor _authenticatedUserAccessor;
 
     public AuthorizeInteractionProcessor(
-        IHttpContextAccessor httpContextAccessor,
         AuthorizationDbContext identityContext,
         ITokenDecoder<ServerIssuedTokenDecodeArguments> serverIssuedTokenDecoder,
-        IAuthorizeUserAccessor userAccessor)
+        IAuthorizeUserAccessor userAccessor,
+        IAuthenticatedUserAccessor authenticatedUserAccessor)
     {
-        _httpContextAccessor = httpContextAccessor;
         _identityContext = identityContext;
         _serverIssuedTokenDecoder = serverIssuedTokenDecoder;
         _userAccessor = userAccessor;
+        _authenticatedUserAccessor = authenticatedUserAccessor;
     }
 
     /// <inheritdoc/>
     public async Task<string> ProcessForInteraction(AuthorizeRequest authorizeRequest, CancellationToken cancellationToken)
     {
         // covers the scenario where the user was redirected for interaction
-        var authenticatedUser = _userAccessor.TryGetUser();
-        if (authenticatedUser is not null)
+        var authorizeUser = _userAccessor.TryGetUser();
+        if (authorizeUser is not null)
         {
-            return await GetPrompt(authenticatedUser.SubjectIdentifier, authorizeRequest, authenticatedUser.Amr, cancellationToken);
+            return await GetPrompt(authorizeUser.SubjectIdentifier, authorizeRequest, authorizeUser.Amr, cancellationToken);
         }
 
         // client provided prompt overrides automatically deducing prompt
@@ -55,19 +55,18 @@ internal class AuthorizeInteractionProcessor : IAuthorizeInteractionProcessor
             return await GetPrompt(decodedIdToken.Subject, authorizeRequest, amr, cancellationToken);
         }
 
-        var users = _httpContextAccessor.HttpContext?.User?.Identities ?? [];
-        var activeUsers = users.Where(x => x.IsAuthenticated).ToList();
-        switch (activeUsers.Count)
+        var authenticatedUsers =
+            await _authenticatedUserAccessor.CountAuthenticatedUsers();
+
+        switch (authenticatedUsers)
         {
             case 0:
                 return PromptConstants.Login;
             case > 1:
                 return PromptConstants.SelectAccount;
             default:
-                var claims = activeUsers.Single().Claims.ToList();
-                var subjectIdentifier = claims.Single(x => x.Type == ClaimNameConstants.Sub).Value;
-                var amr = JsonSerializer.Deserialize<IEnumerable<string>>(claims.Single(x => x.Type == ClaimNameConstants.Amr).Value)!;
-                return await GetPrompt(subjectIdentifier, authorizeRequest, amr, cancellationToken);
+                var authenticatedUser = (await _authenticatedUserAccessor.GetAuthenticatedUser())!;
+                return await GetPrompt(authenticatedUser.SubjectIdentifier, authorizeRequest, authenticatedUser.Amr, cancellationToken);
         }
     }
 
@@ -82,6 +81,7 @@ internal class AuthorizeInteractionProcessor : IAuthorizeInteractionProcessor
             .Where(x => x.Session.RevokedAt == null)
             .SingleOrDefaultAsync(cancellationToken);
 
+        // TODO this does not make sense for login the first time, it only makes sense for the silent login flow
         if (authorizationGrant is null)
         {
             return PromptConstants.Login;
