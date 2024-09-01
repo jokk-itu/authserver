@@ -72,7 +72,7 @@ internal class AuthorizeRequestParameterProcessor : IAuthorizeRequestParameterPr
             {
                 ClientId = clientIdClaim?.Value ?? string.Empty,
                 CodeChallenge = codeChallengeClaim?.Value ?? string.Empty,
-                CodeChallengeMethod = codeChallengeClaim?.Value ?? string.Empty,
+                CodeChallengeMethod = codeChallengeMethodClaim?.Value ?? string.Empty,
                 Display = displayClaim?.Value ?? string.Empty,
                 IdTokenHint = idTokenHintClaim?.Value ?? string.Empty,
                 LoginHint = loginHintClaim?.Value ?? string.Empty,
