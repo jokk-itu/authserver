@@ -11,13 +11,13 @@ internal class EndSessionRequestAccessor : IRequestAccessor<EndSessionRequest>
     {
         return httpRequest.Method switch
         {
-            "GET" => GetContextFromQuery(httpRequest),
-            "POST" => await GetContextFromBody(httpRequest),
+            "GET" => GetRequestFromQuery(httpRequest),
+            "POST" => await GetRequestFromBody(httpRequest),
             _ => throw new NotSupportedException("Endpoint only supports GET and POST")
         };
     }
 
-    private static async Task<EndSessionRequest> GetContextFromBody(HttpRequest httpRequest)
+    private static async Task<EndSessionRequest> GetRequestFromBody(HttpRequest httpRequest)
     {
         var formCollection = await httpRequest.ReadFormAsync();
         var idTokenHint = formCollection.GetValueOrEmpty(Parameter.IdTokenHint);
@@ -34,7 +34,7 @@ internal class EndSessionRequestAccessor : IRequestAccessor<EndSessionRequest>
         };
     }
 
-    private static EndSessionRequest GetContextFromQuery(HttpRequest httpRequest)
+    private static EndSessionRequest GetRequestFromQuery(HttpRequest httpRequest)
     {
         var query = httpRequest.Query;
         var idTokenHint = query.GetValueOrEmpty(Parameter.IdTokenHint);
