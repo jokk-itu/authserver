@@ -13,6 +13,7 @@ using AuthServer.Core;
 using AuthServer.Tests.Core;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Logging;
+using AuthServer.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,8 +28,6 @@ builder.Services
         var identitySection = builder.Configuration.GetSection("Identity");
         options.Issuer = identitySection.GetValue<string>("Issuer")!;
         options.ClaimsSupported = ClaimNameConstants.SupportedEndUserClaims;
-        options.RequestParameterSupported = true;
-        options.RequestUriParameterSupported = true;
         options.AcrValuesSupported = ["pwd", "2fa", "mfa"];
         options.ScopesSupported = ["weather:read"];
 
@@ -109,6 +108,7 @@ builder.Services.AddSingleton<IDistributedCache, InMemoryCache>();
 builder.Services.AddScoped<IUserClaimService, UserClaimService>();
 builder.Services.AddScoped<IUsernameResolver, UsernameResolver>();
 builder.Services.AddScoped<IAcrClaimMapper, AcrClaimMapper>();
+builder.Services.AddScoped<IAuthenticatedUserAccessor, IAuthenticatedUserAccessor>();
 
 builder.Services.AddAuthServer(dbContextConfigurator =>
 {
