@@ -7,7 +7,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace AuthServer.Extensions;
 
-public static class FormCollectionExtensions
+internal static class FormCollectionExtensions
 {
     public static ClientAuthentication? GetClientSecretPost(this IFormCollection formCollection)
     {

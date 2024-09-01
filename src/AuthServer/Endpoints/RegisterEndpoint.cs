@@ -76,7 +76,7 @@ internal class RegisterEndpoint
                             ? Results.Created(new Uri(client.RegistrationClientUri, UriKind.Absolute), body)
                             : Results.Ok(body);
                     },
-                    _ => { return Results.NoContent(); });
+                    _ => Results.NoContent());
             },
             error => Results.Extensions.OAuthBadRequest(error));
     }
