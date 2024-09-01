@@ -22,11 +22,6 @@ public static class Parameter
     public const string LogoutToken = "logout_token";
     public const string TokenType = "token_type";
     public const string ExpiresIn = "expires_in";
-    public const string AuthorizationCodeExpiration = "authorization_code_expiration";
-    public const string AccessTokenExpiration = "access_token_expiration";
-    public const string RefreshTokenExpiration = "refresh_token_expiration";
-    public const string ClientSecretExpiration = "client_secret_expiration";
-    public const string JwksExpiration = "jwks_expiration";
     public const string GrantType = "grant_type";
     public const string RedirectUris = "redirect_uris";
     public const string ResponseTypes = "response_types";
@@ -72,11 +67,8 @@ public static class Parameter
     public const string JwksUri = "jwks_uri";
     public const string TokenEndpointAuthSigningAlg = "token_endpoint_auth_signing_alg";
     public const string DefaultAcrValues = "default_acr_values";
-
-    // Custom parameter
-    public const string RequireReferenceToken = "require_reference_token";
-
     public const string RequestUris = "request_uris";
+    public const string RequirePushedAuthorizationRequests = "require_pushed_authorization_requests";
     public const string RequireSignedRequestObject = "require_signed_request_object";
     public const string RequestObjectEncryptionEnc = "request_object_encryption_enc";
     public const string RequestObjectEncryptionAlg = "request_object_encryption_alg";
@@ -89,4 +81,13 @@ public static class Parameter
     public const string IdTokenSignedResponseAlg = "id_token_signed_response_alg";
     public const string ClientAssertionType = "client_assertion_type";
     public const string ClientAssertion = "client_assertion";
+
+    // Custom parameter
+    public const string RequireReferenceToken = "require_reference_token";
+    public const string AuthorizationCodeExpiration = "authorization_code_expiration";
+    public const string AccessTokenExpiration = "access_token_expiration";
+    public const string RefreshTokenExpiration = "refresh_token_expiration";
+    public const string ClientSecretExpiration = "client_secret_expiration";
+    public const string JwksExpiration = "jwks_expiration";
+    public const string RequestUriExpiration = "request_uri_expiration";
 }

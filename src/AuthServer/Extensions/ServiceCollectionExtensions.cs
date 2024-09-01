@@ -12,6 +12,8 @@ using AuthServer.Core.Request;
 using AuthServer.EndSession;
 using AuthServer.EndSession.Abstractions;
 using AuthServer.Introspection;
+using AuthServer.Metrics;
+using AuthServer.Metrics.Abstractions;
 using AuthServer.Options;
 using AuthServer.Register;
 using AuthServer.Repositories;
