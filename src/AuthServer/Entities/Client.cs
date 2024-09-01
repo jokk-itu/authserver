@@ -59,6 +59,11 @@ public class Client : Entity<string>
     public int? AuthorizationCodeExpiration { get; set; }
 
     /// <summary>
+    /// Request uri from a PushedAuthorizationRequest lifetime in seconds
+    /// </summary>
+    public int? RequestUriExpiration { get; set; }
+
+    /// <summary>
     /// Lifetime of jwks in seconds.
     /// </summary>
     public int? JwksExpiration { get; set; }
@@ -129,6 +134,12 @@ public class Client : Entity<string>
     /// either directly or by reference.
     /// </summary>
     public bool RequireSignedRequestObject { get; set; }
+
+    /// <summary>
+    /// All authorize calls require a request_uri parameter,
+    /// from a pushed authorization.
+    /// </summary>
+    public bool RequirePushedAuthorizationRequests { get; set; }
 
     /// <summary>
     /// Maximum age since last authentication by end user in epoch format
