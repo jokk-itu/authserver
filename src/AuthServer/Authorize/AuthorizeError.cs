@@ -68,8 +68,8 @@ internal class AuthorizeError
     public static readonly ProcessError AccountSelectionRequired =
         new(ErrorCode.AccountSelectionRequired, "select_account is required", ResultCode.Redirect);
 
-    public static readonly ProcessError InvalidRequestObjectAndUri =
-        new(ErrorCode.InvalidRequest, "request_uri and request_object were both provided", ResultCode.BadRequest);
+    public static readonly ProcessError InvalidRequestAndRequestUri =
+        new(ErrorCode.InvalidRequest, "request_uri and request were both provided", ResultCode.BadRequest);
 
     public static readonly ProcessError InvalidRequestUri =
         new(ErrorCode.InvalidRequestUri, "request_uri is not an absolute well formed uri", ResultCode.BadRequest);
@@ -77,9 +77,12 @@ internal class AuthorizeError
     public static readonly ProcessError UnauthorizedRequestUri =
         new(ErrorCode.InvalidRequestUri, "client has not registered the request_uri", ResultCode.BadRequest);
 
-    public static readonly ProcessError InvalidObjectFromRequestUri =
+    public static readonly ProcessError InvalidRequestFromRequestUri =
         new(ErrorCode.InvalidRequestUri, "request_object from reference is invalid", ResultCode.BadRequest);
 
-    public static readonly ProcessError InvalidRequestObject =
-        new(ErrorCode.InvalidRequestObject, "request_object is invalid", ResultCode.BadRequest);
+    public static readonly ProcessError InvalidRequest =
+        new(ErrorCode.InvalidRequestObject, "request is invalid", ResultCode.BadRequest);
+
+    public static readonly ProcessError RequestOrRequestUriRequired =
+        new(ErrorCode.InvalidRequest, "client requires either request or request_uri", ResultCode.BadRequest);
 }

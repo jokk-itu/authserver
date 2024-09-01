@@ -49,11 +49,17 @@ internal class AuthorizeRequestValidator : IRequestValidator<AuthorizeRequest, A
             return AuthorizeError.InvalidClient;
         }
 
-        if (!string.IsNullOrEmpty(request.RequestObject) && !string.IsNullOrEmpty(request.RequestUri))
+        var isRequestObjectEmpty = string.IsNullOrEmpty(request.RequestObject);
+        var isRequestUriEmpty = string.IsNullOrEmpty(request.RequestUri);
+        if (!isRequestObjectEmpty && !isRequestUriEmpty)
         {
-            return AuthorizeError.InvalidRequestObjectAndUri;
+            return AuthorizeError.InvalidRequestAndRequestUri;
         }
-        else if (!string.IsNullOrEmpty(request.RequestUri))
+        else if (isRequestUriEmpty && isRequestObjectEmpty && cachedClient.RequireSignedRequestObject)
+        {
+            return AuthorizeError.RequestOrRequestUriRequired;
+        }
+        else if (!isRequestUriEmpty)
         {
             if (!Uri.TryCreate(request.RequestUri, UriKind.Absolute, out var requestUri))
             {
@@ -68,15 +74,15 @@ internal class AuthorizeRequestValidator : IRequestValidator<AuthorizeRequest, A
             var newRequest = await _authorizeRequestParameterProcessor.GetRequestByReference(requestUri, request.ClientId, cancellationToken);
             if (newRequest is null)
             {
-                return AuthorizeError.InvalidObjectFromRequestUri;
+                return AuthorizeError.InvalidRequestFromRequestUri;
             }
         }
-        else if (!string.IsNullOrEmpty(request.RequestObject))
+        else if (!isRequestObjectEmpty)
         {
             var newRequest = await _authorizeRequestParameterProcessor.GetRequestByObject(request.RequestObject, request.ClientId, cancellationToken);
             if (newRequest is null)
             {
-                return AuthorizeError.InvalidRequestObject;
+                return AuthorizeError.InvalidRequest;
             }
         }
 
@@ -180,6 +186,7 @@ internal class AuthorizeRequestValidator : IRequestValidator<AuthorizeRequest, A
             }
         }
 
+        // TODO this is incorrect as Prompt can contain multiple prompts
         if (!string.IsNullOrEmpty(request.Prompt)
             && !PromptConstants.Prompts.Contains(request.Prompt))
         {
