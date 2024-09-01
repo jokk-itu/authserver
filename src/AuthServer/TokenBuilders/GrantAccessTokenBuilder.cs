@@ -1,9 +1,13 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics;
+using System.Text.Json;
 using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Discovery;
 using AuthServer.Entities;
 using AuthServer.Extensions;
+using AuthServer.Metrics;
+using AuthServer.Metrics.Abstractions;
+using AuthServer.Options;
 using AuthServer.TokenBuilders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -17,19 +21,23 @@ internal class GrantAccessTokenBuilder : ITokenBuilder<GrantAccessTokenArguments
     private readonly AuthorizationDbContext _identityContext;
     private readonly IOptionsSnapshot<DiscoveryDocument> _discoveryDocumentOptions;
     private readonly IOptionsSnapshot<JwksDocument> _jwksDocument;
+    private readonly IMetricService _metricService;
 
     public GrantAccessTokenBuilder(
         AuthorizationDbContext identityContext,
         IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions,
-        IOptionsSnapshot<JwksDocument> jwksDocument)
+        IOptionsSnapshot<JwksDocument> jwksDocument,
+        IMetricService metricService)
     {
         _identityContext = identityContext;
         _discoveryDocumentOptions = discoveryDocumentOptions;
         _jwksDocument = jwksDocument;
+        _metricService = metricService;
     }
 
     public async Task<string> BuildToken(GrantAccessTokenArguments arguments, CancellationToken cancellationToken)
     {
+        var stopWatch = Stopwatch.StartNew();
         var grantQuery = await _identityContext
             .Set<AuthorizationGrant>()
             .Where(x => x.Id == arguments.AuthorizationGrantId)
@@ -44,10 +52,16 @@ internal class GrantAccessTokenBuilder : ITokenBuilder<GrantAccessTokenArguments
 
         if (grantQuery.Client.RequireReferenceToken)
         {
-            return await BuildReferenceToken(arguments, grantQuery);
+            var referenceToken = await BuildReferenceToken(arguments, grantQuery);
+            stopWatch.Stop();
+            _metricService.AddBuiltToken(stopWatch.ElapsedMilliseconds, TokenTypeTag.AccessToken, TokenStructureTag.Reference);
+            return referenceToken;
         }
 
-        return BuildStructuredToken(arguments, grantQuery);
+        var jwt = BuildStructuredToken(arguments, grantQuery);
+        stopWatch.Stop();
+        _metricService.AddBuiltToken(stopWatch.ElapsedMilliseconds, TokenTypeTag.AccessToken, TokenStructureTag.Jwt);
+        return jwt;
     }
 
     private string BuildStructuredToken(GrantAccessTokenArguments arguments, GrantQuery grantQuery)

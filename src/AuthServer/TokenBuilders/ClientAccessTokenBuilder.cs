@@ -1,11 +1,14 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics;
+using System.Text.Json;
 using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Discovery;
 using AuthServer.Entities;
 using AuthServer.Extensions;
+using AuthServer.Metrics;
+using AuthServer.Metrics.Abstractions;
+using AuthServer.Options;
 using AuthServer.TokenBuilders.Abstractions;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -17,30 +20,36 @@ internal class ClientAccessTokenBuilder : ITokenBuilder<ClientAccessTokenArgumen
     private readonly AuthorizationDbContext _identityContext;
     private readonly IOptionsSnapshot<JwksDocument> _jwksDocumentOptions;
     private readonly IOptionsSnapshot<DiscoveryDocument> _discoveryDocumentOptions;
+    private readonly IMetricService _metricService;
 
     public ClientAccessTokenBuilder(
         AuthorizationDbContext identityContext,
         IOptionsSnapshot<JwksDocument> jwksDocumentOptions,
-        IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions)
+        IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions,
+        IMetricService metricService)
     {
         _identityContext = identityContext;
         _jwksDocumentOptions = jwksDocumentOptions;
         _discoveryDocumentOptions = discoveryDocumentOptions;
+        _metricService = metricService;
     }
 
     public async Task<string> BuildToken(ClientAccessTokenArguments arguments, CancellationToken cancellationToken)
     {
-        var client = await _identityContext
-            .Set<Client>()
-            .Where(x => x.Id == arguments.ClientId)
-            .SingleAsync(cancellationToken);
-
+        var stopWatch = Stopwatch.StartNew();
+        var client = (await _identityContext.FindAsync<Client>(arguments.ClientId, cancellationToken))!;
         if (client.RequireReferenceToken)
         {
-            return await BuildReferenceToken(arguments, client);
+            var referenceToken = await BuildReferenceToken(arguments, client);
+            stopWatch.Stop();
+            _metricService.AddBuiltToken(stopWatch.ElapsedMilliseconds, TokenTypeTag.AccessToken, TokenStructureTag.Reference);
+            return referenceToken;
         }
 
-        return BuildStructuredToken(arguments, client);
+        var jwt = BuildStructuredToken(arguments, client);
+        stopWatch.Stop();
+        _metricService.AddBuiltToken(stopWatch.ElapsedMilliseconds, TokenTypeTag.AccessToken, TokenStructureTag.Jwt);
+        return jwt;
     }
 
     private string BuildStructuredToken(ClientAccessTokenArguments arguments, Client client)

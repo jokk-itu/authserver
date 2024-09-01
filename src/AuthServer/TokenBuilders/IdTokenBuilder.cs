@@ -1,10 +1,14 @@
-﻿using AuthServer.Constants;
+﻿using System.Diagnostics;
+using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;
 using AuthServer.Core.Discovery;
 using AuthServer.Entities;
 using AuthServer.Extensions;
 using AuthServer.Helpers;
+using AuthServer.Metrics;
+using AuthServer.Metrics.Abstractions;
+using AuthServer.Options;
 using AuthServer.TokenBuilders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -19,23 +23,27 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
     private readonly IOptionsSnapshot<JwksDocument> _jwksDocumentOptions;
     private readonly ITokenSecurityService _tokenSecurityService;
     private readonly IUserClaimService _userClaimService;
+    private readonly IMetricService _metricService;
 
     public IdTokenBuilder(
         AuthorizationDbContext identityContext,
         IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions,
         IOptionsSnapshot<JwksDocument> jwksDocumentOptions,
         ITokenSecurityService tokenSecurityService,
-        IUserClaimService userClaimService)
+        IUserClaimService userClaimService,
+        IMetricService metricService)
     {
         _identityContext = identityContext;
         _discoveryDocumentOptions = discoveryDocumentOptions;
         _jwksDocumentOptions = jwksDocumentOptions;
         _tokenSecurityService = tokenSecurityService;
         _userClaimService = userClaimService;
+        _metricService = metricService;
     }
 
     public async Task<string> BuildToken(IdTokenArguments arguments, CancellationToken cancellationToken)
     {
+        var stopWatch = Stopwatch.StartNew();
         var query = await _identityContext
             .Set<AuthorizationGrant>()
             .Where(x => x.Id == arguments.AuthorizationGrantId)
@@ -63,7 +71,7 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
             { ClaimNameConstants.Nonce, query.Nonce.Value },
             { ClaimNameConstants.ClientId, query.ClientId },
             { ClaimNameConstants.Azp, query.ClientId }
-            // TODO acr from claims in arguments, which must be extended
+            // TODO acr which is derived from a function which maps amr to acr values
             // TODO amr from arguments given from the Razor Pages
         };
 
@@ -103,6 +111,9 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
         }
 
         var tokenHandler = new JsonWebTokenHandler();
-        return tokenHandler.CreateToken(tokenDescriptor);
+        var jwt = tokenHandler.CreateToken(tokenDescriptor);
+        stopWatch.Stop();
+        _metricService.AddBuiltToken(stopWatch.ElapsedMilliseconds, TokenTypeTag.IdToken, TokenStructureTag.Jwt);
+        return jwt;
     }
 }

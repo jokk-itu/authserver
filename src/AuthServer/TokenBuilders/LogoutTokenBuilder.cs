@@ -1,8 +1,11 @@
-﻿using AuthServer.Cache.Abstractions;
+﻿using System.Diagnostics;
+using AuthServer.Cache.Abstractions;
 using AuthServer.Constants;
-using AuthServer.Core.Abstractions;
 using AuthServer.Core.Discovery;
 using AuthServer.Extensions;
+using AuthServer.Metrics;
+using AuthServer.Metrics.Abstractions;
+using AuthServer.Options;
 using AuthServer.TokenBuilders.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -16,21 +19,25 @@ internal class LogoutTokenBuilder : ITokenBuilder<LogoutTokenArguments>
     private readonly IOptionsSnapshot<JwksDocument> _jwksDocumentOptions;
     private readonly ICachedClientStore _cachedClientStore;
     private readonly ITokenSecurityService _tokenSecurityService;
+    private readonly IMetricService _metricService;
 
     public LogoutTokenBuilder(
         IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions,
         IOptionsSnapshot<JwksDocument> jwksDocumentOptions,
         ICachedClientStore cachedClientStore,
-        ITokenSecurityService tokenSecurityService)
+        ITokenSecurityService tokenSecurityService,
+        IMetricService metricService)
     {
         _discoveryDocumentOptions = discoveryDocumentOptions;
         _jwksDocumentOptions = jwksDocumentOptions;
         _cachedClientStore = cachedClientStore;
         _tokenSecurityService = tokenSecurityService;
+        _metricService = metricService;
     }
 
     public async Task<string> BuildToken(LogoutTokenArguments arguments, CancellationToken cancellationToken)
     {
+        var stopWatch = Stopwatch.StartNew();
         var cachedClient = await _cachedClientStore.Get(arguments.ClientId, cancellationToken);
         var claims = new Dictionary<string, object?>
         {
@@ -74,6 +81,8 @@ internal class LogoutTokenBuilder : ITokenBuilder<LogoutTokenArguments>
         }
 
         var tokenHandler = new JsonWebTokenHandler();
-        return tokenHandler.CreateToken(tokenDescriptor);
+        var jwt = tokenHandler.CreateToken(tokenDescriptor);
+        _metricService.AddBuiltToken(stopWatch.ElapsedMilliseconds, TokenTypeTag.LogoutToken, TokenStructureTag.Jwt);
+        return jwt;
     }
 }

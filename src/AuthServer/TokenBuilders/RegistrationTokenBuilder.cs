@@ -1,7 +1,10 @@
-﻿using AuthServer.Constants;
+﻿using System.Diagnostics;
+using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Discovery;
 using AuthServer.Entities;
+using AuthServer.Metrics;
+using AuthServer.Metrics.Abstractions;
 using AuthServer.TokenBuilders.Abstractions;
 using Microsoft.Extensions.Options;
 
@@ -10,17 +13,21 @@ internal class RegistrationTokenBuilder : ITokenBuilder<RegistrationTokenArgumen
 {
     private readonly AuthorizationDbContext _identityContext;
     private readonly IOptionsSnapshot<DiscoveryDocument> _discoveryDocumentOptions;
+    private readonly IMetricService _metricService;
 
     public RegistrationTokenBuilder(
         AuthorizationDbContext identityContext,
-        IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions)
+        IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions,
+        IMetricService metricService)
     {
         _identityContext = identityContext;
         _discoveryDocumentOptions = discoveryDocumentOptions;
+        _metricService = metricService;
     }
 
     public async Task<string> BuildToken(RegistrationTokenArguments arguments, CancellationToken cancellationToken)
     {
+        var stopWatch = Stopwatch.StartNew();
         var client = (await _identityContext.FindAsync<Client>(arguments.ClientId, cancellationToken))!;
 
         var registrationToken = new RegistrationToken(client, arguments.ClientId,
@@ -29,6 +36,9 @@ internal class RegistrationTokenBuilder : ITokenBuilder<RegistrationTokenArgumen
         await _identityContext
             .Set<RegistrationToken>()
             .AddAsync(registrationToken, cancellationToken);
+
+        stopWatch.Stop();
+        _metricService.AddBuiltToken(stopWatch.ElapsedMilliseconds, TokenTypeTag.RegistrationToken, TokenStructureTag.Reference);
 
         return registrationToken.Reference;
     }

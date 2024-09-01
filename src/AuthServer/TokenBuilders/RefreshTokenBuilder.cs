@@ -1,8 +1,12 @@
-﻿using AuthServer.Constants;
+﻿using System.Diagnostics;
+using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Discovery;
 using AuthServer.Entities;
 using AuthServer.Extensions;
+using AuthServer.Metrics;
+using AuthServer.Metrics.Abstractions;
+using AuthServer.Options;
 using AuthServer.TokenBuilders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -16,19 +20,23 @@ internal class RefreshTokenBuilder : ITokenBuilder<RefreshTokenArguments>
     private readonly AuthorizationDbContext _identityContext;
     private readonly IOptionsSnapshot<DiscoveryDocument> _discoveryDocumentOptions;
     private readonly IOptionsSnapshot<JwksDocument> _jwksDocumentOptions;
+    private readonly IMetricService _metricService;
 
     public RefreshTokenBuilder(
         AuthorizationDbContext identityContext,
         IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions,
-        IOptionsSnapshot<JwksDocument> jwksDocumentOptions)
+        IOptionsSnapshot<JwksDocument> jwksDocumentOptions,
+        IMetricService metricService)
     {
         _identityContext = identityContext;
         _discoveryDocumentOptions = discoveryDocumentOptions;
         _jwksDocumentOptions = jwksDocumentOptions;
+        _metricService = metricService;
     }
 
     public async Task<string> BuildToken(RefreshTokenArguments arguments, CancellationToken cancellationToken)
     {
+        var stopWatch = Stopwatch.StartNew();
         var grantQuery = await _identityContext
             .Set<AuthorizationGrant>()
             .Where(x => x.Id == arguments.AuthorizationGrantId)
@@ -43,10 +51,16 @@ internal class RefreshTokenBuilder : ITokenBuilder<RefreshTokenArguments>
 
         if (grantQuery.Client.RequireReferenceToken)
         {
-            return await BuildReferenceToken(arguments, grantQuery);
+            var referenceToken = await BuildReferenceToken(arguments, grantQuery);
+            stopWatch.Stop();
+            _metricService.AddBuiltToken(stopWatch.ElapsedMilliseconds, TokenTypeTag.RefreshToken, TokenStructureTag.Reference);
+            return referenceToken;
         }
 
-        return await BuildStructuredToken(arguments, grantQuery);
+        var jwt = await BuildStructuredToken(arguments, grantQuery);
+        stopWatch.Stop();
+        _metricService.AddBuiltToken(stopWatch.ElapsedMilliseconds, TokenTypeTag.RefreshToken, TokenStructureTag.Jwt);
+        return jwt;
     }
 
     private async Task<string> BuildReferenceToken(RefreshTokenArguments arguments, GrantQuery grantQuery)

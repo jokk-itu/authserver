@@ -1,7 +1,10 @@
-﻿using AuthServer.Constants;
-using AuthServer.Core.Abstractions;
+﻿using System.Diagnostics;
+using AuthServer.Constants;
 using AuthServer.Core.Discovery;
 using AuthServer.Extensions;
+using AuthServer.Metrics;
+using AuthServer.Metrics.Abstractions;
+using AuthServer.Options;
 using AuthServer.TokenBuilders.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -14,19 +17,23 @@ internal class UserinfoTokenBuilder : ITokenBuilder<UserinfoTokenArguments>
     private readonly IOptionsSnapshot<DiscoveryDocument> _discoveryDocumentOptions;
     private readonly IOptionsSnapshot<JwksDocument> _jwksDocumentOptions;
     private readonly ITokenSecurityService _tokenSecurityService;
+    private readonly IMetricService _metricService;
 
     public UserinfoTokenBuilder(
         IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions,
         IOptionsSnapshot<JwksDocument> jwksDocumentOptions,
-        ITokenSecurityService tokenSecurityService)
+        ITokenSecurityService tokenSecurityService,
+        IMetricService metricService)
     {
         _discoveryDocumentOptions = discoveryDocumentOptions;
         _jwksDocumentOptions = jwksDocumentOptions;
         _tokenSecurityService = tokenSecurityService;
+        _metricService = metricService;
     }
 
     public async Task<string> BuildToken(UserinfoTokenArguments arguments, CancellationToken cancellationToken)
     {
+        var stopWatch = Stopwatch.StartNew();
         var now = DateTime.UtcNow;
         var signingKey = _jwksDocumentOptions.Value.GetSigningKey(arguments.SigningAlg);
         var signingCredentials = new SigningCredentials(signingKey, arguments.SigningAlg.GetDescription());
@@ -53,6 +60,9 @@ internal class UserinfoTokenBuilder : ITokenBuilder<UserinfoTokenArguments>
         }
 
         var tokenHandler = new JsonWebTokenHandler();
-        return tokenHandler.CreateToken(tokenDescriptor);
+        stopWatch.Stop();
+        _metricService.AddBuiltToken(stopWatch.ElapsedMilliseconds, TokenTypeTag.UserinfoToken, TokenStructureTag.Jwt);
+        var jwt = tokenHandler.CreateToken(tokenDescriptor);
+        return jwt;
     }
 }
