@@ -1,7 +1,7 @@
 ﻿using AuthServer.Enums;
 using Microsoft.IdentityModel.Tokens;
 
-namespace AuthServer.Core.Discovery;
+namespace AuthServer.Options;
 
 public class JwksDocument
 {

@@ -2,6 +2,7 @@
 using AuthServer.Core.Discovery;
 using AuthServer.Entities;
 using AuthServer.Enums;
+using AuthServer.Options;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

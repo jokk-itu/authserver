@@ -8,6 +8,7 @@ using AuthServer.Core.Discovery;
 using AuthServer.Enums;
 using AuthServer.Extensions;
 using AuthServer.Introspection.Abstractions;
+using AuthServer.Options;
 using AuthServer.Tests.Core;
 using AuthServer.Tests.Core.EntityBuilders;
 using Microsoft.Data.Sqlite;

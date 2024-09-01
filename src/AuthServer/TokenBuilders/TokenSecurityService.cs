@@ -1,7 +1,8 @@
 ﻿using AuthServer.Core.Abstractions;
-using AuthServer.Core.Discovery;
 using AuthServer.Enums;
 using AuthServer.Extensions;
+using AuthServer.Options;
+using AuthServer.TokenBuilders.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 

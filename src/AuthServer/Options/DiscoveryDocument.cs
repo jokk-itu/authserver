@@ -41,6 +41,9 @@ public class DiscoveryDocument
     [JsonPropertyName("revocation_endpoint")]
     public string RevocationEndpoint => $"{Issuer}/connect/revocation";
 
+    [JsonPropertyName("pushed_authorization_request_endpoint")]
+    public string PushedAuthorizationRequestEndpoint => $"{Issuer}/connect/par";
+
     [JsonPropertyName("claims_support")]
     public ICollection<string> ClaimsSupported { get; set; } = [];
 
@@ -132,11 +135,14 @@ public class DiscoveryDocument
     public bool ClaimsParameterSupported => false;
 
     [JsonPropertyName("request_parameter_supported")]
-    public bool RequestParameterSupported { get; set; }
+    public bool RequestParameterSupported => true;
 
     [JsonPropertyName("request_uri_parameter_supported")]
-    public bool RequestUriParameterSupported { get; set; }
+    public bool RequestUriParameterSupported => true;
 
     [JsonPropertyName("require_signed_request_object")]
     public bool RequireSignedRequestObject { get; set; }
+
+    [JsonPropertyName("require_pushed_authorization_requests")]
+    public bool RequirePushedAuthorizationRequests { get; set; }
 }

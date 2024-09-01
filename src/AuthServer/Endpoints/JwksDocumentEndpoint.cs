@@ -1,6 +1,6 @@
-﻿using AuthServer.Core.Discovery;
-using AuthServer.Endpoints.Responses;
+﻿using AuthServer.Endpoints.Responses;
 using AuthServer.Extensions;
+using AuthServer.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;

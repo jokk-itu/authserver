@@ -1,5 +1,4 @@
-﻿using AuthServer.Core.Discovery;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 
 namespace AuthServer.Options;
 internal class ValidateJwksDocument : IValidateOptions<JwksDocument>

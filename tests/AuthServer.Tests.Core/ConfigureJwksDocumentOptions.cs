@@ -1,4 +1,4 @@
-﻿using AuthServer.Core.Discovery;
+﻿using AuthServer.Options;
 using Microsoft.Extensions.Options;
 
 namespace AuthServer.Tests.Core;
