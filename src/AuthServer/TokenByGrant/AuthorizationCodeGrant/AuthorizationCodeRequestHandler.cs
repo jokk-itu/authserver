@@ -1,5 +1,6 @@
 ﻿using AuthServer.Core.Abstractions;
 using AuthServer.Core.Request;
+using AuthServer.Metrics.Abstractions;
 using AuthServer.RequestAccessors.Token;
 
 namespace AuthServer.TokenByGrant.AuthorizationCodeGrant;
@@ -12,7 +13,9 @@ internal class AuthorizationCodeRequestHandler : RequestHandler<TokenRequest, Au
     public AuthorizationCodeRequestHandler(
 	    IRequestProcessor<AuthorizationCodeValidatedRequest, TokenResponse> processor,
         IRequestValidator<TokenRequest, AuthorizationCodeValidatedRequest> validator,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IMetricService metricService)
+        : base(metricService)
     {
         _processor = processor;
         _validator = validator;

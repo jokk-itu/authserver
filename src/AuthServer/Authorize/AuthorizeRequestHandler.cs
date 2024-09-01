@@ -1,6 +1,7 @@
 ﻿using AuthServer.RequestAccessors.Authorize;
 using AuthServer.Core.Abstractions;
 using AuthServer.Core.Request;
+using AuthServer.Metrics.Abstractions;
 
 namespace AuthServer.Authorize;
 
@@ -13,7 +14,9 @@ internal class AuthorizeRequestHandler : RequestHandler<AuthorizeRequest, Author
     public AuthorizeRequestHandler(
         IUnitOfWork unitOfWork,
         IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest> requestValidator,
-        IRequestProcessor<AuthorizeValidatedRequest, string> requestProcessor)
+        IRequestProcessor<AuthorizeValidatedRequest, string> requestProcessor,
+        IMetricService metricService)
+        : base(metricService)
     {
 	    _unitOfWork = unitOfWork;
 	    _requestValidator = requestValidator;

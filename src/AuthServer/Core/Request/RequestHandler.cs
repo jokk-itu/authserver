@@ -1,15 +1,35 @@
-﻿namespace AuthServer.Core.Request;
-public abstract class RequestHandler<TRequest, TValidatedRequest, TResponse> : IRequestHandler<TRequest, TResponse>
+﻿using System.Diagnostics;
+using AuthServer.Metrics.Abstractions;
+
+namespace AuthServer.Core.Request;
+internal abstract class RequestHandler<TRequest, TValidatedRequest, TResponse> : IRequestHandler<TRequest, TResponse>
     where TRequest : notnull
     where TValidatedRequest : notnull
 {
+    private readonly IMetricService _metricService;
+
+    protected RequestHandler(IMetricService metricService)
+    {
+        _metricService = metricService;
+    }
+
     /// <inheritdoc cref="IRequestProcessor{TRequest,TResponse}"/>
     public async Task<ProcessResult<TResponse, ProcessError>> Handle(TRequest request, CancellationToken cancellationToken)
     {
+        using var activity = _metricService.ActivitySource.StartActivity();
         var validationResult = await ValidateRequest(request, cancellationToken);
+
         return await validationResult.Match(
-            validatedRequest => ProcessRequest(validatedRequest, cancellationToken),
-            error => Task.FromResult(new ProcessResult<TResponse, ProcessError>(error)));
+            validatedRequest =>
+            {
+                activity?.AddEvent(new ActivityEvent("Request validation succeeded"));
+                return ProcessRequest(validatedRequest, cancellationToken);
+            },
+            error =>
+            {
+                activity?.AddEvent(new ActivityEvent("Request validation failed"));
+                return Task.FromResult(new ProcessResult<TResponse, ProcessError>(error));
+            });
     }
 
     /// <summary>

@@ -1,5 +1,6 @@
 ﻿using AuthServer.Core.Abstractions;
 using AuthServer.Core.Request;
+using AuthServer.Metrics.Abstractions;
 using AuthServer.RequestAccessors.EndSession;
 
 namespace AuthServer.EndSession;
@@ -12,7 +13,9 @@ internal class EndSessionRequestHandler : RequestHandler<EndSessionRequest, EndS
     public EndSessionRequestHandler(
         IUnitOfWork unitOfWork,
         IRequestValidator<EndSessionRequest, EndSessionValidatedRequest> requestValidator,
-        IRequestProcessor<EndSessionValidatedRequest, Unit> requestProcessor)
+        IRequestProcessor<EndSessionValidatedRequest, Unit> requestProcessor,
+        IMetricService metricService)
+        : base(metricService)
     {
         _unitOfWork = unitOfWork;
         _requestValidator = requestValidator;

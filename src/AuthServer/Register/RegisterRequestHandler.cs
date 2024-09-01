@@ -1,6 +1,7 @@
 ﻿using AuthServer.RequestAccessors.Register;
 using AuthServer.Core.Abstractions;
 using AuthServer.Core.Request;
+using AuthServer.Metrics.Abstractions;
 
 namespace AuthServer.Register;
 
@@ -13,7 +14,9 @@ internal class RegisterRequestHandler : RequestHandler<RegisterRequest, Register
     public RegisterRequestHandler(
         IUnitOfWork unitOfWork,
         IRequestValidator<RegisterRequest, RegisterValidatedRequest> requestValidator,
-        IRequestProcessor<RegisterValidatedRequest, ProcessResult<RegisterResponse, Unit>> registerProcessor)
+        IRequestProcessor<RegisterValidatedRequest, ProcessResult<RegisterResponse, Unit>> registerProcessor,
+        IMetricService metricService)
+        : base(metricService)
     {
         _unitOfWork = unitOfWork;
         _requestValidator = requestValidator;

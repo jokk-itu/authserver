@@ -1,5 +1,6 @@
 ﻿using AuthServer.Core.Abstractions;
 using AuthServer.Core.Request;
+using AuthServer.Metrics.Abstractions;
 using AuthServer.RequestAccessors.Revocation;
 
 namespace AuthServer.Revocation;
@@ -12,7 +13,9 @@ internal class RevocationRequestHandler : RequestHandler<RevocationRequest, Revo
     public RevocationRequestHandler(
         IUnitOfWork unitOfWork,
         IRequestValidator<RevocationRequest, RevocationValidatedRequest> requestValidator,
-        IRequestProcessor<RevocationValidatedRequest, Unit> requestProcessor)
+        IRequestProcessor<RevocationValidatedRequest, Unit> requestProcessor,
+        IMetricService metricService)
+        : base(metricService)
     {
 	    _unitOfWork = unitOfWork;
         _requestValidator = requestValidator;
@@ -20,7 +23,7 @@ internal class RevocationRequestHandler : RequestHandler<RevocationRequest, Revo
     }
     protected override async Task<ProcessResult<Unit, ProcessError>> ProcessRequest(RevocationValidatedRequest request, CancellationToken cancellationToken)
     {
-	    using var transaction = _unitOfWork.Begin();
+        using var transaction = _unitOfWork.Begin();
         await _requestProcessor.Process(request, cancellationToken);
         await _unitOfWork.Commit();
         return new ProcessResult<Unit, ProcessError>(Unit.Value);
