@@ -3,7 +3,7 @@ using AuthServer.Core;
 using AuthServer.Core.Abstractions;
 
 namespace AuthServer.Tests.Core;
-internal class AuthenticatedUserAccessor : IAuthenticatedUserAccessor
+public class AuthenticatedUserAccessor : IAuthenticatedUserAccessor
 {
     public Task<AuthenticatedUser?> GetAuthenticatedUser()
     {

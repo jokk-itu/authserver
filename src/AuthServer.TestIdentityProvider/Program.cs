@@ -108,7 +108,7 @@ builder.Services.AddSingleton<IDistributedCache, InMemoryCache>();
 builder.Services.AddScoped<IUserClaimService, UserClaimService>();
 builder.Services.AddScoped<IUsernameResolver, UsernameResolver>();
 builder.Services.AddScoped<IAcrClaimMapper, AcrClaimMapper>();
-builder.Services.AddScoped<IAuthenticatedUserAccessor, IAuthenticatedUserAccessor>();
+builder.Services.AddScoped<IAuthenticatedUserAccessor, AuthenticatedUserAccessor>();
 
 builder.Services.AddAuthServer(dbContextConfigurator =>
 {

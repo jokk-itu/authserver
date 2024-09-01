@@ -114,6 +114,7 @@ public abstract class BaseUnitTest
         services.AddScoped<IDistributedCache, InMemoryCache>();
         services.AddScoped<IUserClaimService, UserClaimService>();
         services.AddScoped<IAcrClaimMapper, AcrClaimMapper>();
+        services.AddScoped<IAuthenticatedUserAccessor, AuthenticatedUserAccessor>();
 
         return services;
     }
