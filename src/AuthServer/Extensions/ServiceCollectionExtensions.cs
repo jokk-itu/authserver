@@ -67,6 +67,9 @@ public static class ServiceCollectionExtensions
         services.AddAuthServerAuthentication();
         services.AddAuthServerAuthorization();
 
+        services.AddSingleton<IMetricService, MetricService>();
+        services.AddHttpContextAccessor();
+
         return services;
     }
 
