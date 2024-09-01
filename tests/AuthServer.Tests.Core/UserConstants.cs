@@ -1,6 +1,7 @@
 ﻿namespace AuthServer.Tests.Core;
 public static class UserConstants
 {
+    public const string SubjectIdentifier = "9ce5c367-5617-44bf-8aeb-347f604c10db";
     public const string Username = "Pingu";
     public const string Password = "Password12!";
     public const string Name = "Pingu Penguin";
