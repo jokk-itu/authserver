@@ -23,6 +23,7 @@ public class AuthorizeRequestAccessorTest(ITestOutputHelper outputHelper) : Base
         {
             Request =
             {
+                Method = "GET",
                 Query = new QueryCollection(new Dictionary<string, StringValues>
                 {
                     { Parameter.LoginHint, value },
@@ -73,6 +74,7 @@ public class AuthorizeRequestAccessorTest(ITestOutputHelper outputHelper) : Base
         {
             Request =
             {
+                Method = "GET",
                 Query = new QueryCollection(new Dictionary<string, StringValues>
                 {
                     { Parameter.Scope, value },
@@ -101,6 +103,7 @@ public class AuthorizeRequestAccessorTest(ITestOutputHelper outputHelper) : Base
         {
             Request =
             {
+                Method = "GET",
                 Query = new QueryCollection(new Dictionary<string, StringValues>
                 {
                     { Parameter.Scope, value },
