@@ -45,6 +45,7 @@ internal class RegisterRequestAccessor : IRequestAccessor<RegisterRequest>
 		var backchannelLogoutUri = json.GetValueOrEmpty(Parameter.BackchannelLogoutUri);
 		var requireSignedRequestObject = json.GetValueOrEmpty(Parameter.RequireSignedRequestObject);
 		var requireReferenceToken = json.GetValueOrEmpty(Parameter.RequireReferenceToken);
+        var requirePushedAuthorizationRequests = json.GetValueOrEmpty(Parameter.RequirePushedAuthorizationRequests);
 		var requestObjectEncryptionEnc = json.GetValueOrEmpty(Parameter.RequestObjectEncryptionEnc);
 		var requestObjectEncryptionAlg = json.GetValueOrEmpty(Parameter.RequestObjectEncryptionAlg);
 		var requestObjectSigningAlg = json.GetValueOrEmpty(Parameter.RequestObjectSigningAlg);
@@ -60,6 +61,7 @@ internal class RegisterRequestAccessor : IRequestAccessor<RegisterRequest>
 		var refreshTokenExpiration = json.GetValueOrEmpty(Parameter.RefreshTokenExpiration);
 		var clientSecretExpiration = json.GetValueOrEmpty(Parameter.ClientSecretExpiration);
 		var jwksExpiration = json.GetValueOrEmpty(Parameter.JwksExpiration);
+        var requestUriExpiration = json.GetValueOrEmpty(Parameter.RequestUriExpiration);
 
 		var defaultAcrValues = json.GetSpaceDelimitedValueOrEmpty(Parameter.DefaultAcrValues);
 		var scope = json.GetSpaceDelimitedValueOrEmpty(Parameter.Scope);
@@ -92,6 +94,7 @@ internal class RegisterRequestAccessor : IRequestAccessor<RegisterRequest>
 			BackchannelLogoutUri = backchannelLogoutUri,
 			RequireSignedRequestObject = requireSignedRequestObject,
 			RequireReferenceToken = requireReferenceToken,
+			RequirePushedAuthorizationRequests = requirePushedAuthorizationRequests,
 			RequestObjectEncryptionEnc = requestObjectEncryptionEnc,
 			RequestObjectEncryptionAlg = requestObjectEncryptionAlg,
 			RequestObjectSigningAlg = requestObjectSigningAlg,
@@ -106,6 +109,7 @@ internal class RegisterRequestAccessor : IRequestAccessor<RegisterRequest>
 			RefreshTokenExpiration = refreshTokenExpiration,
 			ClientSecretExpiration = clientSecretExpiration,
 			JwksExpiration = jwksExpiration,
+			RequestUriExpiration = requestUriExpiration,
 			DefaultAcrValues = defaultAcrValues,
 			Scope = scope,
 			RedirectUris = redirectUris,

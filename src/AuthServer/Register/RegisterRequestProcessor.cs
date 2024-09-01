@@ -120,6 +120,7 @@ internal class RegisterRequestProcessor : IRequestProcessor<RegisterValidatedReq
             JwksUri = client.JwksUri,
             RequireSignedRequestObject = client.RequireSignedRequestObject,
             RequireReferenceToken = client.RequireReferenceToken,
+            RequirePushedAuthorizationRequests = client.RequirePushedAuthorizationRequests,
             SubjectType = client.SubjectType,
             DefaultMaxAge = client.DefaultMaxAge,
             DefaultAcrValues = client.DefaultAcrValues?.Split(' ') ?? [],
@@ -129,6 +130,7 @@ internal class RegisterRequestProcessor : IRequestProcessor<RegisterValidatedReq
             RefreshTokenExpiration = client.RefreshTokenExpiration,
             ClientSecretExpiration = client.SecretExpiration,
             JwksExpiration = client.JwksExpiration,
+            RequestUriExpiration = client.RequestUriExpiration,
             TokenEndpointAuthSigningAlg = client.TokenEndpointAuthSigningAlg,
             RequestObjectSigningAlg = client.RequestObjectSigningAlg,
             RequestObjectEncryptionAlg = client.RequestObjectEncryptionAlg,
@@ -182,6 +184,7 @@ internal class RegisterRequestProcessor : IRequestProcessor<RegisterValidatedReq
         client.DefaultAcrValues = request.DefaultAcrValues.Count == 0 ? null : string.Join(' ', request.DefaultAcrValues);
         client.RequireSignedRequestObject = request.RequireSignedRequestObject;
         client.RequireReferenceToken = request.RequireReferenceToken;
+        client.RequirePushedAuthorizationRequests = request.RequirePushedAuthorizationRequests;
         client.SubjectType = request.SubjectType;
         client.DefaultMaxAge = request.DefaultMaxAge;
         client.AuthorizationCodeExpiration = request.AuthorizationCodeExpiration;
@@ -189,6 +192,7 @@ internal class RegisterRequestProcessor : IRequestProcessor<RegisterValidatedReq
         client.RefreshTokenExpiration = request.RefreshTokenExpiration;
         client.SecretExpiration = request.ClientSecretExpiration;
         client.JwksExpiration = request.JwksExpiration;
+        client.RequestUriExpiration = request.RequestUriExpiration;
         client.TokenEndpointAuthSigningAlg = request.TokenEndpointAuthSigningAlg;
         client.RequestObjectSigningAlg = request.RequestObjectSigningAlg;
         client.RequestObjectEncryptionAlg = request.RequestObjectEncryptionAlg;

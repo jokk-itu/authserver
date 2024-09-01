@@ -185,6 +185,12 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
             return requireReferenceTokenError;
         }
 
+        var requirePushedAuthorizationRequestsError = ValidateRequirePushedAuthorizationRequests(request, validatedRequest);
+        if (requirePushedAuthorizationRequestsError is not null)
+        {
+            return requirePushedAuthorizationRequestsError;
+        }
+
         var subjectTypeError = ValidateSubjectType(request, validatedRequest);
         if (subjectTypeError is not null)
         {
@@ -237,6 +243,12 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
         if (jwksExpirationError is not null)
         {
             return jwksExpirationError;
+        }
+
+        var requestUriExpirationError = ValidateRequestUriExpiration(request, validatedRequest);
+        if (requestUriExpirationError is not null)
+        {
+            return requestUriExpirationError;
         }
 
         var tokenEndpointAuthSigningAlgError = ValidateTokenEndpointAuthSigningAlg(request, validatedRequest);
@@ -678,7 +690,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
         {
             return null;
         }
-
+        // TODO verify the application_type is web
         if (!UrlHelper.IsUrlValidForWebClient(request.JwksUri))
         {
             return RegisterError.InvalidJwksUri;
@@ -746,6 +758,27 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
         }
 
         validatedRequest.RequireReferenceToken = parsedRequireReferenceToken;
+        return null;
+    }
+
+    /// <summary>
+    /// RequirePushedAuthorizationRequests is OPTIONAL.
+    /// </summary>
+    /// <returns></returns>
+    private ProcessError? ValidateRequirePushedAuthorizationRequests(RegisterRequest request, RegisterValidatedRequest validatedRequest)
+    {
+        if (string.IsNullOrEmpty(request.RequirePushedAuthorizationRequests))
+        {
+            return null;
+        }
+
+        if (!bool.TryParse(request.RequirePushedAuthorizationRequests,
+                out var parsedRequirePushedAuthorizationRequests))
+        {
+            return RegisterError.InvalidRequirePushedAuthorizationRequests;
+        }
+
+        validatedRequest.RequirePushedAuthorizationRequests = parsedRequirePushedAuthorizationRequests;
         return null;
     }
 
@@ -1004,6 +1037,39 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
         }
 
         validatedRequest.JwksExpiration = parsedJwksExpiration;
+        return null;
+    }
+
+    /// <summary>
+    /// RequestUriExpiration is OPTIONAL.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="validatedRequest"></param>
+    /// <returns></returns>
+    private ProcessError? ValidateRequestUriExpiration(RegisterRequest request,
+        RegisterValidatedRequest validatedRequest)
+    {
+        if (string.IsNullOrEmpty(request.RequestUriExpiration))
+        {
+            validatedRequest.RequestUriExpiration =
+                validatedRequest.GrantTypes.Contains(GrantTypeConstants.AuthorizationCode)
+                    ? 300
+                    : null;
+
+            return null;
+        }
+
+        if (!int.TryParse(request.RequestUriExpiration, out var parsedRequestUriExpiration))
+        {
+            return RegisterError.InvalidRequestUriExpiration;
+        }
+
+        if (parsedRequestUriExpiration is < 5 or > 600)
+        {
+            return RegisterError.InvalidRequestUriExpiration;
+        }
+
+        validatedRequest.RequestUriExpiration = parsedRequestUriExpiration;
         return null;
     }
 

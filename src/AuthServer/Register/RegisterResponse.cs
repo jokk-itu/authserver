@@ -26,6 +26,7 @@ internal class RegisterResponse
 	public required string? BackchannelLogoutUri { get; init; }
 	public required bool RequireSignedRequestObject { get; init; }
 	public required bool RequireReferenceToken { get; init; }
+	public required bool RequirePushedAuthorizationRequests { get; init; }
 	public required EncryptionEnc? RequestObjectEncryptionEnc { get; init; }
 	public required EncryptionAlg? RequestObjectEncryptionAlg { get; init; }
 	public required SigningAlg? RequestObjectSigningAlg { get; init; }
@@ -40,6 +41,7 @@ internal class RegisterResponse
 	public required int? RefreshTokenExpiration { get; init; }
 	public required int? ClientSecretExpiration { get; init; }
 	public required int? JwksExpiration { get; init; }
+	public required int? RequestUriExpiration { get; init; }
 	public required IReadOnlyCollection<string> DefaultAcrValues { get; init; }
 	public required IReadOnlyCollection<string> Scope { get; init; }
 	public required IReadOnlyCollection<string> RedirectUris { get; init; }

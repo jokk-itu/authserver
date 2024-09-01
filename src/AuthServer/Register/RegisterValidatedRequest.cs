@@ -22,7 +22,8 @@ internal class RegisterValidatedRequest
 	public string? LogoUri { get; set; }
 	public string? BackchannelLogoutUri { get; set; }
 	public bool RequireSignedRequestObject { get; set; }
-	public bool RequireReferenceToken { get; set; } 
+	public bool RequireReferenceToken { get; set; }
+	public bool RequirePushedAuthorizationRequests { get; set; }
 	public EncryptionEnc? RequestObjectEncryptionEnc { get; set; }
 	public EncryptionAlg? RequestObjectEncryptionAlg { get; set; }
 	public SigningAlg? RequestObjectSigningAlg { get; set; }
@@ -37,6 +38,7 @@ internal class RegisterValidatedRequest
 	public int? RefreshTokenExpiration { get; set; }
 	public int? ClientSecretExpiration { get; set; }
 	public int? JwksExpiration { get; set; }
+	public int? RequestUriExpiration { get; set; }
 	public IReadOnlyCollection<string> DefaultAcrValues { get; set; } = [];
     public IReadOnlyCollection<string> Scope { get; set; } = [];
     public IReadOnlyCollection<string> RedirectUris { get; set; } = [];

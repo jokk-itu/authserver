@@ -76,6 +76,9 @@ internal class RegisterError
     public static readonly ProcessError InvalidRequireReferenceToken =
         new(ErrorCode.InvalidClientMetadata, "invalid require_reference_token", ResultCode.BadRequest);
 
+    public static readonly ProcessError InvalidRequirePushedAuthorizationRequests =
+        new(ErrorCode.InvalidClientMetadata, "invalid require_pushed_authorization_requests", ResultCode.BadRequest);
+
     public static readonly ProcessError InvalidSubjectType =
         new(ErrorCode.InvalidClientMetadata, "invalid subject_type", ResultCode.BadRequest);
 
@@ -102,6 +105,9 @@ internal class RegisterError
 
     public static readonly ProcessError InvalidJwksExpiration =
         new(ErrorCode.InvalidClientMetadata, "invalid jwks_expiration", ResultCode.BadRequest);
+
+    public static readonly ProcessError InvalidRequestUriExpiration =
+        new(ErrorCode.InvalidClientMetadata, "invalid request_uri_expiration", ResultCode.BadRequest);
 
     public static readonly ProcessError InvalidTokenEndpointAuthSigningAlg =
         new(ErrorCode.InvalidClientMetadata, "invalid token_endpoint_auth_signing_alg", ResultCode.BadRequest);

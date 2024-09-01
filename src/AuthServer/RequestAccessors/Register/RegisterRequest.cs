@@ -21,6 +21,7 @@ public class RegisterRequest
     public string BackchannelLogoutUri { get; init; } = null!;
     public string RequireSignedRequestObject { get; init; } = null!;
     public string RequireReferenceToken { get; init; } = null!;
+    public string RequirePushedAuthorizationRequests { get; init; } = null!;
     public string RequestObjectEncryptionEnc { get; init; } = null!;
     public string RequestObjectEncryptionAlg { get; init; } = null!;
     public string RequestObjectSigningAlg { get; init; } = null!;
@@ -35,6 +36,7 @@ public class RegisterRequest
     public string RefreshTokenExpiration { get; init; } = null!;
     public string ClientSecretExpiration { get; init; } = null!;
     public string JwksExpiration { get; init; } = null!;
+    public string RequestUriExpiration { get; init; } = null!;
     public IReadOnlyCollection<string> DefaultAcrValues { get; init; } = null!;
     public IReadOnlyCollection<string> Scope { get; init; } = null!;
     public IReadOnlyCollection<string> RedirectUris { get; init; } = null!;
