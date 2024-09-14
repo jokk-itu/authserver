@@ -1,1 +1,0 @@
-<h1>Dynamic Client Registration</h1>

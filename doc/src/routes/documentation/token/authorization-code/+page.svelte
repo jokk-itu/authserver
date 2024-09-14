@@ -1,1 +1,0 @@
-<h1>Authorization Code</h1>

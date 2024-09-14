@@ -1,6 +1,4 @@
 <script lang="ts">
-  let isMobileMenuInactive: boolean = true;
-
   import { base } from '$app/paths';
 </script>
 
@@ -10,7 +8,7 @@
       <!-- logo -->
       <div class="flex space-x-4">
         <a
-          href="{base}"
+          href="{base}/"
           class="flex items-center py-5 px-2 text-gray-700 hover:text-gray-900"
         >
           <svg
@@ -30,79 +28,21 @@
       </div>
 
       <!-- primary nav -->
-      <div class="hidden md:flex items-center space-x-1">
+      <div class="flex items-center space-x-1">
         <a href="{base}/introduction" class="py-5 px-3 text-gray-700 hover:text-gray-900"
           >Introduction</a
         >
         <a href="{base}/quick-start" class="py-5 px-3 text-gray-700 hover:text-gray-900"
           >Quick Start</a
         >
-        <a href="{base}/documentation" class="py-5 px-3 text-gray-700 hover:text-gray-900"
-          >Documentation</a
-        >
       </div>
 
       <!-- secondary nav -->
-      <div class="hidden md:flex items-center space-x-1">
+      <div class="flex items-center space-x-1">
         <a href="https://github.com/jokk-itu/authserver" target="_blank" class="py-5 px-3">
           <img src="{base}/github.svg" alt="Github" height="20px" width="20px" />
         </a>
       </div>
-
-      <!-- mobile button goes here -->
-      <div class="md:hidden flex items-center">
-        <button
-          type="button"
-          data-fc-target="mobile-menu"
-          data-fc-type="offcanvas"
-        >
-          <svg
-            class="w-6 h-6"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- mobile menu -->
-  <div
-    id="mobile-menu"
-    class="fc-offcanvas-open:translate-x-0 hidden -translate-x-full fixed top-0 left-0 transition-all duration-300 transform h-full max-w-xs w-full z-50 bg-white border-r dark:bg-gray-800 dark:border-gray-700"
-    tabindex="-1"
-  >
-    <div
-      class="flex justify-between items-center py-2 px-4 border-b dark:border-gray-700"
-    >
-      <h3 class="font-medium">Authserver</h3>
-      <button
-        class="inline-flex flex-shrink-0 justify-center items-center h-8 w-8 rounded-md text-gray-500 hover:text-gray-700 text-sm dark:text-gray-500 dark:hover:text-gray-400"
-        data-fc-dismiss
-        type="button"
-      >
-        <span class="material-symbols-rounded">close</span>
-      </button>
-    </div>
-    <div class="flex items-center space-x-1">
-      <a href="{base}/introduction" class="py-5 px-3 text-gray-700 hover:text-gray-900"
-          >Introduction</a
-        >
-        <a href="{base}/quick-start" class="py-5 px-3 text-gray-700 hover:text-gray-900"
-          >Quickstarts</a
-        >
-        <a href="{base}/documentation" class="py-5 px-3 text-gray-700 hover:text-gray-900"
-          >Documentation</a
-        >
     </div>
   </div>
 </nav>

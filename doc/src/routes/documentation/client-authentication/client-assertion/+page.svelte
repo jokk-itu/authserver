@@ -1,1 +1,0 @@
-<h1>Client Assertion</h1>
