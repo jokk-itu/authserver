@@ -16,7 +16,7 @@ public class Client : Entity<string>
 
 #pragma warning disable CS8618
     // Used to hydrate EF Core model
-    protected Client() { }
+    private Client() { }
 #pragma warning restore
 
     /// <summary>

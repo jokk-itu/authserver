@@ -10,7 +10,7 @@ public class Claim : Entity<int>
 
 #pragma warning disable CS8618
     // Used to hydrate EF Core model
-    protected Claim() { }
+    private Claim() { }
 #pragma warning restore
 
     public string Name { get; private init; }

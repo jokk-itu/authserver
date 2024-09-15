@@ -10,7 +10,7 @@ public class GrantType : Entity<int>
 
 #pragma warning disable CS8618
     // Used to hydrate EF Core model
-    protected GrantType() { }
+    private GrantType() { }
 #pragma warning restore
 
     public string Name { get; private init; }

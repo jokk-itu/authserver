@@ -12,7 +12,7 @@ public class PostLogoutRedirectUri : Entity<int>
 
 #pragma warning disable CS8618
     // Used to hydrate EF Core model
-    protected PostLogoutRedirectUri() { }
+    private PostLogoutRedirectUri() { }
 #pragma warning restore
 
     public string Uri { get; set; }

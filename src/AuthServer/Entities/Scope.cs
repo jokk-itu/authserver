@@ -10,7 +10,7 @@ public class Scope : Entity<int>
 
 #pragma warning disable CS8618
     // Used to hydrate EF Core model
-    protected Scope() { }
+    private Scope() { }
 #pragma warning restore
 
     public string Name { get; private init; }

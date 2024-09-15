@@ -12,7 +12,7 @@ public class RequestUri : Entity<int>
 
 #pragma warning disable CS8618
     // Used to hydrate EF Core model
-    protected RequestUri() { }
+    private RequestUri() { }
 #pragma warning restore
 
     public string Uri { get; set; }

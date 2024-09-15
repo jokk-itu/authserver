@@ -11,7 +11,7 @@ public class Contact : Entity<int>
 
 #pragma warning disable CS8618
     // Used to hydrate EF Core model
-    protected Contact() { }
+    private Contact() { }
 #pragma warning restore
 
     public string Email { get; private set; }

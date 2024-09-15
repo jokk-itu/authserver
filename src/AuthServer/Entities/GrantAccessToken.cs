@@ -9,6 +9,6 @@ public class GrantAccessToken : GrantToken
 
 #pragma warning disable CS8618
     // Used to hydrate EF Core model
-    protected GrantAccessToken() { }
+    private GrantAccessToken() { }
 #pragma warning restore
 }

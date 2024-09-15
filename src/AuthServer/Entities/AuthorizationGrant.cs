@@ -16,7 +16,7 @@ public class AuthorizationGrant : AggregateRoot<string>
 
 #pragma warning disable CS8618
     // Used to hydrate EF Core model
-    protected AuthorizationGrant(){}
+    private AuthorizationGrant(){}
 #pragma warning restore
 
     public DateTime AuthTime { get; private init; }

@@ -12,7 +12,7 @@ public class RedirectUri : Entity<int>
 
 #pragma warning disable CS8618
     // Used to hydrate EF Core model
-    protected RedirectUri() { }
+    private RedirectUri() { }
 #pragma warning restore
 
     public string Uri { get; set; }

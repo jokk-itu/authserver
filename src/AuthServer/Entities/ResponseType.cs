@@ -10,7 +10,7 @@ public class ResponseType : Entity<int>
 
 #pragma warning disable CS8618
     // Used to hydrate EF Core model
-    protected ResponseType() { }
+    private ResponseType() { }
 #pragma warning restore
 
     public string Name { get; private init; }

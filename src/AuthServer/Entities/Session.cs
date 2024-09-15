@@ -12,7 +12,7 @@ public class Session : Entity<string>
 
 #pragma warning disable CS8618
     // Used to hydrate EF Core model
-    protected Session() { }
+    private Session() { }
 #pragma warning restore
 
     public DateTime? RevokedAt { get; private set; }

@@ -9,6 +9,6 @@ public class ClientAccessToken : ClientToken
 
 #pragma warning disable CS8618
     // Used to hydrate EF Core model
-    protected ClientAccessToken() { }
+    private ClientAccessToken() { }
 #pragma warning restore
 }

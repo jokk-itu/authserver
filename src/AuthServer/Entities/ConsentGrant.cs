@@ -11,7 +11,7 @@ public class ConsentGrant : Entity<int>
 
 #pragma warning disable CS8618
     // Used to hydrate EF Core model
-    protected ConsentGrant() { }
+    private ConsentGrant() { }
 #pragma warning restore
 
     public Client Client { get; private init; }

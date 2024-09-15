@@ -13,7 +13,7 @@ public class AuthorizationCode : Entity<string>
 
 #pragma warning disable CS8618
     // Used to hydrate EF Core model
-    protected AuthorizationCode() { }
+    private AuthorizationCode() { }
 #pragma warning restore
 
     public string Value { get; private set; } = null!;

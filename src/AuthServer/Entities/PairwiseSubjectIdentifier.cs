@@ -12,7 +12,7 @@ public class PairwiseSubjectIdentifier : SubjectIdentifier
 
 #pragma warning disable CS8618
     // Used to hydrate EF Core model
-    protected PairwiseSubjectIdentifier() { }
+    private PairwiseSubjectIdentifier() { }
 #pragma warning restore
 
     public Client Client { get; init; }
