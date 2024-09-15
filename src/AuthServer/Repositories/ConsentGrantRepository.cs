@@ -53,8 +53,8 @@ internal class ConsentGrantRepository : IConsentGrantRepository
         var activeConsentGrant = await GetConsentGrant(subjectIdentifier, clientId, cancellationToken);
         if (activeConsentGrant is null)
         {
-            var publicSubjectIdentifier = (await _identityContext.FindAsync<PublicSubjectIdentifier>(subjectIdentifier, cancellationToken))!;
-            var client = (await _identityContext.FindAsync<Client>(clientId, cancellationToken))!;
+            var publicSubjectIdentifier = (await _identityContext.FindAsync<PublicSubjectIdentifier>([subjectIdentifier], cancellationToken))!;
+            var client = (await _identityContext.FindAsync<Client>([clientId], cancellationToken))!;
             activeConsentGrant = new ConsentGrant(publicSubjectIdentifier, client);
             await _identityContext.AddAsync(activeConsentGrant, cancellationToken);
         }

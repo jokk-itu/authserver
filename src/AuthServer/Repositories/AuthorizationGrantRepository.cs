@@ -22,7 +22,7 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
         CancellationToken cancellationToken)
     {
         var session = await GetSession(subjectIdentifier, clientId, cancellationToken);
-        var client = (await _identityContext.FindAsync<Client>(clientId, cancellationToken))!;
+        var client = (await _identityContext.FindAsync<Client>([clientId], cancellationToken))!;
         var subjectIdentifierForGrant =
             await GetSubjectIdentifierForGrant(subjectIdentifier, clientId, cancellationToken);
 
@@ -62,7 +62,7 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
         }
 
         var publicSubjectIdentifier = (session?.PublicSubjectIdentifier ??
-                                       await _identityContext.FindAsync<PublicSubjectIdentifier>(subjectIdentifier,
+                                       await _identityContext.FindAsync<PublicSubjectIdentifier>([subjectIdentifier],
                                            cancellationToken))!;
 
         session ??= new Session(publicSubjectIdentifier);
@@ -87,10 +87,10 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
     private async Task<SubjectIdentifier> GetSubjectIdentifierForGrant(string subjectIdentifier, string clientId,
         CancellationToken cancellationToken)
     {
-        var client = (await _identityContext.FindAsync<Client>(clientId, cancellationToken))!;
+        var client = (await _identityContext.FindAsync<Client>([clientId], cancellationToken))!;
         if (client.SubjectType == SubjectType.Public)
         {
-            return (await _identityContext.FindAsync<PublicSubjectIdentifier>(subjectIdentifier, cancellationToken))!;
+            return (await _identityContext.FindAsync<PublicSubjectIdentifier>([subjectIdentifier], cancellationToken))!;
         }
 
         if (client.SubjectType == SubjectType.Pairwise)
@@ -108,7 +108,7 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
             }
 
             var publicSubjectIdentifier =
-                (await _identityContext.FindAsync<PublicSubjectIdentifier>(subjectIdentifier, cancellationToken))!;
+                (await _identityContext.FindAsync<PublicSubjectIdentifier>([subjectIdentifier], cancellationToken))!;
             pairwiseSubjectIdentifier = new PairwiseSubjectIdentifier(client, publicSubjectIdentifier);
             await _identityContext.AddAsync(pairwiseSubjectIdentifier, cancellationToken);
             return pairwiseSubjectIdentifier;

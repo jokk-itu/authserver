@@ -37,7 +37,7 @@ internal class ClientAccessTokenBuilder : ITokenBuilder<ClientAccessTokenArgumen
     public async Task<string> BuildToken(ClientAccessTokenArguments arguments, CancellationToken cancellationToken)
     {
         var stopWatch = Stopwatch.StartNew();
-        var client = (await _identityContext.FindAsync<Client>(arguments.ClientId, cancellationToken))!;
+        var client = (await _identityContext.FindAsync<Client>([arguments.ClientId], cancellationToken))!;
         if (client.RequireReferenceToken)
         {
             var referenceToken = await BuildReferenceToken(arguments, client);

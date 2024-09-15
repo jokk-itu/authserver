@@ -54,7 +54,7 @@ internal class ClientRepository : IClientRepository
     public async Task<AuthorizeMessage> AddAuthorizeMessage(AuthorizeRequestDto authorizeDto, CancellationToken cancellationToken)
     {
         var value = JsonSerializer.Serialize(authorizeDto);
-        var client = (await _authorizationDbContext.FindAsync<Client>(authorizeDto.ClientId, cancellationToken))!;
+        var client = (await _authorizationDbContext.FindAsync<Client>([authorizeDto.ClientId], cancellationToken))!;
         var authorizeMessage = new AuthorizeMessage(value, DateTime.UtcNow.AddSeconds(client.RequestUriExpiration!.Value), client);
         await _authorizationDbContext.AddAsync(authorizeMessage, cancellationToken);
         return authorizeMessage;

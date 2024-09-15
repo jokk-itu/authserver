@@ -28,7 +28,7 @@ internal class RegistrationTokenBuilder : ITokenBuilder<RegistrationTokenArgumen
     public async Task<string> BuildToken(RegistrationTokenArguments arguments, CancellationToken cancellationToken)
     {
         var stopWatch = Stopwatch.StartNew();
-        var client = (await _identityContext.FindAsync<Client>(arguments.ClientId, cancellationToken))!;
+        var client = (await _identityContext.FindAsync<Client>([arguments.ClientId], cancellationToken))!;
 
         var registrationToken = new RegistrationToken(client, arguments.ClientId,
             _discoveryDocumentOptions.Value.Issuer, ScopeConstants.Register, null);
