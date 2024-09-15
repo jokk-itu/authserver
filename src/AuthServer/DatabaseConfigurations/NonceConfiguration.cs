@@ -14,6 +14,11 @@ internal sealed class NonceConfiguration : IEntityTypeConfiguration<Nonce>
             .IsRequired();
 
         builder
+            .Property(x => x.HashedValue)
+            .HasMaxLength(256)
+            .IsRequired();
+
+        builder
             .HasOne(x => x.AuthorizationGrant)
             .WithMany(x => x.Nonces)
             .IsRequired()
