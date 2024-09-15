@@ -81,6 +81,8 @@ public static class Parameter
     public const string IdTokenSignedResponseAlg = "id_token_signed_response_alg";
     public const string ClientAssertionType = "client_assertion_type";
     public const string ClientAssertion = "client_assertion";
+    public const string DPoP = "DPoP";
+    public const string DPoPNonce = "DPoP-Nonce";
 
     // Custom parameter
     public const string RequireReferenceToken = "require_reference_token";
