@@ -185,13 +185,16 @@ public class Client : Entity<string>
     public ICollection<PostLogoutRedirectUri> PostLogoutRedirectUris { get; set; } = [];
     public ICollection<RequestUri> RequestUris { get; set; } = [];
     public ICollection<GrantType> GrantTypes { get; set; } = [];
-    public ICollection<ConsentGrant> ConsentGrants { get; set; } = [];
     public ICollection<Scope> Scopes { get; set; } = [];
     public ICollection<Contact> Contacts { get; set; } = [];
     public ICollection<ResponseType> ResponseTypes { get; set; } = [];
+
+
     public ICollection<AuthorizationGrant> AuthorizationGrants { get; set; } = [];
     public ICollection<ClientToken> ClientTokens { get; set; } = [];
     public ICollection<PairwiseSubjectIdentifier> PairwiseSubjectIdentifiers { get; set; } = [];
+    public ICollection<AuthorizeMessage> AuthorizeMessages { get; set; } = [];
+    public ICollection<ConsentGrant> ConsentGrants { get; set; } = [];
 
     public void SetSecret(string secretHash)
     {
