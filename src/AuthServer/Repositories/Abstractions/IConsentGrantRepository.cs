@@ -12,4 +12,30 @@ internal interface IConsentGrantRepository
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task<IReadOnlyCollection<string>> GetConsentedScope(string publicSubjectIdentifier, string clientId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="publicSubjectIdentifier"></param>
+    /// <param name="clientId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<IReadOnlyCollection<string>> GetConsentedClaims(string publicSubjectIdentifier, string clientId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="subjectIdentifier"></param>
+    /// <param name="clientId"></param>
+    /// <param name="scope"></param>
+    /// <param name="claims"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task CreateOrUpdateConsentGrant(string subjectIdentifier, string clientId, IEnumerable<string> scope, IEnumerable<string> claims, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    Task<ConsentGrant?> GetConsentGrant(string subjectIdentifier, string clientId, CancellationToken cancellationToken);
 }
