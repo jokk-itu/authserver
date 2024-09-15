@@ -1,0 +1,10 @@
+﻿@page
+@model AuthServer.TestClient.Pages.ClaimsModel
+@{
+}
+
+Hello @User.Identity.Name
+@foreach (var claim in User.Claims)
+{
+    <p>@claim.Type: @claim.Value</p><br/>
+}
