@@ -9,7 +9,7 @@ internal class AuthorizationCodeConfiguration : IEntityTypeConfiguration<Authori
     {
         builder
             .Property(x => x.Value)
-            .HasMaxLength(512)
+            .HasMaxLength(2048)
             .IsRequired();
 
         builder
