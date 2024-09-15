@@ -17,6 +17,7 @@ internal class TokenRequestAccessor : IRequestAccessor<TokenRequest>
         var codeVerifier = body.GetValueOrEmpty(Parameter.CodeVerifier);
         var redirectUri = body.GetValueOrEmpty(Parameter.RedirectUri);
         var refreshToken = body.GetValueOrEmpty(Parameter.RefreshToken);
+        var dPoPToken = body.GetValueOrEmpty(Parameter.DPoP);
 
         var scope = body.GetSpaceDelimitedValueOrEmpty(Parameter.Scope);
         var resource = body.GetSpaceDelimitedValueOrEmpty(Parameter.Resource);
@@ -39,6 +40,7 @@ internal class TokenRequestAccessor : IRequestAccessor<TokenRequest>
             CodeVerifier = codeVerifier,
             RedirectUri = redirectUri,
             RefreshToken = refreshToken,
+            DPoPToken = dPoPToken,
             Scope = scope,
             Resource = resource,
             ClientAuthentications = clientAuthentications

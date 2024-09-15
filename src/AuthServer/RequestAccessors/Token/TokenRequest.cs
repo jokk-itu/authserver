@@ -9,6 +9,7 @@ public class TokenRequest
     public required string CodeVerifier { get; init; }
     public required string RedirectUri { get; init; }
     public required string RefreshToken { get; init; }
+    public required string DPoPToken { get; init; }
     public required IReadOnlyCollection<string> Scope { get; init; }
     public required IReadOnlyCollection<string> Resource { get; init; }
     public required IReadOnlyCollection<ClientAuthentication> ClientAuthentications { get; init; }
