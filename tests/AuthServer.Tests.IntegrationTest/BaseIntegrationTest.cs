@@ -3,6 +3,7 @@ using AuthServer.Core.Discovery;
 using AuthServer.Entities;
 using AuthServer.Enums;
 using AuthServer.Options;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,7 +31,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 
     protected BaseIntegrationTest(WebApplicationFactory<Program> factory, ITestOutputHelper testOutputHelper)
     {
-        _factory = factory;
+        _factory = factory.WithWebHostBuilder(builder => { builder.UseEnvironment("Integration"); });
         TestOutputHelper = testOutputHelper;
         ServiceProvider = _factory.Services.CreateScope().ServiceProvider;
 
