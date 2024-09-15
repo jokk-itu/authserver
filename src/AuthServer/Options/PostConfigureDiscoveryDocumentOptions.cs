@@ -1,7 +1,6 @@
 ﻿using AuthServer.Constants;
 using AuthServer.Core.Discovery;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 
 namespace AuthServer.Options;
 
@@ -14,32 +13,32 @@ internal class PostConfigureDiscoveryDocumentOptions : IPostConfigureOptions<Dis
 			.ToList()
 			.ForEach(options.ScopesSupported.Add);
 
-		if (options.IdTokenSigningAlgValuesSupported.IsNullOrEmpty())
+		if (options.IdTokenSigningAlgValuesSupported.Count == 0)
 		{
 			options.IdTokenSigningAlgValuesSupported = [JwsAlgConstants.RsaSha256];
 		}
 
-		if (options.RequestObjectSigningAlgValuesSupported.IsNullOrEmpty())
+		if (options.RequestObjectSigningAlgValuesSupported.Count == 0)
 		{
 			options.RequestObjectSigningAlgValuesSupported = [JwsAlgConstants.RsaSha256];
 		}
 
-		if (options.UserinfoSigningAlgValuesSupported.IsNullOrEmpty())
+		if (options.UserinfoSigningAlgValuesSupported.Count == 0)
 		{
 			options.UserinfoSigningAlgValuesSupported = [JwsAlgConstants.RsaSha256];
 		}
 
-		if (options.TokenEndpointAuthSigningAlgValuesSupported.IsNullOrEmpty())
+		if (options.TokenEndpointAuthSigningAlgValuesSupported.Count == 0)
 		{
 			options.TokenEndpointAuthSigningAlgValuesSupported = [JwsAlgConstants.RsaSha256];
 		}
 
-		if (options.IntrospectionEndpointAuthSigningAlgValuesSupported.IsNullOrEmpty())
+		if (options.IntrospectionEndpointAuthSigningAlgValuesSupported.Count == 0)
 		{
 			options.IntrospectionEndpointAuthSigningAlgValuesSupported = [JwsAlgConstants.RsaSha256];
 		}
 
-		if (options.RevocationEndpointAuthSigningAlgValuesSupported.IsNullOrEmpty())
+		if (options.RevocationEndpointAuthSigningAlgValuesSupported.Count == 0)
 		{
 			options.RevocationEndpointAuthSigningAlgValuesSupported = [JwsAlgConstants.RsaSha256];
 		}

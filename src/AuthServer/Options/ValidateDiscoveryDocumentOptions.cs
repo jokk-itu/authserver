@@ -1,7 +1,6 @@
 ﻿using AuthServer.Constants;
 using AuthServer.Core.Discovery;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 
 namespace AuthServer.Options;
 
@@ -9,7 +8,7 @@ public class ValidateDiscoveryDocumentOptions : IValidateOptions<DiscoveryDocume
 {
     public ValidateOptionsResult Validate(string? name, DiscoveryDocument options)
     {
-        if (options.Issuer.IsNullOrEmpty())
+        if (string.IsNullOrEmpty(options.Issuer))
         {
             return ValidateOptionsResult.Fail($"{nameof(options.Issuer)} is not specified");
         }
@@ -19,27 +18,27 @@ public class ValidateDiscoveryDocumentOptions : IValidateOptions<DiscoveryDocume
             return ValidateOptionsResult.Fail($"{nameof(options.Issuer)} is not an absolute well formed uri");
         }
 
-        if (!options.ServiceDocumentation.IsNullOrEmpty() && !Uri.IsWellFormedUriString(options.ServiceDocumentation, UriKind.Absolute))
+        if (!string.IsNullOrEmpty(options.ServiceDocumentation) && !Uri.IsWellFormedUriString(options.ServiceDocumentation, UriKind.Absolute))
         {
             return ValidateOptionsResult.Fail($"{nameof(options.ServiceDocumentation)} is not an absolute well formed uri");
         }
 
-        if (!options.OpPolicyUri.IsNullOrEmpty() && !Uri.IsWellFormedUriString(options.OpPolicyUri, UriKind.Absolute))
+        if (!string.IsNullOrEmpty(options.OpPolicyUri) && !Uri.IsWellFormedUriString(options.OpPolicyUri, UriKind.Absolute))
         {
             return ValidateOptionsResult.Fail($"{nameof(options.OpPolicyUri)} is not an absolute well formed uri");
         }
 
-        if (!options.OpTosUri.IsNullOrEmpty() && !Uri.IsWellFormedUriString(options.OpTosUri, UriKind.Absolute))
+        if (!string.IsNullOrEmpty(options.OpTosUri) && !Uri.IsWellFormedUriString(options.OpTosUri, UriKind.Absolute))
         {
             return ValidateOptionsResult.Fail($"{nameof(options.OpTosUri)} is not an absolute well formed uri");
         }
 
-        if (options.ClaimsSupported.IsNullOrEmpty())
+        if (options.ClaimsSupported.Count == 0)
         {
             return ValidateOptionsResult.Fail($"{nameof(options.ClaimsSupported)} is not specified");
         }
 
-        if (options.ScopesSupported.IsNullOrEmpty())
+        if (options.ScopesSupported.Count == 0)
         {
             return ValidateOptionsResult.Fail($"{nameof(options.ScopesSupported)} is not specified");
         }
