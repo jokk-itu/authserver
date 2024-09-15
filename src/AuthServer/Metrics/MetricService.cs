@@ -6,8 +6,6 @@ using AuthServer.Metrics.Abstractions;
 namespace AuthServer.Metrics;
 internal class MetricService : IMetricService, IDisposable
 {
-    private readonly ActivitySource _activitySource;
-
     private readonly Meter _meter;
 
     private readonly Counter<int> _tokenBuiltAmount;
@@ -21,20 +19,21 @@ internal class MetricService : IMetricService, IDisposable
 
     public MetricService(IMeterFactory meterFactory)
     {
-        _activitySource = new ActivitySource("AuthServer");
+        ActivitySource = new ActivitySource("AuthServer");
         _meter = meterFactory.Create("AuthServer");
 
         _tokenBuiltAmount = _meter.CreateCounter<int>("authserver.token.built.count", "The amount of tokens built.");
         _tokenDecodedAmount = _meter.CreateCounter<int>("authserver.token.decoded.count", "The amount of token decoded.");
         _tokenIntrospectedAmount = _meter.CreateCounter<int>("authserver.token.introspected.count", "The amount of tokens introspected.");
         _tokenRevokedAmount = _meter.CreateCounter<int>("authserver.token.revoked.count", "The amount of tokens revoked.");
+
         _tokenBuildTime = _meter.CreateHistogram<double>("authserver.token.built.duration", "The time it takes for a token to be built.");
         _tokenDecodedTime = _meter.CreateHistogram<double>("authserver.token.decoded.duration", "The time it takes for a token to be decoded.");
 
         _clientAuthenticationTime = _meter.CreateHistogram<double>("authserver.client.authenticated.duration", "The time it takes for a client to be authenticated.");
     }
 
-    public ActivitySource ActivitySource => _activitySource;
+    public ActivitySource ActivitySource { get; }
 
     public void AddBuiltToken(long durationMilliseconds, TokenTypeTag tokenTypeTag, TokenStructureTag tokenStructureTag)
     {
@@ -77,7 +76,7 @@ internal class MetricService : IMetricService, IDisposable
 
     public void Dispose()
     {
-        _activitySource.Dispose();
+        ActivitySource.Dispose();
         _meter.Dispose();
     }
 }
