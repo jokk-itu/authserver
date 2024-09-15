@@ -30,6 +30,7 @@ public class TokenIntegrationTest : BaseIntegrationTest
                 { Parameter.TokenEndpointAuthMethod, TokenEndpointAuthMethodConstants.ClientSecretPost },
                 { Parameter.Scope, scope }
             });
+        TestOutputHelper.WriteLine("Received Register response {0}, Content: {1}", registerResponseMessage.StatusCode, await registerResponseMessage.Content.ReadAsStringAsync());
         registerResponseMessage.EnsureSuccessStatusCode();
         var registerResponse = (await registerResponseMessage.Content.ReadFromJsonAsync<RegisterResponse>())!;
 
