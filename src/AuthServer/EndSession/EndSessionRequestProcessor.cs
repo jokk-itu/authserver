@@ -137,7 +137,7 @@ internal class EndSessionRequestProcessor : IRequestProcessor<EndSessionValidate
     {
         try
         {
-            await Parallel.ForEachAsync(clients, cancellationToken, async (client, innerCancellationToken) =>
+            await Parallel.ForEachAsync(clients.Where(x => x.BackchannelLogoutUri != null), cancellationToken, async (client, innerCancellationToken) =>
             {
                 var httpClient = _httpClientFactory.CreateClient(HttpClientNameConstants.Client);
 
