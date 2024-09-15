@@ -26,7 +26,7 @@ public class TokenRepositoryTest : BaseUnitTest
         var tokenRepository = serviceProvider.GetRequiredService<ITokenRepository>();
 
         // Act
-        var registrationToken = await tokenRepository.GetRegistrationToken(token.Reference, CancellationToken.None);
+        var registrationToken = await tokenRepository.GetActiveRegistrationToken(token.Reference, CancellationToken.None);
 
         // Assert
         Assert.NotNull(registrationToken);
@@ -42,7 +42,7 @@ public class TokenRepositoryTest : BaseUnitTest
         var tokenRepository = serviceProvider.GetRequiredService<ITokenRepository>();
 
         // Act
-        var token = await tokenRepository.GetRegistrationToken("invalid_reference", CancellationToken.None);
+        var token = await tokenRepository.GetActiveRegistrationToken("invalid_reference", CancellationToken.None);
 
         // Assert
         Assert.Null(token);
@@ -62,7 +62,7 @@ public class TokenRepositoryTest : BaseUnitTest
         var tokenRepository = serviceProvider.GetRequiredService<ITokenRepository>();
 
         // Act
-        var registrationToken = await tokenRepository.GetRegistrationToken(token.Reference, CancellationToken.None);
+        var registrationToken = await tokenRepository.GetActiveRegistrationToken(token.Reference, CancellationToken.None);
 
         // Assert
         Assert.Null(registrationToken);
