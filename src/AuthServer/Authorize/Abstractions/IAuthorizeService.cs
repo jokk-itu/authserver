@@ -17,10 +17,11 @@ public interface IAuthorizeService
     /// </summary>
     /// <param name="subjectIdentifier"></param>
     /// <param name="clientId"></param>
-    /// <param name="consentGrantDto"></param>
+    /// <param name="consentedClaims"></param>
     /// <param name="cancellationToken"></param>
+    /// <param name="consentedScope"></param>
     /// <returns></returns>
-    Task CreateOrUpdateConsentGrant(string subjectIdentifier, string clientId, ConsentGrantDto consentGrantDto, CancellationToken cancellationToken);
+    Task CreateOrUpdateConsentGrant(string subjectIdentifier, string clientId, IEnumerable<string> consentedScope, IEnumerable<string> consentedClaims, CancellationToken cancellationToken);
 
     /// <summary>
     /// 
@@ -29,5 +30,5 @@ public interface IAuthorizeService
     /// <param name="clientId"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<ConsentGrantDto?> GetConsentGrantDto(string subjectIdentifier, string clientId, CancellationToken cancellationToken);
+    Task<ConsentGrantDto> GetConsentGrantDto(string subjectIdentifier, string clientId, CancellationToken cancellationToken);
 }
