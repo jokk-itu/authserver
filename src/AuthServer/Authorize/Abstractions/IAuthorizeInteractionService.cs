@@ -3,7 +3,7 @@ using AuthServer.RequestAccessors.Authorize;
 
 namespace AuthServer.Authorize.Abstractions;
 
-internal interface IAuthorizeInteractionProcessor
+internal interface IAuthorizeInteractionService
 {
     /// <summary>
     /// Deduces the prompt of the current authorize request.
@@ -13,5 +13,5 @@ internal interface IAuthorizeInteractionProcessor
     /// <param name="authorizeRequest"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>prompt value.</returns>
-    Task<string> ProcessForInteraction(AuthorizeRequest authorizeRequest, CancellationToken cancellationToken);
+    Task<string> GetPrompt(AuthorizeRequest authorizeRequest, CancellationToken cancellationToken);
 }

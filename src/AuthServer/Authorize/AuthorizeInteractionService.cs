@@ -5,6 +5,7 @@ using AuthServer.Core;
 using AuthServer.Core.Abstractions;
 using AuthServer.Entities;
 using AuthServer.Extensions;
+using AuthServer.Repositories.Abstractions;
 using AuthServer.RequestAccessors.Authorize;
 using AuthServer.TokenDecoders;
 using AuthServer.TokenDecoders.Abstractions;
@@ -12,27 +13,30 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AuthServer.Authorize;
 
-internal class AuthorizeInteractionProcessor : IAuthorizeInteractionProcessor
+internal class AuthorizeInteractionService : IAuthorizeInteractionService
 {
-    private readonly AuthorizationDbContext _identityContext;
     private readonly ITokenDecoder<ServerIssuedTokenDecodeArguments> _serverIssuedTokenDecoder;
     private readonly IAuthorizeUserAccessor _userAccessor;
     private readonly IAuthenticatedUserAccessor _authenticatedUserAccessor;
+    private readonly IAuthorizationGrantRepository _authorizationGrantRepository;
+    private readonly IConsentGrantRepository _consentGrantRepository;
 
-    public AuthorizeInteractionProcessor(
-        AuthorizationDbContext identityContext,
+    public AuthorizeInteractionService(
         ITokenDecoder<ServerIssuedTokenDecodeArguments> serverIssuedTokenDecoder,
         IAuthorizeUserAccessor userAccessor,
-        IAuthenticatedUserAccessor authenticatedUserAccessor)
+        IAuthenticatedUserAccessor authenticatedUserAccessor,
+        IAuthorizationGrantRepository authorizationGrantRepository,
+        IConsentGrantRepository consentGrantRepository)
     {
-        _identityContext = identityContext;
         _serverIssuedTokenDecoder = serverIssuedTokenDecoder;
         _userAccessor = userAccessor;
         _authenticatedUserAccessor = authenticatedUserAccessor;
+        _authorizationGrantRepository = authorizationGrantRepository;
+        _consentGrantRepository = consentGrantRepository;
     }
 
     /// <inheritdoc/>
-    public async Task<string> ProcessForInteraction(AuthorizeRequest authorizeRequest, CancellationToken cancellationToken)
+    public async Task<string> GetPrompt(AuthorizeRequest authorizeRequest, CancellationToken cancellationToken)
     {
         // covers the scenario where the user was redirected for interaction
         var authorizeUser = _userAccessor.TryGetUser();
@@ -41,8 +45,11 @@ internal class AuthorizeInteractionProcessor : IAuthorizeInteractionProcessor
             return await GetPrompt(authorizeUser.SubjectIdentifier, authorizeRequest, authorizeUser.Amr, cancellationToken);
         }
 
-        // client provided prompt overrides automatically deducing prompt
-        if (PromptConstants.Prompts.Contains(authorizeRequest.Prompt))
+        /*
+         client provided prompt overrides automatically deducing prompt.
+         none is not checked, as that requires further validating session.
+         */
+        if (authorizeRequest.Prompt is PromptConstants.Login or PromptConstants.Consent or PromptConstants.SelectAccount)
         {
             return authorizeRequest.Prompt;
         }
@@ -55,9 +62,7 @@ internal class AuthorizeInteractionProcessor : IAuthorizeInteractionProcessor
             return await GetPrompt(decodedIdToken.Subject, authorizeRequest, amr, cancellationToken);
         }
 
-        var authenticatedUsers =
-            await _authenticatedUserAccessor.CountAuthenticatedUsers();
-
+        var authenticatedUsers = await _authenticatedUserAccessor.CountAuthenticatedUsers();
         switch (authenticatedUsers)
         {
             case 0:
@@ -72,16 +77,7 @@ internal class AuthorizeInteractionProcessor : IAuthorizeInteractionProcessor
 
     private async Task<string> GetPrompt(string subjectIdentifier, AuthorizeRequest authorizeRequest, IEnumerable<string> amr, CancellationToken cancellationToken)
     {
-        var authorizationGrant = await _identityContext
-            .Set<AuthorizationGrant>()
-            .Include(x => x.Client)
-            .Where(x => x.Client.Id == authorizeRequest.ClientId)
-            .Where(x => x.Session.PublicSubjectIdentifier.Id == subjectIdentifier)
-            .Where(AuthorizationGrant.IsMaxAgeValid)
-            .Where(x => x.Session.RevokedAt == null)
-            .SingleOrDefaultAsync(cancellationToken);
-
-        // TODO this does not make sense for login the first time, it only makes sense for the silent login flow
+        var authorizationGrant = await _authorizationGrantRepository.GetActiveAuthorizationGrant(subjectIdentifier, authorizeRequest.ClientId, cancellationToken);
         if (authorizationGrant is null)
         {
             return PromptConstants.Login;
@@ -94,19 +90,8 @@ internal class AuthorizeInteractionProcessor : IAuthorizeInteractionProcessor
             return PromptConstants.None;
         }
 
-        var consentGrant = await _identityContext
-            .Set<ConsentGrant>()
-            .Include(x => x.ConsentedScopes)
-            .Where(x => x.Client.Id == authorizeRequest.ClientId)
-            .Where(x => x.PublicSubjectIdentifier.Id == subjectIdentifier)
-            .SingleOrDefaultAsync(cancellationToken);
-
-        if (consentGrant is null)
-        {
-            return PromptConstants.Consent;
-        }
-
-        if (authorizeRequest.Scope.ExceptAny(consentGrant.ConsentedScopes.Select(x => x.Name)))
+        var consentedScope = await _consentGrantRepository.GetConsentedScope(subjectIdentifier, authorizeRequest.ClientId, cancellationToken);
+        if (authorizeRequest.Scope.ExceptAny(consentedScope))
         {
             return PromptConstants.Consent;
         }
