@@ -14,7 +14,8 @@ internal class TokenRepository : ITokenRepository
 		_authorizationDbContext = authorizationDbContext;
 	}
 
-	public async Task<RegistrationToken?> GetRegistrationToken(string registrationAccessToken, CancellationToken cancellationToken)
+	/// <inheritdoc/>
+	public async Task<RegistrationToken?> GetActiveRegistrationToken(string registrationAccessToken, CancellationToken cancellationToken)
 	{
 		return await _authorizationDbContext
 			.Set<RegistrationToken>()

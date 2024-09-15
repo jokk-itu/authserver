@@ -4,5 +4,11 @@ namespace AuthServer.Repositories.Abstractions;
 
 internal interface ITokenRepository
 {
-	Task<RegistrationToken?> GetRegistrationToken(string registrationAccessToken, CancellationToken cancellationToken);
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="registrationAccessToken"></param>
+	/// <param name="cancellationToken"></param>
+	/// <returns></returns>
+	Task<RegistrationToken?> GetActiveRegistrationToken(string registrationAccessToken, CancellationToken cancellationToken);
 }
