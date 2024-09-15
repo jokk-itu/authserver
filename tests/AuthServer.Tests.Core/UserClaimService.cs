@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Text.Json;
 using AuthServer.Constants;
 using AuthServer.Core.Abstractions;
 
@@ -28,7 +29,7 @@ public class UserClaimService : IUserClaimService
             new Claim(ClaimNameConstants.PhoneNumber, UserConstants.PhoneNumber),
             new Claim(ClaimNameConstants.PhoneNumberVerified, UserConstants.PhoneNumberVerified),
             new Claim(ClaimNameConstants.UpdatedAt, UserConstants.UpdatedAt),
-            new Claim(ClaimNameConstants.Roles, UserConstants.Roles),
+            new Claim(ClaimNameConstants.Roles, JsonSerializer.Serialize(UserConstants.Roles))
         ]);
     }
 }

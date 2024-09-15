@@ -3,12 +3,12 @@ public static class UserConstants
 {
     public const string SubjectIdentifier = "9ce5c367-5617-44bf-8aeb-347f604c10db";
     public const string Username = "Pingu";
-    public const string Password = "Password12!";
+    public const string Password = "Pingu";
     public const string Name = "Pingu Penguin";
     public const string GivenName = "Pingu";
     public const string MiddleName = "";
     public const string FamilyName = "Penguin";
-    public const string Address = "";
+    public const string Address = "WashingtonStreet";
     public const string NickName = "Pingu";
     public const string PreferredUsername = "Pingu";
     public const string Profile = "";
@@ -23,5 +23,5 @@ public static class UserConstants
     public const string PhoneNumber = "+672 10 9999";
     public const string PhoneNumberVerified = "true";
     public const string UpdatedAt = "2024-04-05 00:00:00.000";
-    public const string Roles = "admin";
+    public static readonly string[] Roles = ["admin", "basic"];
 }
