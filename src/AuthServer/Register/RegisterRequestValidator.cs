@@ -1291,7 +1291,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
             return RegisterError.InvalidRegistrationAccessToken;
         }
 
-        var token = await _tokenRepository.GetRegistrationToken(registrationAccessToken, cancellationToken);
+        var token = await _tokenRepository.GetActiveRegistrationToken(registrationAccessToken, cancellationToken);
         if (token is null)
         {
             return RegisterError.InvalidRegistrationAccessToken;
