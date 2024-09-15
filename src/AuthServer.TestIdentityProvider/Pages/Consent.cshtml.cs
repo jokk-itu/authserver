@@ -2,9 +2,7 @@ using AuthServer.Authorize.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Web;
-using AuthServer.Authorize;
 using AuthServer.Core;
-using AuthServer.Core.Abstractions;
 using AuthServer.Helpers;
 
 namespace AuthServer.TestIdentityProvider.Pages;
@@ -13,16 +11,13 @@ public class ConsentModel : PageModel
 {
     private readonly IAuthorizeUserAccessor _authorizeUserAccessor;
     private readonly IAuthorizeService _authorizeService;
-    private readonly IUserClaimService _userClaimService;
 
     public ConsentModel(
         IAuthorizeUserAccessor authorizeUserAccessor,
-        IAuthorizeService authorizeService,
-        IUserClaimService userClaimService)
+        IAuthorizeService authorizeService)
     {
         _authorizeUserAccessor = authorizeUserAccessor;
         _authorizeService = authorizeService;
-        _userClaimService = userClaimService;
     }
 
     [BindProperty] public InputModel Input { get; set; }
