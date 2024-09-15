@@ -34,11 +34,6 @@ public class AuthorizationGrant : AggregateRoot<string>
         RevokedAt ??= DateTime.UtcNow;
     }
 
-    public static Expression<Func<AuthorizationGrant, bool>> IsAuthorizationCodeValid(string authorizationCodeId) =>
-      a => a.AuthorizationCodes.Any()
-           && a.AuthorizationCodes.AsQueryable().Where(AuthorizationCode.IsValid(a.Client)).Any(x => x.Id == authorizationCodeId)
-           && a.RevokedAt == null;
-
     public static readonly Expression<Func<AuthorizationGrant, bool>> IsMaxAgeValid = a =>
       a.RevokedAt == null && (a.MaxAge == null || a.AuthTime.AddSeconds(a.MaxAge.Value) > DateTime.UtcNow);
 }

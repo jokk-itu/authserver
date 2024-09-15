@@ -50,8 +50,8 @@ internal class AuthorizationCodeValidator : IRequestValidator<TokenRequest, Auth
             return TokenError.InvalidCode;
         }
 
-        var isCodeVerifierInvalid = ProofKeyForCodeExchangeHelper.IsCodeVerifierValid(request.CodeVerifier, authorizationCode.CodeChallenge);
-        if (isCodeVerifierInvalid)
+        var isCodeVerifierValid = ProofKeyForCodeExchangeHelper.IsCodeVerifierValid(request.CodeVerifier, authorizationCode.CodeChallenge);
+        if (!isCodeVerifierValid)
         {
             return TokenError.InvalidCodeVerifier;
         }
@@ -81,8 +81,13 @@ internal class AuthorizationCodeValidator : IRequestValidator<TokenRequest, Auth
 
         var publicSubjectIdentifier = await _identityContext
             .Set<AuthorizationGrant>()
+            .Where(AuthorizationGrant.IsMaxAgeValid)
             .Where(x => x.Id == authorizationCode.AuthorizationGrantId)
-            .Where(AuthorizationGrant.IsAuthorizationCodeValid(authorizationCode.AuthorizationCodeId))
+            .Where(x => x.AuthorizationCodes
+                .AsQueryable()
+                .Where(y => y.Id == authorizationCode.AuthorizationCodeId)
+                .Where(y => y.RedeemedAt == null)
+                .Any(y => y.IssuedAt.AddSeconds(x.Client.AuthorizationCodeExpiration!.Value) > DateTime.UtcNow))
             .Where(x => x.Session.RevokedAt == null)
             .Select(x => x.Session.PublicSubjectIdentifier.Id)
             .SingleOrDefaultAsync(cancellationToken: cancellationToken);

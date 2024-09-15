@@ -13,6 +13,6 @@ public class AuthenticatedUserAccessor : IAuthenticatedUserAccessor
 
     public Task<int> CountAuthenticatedUsers()
     {
-        return Task.FromResult(1);
+        return Task.FromResult(0);
     }
 }
