@@ -32,7 +32,7 @@ internal class AuthorizeUserAccessor : IAuthorizeUserAccessor
         };
     }
 
-    public AuthorizeUser GetUser() => InternalTryGetUser() ?? throw new InvalidOperationException("authorizeUser is not set");
+    public AuthorizeUser GetUser() => InternalTryGetUser() ?? throw new InvalidOperationException("AuthorizeUser is not set");
 
     public AuthorizeUser? TryGetUser() => InternalTryGetUser();
 
@@ -40,12 +40,10 @@ internal class AuthorizeUserAccessor : IAuthorizeUserAccessor
     {
         if (InternalTryGetUser() is not null)
         {
-            throw new InvalidOperationException("authorizerUser is already set");
+            throw new InvalidOperationException("AuthorizerUser is already set");
         }
 
-        var authorizeUserBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(authorizeUser));
-        var encryptedAuthorizeUser = _dataProtector.Protect(authorizeUserBytes);
-        _httpContextAccessor.HttpContext!.Response.Cookies.Append(AuthorizeUserCookieName, Encoding.UTF8.GetString(encryptedAuthorizeUser), _cookieOptions);
+        InternalSetUser(authorizeUser);
     }
 
     public bool TrySetUser(AuthorizeUser authorizeUser)
@@ -55,9 +53,7 @@ internal class AuthorizeUserAccessor : IAuthorizeUserAccessor
             return false;
         }
 
-        var authorizeUserBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(authorizeUser));
-        var encryptedAuthorizeUser = _dataProtector.Protect(authorizeUserBytes);
-        _httpContextAccessor.HttpContext!.Response.Cookies.Append(AuthorizeUserCookieName, Encoding.UTF8.GetString(encryptedAuthorizeUser), _cookieOptions);
+        InternalSetUser(authorizeUser);
         return true;
     }
 
@@ -79,9 +75,16 @@ internal class AuthorizeUserAccessor : IAuthorizeUserAccessor
         {
             return null;
         }
-
-        var decryptedAuthorizeUser = _dataProtector.Unprotect(Encoding.UTF8.GetBytes(encryptedAuthorizeUser!));
-        var authenticatedUser = JsonSerializer.Deserialize<AuthorizeUser>(decryptedAuthorizeUser);
+        
+        var decryptedAuthorizeUser = _dataProtector.Unprotect(Convert.FromBase64String(encryptedAuthorizeUser!));
+        var authenticatedUser = JsonSerializer.Deserialize<AuthorizeUser>(Encoding.UTF8.GetString(decryptedAuthorizeUser));
         return authenticatedUser!;
+    }
+
+    private void InternalSetUser(AuthorizeUser authorizeUser)
+    {
+        var authorizeUserBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(authorizeUser));
+        var encryptedAuthorizeUser = _dataProtector.Protect(authorizeUserBytes);
+        _httpContextAccessor.HttpContext!.Response.Cookies.Append(AuthorizeUserCookieName, Convert.ToBase64String(encryptedAuthorizeUser), _cookieOptions);
     }
 }
