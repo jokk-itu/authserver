@@ -7,6 +7,18 @@ using Microsoft.AspNetCore.Routing;
 namespace AuthServer.Extensions;
 public static class ApplicationBuilderExtensions
 {
+    public static IEndpointRouteBuilder MapPushedAuthorizationEndpoint(this IEndpointRouteBuilder endpointBuilder)
+    {
+        endpointBuilder
+            .MapMethods("connect/par", ["POST"], PushedAuthorizationRequestEndpoint.HandlePushedAuthorization)
+            .WithDisplayName("OpenId Connect Pushed Authorization")
+            .WithName("OpenId Connect Pushed Authorization")
+            .WithDescription("OpenId Connect Pushed Authorization")
+            .WithGroupName("Authorize");
+
+        return endpointBuilder;
+    }
+
     public static IEndpointRouteBuilder MapEndSessionEndpoint(this IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder

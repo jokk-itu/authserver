@@ -135,6 +135,7 @@ app.UseAuthorization();
 app.MapRazorPages();
 
 app.MapAuthorizeEndpoint();
+app.MapPushedAuthorizationEndpoint();
 app.MapEndSessionEndpoint();
 app.MapDynamicClientManagementEndpoint();
 app.MapDynamicClientRegistrationEndpoint();
