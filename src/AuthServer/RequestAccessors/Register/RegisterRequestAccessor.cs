@@ -14,14 +14,14 @@ internal class RegisterRequestAccessor : IRequestAccessor<RegisterRequest>
 	{
 		var method = new HttpMethod(httpRequest.Method);
         var clientId = httpRequest.Query.GetValueOrEmpty(Parameter.ClientId);
-        var registrationAccessToken = method == HttpMethod.Post ? string.Empty : await httpRequest.HttpContext.GetTokenAsync(OAuthTokenAuthenticationDefaults.AuthenticationScheme, Parameter.AccessToken);
+        var registrationAccessToken = method == HttpMethod.Post ? string.Empty : await httpRequest.HttpContext.GetTokenAsync(OAuthTokenAuthenticationDefaults.AuthenticationScheme, Parameter.AccessToken) ?? string.Empty;
         if (method == HttpMethod.Get || method == HttpMethod.Delete)
         {
             return new RegisterRequest
             {
 				Method = method,
 				ClientId = clientId,
-				RegistrationAccessToken = registrationAccessToken ?? string.Empty
+				RegistrationAccessToken = registrationAccessToken
             };
         }
 
