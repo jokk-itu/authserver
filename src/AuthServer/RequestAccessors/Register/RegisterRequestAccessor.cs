@@ -1,8 +1,10 @@
 ﻿using AuthServer.Core.Abstractions;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json.Nodes;
+using AuthServer.Authentication;
 using AuthServer.Core;
 using AuthServer.Extensions;
+using Microsoft.AspNetCore.Authentication;
 
 namespace AuthServer.RequestAccessors.Register;
 
@@ -12,14 +14,14 @@ internal class RegisterRequestAccessor : IRequestAccessor<RegisterRequest>
 	{
 		var method = new HttpMethod(httpRequest.Method);
         var clientId = httpRequest.Query.GetValueOrEmpty(Parameter.ClientId);
-        var registrationAccessToken = method == HttpMethod.Post ? string.Empty : await httpRequest.HttpContext.GetToken(Parameter.AccessToken);
+        var registrationAccessToken = method == HttpMethod.Post ? string.Empty : await httpRequest.HttpContext.GetTokenAsync(OAuthTokenAuthenticationDefaults.AuthenticationScheme, Parameter.AccessToken);
         if (method == HttpMethod.Get || method == HttpMethod.Delete)
         {
             return new RegisterRequest
             {
 				Method = method,
 				ClientId = clientId,
-				RegistrationAccessToken = registrationAccessToken
+				RegistrationAccessToken = registrationAccessToken ?? string.Empty
             };
         }
 

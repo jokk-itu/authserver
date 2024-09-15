@@ -94,10 +94,9 @@ public static class ServiceCollectionExtensions
     internal static IServiceCollection AddAuthServerAuthentication(this IServiceCollection services)
     {
         services
-            .ConfigureOptions<ConfigureJwtBearerOptions>()
             .AddAuthentication()
-            .AddJwtBearer()
-            .AddScheme<ReferenceTokenAuthenticationOptions, ReferenceTokenAuthenticationHandler>(ReferenceTokenAuthenticationDefaults.AuthenticationScheme, null);
+            .AddScheme<OAuthTokenAuthenticationOptions, OAuthTokenAuthenticationHandler>(
+                OAuthTokenAuthenticationDefaults.AuthenticationScheme, null);
 
         return services;
     }
@@ -108,7 +107,7 @@ public static class ServiceCollectionExtensions
         {
             options.AddPolicy(AuthorizationConstants.Userinfo, policy =>
             {
-                policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme, ReferenceTokenAuthenticationDefaults.AuthenticationScheme);
+                policy.AddAuthenticationSchemes(OAuthTokenAuthenticationDefaults.AuthenticationScheme);
                 policy.RequireAssertion(context =>
                 {
                     var scope = context.User.Claims.SingleOrDefault(x => x.Type == ClaimNameConstants.Scope)?.Value;
@@ -117,7 +116,7 @@ public static class ServiceCollectionExtensions
             });
             options.AddPolicy(AuthorizationConstants.Register, policy =>
             {
-                policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme, ReferenceTokenAuthenticationDefaults.AuthenticationScheme);
+                policy.AddAuthenticationSchemes(OAuthTokenAuthenticationDefaults.AuthenticationScheme);
                 policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.Register);
             });
         });
