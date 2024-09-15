@@ -24,8 +24,14 @@ internal static class FormCollectionExtensions
     {
         formCollection.TryGetValue(Parameter.ClientId, out var clientId);
         formCollection.TryGetValue(Parameter.ClientSecret, out var clientSecret);
+        formCollection.TryGetValue(Parameter.ClientAssertion, out var clientAssertion);
+        formCollection.TryGetValue(Parameter.ClientAssertionType, out var clientAssertionType);
 
-        var isClientId = !string.IsNullOrWhiteSpace(clientId) && string.IsNullOrWhiteSpace(clientSecret);
+        var hasSecretOrAssertion = !string.IsNullOrEmpty(clientSecret)
+            || !string.IsNullOrEmpty(clientAssertion)
+            || !string.IsNullOrEmpty(clientAssertionType);
+
+        var isClientId = !string.IsNullOrWhiteSpace(clientId) && !hasSecretOrAssertion;
         return isClientId
             ? new ClientIdAuthentication(clientId!)
             : null;
