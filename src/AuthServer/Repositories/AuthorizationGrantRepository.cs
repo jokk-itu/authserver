@@ -17,19 +17,37 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
     }
 
     /// <inheritdoc/>
-    public async Task<AuthorizationGrant> CreateAuthorizationGrant(string subjectIdentifier, string clientId, long? maxAge,
+    public async Task<AuthorizationGrant> CreateAuthorizationGrant(string subjectIdentifier, string clientId,
+        long? maxAge,
         CancellationToken cancellationToken)
     {
         var session = await GetSession(subjectIdentifier, clientId, cancellationToken);
         var client = (await _identityContext.FindAsync<Client>(clientId, cancellationToken))!;
-        var subjectIdentifierForGrant = await GetSubjectIdentifierForGrant(subjectIdentifier, clientId, cancellationToken);
+        var subjectIdentifierForGrant =
+            await GetSubjectIdentifierForGrant(subjectIdentifier, clientId, cancellationToken);
 
         var newGrant = new AuthorizationGrant(DateTime.UtcNow, session, client, subjectIdentifierForGrant, maxAge);
         await _identityContext.AddAsync(newGrant, cancellationToken);
+        await _identityContext.SaveChangesAsync(cancellationToken);
         return newGrant;
     }
 
-    private async Task<Session> GetSession(string subjectIdentifier, string clientId, CancellationToken cancellationToken)
+    /// <inheritdoc/>
+    public async Task<AuthorizationGrant?> GetActiveAuthorizationGrant(string subjectIdentifier, string clientId,
+        CancellationToken cancellationToken)
+    {
+        return await _identityContext
+            .Set<AuthorizationGrant>()
+            .Where(AuthorizationGrant.IsMaxAgeValid)
+            .Include(x => x.Client)
+            .Where(x => x.Client.Id == clientId)
+            .Where(x => x.Session.RevokedAt == null)
+            .Where(x => x.Session.PublicSubjectIdentifier.Id == subjectIdentifier)
+            .SingleOrDefaultAsync(cancellationToken);
+    }
+
+    private async Task<Session> GetSession(string subjectIdentifier, string clientId,
+        CancellationToken cancellationToken)
     {
         var session = await _identityContext
             .Set<Session>()
@@ -43,16 +61,20 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
             await RevokePreviousGrant(subjectIdentifier, clientId, cancellationToken);
         }
 
-        var publicSubjectIdentifier = (session?.PublicSubjectIdentifier ?? await _identityContext.FindAsync<PublicSubjectIdentifier>(subjectIdentifier, cancellationToken))!;
+        var publicSubjectIdentifier = (session?.PublicSubjectIdentifier ??
+                                       await _identityContext.FindAsync<PublicSubjectIdentifier>(subjectIdentifier,
+                                           cancellationToken))!;
 
         session ??= new Session(publicSubjectIdentifier);
         return session;
     }
 
-    private async Task RevokePreviousGrant(string subjectIdentifier, string clientId, CancellationToken cancellationToken)
+    private async Task RevokePreviousGrant(string subjectIdentifier, string clientId,
+        CancellationToken cancellationToken)
     {
         var grant = await _identityContext
             .Set<AuthorizationGrant>()
+            .Where(AuthorizationGrant.IsMaxAgeValid)
             .Include(x => x.Client)
             .Where(x => x.Client.Id == clientId)
             .Where(x => x.Session.RevokedAt == null)
@@ -85,11 +107,11 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
                 return pairwiseSubjectIdentifier;
             }
 
-            var publicSubjectIdentifier = (await _identityContext.FindAsync<PublicSubjectIdentifier>(subjectIdentifier, cancellationToken))!;
+            var publicSubjectIdentifier =
+                (await _identityContext.FindAsync<PublicSubjectIdentifier>(subjectIdentifier, cancellationToken))!;
             pairwiseSubjectIdentifier = new PairwiseSubjectIdentifier(client, publicSubjectIdentifier);
             await _identityContext.AddAsync(pairwiseSubjectIdentifier, cancellationToken);
             return pairwiseSubjectIdentifier;
-
         }
 
         throw new InvalidOperationException("SubjectType has invalid value");
