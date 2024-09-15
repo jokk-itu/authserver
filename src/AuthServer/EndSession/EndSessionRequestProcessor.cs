@@ -93,8 +93,8 @@ internal class EndSessionRequestProcessor : IRequestProcessor<EndSessionValidate
         var affectedTokens = await _authorizationDbContext
             .Set<AuthorizationGrant>()
             .Where(ag => ag.Id == authorizationGrantQuery.AuthorizationGrant.Id)
-            .Where(AuthorizationGrant.IsMaxAgeValid)
             .SelectMany(g => g.GrantTokens)
+            .Where(Token.IsActive)
             .ExecuteUpdateAsync(
                 propertyCall => propertyCall.SetProperty(gt => gt.RevokedAt, DateTime.UtcNow),
                 cancellationToken);
@@ -121,6 +121,7 @@ internal class EndSessionRequestProcessor : IRequestProcessor<EndSessionValidate
             .Where(ag => ag.Session.Id == sessionQuery.Session.Id)
             .Where(AuthorizationGrant.IsMaxAgeValid)
             .SelectMany(g => g.GrantTokens)
+            .Where(Token.IsActive)
             .ExecuteUpdateAsync(
                 propertyCall => propertyCall.SetProperty(gt => gt.RevokedAt, DateTime.UtcNow),
                 cancellationToken);
