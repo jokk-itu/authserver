@@ -28,7 +28,7 @@ public static class ClaimNameConstants
     public const string Sid = "sid";
 
     /// <summary>
-    /// A number which is only used once.
+    /// A value which is only used once.
     /// </summary>
     public const string Nonce = "nonce";
 
@@ -77,6 +77,26 @@ public static class ClaimNameConstants
     /// Issuer.
     /// </summary>
     public const string Iss = "iss";
+
+    /// <summary>
+    /// JsonWebKey.
+    /// </summary>
+    public const string Jwk = "jwk";
+
+    /// <summary>
+    /// Http method.
+    /// </summary>
+    public const string Htm = "htm";
+
+    /// <summary>
+    /// Http target uri.
+    /// </summary>
+    public const string Htu = "htu";
+
+    /// <summary>
+    /// Hash of an access token.
+    /// </summary>
+    public const string Ath = "ath";
 
     /// <summary>
     /// ID of the issued grant.
