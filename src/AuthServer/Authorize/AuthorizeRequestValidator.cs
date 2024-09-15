@@ -1,43 +1,34 @@
 ﻿using AuthServer.Authorize.Abstractions;
 using AuthServer.Cache.Abstractions;
+using AuthServer.Cache.Entities;
 using AuthServer.Constants;
-using AuthServer.Core;
 using AuthServer.Core.Discovery;
 using AuthServer.Core.Request;
-using AuthServer.Entities;
-using AuthServer.Extensions;
-using AuthServer.Helpers;
+using AuthServer.Repositories.Abstractions;
 using AuthServer.RequestAccessors.Authorize;
 using AuthServer.TokenDecoders;
 using AuthServer.TokenDecoders.Abstractions;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace AuthServer.Authorize;
 
-internal class AuthorizeRequestValidator : IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>
+internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>
 {
     private readonly ICachedClientStore _cachedClientStore;
-    private readonly AuthorizationDbContext _identityContext;
-    private readonly ITokenDecoder<ServerIssuedTokenDecodeArguments> _serverIssuedTokenDecoder;
-    private readonly IAuthorizeInteractionProcessor _authorizeInteractionProcessor;
-    private readonly IAuthorizeRequestParameterProcessor _authorizeRequestParameterProcessor;
-    private readonly IOptionsSnapshot<DiscoveryDocument> _discoveryDocumentOptions;
+    private readonly IAuthorizeInteractionService _authorizeInteractionService;
+    private readonly IAuthorizeRequestParameterService _authorizeRequestParameterService;
 
     public AuthorizeRequestValidator(
         ICachedClientStore cachedClientStore,
-        AuthorizationDbContext identityContext,
-        ITokenDecoder<ServerIssuedTokenDecodeArguments> serverIssuedTokenDecoder,
-        IAuthorizeInteractionProcessor authorizeInteractionProcessor,
-        IAuthorizeRequestParameterProcessor authorizeRequestParameterProcessor,
-        IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions)
+        ITokenDecoder<ServerIssuedTokenDecodeArguments> tokenDecoder,
+        IAuthorizeInteractionService authorizeInteractionService,
+        IAuthorizeRequestParameterService authorizeRequestParameterService,
+        IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions,
+        INonceRepository nonceRepository) : base(nonceRepository, tokenDecoder, discoveryDocumentOptions)
     {
         _cachedClientStore = cachedClientStore;
-        _identityContext = identityContext;
-        _serverIssuedTokenDecoder = serverIssuedTokenDecoder;
-        _authorizeInteractionProcessor = authorizeInteractionProcessor;
-        _authorizeRequestParameterProcessor = authorizeRequestParameterProcessor;
-        _discoveryDocumentOptions = discoveryDocumentOptions;
+        _authorizeInteractionService = authorizeInteractionService;
+        _authorizeRequestParameterService = authorizeRequestParameterService;
     }
 
     public async Task<ProcessResult<AuthorizeValidatedRequest, ProcessError>> Validate(AuthorizeRequest request,
@@ -57,10 +48,45 @@ internal class AuthorizeRequestValidator : IRequestValidator<AuthorizeRequest, A
         }
         else if (isRequestUriEmpty && isRequestObjectEmpty && cachedClient.RequireSignedRequestObject)
         {
-            return AuthorizeError.RequestOrRequestUriRequired;
+            return AuthorizeError.RequestOrRequestUriRequiredAsRequestObject;
+        }
+        else if (isRequestUriEmpty && cachedClient.RequirePushedAuthorizationRequests)
+        {
+            return AuthorizeError.RequestUriRequiredAsPushedAuthorizationRequest;
         }
         else if (!isRequestUriEmpty)
         {
+            if (request.RequestUri.StartsWith(RequestUriConstants.RequestUriPrefix))
+            {
+                var authorizeDto = await _authorizeRequestParameterService.GetRequestByPushedRequest(request.RequestUri, request.ClientId, cancellationToken);
+                if (authorizeDto is null)
+                {
+                    return AuthorizeError.InvalidOrExpiredRequestUri;
+                }
+
+                request = new AuthorizeRequest
+                {
+                    IdTokenHint = authorizeDto.IdTokenHint,
+                    LoginHint = authorizeDto.LoginHint,
+                    Prompt = authorizeDto.Prompt,
+                    Display = authorizeDto.Display,
+                    ClientId = authorizeDto.ClientId,
+                    RedirectUri = authorizeDto.RedirectUri,
+                    CodeChallenge = authorizeDto.CodeChallenge,
+                    CodeChallengeMethod = authorizeDto.CodeChallengeMethod,
+                    ResponseType = authorizeDto.ResponseType,
+                    Nonce = authorizeDto.Nonce,
+                    MaxAge = authorizeDto.MaxAge,
+                    State = authorizeDto.State,
+                    ResponseMode = authorizeDto.ResponseMode,
+                    RequestObject = string.Empty,
+                    RequestUri = request.RequestUri,
+                    Scope = authorizeDto.Scope,
+                    AcrValues = authorizeDto.AcrValues
+                };
+                return await ValidateForInteraction(request, cachedClient, cancellationToken);
+            }
+
             if (!Uri.TryCreate(request.RequestUri, UriKind.Absolute, out var requestUri))
             {
                 return AuthorizeError.InvalidRequestUri;
@@ -71,135 +97,155 @@ internal class AuthorizeRequestValidator : IRequestValidator<AuthorizeRequest, A
                 return AuthorizeError.UnauthorizedRequestUri;
             }
 
-            var newRequest = await _authorizeRequestParameterProcessor.GetRequestByReference(requestUri, request.ClientId, cancellationToken);
+            var newRequest = await _authorizeRequestParameterService.GetRequestByReference(requestUri, request.ClientId, ClientTokenAudience.AuthorizeEndpoint, cancellationToken);
             if (newRequest is null)
             {
                 return AuthorizeError.InvalidRequestFromRequestUri;
             }
+
+            request = new AuthorizeRequest
+            {
+                IdTokenHint = newRequest.IdTokenHint,
+                LoginHint = newRequest.LoginHint,
+                Prompt = newRequest.Prompt,
+                Display = newRequest.Display,
+                ClientId = newRequest.ClientId,
+                RedirectUri = newRequest.RedirectUri,
+                CodeChallenge = newRequest.CodeChallenge,
+                CodeChallengeMethod = newRequest.CodeChallengeMethod,
+                ResponseType = newRequest.ResponseType,
+                Nonce = newRequest.Nonce,
+                MaxAge = newRequest.MaxAge,
+                State = newRequest.State,
+                ResponseMode = newRequest.ResponseMode,
+                RequestObject = string.Empty,
+                RequestUri = string.Empty,
+                Scope = newRequest.Scope,
+                AcrValues = newRequest.AcrValues
+            };
         }
         else if (!isRequestObjectEmpty)
         {
-            var newRequest = await _authorizeRequestParameterProcessor.GetRequestByObject(request.RequestObject, request.ClientId, cancellationToken);
+            var newRequest = await _authorizeRequestParameterService.GetRequestByObject(request.RequestObject, request.ClientId, ClientTokenAudience.AuthorizeEndpoint, cancellationToken);
             if (newRequest is null)
             {
                 return AuthorizeError.InvalidRequest;
             }
+
+            request = new AuthorizeRequest
+            {
+                IdTokenHint = newRequest.IdTokenHint,
+                LoginHint = newRequest.LoginHint,
+                Prompt = newRequest.Prompt,
+                Display = newRequest.Display,
+                ClientId = newRequest.ClientId,
+                RedirectUri = newRequest.RedirectUri,
+                CodeChallenge = newRequest.CodeChallenge,
+                CodeChallengeMethod = newRequest.CodeChallengeMethod,
+                ResponseType = newRequest.ResponseType,
+                Nonce = newRequest.Nonce,
+                MaxAge = newRequest.MaxAge,
+                State = newRequest.State,
+                ResponseMode = newRequest.ResponseMode,
+                RequestObject = string.Empty,
+                RequestUri = string.Empty,
+                Scope = newRequest.Scope,
+                AcrValues = newRequest.AcrValues
+            };
         }
 
-        if (string.IsNullOrEmpty(request.State))
+        if (!HasValidState(request.State))
         {
             return AuthorizeError.InvalidState;
         }
 
-        if (string.IsNullOrEmpty(request.RedirectUri)
-            && cachedClient.RedirectUris.Count != 1)
+        if (!HasValidEmptyRedirectUri(request.RedirectUri, cachedClient))
         {
             return AuthorizeError.InvalidRedirectUri;
         }
 
-        if (!string.IsNullOrEmpty(request.RedirectUri)
-            && cachedClient.RedirectUris.Any(x => x == request.RedirectUri))
+        if (!HasValidRequiredRedirectUri(request.RedirectUri, cachedClient))
         {
             return AuthorizeError.UnauthorizedRedirectUri;
         }
 
-        if (!string.IsNullOrEmpty(request.ResponseMode)
-            && !ResponseModeConstants.ResponseModes.Contains(request.ResponseMode))
+        if (!HasValidResponseMode(request.ResponseMode))
         {
             return AuthorizeError.InvalidResponseMode;
         }
 
-        // it is currently only code which is supported
-        if (!ResponseTypeConstants.ResponseTypes.Contains(request.ResponseType))
+        if (!HasValidResponseType(request.ResponseType))
         {
             return AuthorizeError.InvalidResponseType;
         }
 
-        // it is currently only code which is supported
-        if (cachedClient.GrantTypes.All(x => x != GrantTypeConstants.AuthorizationCode))
+        if (!HasValidGrantType(cachedClient))
         {
             return AuthorizeError.UnauthorizedResponseType;
         }
 
-        if (!string.IsNullOrEmpty(request.Display)
-            && !DisplayConstants.DisplayValues.Contains(request.Display))
+        if (!HasValidDisplay(request.Display))
         {
             return AuthorizeError.InvalidDisplay;
         }
 
-        if (string.IsNullOrEmpty(request.Nonce))
+        if (!HasValidNonce(request.Nonce))
         {
             return AuthorizeError.InvalidNonce;
         }
 
-        var nonceExists = await _identityContext
-            .Set<Nonce>()
-            .AnyAsync(x => x.Value == request.Nonce, cancellationToken);
-
-        if (nonceExists)
+        if (!await HasUniqueNonce(request.Nonce, cancellationToken))
         {
             return AuthorizeError.ReplayNonce;
         }
 
-        if (!ProofKeyForCodeExchangeHelper.IsCodeChallengeMethodValid(request.CodeChallengeMethod))
+        if (!HasValidCodeChallengeMethod(request.CodeChallengeMethod))
         {
             return AuthorizeError.InvalidCodeChallengeMethod;
         }
 
-        if (!ProofKeyForCodeExchangeHelper.IsCodeChallengeValid(request.CodeChallenge))
+        if (!HasValidCodeChallenge(request.CodeChallenge))
         {
             return AuthorizeError.InvalidCodeChallenge;
         }
 
-        if (!request.Scope.Contains(ScopeConstants.OpenId))
+        if (!HasValidScope(request.Scope))
         {
             return AuthorizeError.InvalidOpenIdScope;
         }
 
-        var isClientUnauthorizedForScope = request.Scope.ExceptAny(cachedClient.Scopes);
-        if (isClientUnauthorizedForScope)
+        if (!HasAuthorizedScope(request.Scope, cachedClient))
         {
             return AuthorizeError.UnauthorizedScope;
         }
 
-        if (!MaxAgeHelper.IsMaxAgeValid(request.MaxAge))
+        if (!HasValidMaxAge(request.MaxAge))
         {
             return AuthorizeError.InvalidMaxAge;
         }
 
-        if (!string.IsNullOrEmpty(request.IdTokenHint))
+        if (!await HasValidIdTokenHint(request.IdTokenHint, request.ClientId, cancellationToken))
         {
-            try
-            {
-                await _serverIssuedTokenDecoder.Validate(
-                    request.IdTokenHint,
-                    new ServerIssuedTokenDecodeArguments
-                    {
-                        ValidateLifetime = true,
-                        TokenTypes = [TokenTypeHeaderConstants.IdToken],
-                        Audiences = [request.ClientId]
-                    }, cancellationToken);
-            }
-            catch
-            {
-                return AuthorizeError.InvalidIdTokenHint;
-            }
+            return AuthorizeError.InvalidIdTokenHint;
         }
 
-        // TODO this is incorrect as Prompt can contain multiple prompts
-        if (!string.IsNullOrEmpty(request.Prompt)
-            && !PromptConstants.Prompts.Contains(request.Prompt))
+        if (!HasValidPrompt(request.Prompt))
         {
             return AuthorizeError.InvalidPrompt;
         }
 
-        if (request.AcrValues.Count != 0 &&
-            request.AcrValues.ExceptAny(_discoveryDocumentOptions.Value.AcrValuesSupported))
+        if (!HasValidAcrValues(request.AcrValues))
         {
-            return AuthorizeError.InvalidAcr;
+            return AuthorizeError.InvalidAcrValues;
         }
 
-        var deducedPrompt = await _authorizeInteractionProcessor.ProcessForInteraction(request, cancellationToken);
+        return await ValidateForInteraction(request, cachedClient, cancellationToken);
+    }
+
+    // This must first be deduced after successful validation of all input from the request
+    private async Task<ProcessResult<AuthorizeValidatedRequest, ProcessError>> ValidateForInteraction(AuthorizeRequest request, CachedClient cachedClient, CancellationToken cancellationToken)
+    {
+        var deducedPrompt = await _authorizeInteractionService.GetPrompt(request, cancellationToken);
         if (deducedPrompt == PromptConstants.Login)
         {
             return AuthorizeError.LoginRequired;
@@ -235,7 +281,8 @@ internal class AuthorizeRequestValidator : IRequestValidator<AuthorizeRequest, A
             MaxAge = maxAge,
             Nonce = request.Nonce,
             State = request.State,
-            RedirectUri = redirectUri
+            RedirectUri = redirectUri,
+            RequestUri = request.RequestUri
         };
     }
 }

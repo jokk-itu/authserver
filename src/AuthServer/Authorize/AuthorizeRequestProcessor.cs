@@ -1,6 +1,7 @@
 ﻿using AuthServer.Authorize.Abstractions;
 using AuthServer.Codes;
 using AuthServer.Codes.Abstractions;
+using AuthServer.Constants;
 using AuthServer.Core.Request;
 using AuthServer.Entities;
 using AuthServer.Repositories.Abstractions;
@@ -12,29 +13,32 @@ internal class AuthorizeRequestProcessor : IRequestProcessor<AuthorizeValidatedR
     private readonly IAuthorizationCodeEncoder _authorizationCodeEncoder;
     private readonly IAuthorizeUserAccessor _userAccessor;
     private readonly IAuthorizationGrantRepository _authorizationGrantRepository;
+    private readonly IClientRepository _clientRepository;
 
     public AuthorizeRequestProcessor(
         IAuthorizationCodeEncoder authorizationCodeEncoder,
         IAuthorizeUserAccessor userAccessor,
-        IAuthorizationGrantRepository authorizationGrantRepository)
+        IAuthorizationGrantRepository authorizationGrantRepository,
+        IClientRepository clientRepository)
     {
         _authorizationCodeEncoder = authorizationCodeEncoder;
         _userAccessor = userAccessor;
         _authorizationGrantRepository = authorizationGrantRepository;
+        _clientRepository = clientRepository;
     }
 
     public async Task<string> Process(AuthorizeValidatedRequest request, CancellationToken cancellationToken)
     {
-        var user = _userAccessor.GetUser();
-        long? maxAge = null;
-        var isParsed = long.TryParse(request.MaxAge, out var parsedMaxAge);
-        if (isParsed)
+        var lastIndex = request.RequestUri.LastIndexOf(RequestUriConstants.RequestUriPrefix, StringComparison.Ordinal);
+        if (lastIndex != -1)
         {
-            maxAge = parsedMaxAge;
+            var reference = request.RequestUri[lastIndex..];
+            await _clientRepository.RedeemAuthorizeMessage(reference, cancellationToken);
         }
 
-        var authorizationGrant = await _authorizationGrantRepository.CreateAuthorizationGrant(
-            user.SubjectIdentifier, request.ClientId, maxAge, cancellationToken);
+        var user = _userAccessor.GetUser();
+        var authorizationGrant = (await _authorizationGrantRepository.GetActiveAuthorizationGrant(
+            user.SubjectIdentifier, request.ClientId, cancellationToken))!;
 
         var authorizationCode = new AuthorizationCode(authorizationGrant);
         var nonce = new Nonce(request.Nonce, authorizationGrant);
@@ -47,10 +51,8 @@ internal class AuthorizeRequestProcessor : IRequestProcessor<AuthorizeValidatedR
             {
                 AuthorizationGrantId = authorizationGrant.Id,
                 AuthorizationCodeId = authorizationCode.Id,
-                NonceId = nonce.Id,
                 Scope = request.Scope,
                 RedirectUri = request.RedirectUri,
-                CodeChallengeMethod = request.CodeChallengeMethod,
                 CodeChallenge = request.CodeChallenge
             });
 

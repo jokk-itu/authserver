@@ -56,7 +56,7 @@ internal class AuthorizeError
     public static readonly ProcessError InvalidPrompt =
         new(ErrorCode.InvalidRequest, "prompt is invalid", ResultCode.Redirect);
 
-    public static readonly ProcessError InvalidAcr =
+    public static readonly ProcessError InvalidAcrValues =
         new(ErrorCode.InvalidRequest, "acr_values is invalid", ResultCode.Redirect);
 
     public static readonly ProcessError LoginRequired =
@@ -83,6 +83,12 @@ internal class AuthorizeError
     public static readonly ProcessError InvalidRequest =
         new(ErrorCode.InvalidRequestObject, "request is invalid", ResultCode.BadRequest);
 
-    public static readonly ProcessError RequestOrRequestUriRequired =
-        new(ErrorCode.InvalidRequest, "client requires either request or request_uri", ResultCode.BadRequest);
+    public static readonly ProcessError RequestOrRequestUriRequiredAsRequestObject =
+        new(ErrorCode.InvalidRequest, "client requires either request or request_uri as request_object", ResultCode.BadRequest);
+
+    public static readonly ProcessError RequestUriRequiredAsPushedAuthorizationRequest =
+        new(ErrorCode.InvalidRequestUri, "client requires request_uri as pushed authorization request", ResultCode.BadRequest);
+
+    public static readonly ProcessError InvalidOrExpiredRequestUri =
+        new(ErrorCode.InvalidRequestUri, "request_uri is invalid or expired", ResultCode.BadRequest);
 }
