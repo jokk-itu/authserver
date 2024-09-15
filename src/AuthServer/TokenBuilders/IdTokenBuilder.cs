@@ -5,10 +5,10 @@ using AuthServer.Core.Abstractions;
 using AuthServer.Core.Discovery;
 using AuthServer.Entities;
 using AuthServer.Extensions;
-using AuthServer.Helpers;
 using AuthServer.Metrics;
 using AuthServer.Metrics.Abstractions;
 using AuthServer.Options;
+using AuthServer.Repositories.Abstractions;
 using AuthServer.TokenBuilders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -16,6 +16,7 @@ using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
 namespace AuthServer.TokenBuilders;
+
 internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
 {
     private readonly AuthorizationDbContext _identityContext;
@@ -24,6 +25,7 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
     private readonly ITokenSecurityService _tokenSecurityService;
     private readonly IUserClaimService _userClaimService;
     private readonly IMetricService _metricService;
+    private readonly IConsentGrantRepository _consentGrantRepository;
 
     public IdTokenBuilder(
         AuthorizationDbContext identityContext,
@@ -31,7 +33,8 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
         IOptionsSnapshot<JwksDocument> jwksDocumentOptions,
         ITokenSecurityService tokenSecurityService,
         IUserClaimService userClaimService,
-        IMetricService metricService)
+        IMetricService metricService,
+        IConsentGrantRepository consentGrantRepository)
     {
         _identityContext = identityContext;
         _discoveryDocumentOptions = discoveryDocumentOptions;
@@ -39,6 +42,7 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
         _tokenSecurityService = tokenSecurityService;
         _userClaimService = userClaimService;
         _metricService = metricService;
+        _consentGrantRepository = consentGrantRepository;
     }
 
     public async Task<string> BuildToken(IdTokenArguments arguments, CancellationToken cancellationToken)
@@ -75,7 +79,7 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
             // TODO amr from arguments given from the Razor Pages
         };
 
-        var authorizedClaimTypes = ClaimHelper.MapToClaims(arguments.Scope).ToList();
+        var authorizedClaimTypes = await _consentGrantRepository.GetConsentedClaims(query.PublicSubjectId, query.ClientId, cancellationToken);
         var userClaims = await _userClaimService.GetClaims(query.PublicSubjectId, cancellationToken);
         foreach (var userClaim in userClaims)
         {
@@ -104,7 +108,7 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
             query.EncryptionEnc is not null)
         {
             tokenDescriptor.EncryptingCredentials = await _tokenSecurityService.GetEncryptingCredentials(
-            query.ClientId,
+                query.ClientId,
                 query.EncryptionAlg.Value,
                 query.EncryptionEnc.Value,
                 cancellationToken);

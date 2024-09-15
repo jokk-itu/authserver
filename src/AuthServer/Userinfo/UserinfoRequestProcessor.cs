@@ -1,12 +1,12 @@
 ﻿using AuthServer.Core;
 using AuthServer.Core.Abstractions;
 using AuthServer.Entities;
-using AuthServer.Helpers;
 using AuthServer.TokenBuilders;
 using AuthServer.TokenBuilders.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using AuthServer.Core.Request;
+using AuthServer.Repositories.Abstractions;
 
 namespace AuthServer.Userinfo;
 internal class UserinfoRequestProcessor : IRequestProcessor<UserinfoValidatedRequest, string>
@@ -14,15 +14,18 @@ internal class UserinfoRequestProcessor : IRequestProcessor<UserinfoValidatedReq
     private readonly AuthorizationDbContext _identityContext;
     private readonly ITokenBuilder<UserinfoTokenArguments> _userinfoTokenBuilder;
     private readonly IUserClaimService _userClaimService;
+    private readonly IConsentGrantRepository _consentGrantRepository;
 
     public UserinfoRequestProcessor(
         AuthorizationDbContext identityContext,
         ITokenBuilder<UserinfoTokenArguments> userinfoTokenBuilder,
-        IUserClaimService userClaimService)
+        IUserClaimService userClaimService,
+        IConsentGrantRepository consentGrantRepository)
     {
         _identityContext = identityContext;
         _userinfoTokenBuilder = userinfoTokenBuilder;
         _userClaimService = userClaimService;
+        _consentGrantRepository = consentGrantRepository;
     }
 
     public async Task<string> Process(UserinfoValidatedRequest request, CancellationToken cancellationToken)
@@ -47,7 +50,7 @@ internal class UserinfoRequestProcessor : IRequestProcessor<UserinfoValidatedReq
             { Parameter.Subject, query.GrantSubjectId }
         };
 
-        var authorizedClaimTypes = ClaimHelper.MapToClaims(request.Scope).ToList();
+        var authorizedClaimTypes = await _consentGrantRepository.GetConsentedClaims(query.PublicSubjectId, query.ClientId, cancellationToken);
         var userClaims = await _userClaimService.GetClaims(query.PublicSubjectId, cancellationToken);
         foreach (var userClaim in userClaims)
         {
