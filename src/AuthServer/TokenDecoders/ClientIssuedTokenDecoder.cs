@@ -102,6 +102,7 @@ internal class ClientIssuedTokenDecoder : ITokenDecoder<ClientIssuedTokenDecodeA
             ClientTokenAudience.AuthorizeEndpoint => _discoveryDocumentOptions.Value.AuthorizationEndpoint,
             ClientTokenAudience.IntrospectionEndpoint => _discoveryDocumentOptions.Value.IntrospectionEndpoint,
             ClientTokenAudience.RevocationEndpoint => _discoveryDocumentOptions.Value.RevocationEndpoint,
+            ClientTokenAudience.PushedAuthorizeEndpoint => _discoveryDocumentOptions.Value.PushedAuthorizationRequestEndpoint,
             _ => throw new ArgumentOutOfRangeException(nameof(audience), audience, "does not map to a valid enum")
         };
     }
