@@ -15,12 +15,14 @@ using AuthServer.Introspection;
 using AuthServer.Metrics;
 using AuthServer.Metrics.Abstractions;
 using AuthServer.Options;
+using AuthServer.PushedAuthorization;
 using AuthServer.Register;
 using AuthServer.Repositories;
 using AuthServer.Repositories.Abstractions;
 using AuthServer.RequestAccessors.Authorize;
 using AuthServer.RequestAccessors.EndSession;
 using AuthServer.RequestAccessors.Introspection;
+using AuthServer.RequestAccessors.PushedAuthorization;
 using AuthServer.RequestAccessors.Register;
 using AuthServer.RequestAccessors.Revocation;
 using AuthServer.RequestAccessors.Token;
@@ -35,7 +37,6 @@ using AuthServer.TokenByGrant.RefreshTokenGrant;
 using AuthServer.TokenDecoders;
 using AuthServer.TokenDecoders.Abstractions;
 using AuthServer.Userinfo;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -44,7 +45,8 @@ namespace AuthServer.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddAuthServer(this IServiceCollection services, Action<DbContextOptionsBuilder> databaseConfigurator)
+    public static IServiceCollection AddAuthServer(this IServiceCollection services,
+        Action<DbContextOptionsBuilder> databaseConfigurator)
     {
         services
             .AddCoreServices()
@@ -53,6 +55,7 @@ public static class ServiceCollectionExtensions
             .AddDecoders()
             .AddDataStore(databaseConfigurator)
             .AddOptions()
+            .AddPushedAuthorization()
             .AddRegister()
             .AddEndSession()
             .AddAuthorize()
@@ -84,7 +87,8 @@ public static class ServiceCollectionExtensions
             .ConfigureOptions<ValidateUserInteractionOptions>();
     }
 
-    internal static IServiceCollection AddDataStore(this IServiceCollection services, Action<DbContextOptionsBuilder> databaseConfigurator)
+    internal static IServiceCollection AddDataStore(this IServiceCollection services,
+        Action<DbContextOptionsBuilder> databaseConfigurator)
     {
         return services
             .AddDbContext<AuthorizationDbContext>(databaseConfigurator)
@@ -131,7 +135,8 @@ public static class ServiceCollectionExtensions
             .AddScoped<IRequestAccessor<RevocationRequest>, RevocationRequestAccessor>()
             .AddScoped<IRequestAccessor<RegisterRequest>, RegisterRequestAccessor>()
             .AddScoped<IRequestAccessor<TokenRequest>, TokenRequestAccessor>()
-            .AddScoped<IRequestAccessor<UserinfoRequest>, UserinfoRequestAccessor>();
+            .AddScoped<IRequestAccessor<UserinfoRequest>, UserinfoRequestAccessor>()
+            .AddScoped<IRequestAccessor<PushedAuthorizationRequest>, PushedAuthorizationRequestAccessor>();
     }
 
     internal static IServiceCollection AddCache(this IServiceCollection services)
@@ -183,15 +188,29 @@ public static class ServiceCollectionExtensions
             .AddScoped<IClientRepository, ClientRepository>()
             .AddScoped<IConsentGrantRepository, ConsentGrantRepository>()
             .AddScoped<IAuthorizationGrantRepository, AuthorizationGrantRepository>()
-            .AddScoped<ITokenRepository, TokenRepository>();
+            .AddScoped<ITokenRepository, TokenRepository>()
+            .AddScoped<INonceRepository, NonceRepository>();
+    }
+
+    internal static IServiceCollection AddPushedAuthorization(this IServiceCollection services)
+    {
+        return services
+            .AddScoped<IRequestHandler<PushedAuthorizationRequest, PushedAuthorizationResponse>,
+                PushedAuthorizationRequestHandler>()
+            .AddScoped<IRequestProcessor<PushedAuthorizationValidatedRequest, PushedAuthorizationResponse>,
+                PushedAuthorizationRequestProcessor>()
+            .AddScoped<IRequestValidator<PushedAuthorizationRequest, PushedAuthorizationValidatedRequest>,
+                PushedAuthorizationRequestValidator>();
     }
 
     internal static IServiceCollection AddRegister(this IServiceCollection services)
     {
         return services
-            .AddScoped<IRequestHandler<RegisterRequest, ProcessResult<RegisterResponse, Unit>>, RegisterRequestHandler>()
+            .AddScoped<IRequestHandler<RegisterRequest, ProcessResult<RegisterResponse, Unit>>,
+                RegisterRequestHandler>()
             .AddScoped<IRequestValidator<RegisterRequest, RegisterValidatedRequest>, RegisterRequestValidator>()
-            .AddScoped<IRequestProcessor<RegisterValidatedRequest, ProcessResult<RegisterResponse, Unit>>, RegisterRequestProcessor>();
+            .AddScoped<IRequestProcessor<RegisterValidatedRequest, ProcessResult<RegisterResponse, Unit>>,
+                RegisterRequestProcessor>();
     }
 
     internal static IServiceCollection AddEndSession(this IServiceCollection services)
@@ -203,13 +222,14 @@ public static class ServiceCollectionExtensions
             .AddScoped<IRequestProcessor<EndSessionValidatedRequest, Unit>, EndSessionRequestProcessor>();
     }
 
-	internal static IServiceCollection AddAuthorize(this IServiceCollection services)
+    internal static IServiceCollection AddAuthorize(this IServiceCollection services)
     {
         return services
-            .AddScoped<IAuthorizeInteractionProcessor, AuthorizeInteractionProcessor>()
+            .AddScoped<IAuthorizeService, AuthorizeService>()
+            .AddScoped<IAuthorizeInteractionService, AuthorizeInteractionService>()
             .AddScoped<IAuthorizeResponseBuilder, AuthorizeResponseBuilder>()
             .AddScoped<IAuthorizeUserAccessor, AuthorizeUserAccessor>()
-            .AddScoped<IAuthorizeRequestParameterProcessor, AuthorizeRequestParameterProcessor>()
+            .AddScoped<IAuthorizeRequestParameterService, AuthorizeRequestParameterService>()
             .AddScoped<IRequestHandler<AuthorizeRequest, string>, AuthorizeRequestHandler>()
             .AddScoped<IRequestProcessor<AuthorizeValidatedRequest, string>, AuthorizeRequestProcessor>()
             .AddScoped<IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>, AuthorizeRequestValidator>();
@@ -227,8 +247,10 @@ public static class ServiceCollectionExtensions
     {
         return services
             .AddScoped<IRequestHandler<IntrospectionRequest, IntrospectionResponse>, IntrospectionRequestHandler>()
-            .AddScoped<IRequestValidator<IntrospectionRequest, IntrospectionValidatedRequest>, IntrospectionRequestValidator>()
-            .AddScoped<IRequestProcessor<IntrospectionValidatedRequest, IntrospectionResponse>, IntrospectionRequestProcessor>();
+            .AddScoped<IRequestValidator<IntrospectionRequest, IntrospectionValidatedRequest>,
+                IntrospectionRequestValidator>()
+            .AddScoped<IRequestProcessor<IntrospectionValidatedRequest, IntrospectionResponse>,
+                IntrospectionRequestProcessor>();
     }
 
     internal static IServiceCollection AddRevocation(this IServiceCollection services)
@@ -242,23 +264,30 @@ public static class ServiceCollectionExtensions
     internal static IServiceCollection AddClientCredentials(this IServiceCollection services)
     {
         return services
-            .AddKeyedScoped<IRequestHandler<TokenRequest, TokenResponse>, ClientCredentialsRequestHandler>(GrantTypeConstants.ClientCredentials)
-            .AddScoped<IRequestProcessor<ClientCredentialsValidatedRequest, TokenResponse>, ClientCredentialsRequestProcessor>()
-            .AddScoped<IRequestValidator<TokenRequest, ClientCredentialsValidatedRequest>, ClientCredentialsValidator>();
+            .AddKeyedScoped<IRequestHandler<TokenRequest, TokenResponse>, ClientCredentialsRequestHandler>(
+                GrantTypeConstants.ClientCredentials)
+            .AddScoped<IRequestProcessor<ClientCredentialsValidatedRequest, TokenResponse>,
+                ClientCredentialsRequestProcessor>()
+            .AddScoped<IRequestValidator<TokenRequest, ClientCredentialsValidatedRequest>,
+                ClientCredentialsValidator>();
     }
 
     internal static IServiceCollection AddAuthorizationCode(this IServiceCollection services)
     {
         return services
-            .AddKeyedScoped<IRequestHandler<TokenRequest, TokenResponse>, AuthorizationCodeRequestHandler>(GrantTypeConstants.AuthorizationCode)
-            .AddScoped<IRequestProcessor<AuthorizationCodeValidatedRequest, TokenResponse>, AuthorizationCodeRequestProcessor>()
-            .AddScoped<IRequestValidator<TokenRequest, AuthorizationCodeValidatedRequest>, AuthorizationCodeValidator>();
+            .AddKeyedScoped<IRequestHandler<TokenRequest, TokenResponse>, AuthorizationCodeRequestHandler>(
+                GrantTypeConstants.AuthorizationCode)
+            .AddScoped<IRequestProcessor<AuthorizationCodeValidatedRequest, TokenResponse>,
+                AuthorizationCodeRequestProcessor>()
+            .AddScoped<IRequestValidator<TokenRequest, AuthorizationCodeValidatedRequest>,
+                AuthorizationCodeValidator>();
     }
 
     internal static IServiceCollection AddRefreshToken(this IServiceCollection services)
     {
         return services
-            .AddKeyedScoped<IRequestHandler<TokenRequest, TokenResponse>, RefreshTokenRequestHandler>(GrantTypeConstants.RefreshToken)
+            .AddKeyedScoped<IRequestHandler<TokenRequest, TokenResponse>, RefreshTokenRequestHandler>(GrantTypeConstants
+                .RefreshToken)
             .AddScoped<IRequestProcessor<RefreshTokenValidatedRequest, TokenResponse>, RefreshTokenRequestProcessor>()
             .AddScoped<IRequestValidator<TokenRequest, RefreshTokenValidatedRequest>, RefreshTokenValidator>();
     }
