@@ -15,7 +15,7 @@ internal interface ICachedClientStore
     Task<CachedClient?> TryGet(string entityId, CancellationToken cancellationToken);
 
     /// <summary>
-    /// /// Fetches a cached entity of type <see cref="CachedClient"/>.
+    /// Fetches a cached entity of type <see cref="CachedClient"/>.
     /// If it results in a cache miss, it will automatically add it, and then return it.
     /// If the entityId an exception <exception cref="ClientNotFoundException"></exception> is thrown.
     /// </summary>
