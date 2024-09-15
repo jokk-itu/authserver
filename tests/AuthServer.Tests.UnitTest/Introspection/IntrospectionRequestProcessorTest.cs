@@ -1,10 +1,10 @@
 ﻿using AuthServer.Constants;
+using AuthServer.Core.Abstractions;
 using AuthServer.Core.Request;
 using AuthServer.Entities;
 using AuthServer.Enums;
 using AuthServer.Extensions;
 using AuthServer.Introspection;
-using AuthServer.Introspection.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -139,17 +139,17 @@ public class IntrospectionRequestProcessorTest : BaseUnitTest
     public async Task Process_ActiveToken_ExpectIsActiveIsTrue()
     {
         // Arrange
-        var usernameResolver = new Mock<IUsernameResolver>();
+        var userClaimServiceMock = new Mock<IUserClaimService>();
         var serviceProvider = BuildServiceProvider(services =>
         {
-            services.AddScopedMock(usernameResolver);
+            services.AddScopedMock(userClaimServiceMock);
         });
         var processor = serviceProvider.GetRequiredService<IRequestProcessor<IntrospectionValidatedRequest, IntrospectionResponse>>();
 
         var subjectIdentifier = new PublicSubjectIdentifier();
         const string username = "JohnDoe";
-        usernameResolver
-            .Setup(x => x.GetUsername(subjectIdentifier.Id))
+        userClaimServiceMock
+            .Setup(x => x.GetUsername(subjectIdentifier.Id, CancellationToken.None))
             .ReturnsAsync(username)
             .Verifiable();
 
@@ -190,6 +190,6 @@ public class IntrospectionRequestProcessorTest : BaseUnitTest
         Assert.Equal(subjectIdentifier.Id, introspectionResponse.Subject);
         Assert.Equal(token.TokenType.GetDescription(), introspectionResponse.TokenType);
         Assert.Equal(username, introspectionResponse.Username);
-        usernameResolver.Verify();
+        userClaimServiceMock.Verify();
     }
 }

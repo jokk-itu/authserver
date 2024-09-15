@@ -7,7 +7,6 @@ using AuthServer.Core.Abstractions;
 using AuthServer.Core.Discovery;
 using AuthServer.Enums;
 using AuthServer.Extensions;
-using AuthServer.Introspection.Abstractions;
 using AuthServer.Options;
 using AuthServer.Tests.Core;
 using AuthServer.Tests.Core.EntityBuilders;
@@ -110,7 +109,6 @@ public abstract class BaseUnitTest
                     optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                 });
         });
-        services.AddScoped<IUsernameResolver, UsernameResolver>();
         services.AddScoped<IDistributedCache, InMemoryCache>();
         services.AddScoped<IUserClaimService, UserClaimService>();
         services.AddScoped<IAcrClaimMapper, AcrClaimMapper>();

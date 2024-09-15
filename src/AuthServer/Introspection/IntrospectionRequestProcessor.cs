@@ -1,22 +1,22 @@
 ﻿using AuthServer.Core;
+using AuthServer.Core.Abstractions;
 using AuthServer.Core.Request;
 using AuthServer.Entities;
 using AuthServer.Extensions;
-using AuthServer.Introspection.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthServer.Introspection;
 internal class IntrospectionRequestProcessor : IRequestProcessor<IntrospectionValidatedRequest, IntrospectionResponse>
 {
     private readonly AuthorizationDbContext _identityContext;
-    private readonly IUsernameResolver _usernameResolver;
+    private readonly IUserClaimService _userClaimService;
 
     public IntrospectionRequestProcessor(
         AuthorizationDbContext identityContext,
-        IUsernameResolver usernameResolver)
+        IUserClaimService userClaimService)
     {
         _identityContext = identityContext;
-        _usernameResolver = usernameResolver;
+        _userClaimService = userClaimService;
     }
 
     public async Task<IntrospectionResponse> Process(IntrospectionValidatedRequest request, CancellationToken cancellationToken)
@@ -54,7 +54,7 @@ internal class IntrospectionRequestProcessor : IRequestProcessor<IntrospectionVa
         string? username = null;
         if (query.SubjectIdentifier is not null)
         {
-            username = await _usernameResolver.GetUsername(query.SubjectIdentifier);
+            username = await _userClaimService.GetUsername(query.SubjectIdentifier, cancellationToken);
         }
 
         return new IntrospectionResponse

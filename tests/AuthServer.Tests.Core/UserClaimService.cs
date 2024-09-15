@@ -32,4 +32,9 @@ public class UserClaimService : IUserClaimService
             new Claim(ClaimNameConstants.Roles, JsonSerializer.Serialize(UserConstants.Roles))
         ]);
     }
+
+    public Task<string> GetUsername(string subjectIdentifier, CancellationToken cancellation)
+    {
+        return Task.FromResult(UserConstants.Username);
+    }
 }
