@@ -11,6 +11,7 @@ public class Client : Entity<string>
         ApplicationType = applicationType;
         TokenEndpointAuthMethod = tokenEndpointAuthMethod;
         CreatedAt = DateTime.UtcNow;
+        RequireConsent = true;
     }
 
 #pragma warning disable CS8618
