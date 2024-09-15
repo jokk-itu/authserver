@@ -54,6 +54,7 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
             .Include(x => x.Nonces)
             .Select(x => new
             {
+                x.AuthTime,
                 ClientId = x.Client.Id,
                 SessionId = x.Session.Id,
                 PublicSubjectId = x.Session.PublicSubjectIdentifier.Id,
@@ -74,7 +75,8 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
             { ClaimNameConstants.GrantId, arguments.AuthorizationGrantId },
             { ClaimNameConstants.Nonce, query.Nonce.Value },
             { ClaimNameConstants.ClientId, query.ClientId },
-            { ClaimNameConstants.Azp, query.ClientId }
+            { ClaimNameConstants.Azp, query.ClientId },
+            { ClaimNameConstants.AuthTime, query.AuthTime }
             // TODO acr which is derived from a function which maps amr to acr values
             // TODO amr from arguments given from the Razor Pages
         };
