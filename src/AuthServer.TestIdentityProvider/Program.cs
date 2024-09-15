@@ -29,7 +29,6 @@ builder.Services
         options.Issuer = identitySection.GetValue<string>("Issuer")!;
         options.ClaimsSupported = ClaimNameConstants.SupportedEndUserClaims;
         options.AcrValuesSupported = ["pwd", "2fa", "mfa"];
-        options.ScopesSupported = ["weather:read"];
 
         ICollection<string> signingAlgorithms =
             [JwsAlgConstants.RsaSha256, JwsAlgConstants.EcdsaSha256, JwsAlgConstants.RsaSsaPssSha256];
