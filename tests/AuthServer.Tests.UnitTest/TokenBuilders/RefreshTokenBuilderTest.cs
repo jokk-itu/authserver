@@ -113,8 +113,7 @@ public class RefreshTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitT
 
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var session = new Session(publicSubjectIdentifier);
-        var authorizationGrant = new AuthorizationGrant(
-            DateTime.UtcNow.AddSeconds(-5), session, client, publicSubjectIdentifier);
+        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier);
 
         await AddEntity(authorizationGrant);
         return authorizationGrant;

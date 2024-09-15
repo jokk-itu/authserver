@@ -168,13 +168,21 @@ public class IdTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTest(o
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var pairwiseSubjectIdentifier = new PairwiseSubjectIdentifier(client, publicSubjectIdentifier);
         var session = new Session(publicSubjectIdentifier);
-        var authorizationGrant = new AuthorizationGrant(
-            DateTime.UtcNow.AddHours(-2), session, client, pairwiseSubjectIdentifier);
+        var authorizationGrant = new AuthorizationGrant(session, client, pairwiseSubjectIdentifier);
 
         var nonce = new Nonce(CryptographyHelper.GetRandomString(32), authorizationGrant);
         authorizationGrant.Nonces.Add(nonce);
 
         await AddEntity(authorizationGrant);
+
+        var nameClaim = await IdentityContext.Set<Claim>().SingleAsync(x => x.Name == ClaimNameConstants.Name);
+        var consentGrant = new ConsentGrant(publicSubjectIdentifier, client);
+        consentGrant.ConsentedClaims.Add(nameClaim);
+        consentGrant.ConsentedScopes.Add(openIdScope);
+        consentGrant.ConsentedScopes.Add(profileScope);
+
+        await AddEntity(consentGrant);
+
         return authorizationGrant;
     }
 
@@ -203,13 +211,21 @@ public class IdTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTest(o
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var pairwiseSubjectIdentifier = new PairwiseSubjectIdentifier(client, publicSubjectIdentifier);
         var session = new Session(publicSubjectIdentifier);
-        var authorizationGrant = new AuthorizationGrant(
-            DateTime.UtcNow.AddHours(-2), session, client, pairwiseSubjectIdentifier);
+        var authorizationGrant = new AuthorizationGrant(session, client, pairwiseSubjectIdentifier);
 
         var nonce = new Nonce(CryptographyHelper.GetRandomString(32), authorizationGrant);
         authorizationGrant.Nonces.Add(nonce);
 
         await AddEntity(authorizationGrant);
+
+        var nameClaim = await IdentityContext.Set<Claim>().SingleAsync(x => x.Name == ClaimNameConstants.Name);
+        var consentGrant = new ConsentGrant(publicSubjectIdentifier, client);
+        consentGrant.ConsentedClaims.Add(nameClaim);
+        consentGrant.ConsentedScopes.Add(openIdScope);
+        consentGrant.ConsentedScopes.Add(profileScope);
+
+        await AddEntity(consentGrant);
+
         return authorizationGrant;
     }
 }

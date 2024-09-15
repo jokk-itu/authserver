@@ -31,7 +31,7 @@ public class UserinfoRequestValidatorTest : BaseUnitTest
         {
             ClientUri = "https://webapp.authserver.dk"
         };
-        var grant = new AuthorizationGrant(DateTime.UtcNow, session, client, subjectIdentifier);
+        var grant = new AuthorizationGrant(session, client, subjectIdentifier);
         await AddEntity(grant);
 
         var scope = new[] { ScopeConstants.OpenId, ScopeConstants.UserInfo };
@@ -71,7 +71,7 @@ public class UserinfoRequestValidatorTest : BaseUnitTest
         {
             ClientUri = "https://webapp.authserver.dk"
         };
-        var grant = new AuthorizationGrant(DateTime.UtcNow, session, client, subjectIdentifier);
+        var grant = new AuthorizationGrant(session, client, subjectIdentifier);
         var grantAccessToken = new GrantAccessToken(grant, client.ClientUri, DiscoveryDocument.Issuer,
             $"{ScopeConstants.OpenId} {ScopeConstants.UserInfo}", DateTime.UtcNow.AddHours(1));
 

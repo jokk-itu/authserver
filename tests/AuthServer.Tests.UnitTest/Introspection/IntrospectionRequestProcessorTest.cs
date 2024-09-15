@@ -162,7 +162,7 @@ public class IntrospectionRequestProcessorTest : BaseUnitTest
         var openidScope = await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId);
         client.Scopes.Add(openidScope);
 
-        var grant = new AuthorizationGrant(DateTime.UtcNow, session, client, subjectIdentifier);
+        var grant = new AuthorizationGrant(session, client, subjectIdentifier);
         
         var token = new GrantAccessToken(grant, client.ClientUri, DiscoveryDocument.Issuer, ScopeConstants.OpenId, DateTime.UtcNow.AddHours(1));
         await AddEntity(token);

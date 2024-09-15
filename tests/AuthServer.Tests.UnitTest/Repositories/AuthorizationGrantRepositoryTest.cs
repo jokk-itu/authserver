@@ -48,7 +48,7 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
         {
             SubjectType = SubjectType.Public
         };
-        var previousGrant = new AuthorizationGrant(DateTime.UtcNow, session, client, publicSubjectIdentifier);
+        var previousGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier);
         await AddEntity(previousGrant);
 
         // Act

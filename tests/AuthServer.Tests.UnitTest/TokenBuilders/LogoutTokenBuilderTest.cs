@@ -164,8 +164,7 @@ public class LogoutTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTe
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var pairwiseSubjectIdentifier = new PairwiseSubjectIdentifier(client, publicSubjectIdentifier);
         var session = new Session(publicSubjectIdentifier);
-        var authorizationGrant = new AuthorizationGrant(
-            DateTime.UtcNow.AddHours(-2), session, client, pairwiseSubjectIdentifier);
+        var authorizationGrant = new AuthorizationGrant( session, client, pairwiseSubjectIdentifier);
 
         await AddEntity(authorizationGrant);
         return authorizationGrant;
@@ -191,8 +190,7 @@ public class LogoutTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTe
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var pairwiseSubjectIdentifier = new PairwiseSubjectIdentifier(client, publicSubjectIdentifier);
         var session = new Session(publicSubjectIdentifier);
-        var authorizationGrant = new AuthorizationGrant(
-            DateTime.UtcNow.AddHours(-2), session, client, pairwiseSubjectIdentifier);
+        var authorizationGrant = new AuthorizationGrant(session, client, pairwiseSubjectIdentifier);
 
         await AddEntity(authorizationGrant);
         return authorizationGrant;

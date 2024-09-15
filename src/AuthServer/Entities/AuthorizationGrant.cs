@@ -4,10 +4,10 @@ using AuthServer.Core;
 namespace AuthServer.Entities;
 public class AuthorizationGrant : AggregateRoot<string>
 {
-    public AuthorizationGrant(DateTime authTime, Session session, Client client, SubjectIdentifier subjectIdentifier, long? maxAge = null)
+    public AuthorizationGrant(Session session, Client client, SubjectIdentifier subjectIdentifier, long? maxAge = null)
     {
         Id = Guid.NewGuid().ToString();
-        AuthTime = authTime;
+        AuthTime = DateTime.UtcNow;
         Session = session ?? throw new ArgumentNullException(nameof(session));
         Client = client ?? throw new ArgumentNullException(nameof(client));
         SubjectIdentifier = subjectIdentifier ?? throw new ArgumentNullException(nameof(subjectIdentifier));

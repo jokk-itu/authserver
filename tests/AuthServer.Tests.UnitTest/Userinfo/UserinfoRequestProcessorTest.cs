@@ -40,15 +40,16 @@ public class UserinfoRequestProcessorTest : BaseUnitTest
         var session = new Session(subjectIdentifier);
         var client = new Client("webapp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic)
         {
+            RequireConsent = false,
             ClientUri = "https://webapp.authserver.dk"
         };
-        var grant = new AuthorizationGrant(DateTime.UtcNow, session, client, subjectIdentifier);
-        await AddEntity(grant);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier);
+        await AddEntity(authorizationGrant);
 
         // Act
         var jsonClaims = await processor.Process(new UserinfoValidatedRequest
         {
-            AuthorizationGrantId = grant.Id,
+            AuthorizationGrantId = authorizationGrant.Id,
             Scope = [ScopeConstants.OpenId, ScopeConstants.UserInfo, ScopeConstants.Address]
         }, CancellationToken.None);
         var claims = JsonSerializer.Deserialize<IDictionary<string, string>>(jsonClaims)!;
