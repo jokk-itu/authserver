@@ -4,6 +4,7 @@ using AuthServer.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,13 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AuthServer.TestIdentityProvider.Migrations
 {
     [DbContext(typeof(AuthorizationDbContext))]
-    partial class AuthorizationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240905180332_IncreaseMaxLengthAuthorizationCodeValue")]
+    partial class IncreaseMaxLengthAuthorizationCodeValue
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "8.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -84,42 +87,6 @@ namespace AuthServer.TestIdentityProvider.Migrations
                     b.HasIndex("SubjectIdentifierId");
 
                     b.ToTable("AuthorizationGrant");
-                });
-
-            modelBuilder.Entity("AuthServer.Entities.AuthorizeMessage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ClientId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("RedeemedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Reference")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasMaxLength(4096)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClientId");
-
-                    b.HasIndex("Reference")
-                        .IsUnique();
-
-                    b.ToTable("AuthorizeMessage");
                 });
 
             modelBuilder.Entity("AuthServer.Entities.Claim", b =>
@@ -476,11 +443,6 @@ namespace AuthServer.TestIdentityProvider.Migrations
                     b.Property<string>("AuthorizationGrantId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("HashedValue")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
 
                     b.Property<DateTime>("IssuedAt")
                         .HasColumnType("datetime2");
@@ -937,17 +899,6 @@ namespace AuthServer.TestIdentityProvider.Migrations
                     b.Navigation("SubjectIdentifier");
                 });
 
-            modelBuilder.Entity("AuthServer.Entities.AuthorizeMessage", b =>
-                {
-                    b.HasOne("AuthServer.Entities.Client", "Client")
-                        .WithMany("AuthorizeMessages")
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.ClientCascade)
-                        .IsRequired();
-
-                    b.Navigation("Client");
-                });
-
             modelBuilder.Entity("AuthServer.Entities.ConsentGrant", b =>
                 {
                     b.HasOne("AuthServer.Entities.Client", "Client")
@@ -1161,8 +1112,6 @@ namespace AuthServer.TestIdentityProvider.Migrations
             modelBuilder.Entity("AuthServer.Entities.Client", b =>
                 {
                     b.Navigation("AuthorizationGrants");
-
-                    b.Navigation("AuthorizeMessages");
 
                     b.Navigation("ClientTokens");
 
