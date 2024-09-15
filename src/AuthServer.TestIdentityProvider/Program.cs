@@ -4,7 +4,6 @@ using AuthServer.Core.Abstractions;
 using AuthServer.Core.Discovery;
 using AuthServer.Enums;
 using AuthServer.Extensions;
-using AuthServer.Introspection.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
@@ -105,7 +104,6 @@ builder.Services
 
 builder.Services.AddSingleton<IDistributedCache, InMemoryCache>();
 builder.Services.AddScoped<IUserClaimService, UserClaimService>();
-builder.Services.AddScoped<IUsernameResolver, UsernameResolver>();
 builder.Services.AddScoped<IAcrClaimMapper, AcrClaimMapper>();
 builder.Services.AddScoped<IAuthenticatedUserAccessor, AuthenticatedUserAccessor>();
 
