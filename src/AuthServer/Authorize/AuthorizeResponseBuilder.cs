@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using System.Text.Encodings.Web;
 using AuthServer.Authorize.Abstractions;
 using AuthServer.Cache.Abstractions;
 using AuthServer.Constants;
@@ -16,16 +15,16 @@ internal class AuthorizeResponseBuilder : IAuthorizeResponseBuilder
 {
     private readonly IOptionsSnapshot<DiscoveryDocument> _discoveryDocumentOptions;
     private readonly ICachedClientStore _cachedClientStore;
-    private readonly IAuthorizeRequestParameterProcessor _authorizeRequestParameterProcessor;
+    private readonly IAuthorizeRequestParameterService _authorizeRequestParameterService;
 
     public AuthorizeResponseBuilder(
         IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions,
         ICachedClientStore cachedClientStore,
-        IAuthorizeRequestParameterProcessor authorizeRequestParameterProcessor)
+        IAuthorizeRequestParameterService authorizeRequestParameterService)
     {
         _discoveryDocumentOptions = discoveryDocumentOptions;
         _cachedClientStore = cachedClientStore;
-        _authorizeRequestParameterProcessor = authorizeRequestParameterProcessor;
+        _authorizeRequestParameterService = authorizeRequestParameterService;
     }
 
     /// <inheritdoc />
@@ -34,7 +33,27 @@ internal class AuthorizeResponseBuilder : IAuthorizeResponseBuilder
         if (!string.IsNullOrEmpty(request.RequestUri)
             || !string.IsNullOrEmpty(request.RequestObject))
         {
-            request = _authorizeRequestParameterProcessor.GetCachedRequest();
+            var newRequest = _authorizeRequestParameterService.GetCachedRequest();
+            request = new AuthorizeRequest
+            {
+                IdTokenHint = newRequest.IdTokenHint,
+                LoginHint = newRequest.LoginHint,
+                Prompt = newRequest.Prompt,
+                Display = newRequest.Display,
+                ClientId = newRequest.ClientId,
+                RedirectUri = newRequest.RedirectUri,
+                CodeChallenge = newRequest.CodeChallenge,
+                CodeChallengeMethod = newRequest.CodeChallengeMethod,
+                ResponseType = newRequest.ResponseType,
+                Nonce = newRequest.Nonce,
+                MaxAge = newRequest.MaxAge,
+                State = newRequest.State,
+                ResponseMode = newRequest.ResponseMode,
+                RequestObject = string.Empty,
+                RequestUri = string.Empty,
+                Scope = newRequest.Scope,
+                AcrValues = newRequest.AcrValues
+            };
         }
 
         var responseMode = request.ResponseMode;
