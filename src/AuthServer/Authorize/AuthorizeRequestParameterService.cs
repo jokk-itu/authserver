@@ -3,40 +3,45 @@ using AuthServer.Authorize.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Discovery;
-using AuthServer.RequestAccessors.Authorize;
+using AuthServer.Repositories.Abstractions;
 using AuthServer.TokenDecoders;
 using AuthServer.TokenDecoders.Abstractions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace AuthServer.Authorize;
-internal class AuthorizeRequestParameterProcessor : IAuthorizeRequestParameterProcessor
+internal class AuthorizeRequestParameterService : IAuthorizeRequestParameterService
 {
     private readonly ITokenDecoder<ClientIssuedTokenDecodeArguments> _tokenDecoder;
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ILogger<AuthorizeRequestParameterProcessor> _logger;
+    private readonly ILogger<AuthorizeRequestParameterService> _logger;
+    private readonly IClientRepository _clientRepository;
     private readonly IOptionsSnapshot<DiscoveryDocument> _discoveryDocumentOptions;
 
-    private AuthorizeRequest? _cachedAuthorizeRequest;
+    private AuthorizeRequestDto? _cachedAuthorizeRequestObjectDto;
 
-    public AuthorizeRequestParameterProcessor(
+    public AuthorizeRequestParameterService(
         ITokenDecoder<ClientIssuedTokenDecodeArguments> tokenDecoder,
         IHttpClientFactory httpClientFactory,
-        ILogger<AuthorizeRequestParameterProcessor> logger,
+        ILogger<AuthorizeRequestParameterService> logger,
+        IClientRepository clientRepository,
         IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions)
     {
         _tokenDecoder = tokenDecoder;
         _httpClientFactory = httpClientFactory;
         _logger = logger;
+        _clientRepository = clientRepository;
         _discoveryDocumentOptions = discoveryDocumentOptions;
     }
 
-    public AuthorizeRequest GetCachedRequest()
+    /// <inheritdoc/>
+    public AuthorizeRequestDto GetCachedRequest()
     {
-        return _cachedAuthorizeRequest ?? throw new InvalidOperationException("authorize request has not been cached");
+        return _cachedAuthorizeRequestObjectDto ?? throw new InvalidOperationException("authorize request has not been cached");
     }
 
-    public async Task<AuthorizeRequest?> GetRequestByObject(string requestObject, string clientId, CancellationToken cancellationToken)
+    /// <inheritdoc/>
+    public async Task<AuthorizeRequestDto?> GetRequestByObject(string requestObject, string clientId, ClientTokenAudience audience, CancellationToken cancellationToken)
     {
         try
         {
@@ -46,7 +51,7 @@ internal class AuthorizeRequestParameterProcessor : IAuthorizeRequestParameterPr
                 {
                     ValidateLifetime = true,
                     Algorithms = [.. _discoveryDocumentOptions.Value.RequestObjectSigningAlgValuesSupported],
-                    Audience = ClientTokenAudience.AuthorizeEndpoint,
+                    Audience = audience,
                     ClientId = clientId,
                     TokenTypes = [TokenTypeHeaderConstants.RequestObjectToken]
                 },
@@ -68,7 +73,7 @@ internal class AuthorizeRequestParameterProcessor : IAuthorizeRequestParameterPr
             jsonWebToken.TryGetClaim(Parameter.Scope, out var scopeClaim);
             jsonWebToken.TryGetClaim(Parameter.AcrValues, out var acrValuesClaim);
 
-            _cachedAuthorizeRequest = new AuthorizeRequest
+            _cachedAuthorizeRequestObjectDto = new AuthorizeRequestDto
             {
                 ClientId = clientIdClaim?.Value ?? string.Empty,
                 CodeChallenge = codeChallengeClaim?.Value ?? string.Empty,
@@ -85,11 +90,9 @@ internal class AuthorizeRequestParameterProcessor : IAuthorizeRequestParameterPr
                 State = stateClaim?.Value ?? string.Empty,
                 Scope = scopeClaim?.Value.Split(' ') ?? [],
                 AcrValues = acrValuesClaim?.Value.Split(' ') ?? [],
-                RequestUri = string.Empty,
-                RequestObject = string.Empty
             };
 
-            return _cachedAuthorizeRequest;
+            return _cachedAuthorizeRequestObjectDto;
         }
         catch (Exception e)
         {
@@ -98,9 +101,10 @@ internal class AuthorizeRequestParameterProcessor : IAuthorizeRequestParameterPr
         }
     }
 
-    public async Task<AuthorizeRequest?> GetRequestByReference(Uri requestUri, string clientId, CancellationToken cancellationToken)
+    /// <inheritdoc/>
+    public async Task<AuthorizeRequestDto?> GetRequestByReference(Uri requestUri, string clientId, ClientTokenAudience audience, CancellationToken cancellationToken)
     {
-        // TODO implement a Timeout to reduce Denial-Of-Service attacks
+        // TODO implement a Timeout to reduce Denial-Of-Service attacks, where a RequestUri recursively calls Authorize
         // TODO implement retry delegate handler (5XX and 429)
         var httpClient = _httpClientFactory.CreateClient(HttpClientNameConstants.Client);
         var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
@@ -112,12 +116,22 @@ internal class AuthorizeRequestParameterProcessor : IAuthorizeRequestParameterPr
             response.EnsureSuccessStatusCode();
 
             var requestObject = await response.Content.ReadAsStringAsync(cancellationToken);
-            return await GetRequestByObject(requestObject, clientId, cancellationToken);
+            return await GetRequestByObject(requestObject, clientId, audience, cancellationToken);
         }
         catch (Exception e)
         {
             _logger.LogError(e, "Unexpected error occurred fetching request_object");
             return null;
         }
+    }
+
+    /// <inheritdoc/>
+    public async Task<AuthorizeRequestDto?> GetRequestByPushedRequest(string requestUri, string clientId, CancellationToken cancellationToken)
+    {
+        var lastIndex = requestUri.LastIndexOf(RequestUriConstants.RequestUriPrefix, StringComparison.Ordinal);
+        var reference = requestUri[lastIndex..];
+
+        _cachedAuthorizeRequestObjectDto = await _clientRepository.GetAuthorizeDto(reference, clientId, cancellationToken);
+        return _cachedAuthorizeRequestObjectDto;
     }
 }
