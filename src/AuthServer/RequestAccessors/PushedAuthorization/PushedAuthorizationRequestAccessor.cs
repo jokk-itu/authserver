@@ -16,7 +16,6 @@ internal class PushedAuthorizationRequestAccessor : IRequestAccessor<PushedAutho
         var display = body.GetValueOrEmpty(Parameter.Display);
         var responseMode = body.GetValueOrEmpty(Parameter.ResponseMode);
         var maxAge = body.GetValueOrEmpty(Parameter.MaxAge);
-        var clientId = body.GetValueOrEmpty(Parameter.ClientId);
         var codeChallenge = body.GetValueOrEmpty(Parameter.CodeChallenge);
         var codeChallengeMethod = body.GetValueOrEmpty(Parameter.CodeChallengeMethod);
         var redirectUri = body.GetValueOrEmpty(Parameter.RedirectUri);
@@ -45,7 +44,6 @@ internal class PushedAuthorizationRequestAccessor : IRequestAccessor<PushedAutho
             LoginHint = loginHint,
             Prompt = prompt,
             Display = display,
-            ClientId = clientId,
             RedirectUri = redirectUri,
             CodeChallenge = codeChallenge,
             CodeChallengeMethod = codeChallengeMethod,

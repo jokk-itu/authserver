@@ -7,7 +7,6 @@ internal class PushedAuthorizationRequest
     public required string LoginHint { get; init; }
     public required string Prompt { get; init; }
     public required string Display { get; init; }
-    public required string ClientId { get; init; }
     public required string RedirectUri { get; init; }
     public required string CodeChallenge { get; init; }
     public required string CodeChallengeMethod { get; init; }
