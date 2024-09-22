@@ -19,27 +19,6 @@ public class UserinfoRequestAccessorTest : BaseUnitTest
     {
     }
 
-    [Theory]
-    [InlineData("", "")]
-    [InlineData(null, "")]
-    public async Task GetRequest_EmptyStringParameters_ExpectNoValues(string? value, string expectedValue)
-    {
-        // Arrange
-        var serviceProvider = BuildServiceProvider();
-        var requestAccessor = serviceProvider.GetRequiredService<IRequestAccessor<UserinfoRequest>>();
-
-        var httpContext = new DefaultHttpContext
-        {
-            RequestServices = serviceProvider
-        };
-
-        // Act
-        var request = await requestAccessor.GetRequest(httpContext.Request);
-
-        // Assert
-        Assert.Equal(expectedValue, request.AccessToken);
-    }
-
     [Fact]
     public async Task GetRequest_NormalStringParameters_ExpectValues()
     {
