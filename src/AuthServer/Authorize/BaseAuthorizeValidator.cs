@@ -79,22 +79,15 @@ internal class BaseAuthorizeValidator
             return true;
         }
 
-        try
-        {
-            await _tokenDecoder.Validate(
-                idTokenHint,
-                new ServerIssuedTokenDecodeArguments
-                {
-                    ValidateLifetime = true,
-                    TokenTypes = [TokenTypeHeaderConstants.IdToken],
-                    Audiences = [clientId]
-                }, cancellationToken);
+        var validatedToken = await _tokenDecoder.Validate(
+            idTokenHint,
+            new ServerIssuedTokenDecodeArguments
+            {
+                ValidateLifetime = true,
+                TokenTypes = [TokenTypeHeaderConstants.IdToken],
+                Audiences = [clientId]
+            }, cancellationToken);
 
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
+        return validatedToken is not null;
     }
 }

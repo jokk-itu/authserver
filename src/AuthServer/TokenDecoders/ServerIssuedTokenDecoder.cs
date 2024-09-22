@@ -47,7 +47,7 @@ internal class ServerIssuedTokenDecoder : ITokenDecoder<ServerIssuedTokenDecodeA
         throw new ArgumentException("Not a valid JWT", nameof(token));
     }
 
-    public async Task<JsonWebToken> Validate(string token, ServerIssuedTokenDecodeArguments arguments,
+    public async Task<JsonWebToken?> Validate(string token, ServerIssuedTokenDecodeArguments arguments,
         CancellationToken cancellationToken)
     {
         var tokenValidationParameters = new TokenValidationParameters
@@ -69,8 +69,8 @@ internal class ServerIssuedTokenDecoder : ITokenDecoder<ServerIssuedTokenDecodeA
 
         if (!validationResult.IsValid)
         {
-            _logger.LogWarning(validationResult.Exception, "Token validation failed");
-            throw validationResult.Exception;
+            _logger.LogInformation(validationResult.Exception, "Token validation failed");
+            return null;
         }
 
         return (validationResult.SecurityToken as JsonWebToken)!;

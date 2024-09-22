@@ -119,23 +119,20 @@ internal class ClientAuthenticationService : IClientAuthenticationService
             return new ClientAuthenticationResult(null, false);
         }
 
-        try
+        var validatedToken = await _clientIssuedTokenDecoder.Validate(clientAssertionAuthentication.ClientAssertion, new ClientIssuedTokenDecodeArguments
         {
-            await _clientIssuedTokenDecoder.Validate(clientAssertionAuthentication.ClientAssertion, new ClientIssuedTokenDecodeArguments
-            {
-                TokenTypes = [TokenTypeHeaderConstants.PrivateKeyToken],
-                Algorithms = [client.TokenEndpointAuthSigningAlg.GetDescription()],
-                ClientId = clientId,
-                Audience = clientAssertionAuthentication.Audience,
-                ValidateLifetime = true
-            }, cancellationToken);
+            TokenTypes = [TokenTypeHeaderConstants.PrivateKeyToken],
+            Algorithms = [client.TokenEndpointAuthSigningAlg.GetDescription()],
+            ClientId = clientId,
+            Audience = clientAssertionAuthentication.Audience,
+            ValidateLifetime = true
+        }, cancellationToken);
 
-            return new ClientAuthenticationResult(clientId, true);
-        }
-        catch (Exception e)
+        if (validatedToken is null)
         {
-            _logger.LogWarning(e, "Token validation failed");
             return new ClientAuthenticationResult(null, false);
         }
+
+        return new ClientAuthenticationResult(clientId, true);
     }
 }

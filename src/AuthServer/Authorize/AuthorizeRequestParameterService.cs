@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace AuthServer.Authorize;
+
 internal class AuthorizeRequestParameterService : IAuthorizeRequestParameterService
 {
     private readonly ITokenDecoder<ClientIssuedTokenDecodeArguments> _tokenDecoder;
@@ -37,72 +38,72 @@ internal class AuthorizeRequestParameterService : IAuthorizeRequestParameterServ
     /// <inheritdoc/>
     public AuthorizeRequestDto GetCachedRequest()
     {
-        return _cachedAuthorizeRequestObjectDto ?? throw new InvalidOperationException("authorize request has not been cached");
+        return _cachedAuthorizeRequestObjectDto ??
+               throw new InvalidOperationException("authorize request has not been cached");
     }
 
     /// <inheritdoc/>
-    public async Task<AuthorizeRequestDto?> GetRequestByObject(string requestObject, string clientId, ClientTokenAudience audience, CancellationToken cancellationToken)
+    public async Task<AuthorizeRequestDto?> GetRequestByObject(string requestObject, string clientId,
+        ClientTokenAudience audience, CancellationToken cancellationToken)
     {
-        try
-        {
-            var jsonWebToken = await _tokenDecoder.Validate(
-                requestObject,
-                new ClientIssuedTokenDecodeArguments
-                {
-                    ValidateLifetime = true,
-                    Algorithms = [.. _discoveryDocumentOptions.Value.RequestObjectSigningAlgValuesSupported],
-                    Audience = audience,
-                    ClientId = clientId,
-                    TokenTypes = [TokenTypeHeaderConstants.RequestObjectToken]
-                },
-                cancellationToken);
-
-            jsonWebToken.TryGetClaim(Parameter.ClientId, out var clientIdClaim);
-            jsonWebToken.TryGetClaim(Parameter.CodeChallenge, out var codeChallengeClaim);
-            jsonWebToken.TryGetClaim(Parameter.CodeChallengeMethod, out var codeChallengeMethodClaim);
-            jsonWebToken.TryGetClaim(Parameter.Display, out var displayClaim);
-            jsonWebToken.TryGetClaim(Parameter.IdTokenHint, out var idTokenHintClaim);
-            jsonWebToken.TryGetClaim(Parameter.LoginHint, out var loginHintClaim);
-            jsonWebToken.TryGetClaim(Parameter.MaxAge, out var maxAgeClaim);
-            jsonWebToken.TryGetClaim(Parameter.Nonce, out var nonceClaim);
-            jsonWebToken.TryGetClaim(Parameter.RedirectUri, out var redirectUriClaim);
-            jsonWebToken.TryGetClaim(Parameter.Prompt, out var promptClaim);
-            jsonWebToken.TryGetClaim(Parameter.ResponseMode, out var responseModeClaim);
-            jsonWebToken.TryGetClaim(Parameter.ResponseType, out var responseTypeClaim);
-            jsonWebToken.TryGetClaim(Parameter.State, out var stateClaim);
-            jsonWebToken.TryGetClaim(Parameter.Scope, out var scopeClaim);
-            jsonWebToken.TryGetClaim(Parameter.AcrValues, out var acrValuesClaim);
-
-            _cachedAuthorizeRequestObjectDto = new AuthorizeRequestDto
+        var jsonWebToken = await _tokenDecoder.Validate(
+            requestObject,
+            new ClientIssuedTokenDecodeArguments
             {
-                ClientId = clientIdClaim?.Value ?? string.Empty,
-                CodeChallenge = codeChallengeClaim?.Value ?? string.Empty,
-                CodeChallengeMethod = codeChallengeMethodClaim?.Value ?? string.Empty,
-                Display = displayClaim?.Value ?? string.Empty,
-                IdTokenHint = idTokenHintClaim?.Value ?? string.Empty,
-                LoginHint = loginHintClaim?.Value ?? string.Empty,
-                MaxAge = maxAgeClaim?.Value ?? string.Empty,
-                Nonce = nonceClaim?.Value ?? string.Empty,
-                RedirectUri = redirectUriClaim?.Value ?? string.Empty,
-                Prompt = promptClaim?.Value ?? string.Empty,
-                ResponseMode = responseModeClaim?.Value ?? string.Empty,
-                ResponseType = responseTypeClaim?.Value ?? string.Empty,
-                State = stateClaim?.Value ?? string.Empty,
-                Scope = scopeClaim?.Value.Split(' ') ?? [],
-                AcrValues = acrValuesClaim?.Value.Split(' ') ?? [],
-            };
+                ValidateLifetime = true,
+                Algorithms = [.. _discoveryDocumentOptions.Value.RequestObjectSigningAlgValuesSupported],
+                Audience = audience,
+                ClientId = clientId,
+                TokenTypes = [TokenTypeHeaderConstants.RequestObjectToken]
+            },
+            cancellationToken);
 
-            return _cachedAuthorizeRequestObjectDto;
-        }
-        catch (Exception e)
+        if (jsonWebToken is null)
         {
-            _logger.LogWarning(e, "Token validation failed");
             return null;
         }
+
+        jsonWebToken.TryGetClaim(Parameter.ClientId, out var clientIdClaim);
+        jsonWebToken.TryGetClaim(Parameter.CodeChallenge, out var codeChallengeClaim);
+        jsonWebToken.TryGetClaim(Parameter.CodeChallengeMethod, out var codeChallengeMethodClaim);
+        jsonWebToken.TryGetClaim(Parameter.Display, out var displayClaim);
+        jsonWebToken.TryGetClaim(Parameter.IdTokenHint, out var idTokenHintClaim);
+        jsonWebToken.TryGetClaim(Parameter.LoginHint, out var loginHintClaim);
+        jsonWebToken.TryGetClaim(Parameter.MaxAge, out var maxAgeClaim);
+        jsonWebToken.TryGetClaim(Parameter.Nonce, out var nonceClaim);
+        jsonWebToken.TryGetClaim(Parameter.RedirectUri, out var redirectUriClaim);
+        jsonWebToken.TryGetClaim(Parameter.Prompt, out var promptClaim);
+        jsonWebToken.TryGetClaim(Parameter.ResponseMode, out var responseModeClaim);
+        jsonWebToken.TryGetClaim(Parameter.ResponseType, out var responseTypeClaim);
+        jsonWebToken.TryGetClaim(Parameter.State, out var stateClaim);
+        jsonWebToken.TryGetClaim(Parameter.Scope, out var scopeClaim);
+        jsonWebToken.TryGetClaim(Parameter.AcrValues, out var acrValuesClaim);
+
+        _cachedAuthorizeRequestObjectDto = new AuthorizeRequestDto
+        {
+            ClientId = clientIdClaim?.Value ?? string.Empty,
+            CodeChallenge = codeChallengeClaim?.Value ?? string.Empty,
+            CodeChallengeMethod = codeChallengeMethodClaim?.Value ?? string.Empty,
+            Display = displayClaim?.Value ?? string.Empty,
+            IdTokenHint = idTokenHintClaim?.Value ?? string.Empty,
+            LoginHint = loginHintClaim?.Value ?? string.Empty,
+            MaxAge = maxAgeClaim?.Value ?? string.Empty,
+            Nonce = nonceClaim?.Value ?? string.Empty,
+            RedirectUri = redirectUriClaim?.Value ?? string.Empty,
+            Prompt = promptClaim?.Value ?? string.Empty,
+            ResponseMode = responseModeClaim?.Value ?? string.Empty,
+            ResponseType = responseTypeClaim?.Value ?? string.Empty,
+            State = stateClaim?.Value ?? string.Empty,
+            Scope = scopeClaim?.Value.Split(' ') ?? [],
+            AcrValues = acrValuesClaim?.Value.Split(' ') ?? [],
+        };
+
+        return _cachedAuthorizeRequestObjectDto;
     }
 
     /// <inheritdoc/>
-    public async Task<AuthorizeRequestDto?> GetRequestByReference(Uri requestUri, string clientId, ClientTokenAudience audience, CancellationToken cancellationToken)
+    public async Task<AuthorizeRequestDto?> GetRequestByReference(Uri requestUri, string clientId,
+        ClientTokenAudience audience, CancellationToken cancellationToken)
     {
         // TODO implement a Timeout to reduce Denial-Of-Service attacks, where a RequestUri recursively calls Authorize
         // TODO implement retry delegate handler (5XX and 429)
@@ -126,12 +127,14 @@ internal class AuthorizeRequestParameterService : IAuthorizeRequestParameterServ
     }
 
     /// <inheritdoc/>
-    public async Task<AuthorizeRequestDto?> GetRequestByPushedRequest(string requestUri, string clientId, CancellationToken cancellationToken)
+    public async Task<AuthorizeRequestDto?> GetRequestByPushedRequest(string requestUri, string clientId,
+        CancellationToken cancellationToken)
     {
         var lastIndex = requestUri.LastIndexOf(RequestUriConstants.RequestUriPrefix, StringComparison.Ordinal);
         var reference = requestUri[lastIndex..];
 
-        _cachedAuthorizeRequestObjectDto = await _clientRepository.GetAuthorizeDto(reference, clientId, cancellationToken);
+        _cachedAuthorizeRequestObjectDto =
+            await _clientRepository.GetAuthorizeDto(reference, clientId, cancellationToken);
         return _cachedAuthorizeRequestObjectDto;
     }
 }

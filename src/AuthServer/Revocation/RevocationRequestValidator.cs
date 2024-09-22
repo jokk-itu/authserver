@@ -92,25 +92,20 @@ internal class RevocationRequestValidator : IRequestValidator<RevocationRequest,
 
     private async Task<string?> GetClientIdFromStructuredToken(string token, CancellationToken cancellationToken)
     {
-        try
+        var validatedToken = await _serverIssuedTokenDecoder.Validate(token, new ServerIssuedTokenDecodeArguments
         {
-            var securityToken = await _serverIssuedTokenDecoder.Validate(token, new ServerIssuedTokenDecodeArguments
-            {
-                ValidateLifetime = false,
-                Audiences = [],
-                TokenTypes = [TokenTypeHeaderConstants.AccessToken, TokenTypeHeaderConstants.RefreshToken]
-            }, cancellationToken);
+            ValidateLifetime = false,
+            Audiences = [],
+            TokenTypes = [TokenTypeHeaderConstants.AccessToken, TokenTypeHeaderConstants.RefreshToken]
+        }, cancellationToken);
 
-            securityToken.TryGetClaim(ClaimNameConstants.ClientId, out var claim);
-            return claim?.Value;
-        }
-        catch (Exception e)
+        if (validatedToken is null)
         {
-            _logger.LogWarning(e, "Extracting clientId failed");
-
-            // If the token is invalid, error is ignored per rfc 7009
             return null;
         }
+
+        validatedToken.TryGetClaim(ClaimNameConstants.ClientId, out var claim);
+        return claim?.Value;
     }
 
     private async Task<string?> GetClientIdFromReferenceToken(string token, CancellationToken cancellationToken)

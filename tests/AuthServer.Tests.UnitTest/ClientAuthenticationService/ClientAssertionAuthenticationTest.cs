@@ -79,7 +79,7 @@ public class ClientAssertionAuthenticationTest(ITestOutputHelper outputHelper) :
             tokenDecoder
                 .Setup(x => x.Validate(
                     It.IsAny<string>(), It.IsAny<ClientIssuedTokenDecodeArguments>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new SecurityTokenException())
+                .ReturnsAsync((JsonWebToken?)null)
                 .Verifiable();
 
             services.AddScopedMock(tokenDecoder);

@@ -1,6 +1,5 @@
 ﻿using AuthServer.Core.Abstractions;
 using AuthServer.Core.Discovery;
-using AuthServer.Core.Exceptions;
 using AuthServer.Helpers;
 using AuthServer.Options;
 using AuthServer.TokenDecoders.Abstractions;
@@ -54,7 +53,7 @@ internal class ClientIssuedTokenDecoder : ITokenDecoder<ClientIssuedTokenDecodeA
         throw new ArgumentException("Not a valid JWT", nameof(token));
     }
 
-    public async Task<JsonWebToken> Validate(string token, ClientIssuedTokenDecodeArguments arguments, CancellationToken cancellationToken)
+    public async Task<JsonWebToken?> Validate(string token, ClientIssuedTokenDecodeArguments arguments, CancellationToken cancellationToken)
     {
         var tokenValidationParameters = new TokenValidationParameters
         {
@@ -78,8 +77,8 @@ internal class ClientIssuedTokenDecoder : ITokenDecoder<ClientIssuedTokenDecodeA
 
         if (!validationResult.IsValid)
         {
-            _logger.LogWarning(validationResult.Exception, "Token validation failed");
-            throw validationResult.Exception;
+            _logger.LogInformation(validationResult.Exception, "Token validation failed");
+            return null;
         }
 
         var jsonWebToken = (validationResult.SecurityToken as JsonWebToken)!;
@@ -88,7 +87,8 @@ internal class ClientIssuedTokenDecoder : ITokenDecoder<ClientIssuedTokenDecodeA
         var isSubjectValid = arguments.SubjectId == jsonWebToken.Subject;
         if (isSubjectValidationRequired && !isSubjectValid)
         {
-            throw new SecurityTokenSubjectInvalidException($"Subject: {jsonWebToken.Subject} mismatch. Expected {arguments.SubjectId}");
+            _logger.LogInformation("Subject {ActualSubject} mismatch. Expected {ExpectedSubject}", jsonWebToken.Subject, arguments.SubjectId);
+            return null;
         }
 
         return jsonWebToken;

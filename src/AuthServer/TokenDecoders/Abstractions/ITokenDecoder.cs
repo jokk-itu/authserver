@@ -17,7 +17,7 @@ public interface ITokenDecoder<in TArguments>
     /// <param name="arguments"></param>
     /// <param name="cancellationToken"></param>
     /// <returns><see cref="JsonWebToken"/></returns>
-    Task<JsonWebToken> Validate(string token, TArguments arguments, CancellationToken cancellationToken);
+    Task<JsonWebToken?> Validate(string token, TArguments arguments, CancellationToken cancellationToken);
 
     /// <summary>
     /// Reads a token, if encrypted then decrypts and then reads payload without validation.

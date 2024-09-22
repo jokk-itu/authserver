@@ -159,29 +159,27 @@ internal class RefreshTokenValidator : IRequestValidator<TokenRequest, RefreshTo
 
     private async Task<string?> ValidateStructuredToken(string clientId, string refreshToken, CancellationToken cancellationToken)
     {
-        try
+        var validatedToken = await _tokenDecoder.Validate(refreshToken, new ServerIssuedTokenDecodeArguments
         {
-            var token = await _tokenDecoder.Validate(refreshToken, new ServerIssuedTokenDecodeArguments
-            {
-                ValidateLifetime = true,
-                Audiences = [ clientId ],
-                TokenTypes = [ TokenTypeHeaderConstants.RefreshToken ]
-            }, cancellationToken);
+            ValidateLifetime = true,
+            Audiences = [clientId],
+            TokenTypes = [TokenTypeHeaderConstants.RefreshToken]
+        }, cancellationToken);
 
-            var authorizationGrantId = token.Claims.Single(x => x.Type == ClaimNameConstants.GrantId).Value;
-            var jti = Guid.Parse(token.Claims.Single(x => x.Type == ClaimNameConstants.Jti).Value);
-
-            var isRevoked = await _identityContext
-                .Set<RefreshToken>()
-                .Where(x => x.Id == jti)
-                .Where(Token.IsActive)
-                .AnyAsync(cancellationToken: cancellationToken);
-
-            return isRevoked ? null : authorizationGrantId;
-        }
-        catch (Exception)
+        if (validatedToken is null)
         {
             return null;
         }
+
+        var authorizationGrantId = validatedToken.Claims.Single(x => x.Type == ClaimNameConstants.GrantId).Value;
+        var jti = Guid.Parse(validatedToken.Claims.Single(x => x.Type == ClaimNameConstants.Jti).Value);
+
+        var isRevoked = await _identityContext
+            .Set<RefreshToken>()
+            .Where(x => x.Id == jti)
+            .Where(Token.IsActive)
+            .AnyAsync(cancellationToken: cancellationToken);
+
+        return isRevoked ? null : authorizationGrantId;
     }
 }
