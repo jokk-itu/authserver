@@ -1,5 +1,5 @@
 ﻿namespace AuthServer.EndSession.Abstractions;
-internal interface IEndSessionUserAccessor
+public interface IEndSessionUserAccessor
 {
     /// <summary>
     /// Gets the endSessionUser.

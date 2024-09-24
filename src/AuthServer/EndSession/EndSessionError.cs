@@ -13,13 +13,18 @@ internal static class EndSessionError
     public static readonly ProcessError InvalidClientId =
         new(ErrorCode.InvalidRequest, "invalid client_id", ResultCode.BadRequest);
 
-    public static readonly ProcessError InvalidState =
-        new(ErrorCode.InvalidRequest, "invalid state", ResultCode.BadRequest);
+    public static readonly ProcessError StateWithoutPostLogoutRedirectUri =
+        new(ErrorCode.InvalidRequest, "state provided without post_logout_redirect_uri", ResultCode.BadRequest);
 
-    public static readonly ProcessError InvalidPostLogoutRedirectUri =
-        new(ErrorCode.InvalidRequest, "invalid post_logout_redirect_uri", ResultCode.BadRequest);
+    public static readonly ProcessError PostLogoutRedirectUriWithoutState =
+        new(ErrorCode.InvalidRequest, "post_logout_redirect_uri provided without state", ResultCode.BadRequest);
 
-    // Custom internal error
+    public static readonly ProcessError PostLogoutRedirectUriWithoutClientIdOrIdTokenHint =
+        new(ErrorCode.InvalidRequest, "post_logout_redirect_uri provided without client_id or id_token_hint", ResultCode.BadRequest);
+
+    public static readonly ProcessError UnauthorizedClientForPostLogoutRedirectUri =
+        new(ErrorCode.InvalidRequest, "client is not authorized for the post_logout_redirect_uri", ResultCode.BadRequest);
+
     public static readonly ProcessError InteractionRequired =
         new(ErrorCode.InteractionRequired, "end-user must interact with logout page", ResultCode.Redirect);
 }
