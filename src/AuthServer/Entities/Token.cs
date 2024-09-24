@@ -35,7 +35,7 @@ public abstract class Token : AggregateRoot<Guid>
     public string Issuer { get; private init; }
     public DateTime? RevokedAt { get; set; }
 
-    public virtual void Revoke()
+    public void Revoke()
     {
         RevokedAt ??= DateTime.UtcNow;
     }

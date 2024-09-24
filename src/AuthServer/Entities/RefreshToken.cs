@@ -1,5 +1,4 @@
-﻿using AuthServer.DomainEvents;
-using AuthServer.Enums;
+﻿using AuthServer.Enums;
 
 namespace AuthServer.Entities;
 public class RefreshToken : GrantToken
@@ -12,10 +11,4 @@ public class RefreshToken : GrantToken
     // Used to hydrate EF Core model
     protected RefreshToken() { }
 #pragma warning restore
-
-    public override void Revoke()
-    {
-        base.Revoke();
-        Raise(() => new RefreshTokenRevoked(Id));
-    }
 }
