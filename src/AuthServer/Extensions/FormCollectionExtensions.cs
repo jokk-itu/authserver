@@ -51,13 +51,13 @@ internal static class FormCollectionExtensions
             : null;
     }
 
-    public static string GetValueOrEmpty(this IFormCollection formCollection, string key)
+    public static string? GetValue(this IFormCollection formCollection, string key)
     {
         formCollection.TryGetValue(key, out var value);
-        return value == StringValues.Empty ? string.Empty : value.ToString();
+        return value == StringValues.Empty ? null : value.ToString();
     }
 
-    public static IReadOnlyCollection<string> GetSpaceDelimitedValueOrEmpty(this IFormCollection formCollection, string key)
+    public static IReadOnlyCollection<string> GetSpaceDelimitedValue(this IFormCollection formCollection, string key)
     {
 	    formCollection.TryGetValue(key, out var value);
 	    var hasValue = !StringValues.IsNullOrEmpty(value);

@@ -5,13 +5,13 @@ namespace AuthServer.Extensions;
 
 public static class QueryCollectionExtensions
 {
-    public static string GetValueOrEmpty(this IQueryCollection queryCollection, string key)
+    public static string? GetValue(this IQueryCollection queryCollection, string key)
     {
         queryCollection.TryGetValue(key, out var value);
-        return value == StringValues.Empty ? string.Empty : value.ToString();
+        return value == StringValues.Empty ? null : value.ToString();
     }
 
-    public static IReadOnlyCollection<string> GetSpaceDelimitedValueOrEmpty(this IQueryCollection queryCollection, string key)
+    public static IReadOnlyCollection<string> GetSpaceDelimitedValue(this IQueryCollection queryCollection, string key)
     {
         queryCollection.TryGetValue(key, out var value);
         var hasValue = !StringValues.IsNullOrEmpty(value);

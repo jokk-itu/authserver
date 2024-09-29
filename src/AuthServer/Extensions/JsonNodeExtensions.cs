@@ -4,9 +4,9 @@ namespace AuthServer.Extensions;
 
 internal static class JsonNodeExtensions
 {
-	public static string GetValueOrEmpty(this JsonNode node, string key)
+	public static string? GetValue(this JsonNode node, string key)
 	{
-		return node[key]?.GetValue<string>() ?? string.Empty;
+		return node[key]?.GetValue<string?>();
 	}
 
 	public static IReadOnlyCollection<string> GetCollectionValue(this JsonNode node, string key)
@@ -19,7 +19,7 @@ internal static class JsonNodeExtensions
                ?? new List<string>().AsReadOnly();
     }
 
-    public static IReadOnlyCollection<string> GetSpaceDelimitedValueOrEmpty(this JsonNode node, string key)
+    public static IReadOnlyCollection<string> GetSpaceDelimitedValue(this JsonNode node, string key)
     {
         return node[key]?.GetValue<string>()?.Split(' ') ?? [];
     }
