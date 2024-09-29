@@ -1,9 +1,12 @@
+using System.Security.Claims;
 using System.Web;
 using AuthServer.Authorize;
 using AuthServer.Authorize.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Tests.Core;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -52,6 +55,14 @@ public class SignInModel : PageModel
             var hasMaxAge = long.TryParse(query.Get(Parameter.MaxAge), out var parsedMaxAge);
             await _authorizeService.CreateAuthorizationGrant(UserConstants.SubjectIdentifier, query.Get(Parameter.ClientId)!, hasMaxAge ? parsedMaxAge : null, cancellationToken);
             _authorizeUserAccessor.SetUser(new AuthorizeUser(UserConstants.SubjectIdentifier, [AmrValueConstants.Password]));
+
+            var claimsIdentity = new ClaimsIdentity(
+                [new Claim(ClaimNameConstants.Sub, UserConstants.SubjectIdentifier)],
+                CookieAuthenticationDefaults.AuthenticationScheme);
+
+            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
+
             var prompt = query.Get(Parameter.Prompt);
             if (prompt?.Contains(PromptConstants.Consent) == true)
             {
