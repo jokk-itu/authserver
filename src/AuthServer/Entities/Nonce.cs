@@ -1,14 +1,13 @@
 ﻿using AuthServer.Core;
-using AuthServer.Helpers;
 
 namespace AuthServer.Entities;
 public class Nonce : Entity<string>
 {
-    public Nonce(string value, AuthorizationGrant authorizationGrant)
+    public Nonce(string value, string hashedValue, AuthorizationGrant authorizationGrant)
     {
         Id = Guid.NewGuid().ToString();
         Value = string.IsNullOrWhiteSpace(value) ? throw new ArgumentNullException(nameof(value)) : value;
-        HashedValue = value.Sha256();
+        HashedValue = string.IsNullOrWhiteSpace(hashedValue) ? throw new ArgumentNullException(nameof(hashedValue)) : hashedValue;
         IssuedAt = DateTime.UtcNow;
         AuthorizationGrant = authorizationGrant ?? throw new ArgumentNullException(nameof(authorizationGrant));
     }

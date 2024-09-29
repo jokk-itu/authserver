@@ -6,15 +6,15 @@ public class AcrClaimMapper : IAcrClaimMapper
 {
     public string MapAmrClaimToAcr(IReadOnlyCollection<string> amr)
     {
-        if (amr.Contains(AmrValueConstants.MultiFactorAuthentication))
+        if (amr.Contains(AuthenticationMethodReferenceConstants.MultiFactorAuthentication))
         {
             return "mfa";
         }
-        else if (amr.Contains(AmrValueConstants.Sms))
+        else if (amr.Contains(AuthenticationMethodReferenceConstants.Sms))
         {
             return "2fa";
         }
-        else if (amr.Contains(AmrValueConstants.Password))
+        else if (amr.Contains(AuthenticationMethodReferenceConstants.Password))
         {
             return "pwd";
         }

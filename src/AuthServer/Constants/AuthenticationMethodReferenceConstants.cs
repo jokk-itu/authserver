@@ -4,7 +4,7 @@
 /// Values defined at IANA.
 /// <remarks>https://www.iana.org/assignments/authentication-method-reference-values/authentication-method-reference-values.xhtml</remarks>
 /// </summary>
-public static class AmrValueConstants
+public static class AuthenticationMethodReferenceConstants
 {
     public const string Face = "face";
     public const string Fingerprint = "fpt";

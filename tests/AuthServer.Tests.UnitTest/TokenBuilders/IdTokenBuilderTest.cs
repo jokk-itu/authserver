@@ -170,7 +170,8 @@ public class IdTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTest(o
         var session = new Session(publicSubjectIdentifier);
         var authorizationGrant = new AuthorizationGrant(session, client, pairwiseSubjectIdentifier);
 
-        var nonce = new Nonce(CryptographyHelper.GetRandomString(32), authorizationGrant);
+        var value = CryptographyHelper.GetRandomString(32);
+        var nonce = new Nonce(value, value.Sha256(), authorizationGrant);
         authorizationGrant.Nonces.Add(nonce);
 
         await AddEntity(authorizationGrant);
@@ -213,7 +214,8 @@ public class IdTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTest(o
         var session = new Session(publicSubjectIdentifier);
         var authorizationGrant = new AuthorizationGrant(session, client, pairwiseSubjectIdentifier);
 
-        var nonce = new Nonce(CryptographyHelper.GetRandomString(32), authorizationGrant);
+        var value = CryptographyHelper.GetRandomString(32);
+        var nonce = new Nonce(value, value.Sha256(), authorizationGrant);
         authorizationGrant.Nonces.Add(nonce);
 
         await AddEntity(authorizationGrant);

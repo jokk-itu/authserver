@@ -26,7 +26,7 @@ public class NonceRepositoryTest : BaseUnitTest
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier);
         var value = CryptographyHelper.GetRandomString(32);
-        var nonce = new Nonce(value, authorizationGrant);
+        var nonce = new Nonce(value, value.Sha256(), authorizationGrant);
         await AddEntity(nonce);
 
         // Act

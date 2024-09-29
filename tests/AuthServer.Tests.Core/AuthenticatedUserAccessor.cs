@@ -8,7 +8,7 @@ public class AuthenticatedUserAccessor : IAuthenticatedUserAccessor
     public Task<AuthenticatedUser?> GetAuthenticatedUser()
     {
         return Task.FromResult<AuthenticatedUser?>(
-            new AuthenticatedUser(UserConstants.SubjectIdentifier, [AmrValueConstants.Password]));
+            new AuthenticatedUser(UserConstants.SubjectIdentifier, [AuthenticationMethodReferenceConstants.Password]));
     }
 
     public Task<int> CountAuthenticatedUsers()

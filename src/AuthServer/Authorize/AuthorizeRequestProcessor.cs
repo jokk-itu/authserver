@@ -4,6 +4,7 @@ using AuthServer.Codes.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core.Request;
 using AuthServer.Entities;
+using AuthServer.Helpers;
 using AuthServer.Repositories.Abstractions;
 
 namespace AuthServer.Authorize;
@@ -44,7 +45,7 @@ internal class AuthorizeRequestProcessor : IRequestProcessor<AuthorizeValidatedR
             user.SubjectIdentifier, request.ClientId, cancellationToken))!;
 
         var authorizationCode = new AuthorizationCode(authorizationGrant);
-        var nonce = new Nonce(request.Nonce, authorizationGrant);
+        var nonce = new Nonce(request.Nonce, request.Nonce.Sha256(), authorizationGrant);
 
         authorizationGrant.AuthorizationCodes.Add(authorizationCode);
         authorizationGrant.Nonces.Add(nonce);
