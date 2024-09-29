@@ -20,10 +20,10 @@ internal class EndSessionRequestAccessor : IRequestAccessor<EndSessionRequest>
     private static async Task<EndSessionRequest> GetRequestFromBody(HttpRequest httpRequest)
     {
         var formCollection = await httpRequest.ReadFormAsync();
-        var idTokenHint = formCollection.GetValueOrEmpty(Parameter.IdTokenHint);
-        var clientId = formCollection.GetValueOrEmpty(Parameter.ClientId);
-        var postLogoutRedirectUri = formCollection.GetValueOrEmpty(Parameter.PostLogoutRedirectUri);
-        var state = formCollection.GetValueOrEmpty(Parameter.State);
+        var idTokenHint = formCollection.GetValue(Parameter.IdTokenHint);
+        var clientId = formCollection.GetValue(Parameter.ClientId);
+        var postLogoutRedirectUri = formCollection.GetValue(Parameter.PostLogoutRedirectUri);
+        var state = formCollection.GetValue(Parameter.State);
 
         return new EndSessionRequest
         {
@@ -37,10 +37,10 @@ internal class EndSessionRequestAccessor : IRequestAccessor<EndSessionRequest>
     private static EndSessionRequest GetRequestFromQuery(HttpRequest httpRequest)
     {
         var query = httpRequest.Query;
-        var idTokenHint = query.GetValueOrEmpty(Parameter.IdTokenHint);
-        var clientId = query.GetValueOrEmpty(Parameter.ClientId);
-        var postLogoutRedirectUri = query.GetValueOrEmpty(Parameter.PostLogoutRedirectUri);
-        var state = query.GetValueOrEmpty(Parameter.State);
+        var idTokenHint = query.GetValue(Parameter.IdTokenHint);
+        var clientId = query.GetValue(Parameter.ClientId);
+        var postLogoutRedirectUri = query.GetValue(Parameter.PostLogoutRedirectUri);
+        var state = query.GetValue(Parameter.State);
 
         return new EndSessionRequest
         {

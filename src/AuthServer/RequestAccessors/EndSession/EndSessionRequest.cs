@@ -2,8 +2,8 @@
 
 public class EndSessionRequest
 {
-    public required string IdTokenHint { get; init; }
-    public required string ClientId { get; init; }
-    public required string PostLogoutRedirectUri { get; init; }
-    public required string State { get; init; }
+    public string? IdTokenHint { get; init; }
+    public string? ClientId { get; init; }
+    public string? PostLogoutRedirectUri { get; init; }
+    public string? State { get; init; }
 }

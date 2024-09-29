@@ -13,8 +13,8 @@ public class EndSessionRequestAccessorTest(ITestOutputHelper outputHelper) : Bas
     [Theory]
     [InlineData("random_value", "random_value")]
     [InlineData("", "")]
-    [InlineData(null, "")]
-    public async Task GetRequest_GetMethodNormalStringParameters_ExpectValues(string? value, string expectedValue)
+    [InlineData(null, null)]
+    public async Task GetRequest_GetMethodNormalStringParameters_ExpectValues(string? value, string? expectedValue)
     {
         // Arrange
         var serviceProvider = BuildServiceProvider();
@@ -47,8 +47,8 @@ public class EndSessionRequestAccessorTest(ITestOutputHelper outputHelper) : Bas
     [Theory]
 	[InlineData("random_value", "random_value")]
     [InlineData("", "")]
-    [InlineData(null, "")]
-	public async Task GetRequest_PostMethodNormalStringParameters_ExpectValues(string? value, string expectedValue)
+    [InlineData(null, null)]
+	public async Task GetRequest_PostMethodNormalStringParameters_ExpectValues(string? value, string? expectedValue)
     {
         // Arrange
         var serviceProvider = BuildServiceProvider();

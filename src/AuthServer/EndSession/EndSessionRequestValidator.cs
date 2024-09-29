@@ -73,7 +73,7 @@ internal class EndSessionRequestValidator : IRequestValidator<EndSessionRequest,
 
     private async Task<ProcessResult<EndSessionValidatedRequest, ProcessError>> ValidateRequestForIdTokenHint(EndSessionRequest request, CancellationToken cancellationToken)
     {
-        var token = await _tokenDecoder.Validate(request.IdTokenHint, new ServerIssuedTokenDecodeArguments
+        var token = await _tokenDecoder.Validate(request.IdTokenHint!, new ServerIssuedTokenDecodeArguments
         {
             ValidateLifetime = false,
             TokenTypes = [TokenTypeHeaderConstants.IdToken],
