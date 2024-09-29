@@ -29,11 +29,14 @@ internal class AuthorizeRequestProcessor : IRequestProcessor<AuthorizeValidatedR
 
     public async Task<string> Process(AuthorizeValidatedRequest request, CancellationToken cancellationToken)
     {
-        var lastIndex = request.RequestUri.LastIndexOf(RequestUriConstants.RequestUriPrefix, StringComparison.Ordinal);
-        if (lastIndex != -1)
+        if (request.RequestUri is not null)
         {
-            var reference = request.RequestUri[lastIndex..];
-            await _clientRepository.RedeemAuthorizeMessage(reference, cancellationToken);
+            var lastIndex = request.RequestUri.LastIndexOf(RequestUriConstants.RequestUriPrefix, StringComparison.Ordinal);
+            if (lastIndex != -1)
+            {
+                var reference = request.RequestUri[lastIndex..];
+                await _clientRepository.RedeemAuthorizeMessage(reference, cancellationToken);
+            }
         }
 
         var user = _userAccessor.GetUser();

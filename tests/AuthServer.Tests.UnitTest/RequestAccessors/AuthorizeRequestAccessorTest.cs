@@ -13,8 +13,8 @@ public class AuthorizeRequestAccessorTest(ITestOutputHelper outputHelper) : Base
     [Theory]
     [InlineData("random_value", "random_value")]
     [InlineData("", "")]
-    [InlineData(null, "")]
-    public async Task GetRequest_NormalStringParametersQuery_ExpectValues(string? value, string expectedValue)
+    [InlineData(null, null)]
+    public async Task GetRequest_NormalStringParametersQuery_ExpectValues(string? value, string? expectedValue)
     {
         // Arrange
         var serviceProvider = BuildServiceProvider();
@@ -69,8 +69,8 @@ public class AuthorizeRequestAccessorTest(ITestOutputHelper outputHelper) : Base
     [Theory]
     [InlineData("random_value", "random_value")]
     [InlineData("", "")]
-    [InlineData(null, "")]
-    public async Task GetRequest_NormalStringParametersBody_ExpectValues(string? value, string expectedValue)
+    [InlineData(null, null)]
+    public async Task GetRequest_NormalStringParametersBody_ExpectValues(string? value, string? expectedValue)
     {
         // Arrange
         var serviceProvider = BuildServiceProvider();

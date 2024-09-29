@@ -34,6 +34,11 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
     public async Task<ProcessResult<AuthorizeValidatedRequest, ProcessError>> Validate(AuthorizeRequest request,
         CancellationToken cancellationToken)
     {
+        if (string.IsNullOrEmpty(request.ClientId))
+        {
+            return AuthorizeError.InvalidClient;
+        }
+
         var cachedClient = await _cachedClientStore.TryGet(request.ClientId, cancellationToken);
         if (cachedClient == null)
         {
@@ -56,7 +61,7 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
         }
         else if (!isRequestUriEmpty)
         {
-            if (request.RequestUri.StartsWith(RequestUriConstants.RequestUriPrefix))
+            if (request.RequestUri!.StartsWith(RequestUriConstants.RequestUriPrefix))
             {
                 var authorizeDto = await _authorizeRequestParameterService.GetRequestByPushedRequest(request.RequestUri, request.ClientId, cancellationToken);
                 if (authorizeDto is null)
@@ -126,7 +131,7 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
         }
         else if (!isRequestObjectEmpty)
         {
-            var newRequest = await _authorizeRequestParameterService.GetRequestByObject(request.RequestObject, request.ClientId, ClientTokenAudience.AuthorizeEndpoint, cancellationToken);
+            var newRequest = await _authorizeRequestParameterService.GetRequestByObject(request.RequestObject!, request.ClientId, ClientTokenAudience.AuthorizeEndpoint, cancellationToken);
             if (newRequest is null)
             {
                 return AuthorizeError.InvalidRequest;
@@ -164,7 +169,7 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
             return AuthorizeError.InvalidRedirectUri;
         }
 
-        if (!HasValidRequiredRedirectUri(request.RedirectUri, cachedClient))
+        if (!HasValidRedirectUri(request.RedirectUri, cachedClient))
         {
             return AuthorizeError.UnauthorizedRedirectUri;
         }
@@ -194,7 +199,7 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
             return AuthorizeError.InvalidNonce;
         }
 
-        if (!await HasUniqueNonce(request.Nonce, cancellationToken))
+        if (!await HasUniqueNonce(request.Nonce!, cancellationToken))
         {
             return AuthorizeError.ReplayNonce;
         }
@@ -261,26 +266,18 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
             return AuthorizeError.AccountSelectionRequired;
         }
 
-        var maxAge = string.IsNullOrEmpty(request.MaxAge)
-            ? cachedClient.DefaultMaxAge?.ToString() ?? string.Empty
-            : request.MaxAge;
-
         var redirectUri = string.IsNullOrEmpty(request.RedirectUri)
             ? cachedClient.RedirectUris.Single()
             : request.RedirectUri;
 
         return new AuthorizeValidatedRequest
         {
-            ResponseType = request.ResponseType,
             ResponseMode = request.ResponseMode,
-            CodeChallenge = request.CodeChallenge,
-            CodeChallengeMethod = request.CodeChallengeMethod,
+            CodeChallenge = request.CodeChallenge!,
             Scope = request.Scope,
             AcrValues = request.AcrValues,
-            ClientId = request.ClientId,
-            MaxAge = maxAge,
-            Nonce = request.Nonce,
-            State = request.State,
+            ClientId = request.ClientId!,
+            Nonce = request.Nonce!,
             RedirectUri = redirectUri,
             RequestUri = request.RequestUri
         };

@@ -20,24 +20,24 @@ internal class AuthorizeRequestAccessor : IRequestAccessor<AuthorizeRequest>
     {
         var query = httpRequest.Query;
 
-        var loginHint = query.GetValueOrEmpty(Parameter.LoginHint);
-        var display = query.GetValueOrEmpty(Parameter.Display);
-        var responseMode = query.GetValueOrEmpty(Parameter.ResponseMode);
-        var maxAge = query.GetValueOrEmpty(Parameter.MaxAge);
-        var clientId = query.GetValueOrEmpty(Parameter.ClientId);
-        var codeChallenge = query.GetValueOrEmpty(Parameter.CodeChallenge);
-        var codeChallengeMethod = query.GetValueOrEmpty(Parameter.CodeChallengeMethod);
-        var redirectUri = query.GetValueOrEmpty(Parameter.RedirectUri);
-        var idTokenHint = query.GetValueOrEmpty(Parameter.IdTokenHint);
-        var prompt = query.GetValueOrEmpty(Parameter.Prompt);
-        var responseType = query.GetValueOrEmpty(Parameter.ResponseType);
-        var nonce = query.GetValueOrEmpty(Parameter.Nonce);
-        var state = query.GetValueOrEmpty(Parameter.State);
-        var requestObject = query.GetValueOrEmpty(Parameter.Request);
-        var requestUri = query.GetValueOrEmpty(Parameter.RequestUri);
+        var loginHint = query.GetValue(Parameter.LoginHint);
+        var display = query.GetValue(Parameter.Display);
+        var responseMode = query.GetValue(Parameter.ResponseMode);
+        var maxAge = query.GetValue(Parameter.MaxAge);
+        var clientId = query.GetValue(Parameter.ClientId);
+        var codeChallenge = query.GetValue(Parameter.CodeChallenge);
+        var codeChallengeMethod = query.GetValue(Parameter.CodeChallengeMethod);
+        var redirectUri = query.GetValue(Parameter.RedirectUri);
+        var idTokenHint = query.GetValue(Parameter.IdTokenHint);
+        var prompt = query.GetValue(Parameter.Prompt);
+        var responseType = query.GetValue(Parameter.ResponseType);
+        var nonce = query.GetValue(Parameter.Nonce);
+        var state = query.GetValue(Parameter.State);
+        var requestObject = query.GetValue(Parameter.Request);
+        var requestUri = query.GetValue(Parameter.RequestUri);
 
-        var scope = query.GetSpaceDelimitedValueOrEmpty(Parameter.Scope);
-        var acrValues = query.GetSpaceDelimitedValueOrEmpty(Parameter.AcrValues);
+        var scope = query.GetSpaceDelimitedValue(Parameter.Scope);
+        var acrValues = query.GetSpaceDelimitedValue(Parameter.AcrValues);
 
         return new AuthorizeRequest
         {
@@ -65,24 +65,24 @@ internal class AuthorizeRequestAccessor : IRequestAccessor<AuthorizeRequest>
     {
         var body = await httpRequest.ReadFormAsync();
 
-        var loginHint = body.GetValueOrEmpty(Parameter.LoginHint);
-        var display = body.GetValueOrEmpty(Parameter.Display);
-        var responseMode = body.GetValueOrEmpty(Parameter.ResponseMode);
-        var maxAge = body.GetValueOrEmpty(Parameter.MaxAge);
-        var clientId = body.GetValueOrEmpty(Parameter.ClientId);
-        var codeChallenge = body.GetValueOrEmpty(Parameter.CodeChallenge);
-        var codeChallengeMethod = body.GetValueOrEmpty(Parameter.CodeChallengeMethod);
-        var redirectUri = body.GetValueOrEmpty(Parameter.RedirectUri);
-        var idTokenHint = body.GetValueOrEmpty(Parameter.IdTokenHint);
-        var prompt = body.GetValueOrEmpty(Parameter.Prompt);
-        var responseType = body.GetValueOrEmpty(Parameter.ResponseType);
-        var nonce = body.GetValueOrEmpty(Parameter.Nonce);
-        var state = body.GetValueOrEmpty(Parameter.State);
-        var requestObject = body.GetValueOrEmpty(Parameter.Request);
-        var requestUri = body.GetValueOrEmpty(Parameter.RequestUri);
+        var loginHint = body.GetValue(Parameter.LoginHint);
+        var display = body.GetValue(Parameter.Display);
+        var responseMode = body.GetValue(Parameter.ResponseMode);
+        var maxAge = body.GetValue(Parameter.MaxAge);
+        var clientId = body.GetValue(Parameter.ClientId);
+        var codeChallenge = body.GetValue(Parameter.CodeChallenge);
+        var codeChallengeMethod = body.GetValue(Parameter.CodeChallengeMethod);
+        var redirectUri = body.GetValue(Parameter.RedirectUri);
+        var idTokenHint = body.GetValue(Parameter.IdTokenHint);
+        var prompt = body.GetValue(Parameter.Prompt);
+        var responseType = body.GetValue(Parameter.ResponseType);
+        var nonce = body.GetValue(Parameter.Nonce);
+        var state = body.GetValue(Parameter.State);
+        var requestObject = body.GetValue(Parameter.Request);
+        var requestUri = body.GetValue(Parameter.RequestUri);
 
-        var scope = body.GetSpaceDelimitedValueOrEmpty(Parameter.Scope);
-        var acrValues = body.GetSpaceDelimitedValueOrEmpty(Parameter.AcrValues);
+        var scope = body.GetSpaceDelimitedValue(Parameter.Scope);
+        var acrValues = body.GetSpaceDelimitedValue(Parameter.AcrValues);
 
         return new AuthorizeRequest
         {
