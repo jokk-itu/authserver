@@ -1,15 +1,12 @@
 ﻿using System.Text.Json;
 using AuthServer.Authorize.Abstractions;
 using AuthServer.Constants;
-using AuthServer.Core;
 using AuthServer.Core.Abstractions;
-using AuthServer.Entities;
 using AuthServer.Extensions;
 using AuthServer.Repositories.Abstractions;
 using AuthServer.RequestAccessors.Authorize;
 using AuthServer.TokenDecoders;
 using AuthServer.TokenDecoders.Abstractions;
-using Microsoft.EntityFrameworkCore;
 
 namespace AuthServer.Authorize;
 
@@ -38,11 +35,11 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
     /// <inheritdoc/>
     public async Task<string> GetPrompt(AuthorizeRequest authorizeRequest, CancellationToken cancellationToken)
     {
-        // covers the scenario where the user was redirected for interaction
+        // user was redirected for interaction
         var authorizeUser = _userAccessor.TryGetUser();
         if (authorizeUser is not null)
         {
-            return await GetPrompt(authorizeUser.SubjectIdentifier, authorizeRequest, authorizeUser.Amr, cancellationToken);
+            return await GetPromptFromInteraction(authorizeUser.SubjectIdentifier, authorizeRequest, authorizeUser.Amr, cancellationToken);
         }
 
         /*
@@ -75,9 +72,26 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
         }
     }
 
+    private async Task<string> GetPromptFromInteraction(string subjectIdentifier, AuthorizeRequest authorizeRequest, IEnumerable<string> amr, CancellationToken cancellationToken)
+    {
+        var authorizationGrant = (await _authorizationGrantRepository.GetActiveAuthorizationGrant(subjectIdentifier, authorizeRequest.ClientId!, cancellationToken))!;
+        if (!authorizationGrant.Client.RequireConsent)
+        {
+            return PromptConstants.None;
+        }
+
+        var consentedScope = await _consentGrantRepository.GetConsentedScope(subjectIdentifier, authorizeRequest.ClientId!, cancellationToken);
+        if (authorizeRequest.Scope.ExceptAny(consentedScope))
+        {
+            return PromptConstants.Consent;
+        }
+
+        return PromptConstants.None;
+    }
+
     private async Task<string> GetPrompt(string subjectIdentifier, AuthorizeRequest authorizeRequest, IEnumerable<string> amr, CancellationToken cancellationToken)
     {
-        var authorizationGrant = await _authorizationGrantRepository.GetActiveAuthorizationGrant(subjectIdentifier, authorizeRequest.ClientId, cancellationToken);
+        var authorizationGrant = await _authorizationGrantRepository.GetActiveAuthorizationGrant(subjectIdentifier, authorizeRequest.ClientId!, cancellationToken);
         if (authorizationGrant is null)
         {
             return PromptConstants.Login;
@@ -85,19 +99,17 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
 
         if (!authorizationGrant.Client.RequireConsent)
         {
-            // only try set, because the user might already be set from interaction
-            _userAccessor.TrySetUser(new AuthorizeUser(subjectIdentifier, amr));
+            _userAccessor.SetUser(new AuthorizeUser(subjectIdentifier, amr));
             return PromptConstants.None;
         }
 
-        var consentedScope = await _consentGrantRepository.GetConsentedScope(subjectIdentifier, authorizeRequest.ClientId, cancellationToken);
+        var consentedScope = await _consentGrantRepository.GetConsentedScope(subjectIdentifier, authorizeRequest.ClientId!, cancellationToken);
         if (authorizeRequest.Scope.ExceptAny(consentedScope))
         {
             return PromptConstants.Consent;
         }
 
-        // only try set, because the user might already be set from the interaction
-        _userAccessor.TrySetUser(new AuthorizeUser(subjectIdentifier, amr));
+        _userAccessor.SetUser(new AuthorizeUser(subjectIdentifier, amr));
         return PromptConstants.None;
     }
 }
