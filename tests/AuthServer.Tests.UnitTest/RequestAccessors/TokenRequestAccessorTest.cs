@@ -17,8 +17,8 @@ public class TokenRequestAccessorTest(ITestOutputHelper outputHelper) : BaseUnit
 {
 	[Theory]
 	[InlineData("", "")]
-	[InlineData(null, "")]
-	public async Task GetRequest_EmptyStringParameters_ExpectNoValues(string? value, string expectedValue)
+	[InlineData(null, null)]
+	public async Task GetRequest_EmptyStringParameters_ExpectNoValues(string? value, string? expectedValue)
 	{
 		// Arrange
 		var serviceProvider = BuildServiceProvider();

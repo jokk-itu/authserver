@@ -12,15 +12,15 @@ internal class TokenRequestAccessor : IRequestAccessor<TokenRequest>
     public async Task<TokenRequest> GetRequest(HttpRequest httpRequest)
     {
         var body = await httpRequest.ReadFormAsync();
-        var grantType = body.GetValueOrEmpty(Parameter.GrantType);
-        var code = body.GetValueOrEmpty(Parameter.Code);
-        var codeVerifier = body.GetValueOrEmpty(Parameter.CodeVerifier);
-        var redirectUri = body.GetValueOrEmpty(Parameter.RedirectUri);
-        var refreshToken = body.GetValueOrEmpty(Parameter.RefreshToken);
-        var dPoPToken = body.GetValueOrEmpty(Parameter.DPoP);
+        var grantType = body.GetValue(Parameter.GrantType);
+        var code = body.GetValue(Parameter.Code);
+        var codeVerifier = body.GetValue(Parameter.CodeVerifier);
+        var redirectUri = body.GetValue(Parameter.RedirectUri);
+        var refreshToken = body.GetValue(Parameter.RefreshToken);
+        var dPoPToken = body.GetValue(Parameter.DPoP);
 
-        var scope = body.GetSpaceDelimitedValueOrEmpty(Parameter.Scope);
-        var resource = body.GetSpaceDelimitedValueOrEmpty(Parameter.Resource);
+        var scope = body.GetSpaceDelimitedValue(Parameter.Scope);
+        var resource = body.GetSpaceDelimitedValue(Parameter.Resource);
 
         var clientSecretBasic = httpRequest.GetClientSecretBasic();
         var clientSecretPost = body.GetClientSecretPost();

@@ -4,13 +4,13 @@ namespace AuthServer.RequestAccessors.Token;
 
 public class TokenRequest
 {
-    public required string GrantType { get; init; }
-    public required string Code { get; init; }
-    public required string CodeVerifier { get; init; }
-    public required string RedirectUri { get; init; }
-    public required string RefreshToken { get; init; }
-    public required string DPoPToken { get; init; }
-    public required IReadOnlyCollection<string> Scope { get; init; }
-    public required IReadOnlyCollection<string> Resource { get; init; }
-    public required IReadOnlyCollection<ClientAuthentication> ClientAuthentications { get; init; }
+    public string? GrantType { get; init; }
+    public string? Code { get; init; }
+    public string? CodeVerifier { get; init; }
+    public string? RedirectUri { get; init; }
+    public string? RefreshToken { get; init; }
+    public string? DPoPToken { get; init; }
+    public IReadOnlyCollection<string> Scope { get; init; } = [];
+    public IReadOnlyCollection<string> Resource { get; init; } = [];
+    public IReadOnlyCollection<ClientAuthentication> ClientAuthentications { get; init; } = [];
 }
