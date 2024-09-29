@@ -2,7 +2,7 @@
 using AuthServer.Core;
 
 namespace AuthServer.Entities;
-public class AuthorizationGrant : AggregateRoot<string>
+public class AuthorizationGrant : Entity<string>
 {
     public AuthorizationGrant(Session session, Client client, SubjectIdentifier subjectIdentifier, long? maxAge = null)
     {

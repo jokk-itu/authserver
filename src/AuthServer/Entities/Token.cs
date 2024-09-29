@@ -4,7 +4,7 @@ using AuthServer.Enums;
 using AuthServer.Helpers;
 
 namespace AuthServer.Entities;
-public abstract class Token : AggregateRoot<Guid>
+public abstract class Token : Entity<Guid>
 {
     protected Token(TokenType tokenType, string audience, string issuer, string? scope, DateTime? expiresAt)
     {
