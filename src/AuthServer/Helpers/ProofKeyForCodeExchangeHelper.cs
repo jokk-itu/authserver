@@ -8,10 +8,10 @@ namespace AuthServer.Helpers;
 
 internal static class ProofKeyForCodeExchangeHelper
 {
-    public static bool IsCodeChallengeMethodValid(string codeChallengeMethod)
+    public static bool IsCodeChallengeMethodValid(string? codeChallengeMethod)
         => CodeChallengeMethodConstants.CodeChallengeMethods.Contains(codeChallengeMethod);
 
-    public static bool IsCodeChallengeValid(string codeChallenge)
+    public static bool IsCodeChallengeValid(string? codeChallenge)
     {
         if (string.IsNullOrWhiteSpace(codeChallenge))
         {
@@ -21,7 +21,7 @@ internal static class ProofKeyForCodeExchangeHelper
         return IsCodeValid(codeChallenge);
     }
 
-    public static bool IsCodeVerifierValid(string codeVerifier, string codeChallenge)
+    public static bool IsCodeVerifierValid(string? codeVerifier, string? codeChallenge)
     {
         if (string.IsNullOrWhiteSpace(codeVerifier)
             || string.IsNullOrWhiteSpace(codeChallenge))
