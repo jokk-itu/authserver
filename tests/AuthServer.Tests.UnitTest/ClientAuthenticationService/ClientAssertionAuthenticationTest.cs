@@ -1,6 +1,8 @@
 ﻿using AuthServer.Constants;
 using AuthServer.Core.Abstractions;
 using AuthServer.Core.Models;
+using AuthServer.Entities;
+using AuthServer.Enums;
 using AuthServer.Tests.Core;
 using AuthServer.TokenDecoders;
 using AuthServer.TokenDecoders.Abstractions;
@@ -56,7 +58,8 @@ public class ClientAssertionAuthenticationTest(ITestOutputHelper outputHelper) :
         // Arrange
         var serviceProvider = BuildServiceProvider();
         var clientAuthenticationService = serviceProvider.GetRequiredService<IClientAuthenticationService>();
-        var client = await ClientBuilder.GetNativeClient();
+        var client = new Client("PinguNativeApp", ApplicationType.Native, TokenEndpointAuthMethod.None);
+        await AddEntity(client);
         var clientAuthentication = new ClientAssertionAuthentication(ClientTokenAudience.TokenEndpoint, client.Id,
             ClientAssertionTypeConstants.PrivateKeyJwt, "");
 
@@ -86,7 +89,11 @@ public class ClientAssertionAuthenticationTest(ITestOutputHelper outputHelper) :
         });
         var clientAuthenticationService = serviceProvider.GetRequiredService<IClientAuthenticationService>();
         var clientJwks = ClientJwkBuilder.GetClientJwks();
-        var client = await ClientBuilder.GetPrivateKeyJwtWebClient(clientJwks.PublicJwks);
+        var client = new Client("PinguPrivateKeyJwtWebApp", ApplicationType.Web, TokenEndpointAuthMethod.PrivateKeyJwt)
+        {
+            Jwks = clientJwks.PublicJwks
+        };
+        await AddEntity(client);
         var clientAuthentication = new ClientAssertionAuthentication(ClientTokenAudience.TokenEndpoint, client.Id,
             ClientAssertionTypeConstants.PrivateKeyJwt, "");
 
@@ -111,8 +118,12 @@ public class ClientAssertionAuthenticationTest(ITestOutputHelper outputHelper) :
         });
 
         var clientJwks = ClientJwkBuilder.GetClientJwks();
-        var client = await ClientBuilder.GetPrivateKeyJwtWebClient(clientJwks.PublicJwks);
-        var token = ClientJwtBuilder.GetPrivateKeyJwt(client.Id, clientJwks.PrivateJwks, ClientTokenAudience.TokenEndpoint);
+        var client = new Client("PinguPrivateKeyJwtWebApp", ApplicationType.Web, TokenEndpointAuthMethod.PrivateKeyJwt)
+        {
+            Jwks = clientJwks.PublicJwks
+        };
+        await AddEntity(client);
+        var token = JwtBuilder.GetPrivateKeyJwt(client.Id, clientJwks.PrivateJwks, ClientTokenAudience.TokenEndpoint);
         var jsonWebToken = new JsonWebToken(token);
         tokenDecoder
             .Setup(x => x.Read(token))

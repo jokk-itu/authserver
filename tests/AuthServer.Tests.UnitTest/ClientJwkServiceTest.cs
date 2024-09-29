@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;
+using AuthServer.Entities;
+using AuthServer.Enums;
 using AuthServer.Tests.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -17,7 +19,8 @@ public class ClientJwkServiceTest(ITestOutputHelper outputHelper) : BaseUnitTest
         // Arrange
         var serviceProvider = BuildServiceProvider();
         var clientJwkService = serviceProvider.GetRequiredService<IClientJwkService>();
-        var client = await ClientBuilder.GetBasicWebClient();
+        var client = new Client("PinguBasicWebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
+        await AddEntity(client);
 
         // Act
         var keys = await clientJwkService.GetKeys(client.Id, JsonWebKeyUseNames.Sig, CancellationToken.None);
@@ -35,7 +38,11 @@ public class ClientJwkServiceTest(ITestOutputHelper outputHelper) : BaseUnitTest
         var serviceProvider = BuildServiceProvider();
         var clientJwkService = serviceProvider.GetRequiredService<IClientJwkService>();
         var clientJwks = ClientJwkBuilder.GetClientJwks();
-        var client = await ClientBuilder.GetPrivateKeyJwtWebClient(clientJwks.PublicJwks);
+        var client = new Client("PinguPrivateKeyJwtWebApp", ApplicationType.Web, TokenEndpointAuthMethod.PrivateKeyJwt)
+        {
+            Jwks = clientJwks.PublicJwks
+        };
+        await AddEntity(client);
 
         // Act
         var keys = await clientJwkService.GetKeys(client.Id, use, CancellationToken.None);
@@ -54,7 +61,11 @@ public class ClientJwkServiceTest(ITestOutputHelper outputHelper) : BaseUnitTest
         var serviceProvider = BuildServiceProvider();
         var clientJwkService = serviceProvider.GetRequiredService<IClientJwkService>();
         var clientJwks = ClientJwkBuilder.GetClientJwks();
-        var client = await ClientBuilder.GetPrivateKeyJwtWebClient(clientJwks.PublicJwks);
+        var client = new Client("PinguPrivateKeyJwtWebApp", ApplicationType.Web, TokenEndpointAuthMethod.PrivateKeyJwt)
+        {
+            Jwks = clientJwks.PublicJwks
+        };
+        await AddEntity(client);
         client.JwksUri = "https://localhost:5000/.well-known/jwks";
         client.JwksExpiration = 60;
         client.JwksExpiresAt = DateTime.UtcNow.AddSeconds(60);
@@ -86,7 +97,11 @@ public class ClientJwkServiceTest(ITestOutputHelper outputHelper) : BaseUnitTest
         });
         var clientJwkService = serviceProvider.GetRequiredService<IClientJwkService>();
         var clientJwks = ClientJwkBuilder.GetClientJwks();
-        var client = await ClientBuilder.GetPrivateKeyJwtWebClient(clientJwks.PublicJwks);
+        var client = new Client("PinguPrivateKeyJwtWebApp", ApplicationType.Web, TokenEndpointAuthMethod.PrivateKeyJwt)
+        {
+            Jwks = clientJwks.PublicJwks
+        };
+        await AddEntity(client);
         client.JwksUri = "https://localhost:5000/.well-known/jwks";
         client.JwksExpiration = 60;
         client.JwksExpiresAt = DateTime.UtcNow.AddSeconds(-60);
@@ -107,7 +122,11 @@ public class ClientJwkServiceTest(ITestOutputHelper outputHelper) : BaseUnitTest
         var serviceProvider = BuildServiceProvider();
         var clientJwkService = serviceProvider.GetRequiredService<IClientJwkService>();
         var clientJwks = ClientJwkBuilder.GetClientJwks();
-        var client = await ClientBuilder.GetPrivateKeyJwtWebClient(clientJwks.PublicJwks);
+        var client = new Client("PinguPrivateKeyJwtWebApp", ApplicationType.Web, TokenEndpointAuthMethod.PrivateKeyJwt)
+        {
+            Jwks = clientJwks.PublicJwks
+        };
+        await AddEntity(client);
 
         // Act
         var encryptionKey = await clientJwkService.GetEncryptionKey(client.Id, CancellationToken.None);
@@ -123,7 +142,8 @@ public class ClientJwkServiceTest(ITestOutputHelper outputHelper) : BaseUnitTest
         // Arrange
         var serviceProvider = BuildServiceProvider();
         var clientJwkService = serviceProvider.GetRequiredService<IClientJwkService>();
-        var client = await ClientBuilder.GetBasicWebClient();
+        var client = new Client("PinguBasicWebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
+        await AddEntity(client);
 
         // Act
         var encryptionKey = await clientJwkService.GetEncryptionKey(client.Id, CancellationToken.None);

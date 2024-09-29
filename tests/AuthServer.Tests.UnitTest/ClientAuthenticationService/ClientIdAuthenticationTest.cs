@@ -1,5 +1,7 @@
 ﻿using AuthServer.Core.Abstractions;
 using AuthServer.Core.Models;
+using AuthServer.Entities;
+using AuthServer.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
 
@@ -28,7 +30,8 @@ public class ClientIdAuthenticationTest(ITestOutputHelper outputHelper) : BaseUn
         // Arrange
         var serviceProvider = BuildServiceProvider();
         var clientAuthenticationService = serviceProvider.GetRequiredService<IClientAuthenticationService>();
-        var client = await ClientBuilder.GetBasicWebClient();
+        var client = new Client("PinguBasicWebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
+        await AddEntity(client);
         var clientAuthentication = new ClientIdAuthentication(client.Id);
 
         // Act
@@ -45,7 +48,8 @@ public class ClientIdAuthenticationTest(ITestOutputHelper outputHelper) : BaseUn
         // Arrange
         var serviceProvider = BuildServiceProvider();
         var clientAuthenticationService = serviceProvider.GetRequiredService<IClientAuthenticationService>();
-        var client = await ClientBuilder.GetNativeClient();
+        var client = new Client("PinguNativeApp", ApplicationType.Native, TokenEndpointAuthMethod.None);
+        await AddEntity(client);
         var clientAuthentication = new ClientIdAuthentication(client.Id);
 
         // Act

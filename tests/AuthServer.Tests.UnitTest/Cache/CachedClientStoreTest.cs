@@ -3,6 +3,8 @@ using AuthServer.Cache;
 using AuthServer.Cache.Abstractions;
 using AuthServer.Cache.Entities;
 using AuthServer.Core.Exceptions;
+using AuthServer.Entities;
+using AuthServer.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit.Abstractions;
@@ -22,7 +24,8 @@ public class CachedClientStoreTest(ITestOutputHelper outputHelper) : BaseUnitTes
         });
 
         var cachedClientStore = serviceProvider.GetRequiredService<ICachedClientStore>();
-        var client = await ClientBuilder.GetBasicWebClient();
+        var client = new Client("PinguBasicWebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
+        await AddEntity(client);
 
         await ((CachedClientStore)cachedClientStore).Add(client.Id, CancellationToken.None);
 
@@ -44,7 +47,8 @@ public class CachedClientStoreTest(ITestOutputHelper outputHelper) : BaseUnitTes
         var distributedCacheMock = new Mock<IDistributedCache>();
         var serviceProvider = BuildServiceProvider(services => { services.AddSingletonMock(distributedCacheMock); });
         var cachedClientStore = serviceProvider.GetRequiredService<ICachedClientStore>();
-        var client = await ClientBuilder.GetBasicWebClient();
+        var client = new Client("PinguBasicWebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
+        await AddEntity(client);
 
         var tempCachedClient = await ((CachedClientStore)cachedClientStore).Add(client.Id, CancellationToken.None);
         distributedCacheMock
@@ -73,7 +77,8 @@ public class CachedClientStoreTest(ITestOutputHelper outputHelper) : BaseUnitTes
         var distributedCacheMock = new Mock<IDistributedCache>();
         var serviceProvider = BuildServiceProvider(services => { services.AddSingletonMock(distributedCacheMock); });
         var cachedClientStore = serviceProvider.GetRequiredService<ICachedClientStore>();
-        var client = await ClientBuilder.GetBasicWebClient();
+        var client = new Client("PinguBasicWebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
+        await AddEntity(client);
 
         // Act
         var cachedClient = await cachedClientStore.TryGet(client.Id, CancellationToken.None);
@@ -100,7 +105,8 @@ public class CachedClientStoreTest(ITestOutputHelper outputHelper) : BaseUnitTes
         });
 
         var cachedClientStore = serviceProvider.GetRequiredService<ICachedClientStore>();
-        var client = await ClientBuilder.GetBasicWebClient();
+        var client = new Client("PinguBasicWebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
+        await AddEntity(client);
 
         await ((CachedClientStore)cachedClientStore).Add(client.Id, CancellationToken.None);
 
@@ -122,7 +128,8 @@ public class CachedClientStoreTest(ITestOutputHelper outputHelper) : BaseUnitTes
         var distributedCacheMock = new Mock<IDistributedCache>();
         var serviceProvider = BuildServiceProvider(services => { services.AddSingletonMock(distributedCacheMock); });
         var cachedClientStore = serviceProvider.GetRequiredService<ICachedClientStore>();
-        var client = await ClientBuilder.GetBasicWebClient();
+        var client = new Client("PinguBasicWebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
+        await AddEntity(client);
 
         var tempCachedClient = await ((CachedClientStore)cachedClientStore).Add(client.Id, CancellationToken.None);
         distributedCacheMock
@@ -151,7 +158,8 @@ public class CachedClientStoreTest(ITestOutputHelper outputHelper) : BaseUnitTes
         var distributedCacheMock = new Mock<IDistributedCache>();
         var serviceProvider = BuildServiceProvider(services => { services.AddSingletonMock(distributedCacheMock); });
         var cachedClientStore = serviceProvider.GetRequiredService<ICachedClientStore>();
-        var client = await ClientBuilder.GetBasicWebClient();
+        var client = new Client("PinguBasicWebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
+        await AddEntity(client);
 
         // Act
         var cachedClient = await cachedClientStore.Get(client.Id, CancellationToken.None);

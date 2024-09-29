@@ -9,7 +9,6 @@ using AuthServer.Enums;
 using AuthServer.Extensions;
 using AuthServer.Options;
 using AuthServer.Tests.Core;
-using AuthServer.Tests.Core.EntityBuilders;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,10 +25,9 @@ public abstract class BaseUnitTest
     internal AuthorizationDbContext IdentityContext;
 
     protected ITestOutputHelper OutputHelper;
-    protected ClientJwtBuilder ClientJwtBuilder;
+    protected JwtBuilder JwtBuilder;
     protected DiscoveryDocument DiscoveryDocument;
     protected JwksDocument JwksDocument;
-    protected ClientBuilder ClientBuilder;
     protected SigningAlg TokenSigningAlg = SigningAlg.RsaSha256;
 
     protected BaseUnitTest(ITestOutputHelper outputHelper)
@@ -133,8 +131,7 @@ public abstract class BaseUnitTest
         var jwksDocument = serviceProvider.GetRequiredService<IOptionsSnapshot<JwksDocument>>();
         JwksDocument = jwksDocument.Value;
 
-        ClientJwtBuilder = new ClientJwtBuilder(DiscoveryDocument);
-        ClientBuilder = new ClientBuilder(identityContext);
+        JwtBuilder = new JwtBuilder(DiscoveryDocument, JwksDocument);
 
         return serviceProvider;
     }

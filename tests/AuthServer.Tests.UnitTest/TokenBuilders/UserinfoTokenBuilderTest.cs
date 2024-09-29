@@ -1,5 +1,6 @@
 ﻿using AuthServer.Constants;
 using AuthServer.Core.Abstractions;
+using AuthServer.Entities;
 using AuthServer.Enums;
 using AuthServer.Extensions;
 using AuthServer.Helpers;
@@ -78,8 +79,12 @@ public class UserinfoTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnit
         var serviceProvider = BuildServiceProvider();
         var userinfoTokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<UserinfoTokenArguments>>();
         var clientJwk = ClientJwkBuilder.GetClientJwks(SigningAlg.RsaSha256, encryptionAlg);
-        var client = await ClientBuilder.GetPrivateKeyJwtWebClient(clientJwk.PublicJwks);
-        
+        var client = new Client("PinguPrivateKeyJwtWebApp", ApplicationType.Web, TokenEndpointAuthMethod.PrivateKeyJwt)
+        {
+            Jwks = clientJwk.PublicJwks
+        };
+        await AddEntity(client);
+
         // Act
         var token = await userinfoTokenBuilder.BuildToken(new UserinfoTokenArguments
         {
@@ -116,7 +121,11 @@ public class UserinfoTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnit
         var serviceProvider = BuildServiceProvider();
         var userinfoTokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<UserinfoTokenArguments>>();
         var clientJwk = ClientJwkBuilder.GetClientJwks(SigningAlg.RsaSha256, encryptionAlg);
-        var client = await ClientBuilder.GetPrivateKeyJwtWebClient(clientJwk.PublicJwks);
+        var client = new Client("PinguPrivateKeyJwtWebApp", ApplicationType.Web, TokenEndpointAuthMethod.PrivateKeyJwt)
+        {
+            Jwks = clientJwk.PublicJwks
+        };
+        await AddEntity(client);
 
         // Act
         var token = await userinfoTokenBuilder.BuildToken(new UserinfoTokenArguments
