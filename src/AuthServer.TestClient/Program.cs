@@ -15,7 +15,10 @@ builder.Services
         options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
         options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     })
-    .AddCookie()
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+    {
+        options.Cookie.Name = "Client.Identity";
+    })
     .AddOpenIdConnect(options =>
     {
         var openIdConnectSection = builder.Configuration.GetSection("OpenIdConnect");
@@ -59,6 +62,10 @@ builder.Services
         {
             OnRedirectToIdentityProviderForSignOut = context =>
             {
+                if (context.Properties.GetParameter<bool>("interactive"))
+                {
+                    context.ProtocolMessage.RemoveParameter("id_token_hint");
+                }
                 context.ProtocolMessage.Parameters.Add("client_id", context.Options.ClientId);
                 return Task.CompletedTask;
             },
@@ -73,7 +80,7 @@ builder.Services
                 context.TokenEndpointRequest!.SetParameters(nameValueCollection);
 
                 return Task.CompletedTask;
-            }
+            },
         };
     });
 
@@ -90,5 +97,29 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapRazorPages();
+app.MapGet("/api/login", (HttpContext httpContext) =>
+{
+    if (httpContext.User.Identity?.IsAuthenticated == true)
+    {
+        return Results.Redirect("~/");
+    }
+    else
+    {
+        return Results.Challenge(new AuthenticationProperties(), [OpenIdConnectDefaults.AuthenticationScheme]);
+    }
+});
+app.MapGet("/api/logout/silent", async httpContext =>
+{
+    await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    await httpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme);
+});
+app.MapGet("/api/logout/interactive", async httpContext =>
+{
+    await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    await httpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties(null, new Dictionary<string, object?>
+    {
+        { "interactive", true }
+    }));
+});
 
 app.Run();

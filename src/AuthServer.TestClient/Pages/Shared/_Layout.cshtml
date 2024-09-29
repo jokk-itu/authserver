@@ -26,6 +26,21 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Claims">Claims</a>
                         </li>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="/api/logout/silent">Silent Logout</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="/api/logout/interactive">Interactive Logout</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="/api/login">Login</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
