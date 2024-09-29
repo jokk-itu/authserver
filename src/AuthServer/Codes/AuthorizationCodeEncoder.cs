@@ -2,15 +2,20 @@
 using System.Text.Json;
 using AuthServer.Codes.Abstractions;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 namespace AuthServer.Codes;
 internal class AuthorizationCodeEncoder : IAuthorizationCodeEncoder
 {
+    private readonly ILogger<AuthorizationCodeEncoder> _logger;
     private readonly IDataProtector _dataProtector;
 
-    public AuthorizationCodeEncoder(IDataProtectionProvider dataProtectionProvider)
+    public AuthorizationCodeEncoder(
+        IDataProtectionProvider dataProtectionProvider,
+        ILogger<AuthorizationCodeEncoder> logger)
     {
+        _logger = logger;
         _dataProtector = dataProtectionProvider.CreateProtector("AuthorizationCode");
     }
 
@@ -25,13 +30,26 @@ internal class AuthorizationCodeEncoder : IAuthorizationCodeEncoder
     }
 
     /// <inheritdoc/>
-    public EncodedAuthorizationCode? DecodeAuthorizationCode(string authorizationCode)
+    public EncodedAuthorizationCode? DecodeAuthorizationCode(string? authorizationCode)
     {
-        var decoded = Base64UrlEncoder.DecodeBytes(authorizationCode);
-        var unProtectedBytes = _dataProtector.Unprotect(decoded);
-        using var ms = new MemoryStream(unProtectedBytes);
-        using var reader = new BinaryReader(ms, Encoding.UTF8, false);
-        var deserializedCode = JsonSerializer.Deserialize<EncodedAuthorizationCode>(reader.ReadString());
-        return deserializedCode;
+        if (string.IsNullOrEmpty(authorizationCode))
+        {
+            return null;
+        }
+
+        try
+        {
+            var decoded = Base64UrlEncoder.DecodeBytes(authorizationCode);
+            var unProtectedBytes = _dataProtector.Unprotect(decoded);
+            using var ms = new MemoryStream(unProtectedBytes);
+            using var reader = new BinaryReader(ms, Encoding.UTF8, false);
+            var deserializedCode = JsonSerializer.Deserialize<EncodedAuthorizationCode>(reader.ReadString());
+            return deserializedCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Decoding AuthorizationCode failed");
+            return null;
+        }
     }
 }

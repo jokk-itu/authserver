@@ -13,5 +13,5 @@ internal interface IAuthorizationCodeEncoder
     /// </summary>
     /// <param name="authorizationCode"></param>
     /// <returns></returns>
-    EncodedAuthorizationCode? DecodeAuthorizationCode(string authorizationCode);
+    EncodedAuthorizationCode? DecodeAuthorizationCode(string? authorizationCode);
 }
