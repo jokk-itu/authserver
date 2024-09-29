@@ -1132,22 +1132,22 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
         }
 
         if (!DiscoveryDocument.RequestObjectEncryptionAlgValuesSupported
-                .Contains(request.RequestObjectEncryptionAlg))
+                .Contains(request.RequestObjectEncryptionAlg!))
         {
             return RegisterError.InvalidRequestObjectEncryptionAlg;
         }
 
         if (!hasEmptyEncryptionEnc
             && !DiscoveryDocument.RequestObjectEncryptionEncValuesSupported
-                .Contains(request.RequestObjectEncryptionEnc))
+                .Contains(request.RequestObjectEncryptionEnc!))
         {
             return RegisterError.InvalidRequestObjectEncryptionEnc;
         }
 
-        validatedRequest.RequestObjectEncryptionAlg = request.RequestObjectEncryptionAlg.GetEnum<EncryptionAlg>();
+        validatedRequest.RequestObjectEncryptionAlg = request.RequestObjectEncryptionAlg!.GetEnum<EncryptionAlg>();
         validatedRequest.RequestObjectEncryptionEnc = hasEmptyEncryptionEnc
             ? EncryptionEnc.Aes128CbcHmacSha256
-            : request.RequestObjectEncryptionEnc.GetEnum<EncryptionEnc>();
+            : request.RequestObjectEncryptionEnc!.GetEnum<EncryptionEnc>();
 
         return null;
     }
@@ -1186,19 +1186,19 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
             return RegisterError.InvalidRequestObjectEncryptionEnc;
         }
 
-        if (!DiscoveryDocument.UserinfoEncryptionAlgValuesSupported.Contains(request.UserinfoEncryptedResponseAlg))
+        if (!DiscoveryDocument.UserinfoEncryptionAlgValuesSupported.Contains(request.UserinfoEncryptedResponseAlg!))
         {
             return RegisterError.InvalidUserinfoEncryptedResponseAlg;
         }
 
         if (!hasEmptyEncryptionEnc &&
-            !DiscoveryDocument.UserinfoEncryptionEncValuesSupported.Contains(request.UserinfoEncryptedResponseEnc))
+            !DiscoveryDocument.UserinfoEncryptionEncValuesSupported.Contains(request.UserinfoEncryptedResponseEnc!))
         {
             return RegisterError.InvalidUserinfoEncryptedResponseEnc;
         }
 
-        validatedRequest.UserinfoEncryptedResponseAlg = request.UserinfoEncryptedResponseAlg.GetEnum<EncryptionAlg>();
-        validatedRequest.UserinfoEncryptedResponseEnc = request.UserinfoEncryptedResponseEnc.GetEnum<EncryptionEnc>();
+        validatedRequest.UserinfoEncryptedResponseAlg = request.UserinfoEncryptedResponseAlg!.GetEnum<EncryptionAlg>();
+        validatedRequest.UserinfoEncryptedResponseEnc = request.UserinfoEncryptedResponseEnc!.GetEnum<EncryptionEnc>();
         return null;
     }
 
@@ -1221,13 +1221,13 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
         {
             validatedRequest.IdTokenSignedResponseAlg = SigningAlg.RsaSha256;
         }
-        else if (!DiscoveryDocument.IdTokenSigningAlgValuesSupported.Contains(request.IdTokenSignedResponseAlg))
+        else if (!DiscoveryDocument.IdTokenSigningAlgValuesSupported.Contains(request.IdTokenSignedResponseAlg!))
         {
             return RegisterError.InvalidIdTokenSignedResponseAlg;
         }
         else
         {
-            validatedRequest.IdTokenSignedResponseAlg = request.IdTokenSignedResponseAlg.GetEnum<SigningAlg>();
+            validatedRequest.IdTokenSignedResponseAlg = request.IdTokenSignedResponseAlg!.GetEnum<SigningAlg>();
         }
 
         var hasEmptyIdTokenEncryptedResponseAlg = string.IsNullOrEmpty(request.IdTokenEncryptedResponseAlg);
@@ -1243,21 +1243,21 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
             return RegisterError.InvalidIdTokenEncryptedResponseEnc;
         }
 
-        if (!DiscoveryDocument.IdTokenEncryptionAlgValuesSupported.Contains(request.IdTokenEncryptedResponseAlg))
+        if (!DiscoveryDocument.IdTokenEncryptionAlgValuesSupported.Contains(request.IdTokenEncryptedResponseAlg!))
         {
             return RegisterError.InvalidIdTokenEncryptedResponseAlg;
         }
 
         if (!hasEmptyIdTokenEncryptedResponseEnc &&
-            !DiscoveryDocument.IdTokenEncryptionEncValuesSupported.Contains(request.IdTokenEncryptedResponseEnc))
+            !DiscoveryDocument.IdTokenEncryptionEncValuesSupported.Contains(request.IdTokenEncryptedResponseEnc!))
         {
             return RegisterError.InvalidIdTokenEncryptedResponseEnc;
         }
 
-        validatedRequest.IdTokenEncryptedResponseAlg = request.IdTokenSignedResponseAlg.GetEnum<EncryptionAlg>();
+        validatedRequest.IdTokenEncryptedResponseAlg = request.IdTokenSignedResponseAlg!.GetEnum<EncryptionAlg>();
         validatedRequest.IdTokenEncryptedResponseEnc = hasEmptyIdTokenEncryptedResponseEnc
             ? EncryptionEnc.Aes128CbcHmacSha256
-            : request.IdTokenEncryptedResponseEnc.GetEnum<EncryptionEnc>();
+            : request.IdTokenEncryptedResponseEnc!.GetEnum<EncryptionEnc>();
         return null;
     }
 
