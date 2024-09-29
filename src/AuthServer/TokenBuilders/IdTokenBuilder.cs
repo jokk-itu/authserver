@@ -51,7 +51,6 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
         var query = await _identityContext
             .Set<AuthorizationGrant>()
             .Where(x => x.Id == arguments.AuthorizationGrantId)
-            .Include(x => x.Nonces)
             .Select(x => new
             {
                 x.AuthTime,
