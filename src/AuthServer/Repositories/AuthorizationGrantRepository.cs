@@ -26,6 +26,8 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
         var subjectIdentifierForGrant =
             await GetSubjectIdentifierForGrant(subjectIdentifier, clientId, cancellationToken);
 
+        maxAge ??= client.DefaultMaxAge;
+
         var newGrant = new AuthorizationGrant(session, client, subjectIdentifierForGrant, maxAge);
         await _identityContext.AddAsync(newGrant, cancellationToken);
         await _identityContext.SaveChangesAsync(cancellationToken);
