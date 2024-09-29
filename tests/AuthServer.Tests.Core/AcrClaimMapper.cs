@@ -1,18 +1,26 @@
-﻿using System.Runtime.CompilerServices;
-using AuthServer.Authorize.Abstractions;
+﻿using AuthServer.Authorize.Abstractions;
 using AuthServer.Constants;
 
 namespace AuthServer.Tests.Core;
 public class AcrClaimMapper : IAcrClaimMapper
 {
-    public string MapAmrClaimToAcr(string amr)
+    public string MapAmrClaimToAcr(IReadOnlyCollection<string> amr)
     {
-        return amr switch
+        if (amr.Contains(AmrValueConstants.MultiFactorAuthentication))
         {
-            AmrValueConstants.Password => "pwd",
-            AmrValueConstants.Sms => "2fa",
-            AmrValueConstants.MultiFactorAuthentication => "mfa",
-            _ => throw new SwitchExpressionException($"unknown amr claim value: {amr}")
-        };
+            return "mfa";
+        }
+        else if (amr.Contains(AmrValueConstants.Sms))
+        {
+            return "2fa";
+        }
+        else if (amr.Contains(AmrValueConstants.Password))
+        {
+            return "pwd";
+        }
+        else
+        {
+            throw new InvalidOperationException("unknown amr");
+        }
     }
 }

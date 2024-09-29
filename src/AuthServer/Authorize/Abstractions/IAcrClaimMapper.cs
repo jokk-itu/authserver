@@ -6,5 +6,5 @@ public interface IAcrClaimMapper
     /// </summary>
     /// <param name="amr"></param>
     /// <returns></returns>
-    string MapAmrClaimToAcr(string amr);
+    string MapAmrClaimToAcr(IReadOnlyCollection<string> amr);
 }
