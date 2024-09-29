@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics;
+using System.Text.Json;
+using AuthServer.Authorize.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;
@@ -26,6 +28,7 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
     private readonly IUserClaimService _userClaimService;
     private readonly IMetricService _metricService;
     private readonly IConsentGrantRepository _consentGrantRepository;
+    private readonly IAcrClaimMapper _acrClaimMapper;
 
     public IdTokenBuilder(
         AuthorizationDbContext identityContext,
@@ -34,7 +37,8 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
         ITokenSecurityService tokenSecurityService,
         IUserClaimService userClaimService,
         IMetricService metricService,
-        IConsentGrantRepository consentGrantRepository)
+        IConsentGrantRepository consentGrantRepository,
+        IAcrClaimMapper acrClaimMapper)
     {
         _identityContext = identityContext;
         _discoveryDocumentOptions = discoveryDocumentOptions;
@@ -43,6 +47,7 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
         _userClaimService = userClaimService;
         _metricService = metricService;
         _consentGrantRepository = consentGrantRepository;
+        _acrClaimMapper = acrClaimMapper;
     }
 
     public async Task<string> BuildToken(IdTokenArguments arguments, CancellationToken cancellationToken)
@@ -75,9 +80,9 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
             { ClaimNameConstants.Nonce, query.Nonce.Value },
             { ClaimNameConstants.ClientId, query.ClientId },
             { ClaimNameConstants.Azp, query.ClientId },
-            { ClaimNameConstants.AuthTime, query.AuthTime }
-            // TODO acr which is derived from a function which maps amr to acr values
-            // TODO amr from arguments given from the Razor Pages
+            { ClaimNameConstants.AuthTime, query.AuthTime },
+            // TODO { ClaimNameConstants.Amr, JsonSerializer.SerializeToElement() },
+            // TODO { ClaimNameConstants.Acr, _acrClaimMapper.MapAmrClaimToAcr() }
         };
 
         var authorizedClaimTypes = await _consentGrantRepository.GetConsentedClaims(query.PublicSubjectId, query.ClientId, cancellationToken);
