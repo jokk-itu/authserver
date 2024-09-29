@@ -4,7 +4,7 @@ namespace AuthServer.RequestAccessors.Revocation;
 
 public record RevocationRequest
 {
-    public required string Token { get; init; }
-    public required string TokenTypeHint { get; init; }
-    public required IReadOnlyCollection<ClientAuthentication> ClientAuthentications { get; init; }
+    public string? Token { get; init; }
+    public string? TokenTypeHint { get; init; }
+    public IReadOnlyCollection<ClientAuthentication> ClientAuthentications { get; init; } = [];
 }

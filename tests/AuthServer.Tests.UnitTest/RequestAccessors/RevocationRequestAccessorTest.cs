@@ -4,13 +4,11 @@ using AuthServer.Core.Abstractions;
 using AuthServer.Core.Models;
 using AuthServer.Enums;
 using AuthServer.Extensions;
-using AuthServer.RequestAccessors.Introspection;
 using AuthServer.RequestAccessors.Revocation;
 using AuthServer.TokenDecoders;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
-using Newtonsoft.Json.Linq;
 using Xunit.Abstractions;
 
 namespace AuthServer.Tests.UnitTest.RequestAccessors;
@@ -19,7 +17,7 @@ public class RevocationRequestAccessorTest(ITestOutputHelper outputHelper) : Bas
 {
 	[Theory]
 	[InlineData("", "")]
-	[InlineData(null, "")]
+	[InlineData(null, null)]
 	public async Task GetRequest_NormalStringParameters_ExpectNoValues(string? value, string expectedValue)
 	{
 		// Arrange

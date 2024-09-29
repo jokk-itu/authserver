@@ -17,18 +17,15 @@ internal class RevocationRequestValidator : IRequestValidator<RevocationRequest,
     private readonly AuthorizationDbContext _identityContext;
     private readonly ITokenDecoder<ServerIssuedTokenDecodeArguments> _serverIssuedTokenDecoder;
     private readonly IClientAuthenticationService _clientAuthenticationService;
-    private readonly ILogger<RevocationRequestValidator> _logger;
 
     public RevocationRequestValidator(
         AuthorizationDbContext identityContext,
         ITokenDecoder<ServerIssuedTokenDecodeArguments> serverIssuedTokenDecoder,
-        IClientAuthenticationService clientAuthenticationService,
-        ILogger<RevocationRequestValidator> logger)
+        IClientAuthenticationService clientAuthenticationService)
     {
         _identityContext = identityContext;
         _serverIssuedTokenDecoder = serverIssuedTokenDecoder;
         _clientAuthenticationService = clientAuthenticationService;
-        _logger = logger;
     }
 
     public async Task<ProcessResult<RevocationValidatedRequest, ProcessError>> Validate(RevocationRequest request, CancellationToken cancellationToken)
@@ -51,6 +48,8 @@ internal class RevocationRequestValidator : IRequestValidator<RevocationRequest,
             return RevocationError.EmptyToken;
         }
 
+        var token = request.Token!;
+
         var isClientAuthenticationMethodInvalid = request.ClientAuthentications.Count != 1;
         if (isClientAuthenticationMethodInvalid)
         {
@@ -70,13 +69,13 @@ internal class RevocationRequestValidator : IRequestValidator<RevocationRequest,
         }
 
         string? clientIdFromToken;
-        if (TokenHelper.IsStructuredToken(request.Token))
+        if (TokenHelper.IsStructuredToken(token))
         {
-            clientIdFromToken = await GetClientIdFromStructuredToken(request.Token, cancellationToken);
+            clientIdFromToken = await GetClientIdFromStructuredToken(token, cancellationToken);
         }
         else
         {
-            clientIdFromToken = await GetClientIdFromReferenceToken(request.Token, cancellationToken);
+            clientIdFromToken = await GetClientIdFromReferenceToken(token, cancellationToken);
         }
 
         if (!string.IsNullOrWhiteSpace(clientIdFromToken) && clientAuthenticationResult.ClientId != clientIdFromToken)
@@ -86,7 +85,7 @@ internal class RevocationRequestValidator : IRequestValidator<RevocationRequest,
 
         return new RevocationValidatedRequest
         {
-            Token = request.Token
+            Token = token
         };
     }
 

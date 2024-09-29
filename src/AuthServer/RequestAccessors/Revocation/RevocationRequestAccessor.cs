@@ -11,8 +11,8 @@ internal class RevocationRequestAccessor : IRequestAccessor<RevocationRequest>
     public async Task<RevocationRequest> GetRequest(HttpRequest httpRequest)
     {
         var body = await httpRequest.ReadFormAsync();
-        var token = body.GetValueOrEmpty(Parameter.Token);
-        var tokenTypeHint = body.GetValueOrEmpty(Parameter.TokenTypeHint);
+        var token = body.GetValue(Parameter.Token);
+        var tokenTypeHint = body.GetValue(Parameter.TokenTypeHint);
         var clientSecretBasic = httpRequest.GetClientSecretBasic();
         var clientSecretPost = body.GetClientSecretPost();
         var clientAssertion = body.GetClientAssertion(ClientTokenAudience.RevocationEndpoint);
