@@ -1,8 +1,11 @@
 ﻿@page
 @model AuthServer.TestIdentityProvider.Pages.ConsentModel
 @{
+    ViewData["Title"] = "Consent";
 }
 
+<h1>@ViewData["Title"]</h1>
+<hr/>
 <h2>@Model.Input.ClientName</h2>
 <p>wants to access your account and act on your behalf, @Model.Input.Username/p>
 <br/>
@@ -35,7 +38,8 @@
                     </div>
                 }
                 <div>
-                    <button id="consent-submit" type="submit" class="w-100 btn btn-lg btn-primary">Consent</button>
+                    <input asp-page-handler="Accept" id="accept-submit" type="submit" class="w-100 btn btn-lg btn-success" value="Accept"/>
+                    <input asp-page-handler="Decline" id="decline-submit" type="submit" class="w-100 btn btn-lg btn-danger" value="Decline"/>
                 </div>
             </form>
         </section>

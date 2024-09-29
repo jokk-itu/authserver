@@ -18,7 +18,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+    {
+        options.Cookie.Name = "AuthServer.Identity";
+    });
 
 builder.Services
     .AddOptions<DiscoveryDocument>()

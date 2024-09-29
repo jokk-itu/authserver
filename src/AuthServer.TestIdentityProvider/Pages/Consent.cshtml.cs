@@ -79,7 +79,7 @@ public class ConsentModel : PageModel
         };
     }
 
-    public async Task<IActionResult> OnPost(string returnUrl, CancellationToken cancellationToken)
+    public async Task<IActionResult> OnPostAccept(string returnUrl, CancellationToken cancellationToken)
     {
         ReturnUrl = returnUrl ?? Url.Content("~/");
 
@@ -90,5 +90,13 @@ public class ConsentModel : PageModel
         await _authorizeService.CreateOrUpdateConsentGrant(user.SubjectIdentifier, clientId, Input.ConsentedScope, Input.ConsentedClaims, cancellationToken);
 
         return Redirect(ReturnUrl);
+    }
+
+    public async Task<IActionResult> OnPostDecline(string returnUrl, CancellationToken cancellationToken)
+    {
+        ReturnUrl = returnUrl ?? Url.Content("~/");
+
+        // TODO redirect to the Client with an error
+        throw new NotImplementedException();
     }
 }
