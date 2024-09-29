@@ -22,7 +22,7 @@ public class PushedAuthorizationRequestAccessorTest : BaseUnitTest
 
     [Theory]
     [InlineData("", "")]
-    [InlineData(null, "")]
+    [InlineData(null, null)]
     public async Task GetRequest_EmptyStringParametersBody_ExpectValues(string? value, string expectedValue)
     {
         // Arrange

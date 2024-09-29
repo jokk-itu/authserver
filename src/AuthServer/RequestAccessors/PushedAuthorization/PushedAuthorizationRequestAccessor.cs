@@ -12,22 +12,22 @@ internal class PushedAuthorizationRequestAccessor : IRequestAccessor<PushedAutho
     {
         var body = await httpRequest.ReadFormAsync();
 
-        var loginHint = body.GetValueOrEmpty(Parameter.LoginHint);
-        var display = body.GetValueOrEmpty(Parameter.Display);
-        var responseMode = body.GetValueOrEmpty(Parameter.ResponseMode);
-        var maxAge = body.GetValueOrEmpty(Parameter.MaxAge);
-        var codeChallenge = body.GetValueOrEmpty(Parameter.CodeChallenge);
-        var codeChallengeMethod = body.GetValueOrEmpty(Parameter.CodeChallengeMethod);
-        var redirectUri = body.GetValueOrEmpty(Parameter.RedirectUri);
-        var idTokenHint = body.GetValueOrEmpty(Parameter.IdTokenHint);
-        var prompt = body.GetValueOrEmpty(Parameter.Prompt);
-        var responseType = body.GetValueOrEmpty(Parameter.ResponseType);
-        var nonce = body.GetValueOrEmpty(Parameter.Nonce);
-        var state = body.GetValueOrEmpty(Parameter.State);
-        var requestObject = body.GetValueOrEmpty(Parameter.Request);
+        var loginHint = body.GetValue(Parameter.LoginHint);
+        var display = body.GetValue(Parameter.Display);
+        var responseMode = body.GetValue(Parameter.ResponseMode);
+        var maxAge = body.GetValue(Parameter.MaxAge);
+        var codeChallenge = body.GetValue(Parameter.CodeChallenge);
+        var codeChallengeMethod = body.GetValue(Parameter.CodeChallengeMethod);
+        var redirectUri = body.GetValue(Parameter.RedirectUri);
+        var idTokenHint = body.GetValue(Parameter.IdTokenHint);
+        var prompt = body.GetValue(Parameter.Prompt);
+        var responseType = body.GetValue(Parameter.ResponseType);
+        var nonce = body.GetValue(Parameter.Nonce);
+        var state = body.GetValue(Parameter.State);
+        var requestObject = body.GetValue(Parameter.Request);
 
-        var scope = body.GetSpaceDelimitedValueOrEmpty(Parameter.Scope);
-        var acrValues = body.GetSpaceDelimitedValueOrEmpty(Parameter.AcrValues);
+        var scope = body.GetSpaceDelimitedValue(Parameter.Scope);
+        var acrValues = body.GetSpaceDelimitedValue(Parameter.AcrValues);
 
         var clientSecretBasic = httpRequest.GetClientSecretBasic();
         var clientSecretPost = body.GetClientSecretPost();

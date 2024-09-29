@@ -54,7 +54,7 @@ internal class PushedAuthorizationRequestValidator : BaseAuthorizeValidator, IRe
         }
         else if (!isRequestObjectEmpty)
         {
-            var newRequest = await _authorizeRequestParameterService.GetRequestByObject(request.RequestObject, clientAuthenticationResult.ClientId, ClientTokenAudience.PushedAuthorizeEndpoint, cancellationToken);
+            var newRequest = await _authorizeRequestParameterService.GetRequestByObject(request.RequestObject!, clientAuthenticationResult.ClientId, ClientTokenAudience.PushedAuthorizeEndpoint, cancellationToken);
             if (newRequest is null)
             {
                 return PushedAuthorizationError.InvalidRequest;
@@ -91,7 +91,7 @@ internal class PushedAuthorizationRequestValidator : BaseAuthorizeValidator, IRe
             return PushedAuthorizationError.InvalidRedirectUri;
         }
 
-        if (!HasValidRequiredRedirectUri(request.RedirectUri, cachedClient))
+        if (!HasValidRedirectUri(request.RedirectUri, cachedClient))
         {
             return PushedAuthorizationError.UnauthorizedRedirectUri;
         }
@@ -121,7 +121,7 @@ internal class PushedAuthorizationRequestValidator : BaseAuthorizeValidator, IRe
             return PushedAuthorizationError.InvalidNonce;
         }
 
-        if (!await HasUniqueNonce(request.Nonce, cancellationToken))
+        if (!await HasUniqueNonce(request.Nonce!, cancellationToken))
         {
             return PushedAuthorizationError.ReplayNonce;
         }
@@ -172,16 +172,16 @@ internal class PushedAuthorizationRequestValidator : BaseAuthorizeValidator, IRe
             IdTokenHint = request.IdTokenHint,
             Prompt = request.Prompt,
             Display = request.Display,
-            ResponseType = request.ResponseType,
+            ResponseType = request.ResponseType!,
             ResponseMode = request.ResponseMode,
-            CodeChallenge = request.CodeChallenge,
-            CodeChallengeMethod = request.CodeChallengeMethod,
+            CodeChallenge = request.CodeChallenge!,
+            CodeChallengeMethod = request.CodeChallengeMethod!,
             Scope = request.Scope,
             AcrValues = request.AcrValues,
             ClientId = clientAuthenticationResult.ClientId,
             MaxAge = request.MaxAge,
-            Nonce = request.Nonce,
-            State = request.State,
+            Nonce = request.Nonce!,
+            State = request.State!,
             RedirectUri = request.RedirectUri
         };
     }

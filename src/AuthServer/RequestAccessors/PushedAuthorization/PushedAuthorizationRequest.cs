@@ -3,20 +3,20 @@
 namespace AuthServer.RequestAccessors.PushedAuthorization;
 internal class PushedAuthorizationRequest
 {
-    public required string IdTokenHint { get; init; }
-    public required string LoginHint { get; init; }
-    public required string Prompt { get; init; }
-    public required string Display { get; init; }
-    public required string RedirectUri { get; init; }
-    public required string CodeChallenge { get; init; }
-    public required string CodeChallengeMethod { get; init; }
-    public required string ResponseType { get; init; }
-    public required string Nonce { get; init; }
-    public required string MaxAge { get; init; }
-    public required string State { get; init; }
-    public required string ResponseMode { get; init; }
-    public required string RequestObject { get; init; }
-    public required IReadOnlyCollection<string> Scope { get; init; }
-    public required IReadOnlyCollection<string> AcrValues { get; init; }
-    public required IReadOnlyCollection<ClientAuthentication> ClientAuthentications { get; init; }
+    public string? IdTokenHint { get; init; }
+    public string? LoginHint { get; init; }
+    public string? Prompt { get; init; }
+    public string? Display { get; init; }
+    public string? RedirectUri { get; init; }
+    public string? CodeChallenge { get; init; }
+    public string? CodeChallengeMethod { get; init; }
+    public string? ResponseType { get; init; }
+    public string? Nonce { get; init; }
+    public string? MaxAge { get; init; }
+    public string? State { get; init; }
+    public string? ResponseMode { get; init; }
+    public string? RequestObject { get; init; }
+    public required IReadOnlyCollection<string> Scope { get; init; } = [];
+    public required IReadOnlyCollection<string> AcrValues { get; init; } = [];
+    public required IReadOnlyCollection<ClientAuthentication> ClientAuthentications { get; init; } = [];
 }
