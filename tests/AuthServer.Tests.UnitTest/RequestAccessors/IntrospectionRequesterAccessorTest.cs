@@ -17,8 +17,8 @@ public class IntrospectionRequesterAccessorTest(ITestOutputHelper outputHelper) 
 {
 	[Theory]
 	[InlineData("", "")]
-	[InlineData(null, "")]
-	public async Task GetRequest_NormalStringParameters_ExpectNoValues(string? value, string expectedValue)
+	[InlineData(null, null)]
+	public async Task GetRequest_NormalStringParameters_ExpectNoValues(string? value, string? expectedValue)
 	{
 		// Arrange
 		var serviceProvider = BuildServiceProvider();
