@@ -13,7 +13,7 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
     }
 
     [Fact]
-    public async Task CreateAuthorizationGrant_ActiveSession_ExpectGrant()
+    public async Task CreateAuthorizationGrant_ActiveSessionWithMaxAge_ExpectGrant()
     {
         // Arrange
         var serviceProvider = BuildServiceProvider();
@@ -28,16 +28,17 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
         await AddEntity(client);
 
         // Act
-        var grant = await authorizationGrantRepository.CreateAuthorizationGrant(publicSubjectIdentifier.Id, client.Id, null, CancellationToken.None);
+        var grant = await authorizationGrantRepository.CreateAuthorizationGrant(publicSubjectIdentifier.Id, client.Id, 300, CancellationToken.None);
 
         // Assert
         Assert.Equal(client, grant.Client);
         Assert.Equal(session, grant.Session);
         Assert.Equal(publicSubjectIdentifier, grant.SubjectIdentifier);
+        Assert.Equal(300, grant.MaxAge);
     }
 
     [Fact]
-    public async Task CreateAuthorizationGrant_ActiveSessionWithPreviousGrant_ExpectGrant()
+    public async Task CreateAuthorizationGrant_ActiveSessionWithPreviousGrantAndDefaultMaxAge_ExpectGrant()
     {
         // Arrange
         var serviceProvider = BuildServiceProvider();
@@ -46,7 +47,8 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
         var session = new Session(publicSubjectIdentifier);
         var client = new Client("webapp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic)
         {
-            SubjectType = SubjectType.Public
+            SubjectType = SubjectType.Public,
+            DefaultMaxAge = 300
         };
         var previousGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier);
         await AddEntity(previousGrant);
@@ -59,6 +61,7 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
         Assert.Equal(session, grant.Session);
         Assert.Equal(publicSubjectIdentifier, grant.SubjectIdentifier);
         Assert.NotNull(previousGrant.RevokedAt);
+        Assert.Equal(300, grant.MaxAge);
     }
 
     [Fact]
@@ -84,6 +87,7 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
         Assert.Equal(publicSubjectIdentifier, grant.Session.PublicSubjectIdentifier);
         Assert.IsType<PairwiseSubjectIdentifier>(grant.SubjectIdentifier);
         Assert.Equal(publicSubjectIdentifier, ((PairwiseSubjectIdentifier)grant.SubjectIdentifier).PublicSubjectIdentifier);
+        Assert.Null(grant.MaxAge);
     }
 
     [Fact]
@@ -108,5 +112,6 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
         Assert.NotNull(grant.Session);
         Assert.Equal(publicSubjectIdentifier, grant.Session.PublicSubjectIdentifier);
         Assert.Equal(pairwiseSubjectIdentifier, grant.SubjectIdentifier);
+        Assert.Null(grant.MaxAge);
     }
 }
