@@ -32,7 +32,7 @@ internal class EndSessionUserAccessor : IEndSessionUserAccessor
         };
     }
 
-    public EndSessionUser GetUser() => InternalTryGetUser() ?? throw new InvalidOperationException("endSessionUser is not set");
+    public EndSessionUser GetUser() => InternalTryGetUser() ?? throw new InvalidOperationException("EndSessionUser is not set");
 
     public EndSessionUser? TryGetUser() => InternalTryGetUser();
 
@@ -40,24 +40,20 @@ internal class EndSessionUserAccessor : IEndSessionUserAccessor
     {
         if (InternalTryGetUser() is not null)
         {
-            throw new InvalidOperationException("endSessionUser is already set");
+            throw new InvalidOperationException("EndSessionUser is already set");
         }
 
-        var endSessionUserBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(endSessionUser));
-        var encryptedEndSessionUser = _dataProtector.Protect(endSessionUserBytes);
-        _httpContextAccessor.HttpContext!.Response.Cookies.Append(EndSessionUserCookieName, Encoding.UTF8.GetString(encryptedEndSessionUser), _cookieOptions);
+        InternalSetUser(endSessionUser);
     }
 
-    public bool TrySetUser(EndSessionUser authorizeUser)
+    public bool TrySetUser(EndSessionUser endSessionUser)
     {
         if (InternalTryGetUser() is not null)
         {
             return false;
         }
 
-        var endSessionUserBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(authorizeUser));
-        var encryptedEndSessionUser = _dataProtector.Protect(endSessionUserBytes);
-        _httpContextAccessor.HttpContext!.Response.Cookies.Append(EndSessionUserCookieName, Encoding.UTF8.GetString(encryptedEndSessionUser), _cookieOptions);
+        InternalSetUser(endSessionUser);
         return true;
     }
 
@@ -80,8 +76,15 @@ internal class EndSessionUserAccessor : IEndSessionUserAccessor
             return null;
         }
 
-        var decryptedEndSessionUser = _dataProtector.Unprotect(Encoding.UTF8.GetBytes(encryptedEndSessionUser!));
-        var endSessionUser = JsonSerializer.Deserialize<EndSessionUser>(decryptedEndSessionUser);
+        var decryptedEndSessionUser = _dataProtector.Unprotect(Convert.FromBase64String(encryptedEndSessionUser!));
+        var endSessionUser = JsonSerializer.Deserialize<EndSessionUser>(Encoding.UTF8.GetString(decryptedEndSessionUser));
         return endSessionUser!;
+    }
+
+    private void InternalSetUser(EndSessionUser endSessionUser)
+    {
+        var authorizeUserBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(endSessionUser));
+        var encryptedAuthorizeUser = _dataProtector.Protect(authorizeUserBytes);
+        _httpContextAccessor.HttpContext!.Response.Cookies.Append(EndSessionUserCookieName, Convert.ToBase64String(encryptedAuthorizeUser), _cookieOptions);
     }
 }
