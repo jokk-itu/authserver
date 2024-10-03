@@ -8,6 +8,7 @@ using AuthServer.Repositories.Abstractions;
 using AuthServer.RequestAccessors.Authorize;
 using AuthServer.TokenDecoders;
 using AuthServer.TokenDecoders.Abstractions;
+using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.Options;
 
 namespace AuthServer.Authorize;
@@ -229,7 +230,7 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
             return AuthorizeError.InvalidMaxAge;
         }
 
-        if (!await HasValidIdTokenHint(request.IdTokenHint, request.ClientId, cancellationToken))
+        if (!await HasValidIdTokenHint(request.IdTokenHint, request.ClientId!, cancellationToken))
         {
             return AuthorizeError.InvalidIdTokenHint;
         }
