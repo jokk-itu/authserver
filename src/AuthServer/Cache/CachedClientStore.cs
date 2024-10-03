@@ -85,6 +85,8 @@ internal class CachedClientStore : ICachedClientStore
             .Include(c => c.PostLogoutRedirectUris)
             .Include(c => c.RedirectUris)
             .Include(c => c.RequestUris)
+            .Include(x => x.ClientAuthenticationContextReferences)
+            .ThenInclude(x => x.AuthenticationContextReference)
             .SingleOrDefaultAsync(cancellationToken);
 
         if (client is null)
@@ -108,7 +110,6 @@ internal class CachedClientStore : ICachedClientStore
             JwksUri = client.JwksUri,
             Jwks = client.Jwks,
             JwksExpiresAt = client.JwksExpiresAt,
-            DefaultAcrValues = client.DefaultAcrValues,
             TosUri = client.TosUri,
             PolicyUri = client.PolicyUri,
             ClientUri = client.ClientUri,
@@ -138,7 +139,12 @@ internal class CachedClientStore : ICachedClientStore
             ResponseTypes = client.ResponseTypes.Select(rt => rt.Name).ToList(),
             PostLogoutRedirectUris = client.PostLogoutRedirectUris.Select(r => r.Uri).ToList(),
             RedirectUris = client.RedirectUris.Select(r => r.Uri).ToList(),
-            RequestUris = client.RequestUris.Select(r => r.Uri).ToList()
+            RequestUris = client.RequestUris.Select(r => r.Uri).ToList(),
+            DefaultAcrValues = client.ClientAuthenticationContextReferences
+                .OrderBy(x => x.Order)
+                .Select(x => x.AuthenticationContextReference)
+                .Select(x => x.Name)
+                .ToList()
         };
 
         _internalCache.Add($"Client#{entityId}", cachedClient);
