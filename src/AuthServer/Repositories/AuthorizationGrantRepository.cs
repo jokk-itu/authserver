@@ -40,12 +40,41 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
     {
         return await _identityContext
             .Set<AuthorizationGrant>()
-            .Where(AuthorizationGrant.IsMaxAgeValid)
             .Include(x => x.Client)
+            .ThenInclude(x => x.ClientAuthenticationContextReferences)
+            .ThenInclude(x => x.AuthenticationContextReference)
+            .Include(x => x.AuthenticationMethodReferences)
+            .ThenInclude(x => x.AuthenticationContextReference)
+            .Where(AuthorizationGrant.IsMaxAgeValid)
             .Where(x => x.Client.Id == clientId)
             .Where(x => x.Session.RevokedAt == null)
             .Where(x => x.Session.PublicSubjectIdentifier.Id == subjectIdentifier)
             .SingleOrDefaultAsync(cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<AuthorizationGrant?> GetActiveAuthorizationGrant(string authorizationGrantId,
+        CancellationToken cancellationToken)
+    {
+        return await _identityContext
+            .Set<AuthorizationGrant>()
+            .Include(x => x.Client)
+            .ThenInclude(x => x.ClientAuthenticationContextReferences)
+            .ThenInclude(x => x.AuthenticationContextReference)
+            .Include(x => x.AuthenticationMethodReferences)
+            .ThenInclude(x => x.AuthenticationContextReference)
+            .Where(AuthorizationGrant.IsMaxAgeValid)
+            .Where(x => x.Session.RevokedAt == null)
+            .Where(x => x.Id == authorizationGrantId)
+            .SingleOrDefaultAsync(cancellationToken);
+    }
+
+    private async Task<List<AuthenticationMethodReference>> GetAuthenticationMethodReferences(IReadOnlyCollection<string> authenticationMethodReferences, CancellationToken cancellationToken)
+    {
+        return await _identityContext
+            .Set<AuthenticationMethodReference>()
+            .Where(x => authenticationMethodReferences.Contains(x.Name))
+            .ToListAsync(cancellationToken);
     }
 
     private async Task<Session> GetSession(string subjectIdentifier, string clientId,
