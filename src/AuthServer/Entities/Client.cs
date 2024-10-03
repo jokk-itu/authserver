@@ -70,12 +70,6 @@ public class Client : Entity<string>
     public int? JwksExpiration { get; set; }
 
     /// <summary>
-    /// Space delimited string containing acr_values.
-    /// It is ordered by preference e.g. the first entry has the highest order.
-    /// </summary>
-    public string? DefaultAcrValues { get; set; }
-
-    /// <summary>
     /// Uri to terms of service page
     /// </summary>
     public string? TosUri { get; set; }
@@ -195,6 +189,7 @@ public class Client : Entity<string>
     public ICollection<PairwiseSubjectIdentifier> PairwiseSubjectIdentifiers { get; set; } = [];
     public ICollection<AuthorizeMessage> AuthorizeMessages { get; set; } = [];
     public ICollection<ConsentGrant> ConsentGrants { get; set; } = [];
+    public ICollection<ClientAuthenticationContextReference> ClientAuthenticationContextReferences { get; set; } = [];
 
     public void SetSecret(string secretHash)
     {
