@@ -5,8 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AuthServer.DatabaseConfigurations;
 
-internal sealed class
-    AuthenticationMethodReferenceConfiguration : IEntityTypeConfiguration<AuthenticationMethodReference>
+internal sealed class AuthenticationMethodReferenceConfiguration : IEntityTypeConfiguration<AuthenticationMethodReference>
 {
     private sealed record AuthenticationMethodReferenceSeed(int Id, string Name);
 
@@ -21,9 +20,12 @@ internal sealed class
             .HasIndex(x => x.Name)
             .IsUnique();
 
-        builder.HasData(
-        [
-            new AuthenticationMethodReferenceSeed(1, AuthenticationMethodReferenceConstants.Password),
+        builder
+            .HasOne(x => x.AuthenticationContextReference)
+            .WithMany(x => x.AuthenticationReferenceMethods)
+            .IsRequired(false);
+
+        builder.HasData(new AuthenticationMethodReferenceSeed(1, AuthenticationMethodReferenceConstants.Password),
             new AuthenticationMethodReferenceSeed(2, AuthenticationMethodReferenceConstants.MultiFactorAuthentication),
             new AuthenticationMethodReferenceSeed(3, AuthenticationMethodReferenceConstants.Sms),
             new AuthenticationMethodReferenceSeed(4, AuthenticationMethodReferenceConstants.Face),
@@ -43,7 +45,6 @@ internal sealed class
             new AuthenticationMethodReferenceSeed(18, AuthenticationMethodReferenceConstants.TelephoneCall),
             new AuthenticationMethodReferenceSeed(19, AuthenticationMethodReferenceConstants.User),
             new AuthenticationMethodReferenceSeed(20, AuthenticationMethodReferenceConstants.Voice),
-            new AuthenticationMethodReferenceSeed(21, AuthenticationMethodReferenceConstants.WindowsIntegratedAuthentication),
-        ]);
+            new AuthenticationMethodReferenceSeed(21, AuthenticationMethodReferenceConstants.WindowsIntegratedAuthentication));
     }
 }
