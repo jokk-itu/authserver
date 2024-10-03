@@ -1,9 +1,11 @@
-﻿using AuthServer.Cache.Abstractions;
+﻿using System.Diagnostics;
+using AuthServer.Cache.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core.Abstractions;
 using AuthServer.Core.Models;
 using AuthServer.Enums;
 using AuthServer.Extensions;
+using AuthServer.Metrics.Abstractions;
 using AuthServer.TokenDecoders;
 using AuthServer.TokenDecoders.Abstractions;
 using Microsoft.Extensions.Logging;
@@ -14,20 +16,24 @@ internal class ClientAuthenticationService : IClientAuthenticationService
     private readonly ILogger<ClientAuthentication> _logger;
     private readonly ICachedClientStore _cachedClientStore;
     private readonly ITokenDecoder<ClientIssuedTokenDecodeArguments> _clientIssuedTokenDecoder;
+    private readonly IMetricService _metricService;
 
     public ClientAuthenticationService(
         ILogger<ClientAuthentication> logger,
         ICachedClientStore cachedClientStore,
-        ITokenDecoder<ClientIssuedTokenDecodeArguments> clientIssuedTokenDecoder)
+        ITokenDecoder<ClientIssuedTokenDecodeArguments> clientIssuedTokenDecoder,
+        IMetricService metricService)
     {
         _logger = logger;
         _cachedClientStore = cachedClientStore;
         _clientIssuedTokenDecoder = clientIssuedTokenDecoder;
+        _metricService = metricService;
     }
 
     public async Task<ClientAuthenticationResult> AuthenticateClient(ClientAuthentication clientAuthentication, CancellationToken cancellationToken)
     {
-        return clientAuthentication switch
+        var stopWatch = Stopwatch.StartNew();
+        var result = clientAuthentication switch
         {
             ClientIdAuthentication clientIdAuthentication => await AuthenticateClientId(clientIdAuthentication, cancellationToken),
             ClientSecretAuthentication clientSecretAuthentication => await AuthenticateClientSecret(
@@ -36,6 +42,10 @@ internal class ClientAuthenticationService : IClientAuthenticationService
                 clientAssertionAuthentication, cancellationToken),
             _ => throw new NotSupportedException("authentication method is unsupported")
         };
+        stopWatch.Stop();
+        _metricService.AddClientAuthenticated(stopWatch.ElapsedMilliseconds, result.ClientId);
+
+        return result;
     }
 
     private async Task<ClientAuthenticationResult> AuthenticateClientId(ClientIdAuthentication clientIdAuthentication, CancellationToken cancellationToken)
