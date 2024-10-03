@@ -12,10 +12,17 @@ internal class MetricService : IMetricService, IDisposable
     private readonly Counter<int> _tokenDecodedAmount;
     private readonly Counter<int> _tokenIntrospectedAmount;
     private readonly Counter<int> _tokenRevokedAmount;
+
     private readonly Histogram<double> _tokenBuildTime;
     private readonly Histogram<double> _tokenDecodedTime;
 
     private readonly Histogram<double> _clientAuthenticationTime;
+
+    private readonly Histogram<double> _authorizeInteractionTime;
+
+    private readonly Histogram<double> _registerGetClientTime;
+    private readonly Histogram<double> _registerDeleteClientTime;
+    private readonly Histogram<double> _registerUpdateClientTime;
 
     public MetricService(IMeterFactory meterFactory)
     {
@@ -31,6 +38,12 @@ internal class MetricService : IMetricService, IDisposable
         _tokenDecodedTime = _meter.CreateHistogram<double>("authserver.token.decoded.duration", "The time it takes for a token to be decoded.");
 
         _clientAuthenticationTime = _meter.CreateHistogram<double>("authserver.client.authenticated.duration", "The time it takes for a client to be authenticated.");
+
+        _authorizeInteractionTime = _meter.CreateHistogram<double>("authserver.authorize.interaction.duration", "The time it takes to deduce the interaction during authorize");
+
+        _registerGetClientTime = _meter.CreateHistogram<double>("authserver.register.client.get", "The time it takes to get the client");
+        _registerDeleteClientTime = _meter.CreateHistogram<double>("authserver.register.client.delete", "The time it takes to delete the client");
+        _registerUpdateClientTime = _meter.CreateHistogram<double>("authserver.register.client.update", "The time it takes to update the client");
     }
 
     public ActivitySource ActivitySource { get; }
@@ -69,9 +82,33 @@ internal class MetricService : IMetricService, IDisposable
         _tokenRevokedAmount.Add(1, new KeyValuePair<string, object?>("typ", tokenTypeTape.GetDescription()));
     }
 
-    public void AddClientAuthenticated(long durationMilliseconds, string clientId)
+    public void AddClientAuthenticated(long durationMilliseconds, string? clientId)
     {
         _clientAuthenticationTime.Record(durationMilliseconds, new KeyValuePair<string, object?>("client_id", clientId));
+    }
+
+    public void AddAuthorizeInteraction(long durationMilliseconds, string clientId, string prompt, AuthenticationKind authenticationKind)
+    {
+        _authorizeInteractionTime.Record(
+            durationMilliseconds,
+            new KeyValuePair<string, object?>("client_id", clientId),
+            new KeyValuePair<string, object?>("prompt", prompt),
+            new KeyValuePair<string, object?>("authentication_kind", authenticationKind));
+    }
+
+    public void AddClientDelete(long durationMilliseconds)
+    {
+        _registerDeleteClientTime.Record(durationMilliseconds);
+    }
+
+    public void AddClientUpdate(long durationMilliseconds, string clientId)
+    {
+        _registerUpdateClientTime.Record(durationMilliseconds, new KeyValuePair<string, object?>("client_id", clientId));
+    }
+
+    public void AddClientGet(long durationMilliseconds, string clientId)
+    {
+        _registerGetClientTime.Record(durationMilliseconds, new KeyValuePair<string, object?>("client_id", clientId));
     }
 
     public void Dispose()
