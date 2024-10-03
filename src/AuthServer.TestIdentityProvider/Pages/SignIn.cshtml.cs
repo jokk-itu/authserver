@@ -53,8 +53,8 @@ public class SignInModel : PageModel
         {
             var query = HttpUtility.ParseQueryString(new Uri(ReturnUrl).Query);
             var hasMaxAge = long.TryParse(query.Get(Parameter.MaxAge), out var parsedMaxAge);
-            await _authorizeService.CreateAuthorizationGrant(UserConstants.SubjectIdentifier, query.Get(Parameter.ClientId)!, hasMaxAge ? parsedMaxAge : null, cancellationToken);
-            _authorizeUserAccessor.SetUser(new AuthorizeUser(UserConstants.SubjectIdentifier, [AuthenticationMethodReferenceConstants.Password]));
+            await _authorizeService.CreateAuthorizationGrant(UserConstants.SubjectIdentifier, query.Get(Parameter.ClientId)!, hasMaxAge ? parsedMaxAge : null, [AuthenticationMethodReferenceConstants.Password], cancellationToken);
+            _authorizeUserAccessor.SetUser(new AuthorizeUser(UserConstants.SubjectIdentifier));
 
             var claimsIdentity = new ClaimsIdentity(
                 [new Claim(ClaimNameConstants.Sub, UserConstants.SubjectIdentifier)],

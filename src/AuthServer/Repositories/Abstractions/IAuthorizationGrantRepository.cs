@@ -10,9 +10,10 @@ internal interface IAuthorizationGrantRepository
     /// <param name="subjectIdentifier"></param>
     /// <param name="clientId"></param>
     /// <param name="maxAge"></param>
+    /// <param name="amr"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<AuthorizationGrant> CreateAuthorizationGrant(string subjectIdentifier, string clientId, long? maxAge, CancellationToken cancellationToken);
+    Task<AuthorizationGrant> CreateAuthorizationGrant(string subjectIdentifier, string clientId, long? maxAge, IReadOnlyCollection<string> amr, CancellationToken cancellationToken);
 
     /// <summary>
     /// 

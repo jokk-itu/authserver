@@ -1,6 +1,7 @@
 ﻿using AuthServer.Authorize.Abstractions;
 using AuthServer.Cache.Abstractions;
 using AuthServer.Core.Abstractions;
+using AuthServer.Metrics.Abstractions;
 using AuthServer.Repositories.Abstractions;
 
 namespace AuthServer.Authorize;
@@ -10,24 +11,27 @@ internal class AuthorizeService : IAuthorizeService
     private readonly IAuthorizationGrantRepository _authorizationGrantRepository;
     private readonly ICachedClientStore _cachedClientStore;
     private readonly IUserClaimService _userClaimService;
+    private readonly IMetricService _metricService;
 
     public AuthorizeService(
         IConsentGrantRepository consentGrantRepository,
         IAuthorizationGrantRepository authorizationGrantRepository,
         ICachedClientStore cachedClientStore,
-        IUserClaimService userClaimService)
+        IUserClaimService userClaimService,
+        IMetricService metricService)
     {
         _consentGrantRepository = consentGrantRepository;
         _authorizationGrantRepository = authorizationGrantRepository;
         _cachedClientStore = cachedClientStore;
         _userClaimService = userClaimService;
+        _metricService = metricService;
     }
 
     /// <inheritdoc/>
-    public async Task CreateAuthorizationGrant(string subjectIdentifier, string clientId, long? maxAge,
+    public async Task CreateAuthorizationGrant(string subjectIdentifier, string clientId, long? maxAge, IReadOnlyCollection<string> amr,
         CancellationToken cancellationToken)
     {
-        await _authorizationGrantRepository.CreateAuthorizationGrant(subjectIdentifier, clientId, maxAge, cancellationToken);
+        await _authorizationGrantRepository.CreateAuthorizationGrant(subjectIdentifier, clientId, maxAge, amr, cancellationToken);
     }
 
     /// <inheritdoc/>

@@ -1,5 +1,4 @@
-﻿using AuthServer.Constants;
-using AuthServer.Core;
+﻿using AuthServer.Core;
 using AuthServer.Core.Abstractions;
 
 namespace AuthServer.Tests.Core;
@@ -8,7 +7,7 @@ public class AuthenticatedUserAccessor : IAuthenticatedUserAccessor
     public Task<AuthenticatedUser?> GetAuthenticatedUser()
     {
         return Task.FromResult<AuthenticatedUser?>(
-            new AuthenticatedUser(UserConstants.SubjectIdentifier, [AuthenticationMethodReferenceConstants.Password]));
+            new AuthenticatedUser(UserConstants.SubjectIdentifier));
     }
 
     public Task<int> CountAuthenticatedUsers()

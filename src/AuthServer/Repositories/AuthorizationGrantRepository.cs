@@ -17,18 +17,24 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
     }
 
     /// <inheritdoc/>
-    public async Task<AuthorizationGrant> CreateAuthorizationGrant(string subjectIdentifier, string clientId,
+    public async Task<AuthorizationGrant> CreateAuthorizationGrant(
+        string subjectIdentifier,
+        string clientId,
         long? maxAge,
+        IReadOnlyCollection<string> amr,
         CancellationToken cancellationToken)
     {
         var session = await GetSession(subjectIdentifier, clientId, cancellationToken);
         var client = (await _identityContext.FindAsync<Client>([clientId], cancellationToken))!;
-        var subjectIdentifierForGrant =
-            await GetSubjectIdentifierForGrant(subjectIdentifier, clientId, cancellationToken);
+        var subjectIdentifierForGrant = await GetSubjectIdentifierForGrant(subjectIdentifier, clientId, cancellationToken);
+        var authenticationMethodReferences = await GetAuthenticationMethodReferences(amr, cancellationToken);
 
         maxAge ??= client.DefaultMaxAge;
 
-        var newGrant = new AuthorizationGrant(session, client, subjectIdentifierForGrant, maxAge);
+        var newGrant = new AuthorizationGrant(session, client, subjectIdentifierForGrant, maxAge)
+        {
+            AuthenticationMethodReferences = authenticationMethodReferences
+        };
         await _identityContext.AddAsync(newGrant, cancellationToken);
         await _identityContext.SaveChangesAsync(cancellationToken);
         return newGrant;

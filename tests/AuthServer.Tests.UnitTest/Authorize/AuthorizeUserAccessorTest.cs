@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Text;
 using System.Text.Json;
 using System.Web;
-using AuthServer.Constants;
 using Xunit.Abstractions;
 
 namespace AuthServer.Tests.UnitTest.Authorize;
@@ -30,7 +29,7 @@ public class AuthorizeUserAccessorTest : BaseUnitTest
         var authorizeUserAccessor = serviceProvider.GetRequiredService<IAuthorizeUserAccessor>();
         var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
 
-        var authorizeUser = new AuthorizeUser(Guid.NewGuid().ToString(), [AuthenticationMethodReferenceConstants.Password]);
+        var authorizeUser = new AuthorizeUser(Guid.NewGuid().ToString());
         var encryptedAuthorizeUser = GetEncryptedAuthorizeCookie(dataProtector, authorizeUser);
         httpContextAccessor.HttpContext = new DefaultHttpContext();
         httpContextAccessor.HttpContext.Request.Cookies = HttpContextHelper.GetRequestCookies(
@@ -55,7 +54,7 @@ public class AuthorizeUserAccessorTest : BaseUnitTest
         httpContextAccessor.HttpContext = new DefaultHttpContext();
 
         var authorizeUserAccessor = serviceProvider.GetRequiredService<IAuthorizeUserAccessor>();
-        var authorizeUser = new AuthorizeUser(Guid.NewGuid().ToString(), [AuthenticationMethodReferenceConstants.Password]);
+        var authorizeUser = new AuthorizeUser(Guid.NewGuid().ToString());
 
         // Act
         authorizeUserAccessor.SetUser(authorizeUser);
@@ -77,7 +76,7 @@ public class AuthorizeUserAccessorTest : BaseUnitTest
         var authorizeUserAccessor = serviceProvider.GetRequiredService<IAuthorizeUserAccessor>();
         var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
 
-        var authorizeUser = new AuthorizeUser(Guid.NewGuid().ToString(), [AuthenticationMethodReferenceConstants.Password]);
+        var authorizeUser = new AuthorizeUser(Guid.NewGuid().ToString());
         var encryptedAuthorizeUser = GetEncryptedAuthorizeCookie(dataProtector, authorizeUser);
         httpContextAccessor.HttpContext = new DefaultHttpContext();
         httpContextAccessor.HttpContext.Request.Cookies = HttpContextHelper.GetRequestCookies(
@@ -98,8 +97,6 @@ public class AuthorizeUserAccessorTest : BaseUnitTest
     {
         // Arrange
         var serviceProvider = BuildServiceProvider();
-        var dataProtector = serviceProvider.GetRequiredService<IDataProtectionProvider>()
-            .CreateProtector("AuthorizeUserCookie");
 
         var authorizeUserAccessor = serviceProvider.GetRequiredService<IAuthorizeUserAccessor>();
         var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();

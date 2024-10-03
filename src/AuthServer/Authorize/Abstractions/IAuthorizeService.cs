@@ -8,10 +8,11 @@ public interface IAuthorizeService
     /// <param name="subjectIdentifier"></param>
     /// <param name="clientId"></param>
     /// <param name="maxAge"></param>
+    /// <param name="amr"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task CreateAuthorizationGrant(string subjectIdentifier, string clientId, long? maxAge, CancellationToken cancellationToken);
-
+    Task CreateAuthorizationGrant(string subjectIdentifier, string clientId, long? maxAge, IReadOnlyCollection<string> amr, CancellationToken cancellationToken);
+     
     /// <summary>
     /// 
     /// </summary>
