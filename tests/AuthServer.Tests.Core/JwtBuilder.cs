@@ -1,4 +1,5 @@
-﻿using AuthServer.Constants;
+﻿using System.Text.Json;
+using AuthServer.Constants;
 using AuthServer.Core.Discovery;
 using AuthServer.Extensions;
 using AuthServer.Options;
@@ -38,11 +39,20 @@ public class JwtBuilder
         });
     }
 
-    public string GetIdToken(string clientId)
+    public string GetIdToken(string clientId, string grantId, string subject, IReadOnlyCollection<string> amr, string acr)
     {
         var key = _jwksDocument.GetTokenSigningKey();
         var signingCredentials = new SigningCredentials(key.Key, key.Alg.GetDescription());
         var now = DateTime.UtcNow;
+
+        var claims = new Dictionary<string, object>
+        {
+            { ClaimNameConstants.Sub, subject },
+            { ClaimNameConstants.GrantId, grantId },
+            { ClaimNameConstants.Acr, acr },
+            { ClaimNameConstants.Amr, JsonSerializer.SerializeToElement(amr) }
+        };
+
         return new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor
         {
             Issuer = _discoveryDocument.Issuer,
@@ -51,8 +61,8 @@ public class JwtBuilder
             IssuedAt = now,
             SigningCredentials = signingCredentials,
             Audience = clientId,
-            TokenType = TokenTypeHeaderConstants.IdToken
-            // TODO add Amr and Acr
+            TokenType = TokenTypeHeaderConstants.IdToken,
+            Claims = claims
         });
     }
 
