@@ -1,7 +1,7 @@
-﻿using System.Text.Json;
-using AuthServer.Authorize.Abstractions;
+﻿using AuthServer.Authorize.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core.Abstractions;
+using AuthServer.Entities;
 using AuthServer.Extensions;
 using AuthServer.Repositories.Abstractions;
 using AuthServer.RequestAccessors.Authorize;
@@ -39,7 +39,7 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
         var authorizeUser = _userAccessor.TryGetUser();
         if (authorizeUser is not null)
         {
-            return await GetPromptFromInteraction(authorizeUser.SubjectIdentifier, authorizeRequest, authorizeUser.Amr, cancellationToken);
+            return await GetPromptFromInteraction(authorizeUser.SubjectIdentifier, authorizeRequest, cancellationToken);
         }
 
         /*
@@ -55,8 +55,9 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
         if (!string.IsNullOrEmpty(authorizeRequest.IdTokenHint))
         {
             var decodedIdToken = await _serverIssuedTokenDecoder.Read(authorizeRequest.IdTokenHint);
-            var amr = JsonSerializer.Deserialize<IEnumerable<string>>(decodedIdToken.GetClaim(ClaimNameConstants.Amr).Value)!;
-            return await GetPrompt(decodedIdToken.Subject, authorizeRequest, amr, cancellationToken);
+            var subject = decodedIdToken.Subject;
+            var grantId = decodedIdToken.GetClaim(ClaimNameConstants.GrantId).Value;
+            return await GetPromptFromIdToken(subject, grantId, authorizeRequest, cancellationToken);
         }
 
         var authenticatedUsers = await _authenticatedUserAccessor.CountAuthenticatedUsers();
@@ -68,13 +69,20 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
                 return PromptConstants.SelectAccount;
             default:
                 var authenticatedUser = (await _authenticatedUserAccessor.GetAuthenticatedUser())!;
-                return await GetPrompt(authenticatedUser.SubjectIdentifier, authorizeRequest, authenticatedUser.Amr, cancellationToken);
+                return await GetPromptFromCookie(authenticatedUser.SubjectIdentifier, authorizeRequest, cancellationToken);
         }
     }
 
-    private async Task<string> GetPromptFromInteraction(string subjectIdentifier, AuthorizeRequest authorizeRequest, IEnumerable<string> amr, CancellationToken cancellationToken)
+    private async Task<string> GetPromptFromInteraction(string subjectIdentifier, AuthorizeRequest authorizeRequest, CancellationToken cancellationToken)
     {
         var authorizationGrant = (await _authorizationGrantRepository.GetActiveAuthorizationGrant(subjectIdentifier, authorizeRequest.ClientId!, cancellationToken))!;
+        
+        var acrPrompt = GetPromptAcr(authorizationGrant, authorizeRequest);
+        if (acrPrompt is not null)
+        {
+            return acrPrompt;
+        }
+
         if (!authorizationGrant.Client.RequireConsent)
         {
             return PromptConstants.None;
@@ -89,7 +97,7 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
         return PromptConstants.None;
     }
 
-    private async Task<string> GetPrompt(string subjectIdentifier, AuthorizeRequest authorizeRequest, IEnumerable<string> amr, CancellationToken cancellationToken)
+    private async Task<string> GetPromptFromCookie(string subjectIdentifier, AuthorizeRequest authorizeRequest, CancellationToken cancellationToken)
     {
         var authorizationGrant = await _authorizationGrantRepository.GetActiveAuthorizationGrant(subjectIdentifier, authorizeRequest.ClientId!, cancellationToken);
         if (authorizationGrant is null)
@@ -97,9 +105,31 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
             return PromptConstants.Login;
         }
 
+        return await GetPromptSilent(authorizationGrant, authorizeRequest, subjectIdentifier, cancellationToken);
+    }
+
+    private async Task<string> GetPromptFromIdToken(string subjectIdentifier, string authorizationGrantId, AuthorizeRequest authorizeRequest, CancellationToken cancellationToken)
+    {
+        var authorizationGrant = await _authorizationGrantRepository.GetActiveAuthorizationGrant(authorizationGrantId, cancellationToken);
+        if (authorizationGrant is null)
+        {
+            return PromptConstants.Login;
+        }
+
+        return await GetPromptSilent(authorizationGrant, authorizeRequest, subjectIdentifier, cancellationToken);
+    }
+
+    private async Task<string> GetPromptSilent(AuthorizationGrant authorizationGrant, AuthorizeRequest authorizeRequest, string subjectIdentifier, CancellationToken cancellationToken)
+    {
+        var acrPrompt = GetPromptAcr(authorizationGrant, authorizeRequest);
+        if (acrPrompt is not null)
+        {
+            return acrPrompt;
+        }
+
         if (!authorizationGrant.Client.RequireConsent)
         {
-            _userAccessor.SetUser(new AuthorizeUser(subjectIdentifier, amr));
+            _userAccessor.SetUser(new AuthorizeUser(subjectIdentifier));
             return PromptConstants.None;
         }
 
@@ -109,7 +139,36 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
             return PromptConstants.Consent;
         }
 
-        _userAccessor.SetUser(new AuthorizeUser(subjectIdentifier, amr));
+        _userAccessor.SetUser(new AuthorizeUser(subjectIdentifier));
         return PromptConstants.None;
+    }
+
+    private static string? GetPromptAcr(AuthorizationGrant authorizationGrant, AuthorizeRequest authorizeRequest)
+    {
+        var performedAuthenticationContextReferences = authorizationGrant
+            .AuthenticationMethodReferences
+            .Where(amr => amr.AuthenticationContextReference is not null)
+            .Select(amr => amr.AuthenticationContextReference!.Name)
+            .Distinct()
+            .ToList();
+
+        var defaultAuthenticationContextReferences = authorizationGrant
+            .Client
+            .ClientAuthenticationContextReferences
+            .Select(cacr => cacr.AuthenticationContextReference)
+            .Select(acr => acr.Name)
+            .ToList();
+
+        if (authorizeRequest.AcrValues.Count != 0 && !performedAuthenticationContextReferences.Intersect(authorizeRequest.AcrValues).Any())
+        {
+            return PromptConstants.Login;
+        }
+
+        if (defaultAuthenticationContextReferences.Count != 0 && !performedAuthenticationContextReferences.Intersect(defaultAuthenticationContextReferences).Any())
+        {
+            return PromptConstants.Login;
+        }
+
+        return null;
     }
 }
