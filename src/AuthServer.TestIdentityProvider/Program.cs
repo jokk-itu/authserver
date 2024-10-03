@@ -7,7 +7,6 @@ using AuthServer.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
-using AuthServer.Authorize.Abstractions;
 using AuthServer.Core;
 using AuthServer.Tests.Core;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -108,7 +107,6 @@ builder.Services
 
 builder.Services.AddSingleton<IDistributedCache, InMemoryCache>();
 builder.Services.AddScoped<IUserClaimService, UserClaimService>();
-builder.Services.AddScoped<IAcrClaimMapper, AcrClaimMapper>();
 builder.Services.AddScoped<IAuthenticatedUserAccessor, AuthenticatedUserAccessor>();
 
 builder.Services.AddAuthServer(dbContextConfigurator =>

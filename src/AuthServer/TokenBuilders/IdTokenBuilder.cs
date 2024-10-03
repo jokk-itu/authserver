@@ -28,7 +28,6 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
     private readonly IUserClaimService _userClaimService;
     private readonly IMetricService _metricService;
     private readonly IConsentGrantRepository _consentGrantRepository;
-    private readonly IAcrClaimMapper _acrClaimMapper;
 
     public IdTokenBuilder(
         AuthorizationDbContext identityContext,
@@ -37,8 +36,7 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
         ITokenSecurityService tokenSecurityService,
         IUserClaimService userClaimService,
         IMetricService metricService,
-        IConsentGrantRepository consentGrantRepository,
-        IAcrClaimMapper acrClaimMapper)
+        IConsentGrantRepository consentGrantRepository)
     {
         _identityContext = identityContext;
         _discoveryDocumentOptions = discoveryDocumentOptions;
@@ -47,7 +45,6 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
         _userClaimService = userClaimService;
         _metricService = metricService;
         _consentGrantRepository = consentGrantRepository;
-        _acrClaimMapper = acrClaimMapper;
     }
 
     public async Task<string> BuildToken(IdTokenArguments arguments, CancellationToken cancellationToken)
