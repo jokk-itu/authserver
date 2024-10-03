@@ -1,10 +1,12 @@
-﻿using AuthServer.Core;
+﻿using System.Diagnostics;
+using AuthServer.Core;
 using AuthServer.Core.Abstractions;
 using AuthServer.Core.Discovery;
 using AuthServer.Core.Request;
 using AuthServer.Entities;
 using AuthServer.Enums;
 using AuthServer.Helpers;
+using AuthServer.Metrics.Abstractions;
 using AuthServer.TokenBuilders;
 using AuthServer.TokenBuilders.Abstractions;
 using Microsoft.EntityFrameworkCore;
@@ -18,22 +20,26 @@ internal class RegisterRequestProcessor : IRequestProcessor<RegisterValidatedReq
     private readonly IUnitOfWork _unitOfWork;
     private readonly ITokenBuilder<RegistrationTokenArguments> _registrationTokenBuilder;
     private readonly IOptionsSnapshot<DiscoveryDocument> _discoveryDocumentOptions;
+    private readonly IMetricService _metricService;
 
     public RegisterRequestProcessor(
         AuthorizationDbContext authorizationDbContext,
         IUnitOfWork unitOfWork,
         ITokenBuilder<RegistrationTokenArguments> registrationTokenBuilder,
-        IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions)
+        IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions,
+        IMetricService metricService)
     {
         _authorizationDbContext = authorizationDbContext;
         _unitOfWork = unitOfWork;
         _registrationTokenBuilder = registrationTokenBuilder;
         _discoveryDocumentOptions = discoveryDocumentOptions;
+        _metricService = metricService;
     }
 
     public async Task<ProcessResult<RegisterResponse, Unit>> Process(RegisterValidatedRequest request,
         CancellationToken cancellationToken)
     {
+        var stopWatch = Stopwatch.StartNew();
         Client client;
         if (request.Method == HttpMethod.Post)
         {
@@ -43,6 +49,8 @@ internal class RegisterRequestProcessor : IRequestProcessor<RegisterValidatedReq
         else if (request.Method == HttpMethod.Delete)
         {
             await DeleteClient(request.ClientId, cancellationToken);
+            _metricService.AddClientDelete(stopWatch.ElapsedMilliseconds);
+            stopWatch.Restart();
             return Unit.Value;
         }
         else
@@ -57,7 +65,12 @@ internal class RegisterRequestProcessor : IRequestProcessor<RegisterValidatedReq
                 .Include(c => c.RequestUris)
                 .Include(c => c.Contacts)
                 .Include(c => c.Scopes)
+                .Include(x => x.ClientAuthenticationContextReferences)
+                .ThenInclude(x => x.AuthenticationContextReference)
                 .SingleAsync(cancellationToken);
+            
+            _metricService.AddClientGet(stopWatch.ElapsedMilliseconds, request.ClientId);
+            stopWatch.Restart();
         }
 
         if (request.Method == HttpMethod.Put)
@@ -87,6 +100,9 @@ internal class RegisterRequestProcessor : IRequestProcessor<RegisterValidatedReq
         {
             await _unitOfWork.SaveChanges();
         }
+
+        _metricService.AddClientUpdate(stopWatch.ElapsedMilliseconds, request.ClientId);
+        stopWatch.Stop();
 
         var registrationToken = await _registrationTokenBuilder.BuildToken(new RegistrationTokenArguments
         {
@@ -123,7 +139,11 @@ internal class RegisterRequestProcessor : IRequestProcessor<RegisterValidatedReq
             RequirePushedAuthorizationRequests = client.RequirePushedAuthorizationRequests,
             SubjectType = client.SubjectType,
             DefaultMaxAge = client.DefaultMaxAge,
-            DefaultAcrValues = client.DefaultAcrValues?.Split(' ') ?? [],
+            DefaultAcrValues = client.ClientAuthenticationContextReferences
+                .OrderBy(x => x.Order)
+                .Select(x => x.AuthenticationContextReference)
+                .Select(x => x.Name)
+                .ToList(),
             Contacts = client.Contacts.Select(c => c.Email).ToList(),
             AuthorizationCodeExpiration = client.AuthorizationCodeExpiration,
             AccessTokenExpiration = client.AccessTokenExpiration,
@@ -181,7 +201,6 @@ internal class RegisterRequestProcessor : IRequestProcessor<RegisterValidatedReq
         client.LogoUri = request.LogoUri;
         client.Jwks = request.Jwks;
         client.JwksUri = request.JwksUri;
-        client.DefaultAcrValues = request.DefaultAcrValues.Count == 0 ? null : string.Join(' ', request.DefaultAcrValues);
         client.RequireSignedRequestObject = request.RequireSignedRequestObject;
         client.RequireReferenceToken = request.RequireReferenceToken;
         client.RequirePushedAuthorizationRequests = request.RequirePushedAuthorizationRequests;
@@ -222,6 +241,11 @@ internal class RegisterRequestProcessor : IRequestProcessor<RegisterValidatedReq
             .Where(rt => request.ResponseTypes.Contains(rt.Name))
             .ToListAsync(cancellationToken);
 
+        var authenticationContextReferences = await _authorizationDbContext
+            .Set<AuthenticationContextReference>()
+            .Where(acr => request.DefaultAcrValues.Contains(acr.Name))
+            .ToListAsync(cancellationToken);
+
         var redirectUris = request
             .RedirectUris
             .Select(ru => new RedirectUri(ru, client))
@@ -242,6 +266,10 @@ internal class RegisterRequestProcessor : IRequestProcessor<RegisterValidatedReq
             .Select(c => new Contact(c, client))
             .ToList();
 
+        var clientAuthenticationContextReferences = request.DefaultAcrValues
+            .Select((x, i) => new ClientAuthenticationContextReference(client, authenticationContextReferences.Single(y => y.Name == x), i))
+            .ToList();
+
         client.GrantTypes = grantTypes;
         client.Scopes = scopes;
         client.ResponseTypes = responseTypes;
@@ -249,6 +277,7 @@ internal class RegisterRequestProcessor : IRequestProcessor<RegisterValidatedReq
         client.PostLogoutRedirectUris = postLogoutRedirectUris;
         client.RequestUris = requestUris;
         client.Contacts = contacts;
+        client.ClientAuthenticationContextReferences = clientAuthenticationContextReferences;
     }
 
     private async Task DeleteClient(string clientId, CancellationToken cancellationToken)
