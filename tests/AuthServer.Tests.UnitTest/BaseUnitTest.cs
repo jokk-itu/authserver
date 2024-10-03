@@ -1,10 +1,10 @@
 ﻿using System.Security.Cryptography;
-using AuthServer.Authorize.Abstractions;
 using AuthServer.Cache.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;
 using AuthServer.Core.Discovery;
+using AuthServer.Entities;
 using AuthServer.Enums;
 using AuthServer.Extensions;
 using AuthServer.Options;
@@ -30,6 +30,10 @@ public abstract class BaseUnitTest
     protected JwksDocument JwksDocument;
     protected SigningAlg TokenSigningAlg = SigningAlg.RsaSha256;
 
+    protected const string LevelOfAssuranceLow = "urn:authserver:loa1";
+    protected const string LevelOfAssuranceSubstantial = "urn:authserver:loa2";
+    protected const string LevelOfAssuranceStrict = "urn:authserver:loa3";
+
     protected BaseUnitTest(ITestOutputHelper outputHelper)
     {
         IdentityModelEventSource.ShowPII = true;
@@ -39,6 +43,11 @@ public abstract class BaseUnitTest
     }
 
     protected Task SaveChangesAsync() => IdentityContext.SaveChangesAsync();
+    protected Task<Scope> GetScope(string name) => IdentityContext.Set<Scope>().SingleAsync(x => x.Name == name);
+    protected Task<GrantType> GetGrantType(string name) => IdentityContext.Set<GrantType>().SingleAsync(x => x.Name == name);
+    protected Task<ResponseType> GetResponseType(string name) => IdentityContext.Set<ResponseType>().SingleAsync(x => x.Name == name);
+    protected Task<AuthenticationMethodReference> GetAuthenticationMethodReference(string name) => IdentityContext.Set<AuthenticationMethodReference>().SingleAsync(x => x.Name == name);
+    protected Task<AuthenticationContextReference> GetAuthenticationContextReference(string name) => IdentityContext.Set<AuthenticationContextReference>().SingleAsync(x => x.Name == name);
 
     protected async Task AddEntity<T>(T entity) where T : class
     {
@@ -52,6 +61,7 @@ public abstract class BaseUnitTest
         {
             discoveryDocument.Issuer = "https://localhost:5000";
             discoveryDocument.ClaimsSupported = ClaimNameConstants.SupportedEndUserClaims;
+            discoveryDocument.AcrValuesSupported = [LevelOfAssuranceLow, LevelOfAssuranceSubstantial, LevelOfAssuranceStrict];
         });
         services.AddOptions<JwksDocument>().Configure(jwksDocument =>
         {
@@ -109,7 +119,6 @@ public abstract class BaseUnitTest
         });
         services.AddScoped<IDistributedCache, InMemoryCache>();
         services.AddScoped<IUserClaimService, UserClaimService>();
-        services.AddScoped<IAcrClaimMapper, AcrClaimMapper>();
         services.AddScoped<IAuthenticatedUserAccessor, AuthenticatedUserAccessor>();
 
         return services;
@@ -125,6 +134,9 @@ public abstract class BaseUnitTest
         IdentityContext = identityContext;
         IdentityContext.Database.EnsureCreated();
 
+        CreateAuthenticationContextReferences().GetAwaiter().GetResult();
+        CreateLinkBetweenMethodsAndReferences().GetAwaiter().GetResult();
+
         var discoveryDocument = serviceProvider.GetRequiredService<IOptionsSnapshot<DiscoveryDocument>>();
         DiscoveryDocument = discoveryDocument.Value;
 
@@ -134,5 +146,32 @@ public abstract class BaseUnitTest
         JwtBuilder = new JwtBuilder(DiscoveryDocument, JwksDocument);
 
         return serviceProvider;
+    }
+
+    private async Task CreateAuthenticationContextReferences()
+    {
+        var authenticationContextReferenceLow = new AuthenticationContextReference(LevelOfAssuranceLow);
+        var authenticationContextReferenceSubstantial = new AuthenticationContextReference(LevelOfAssuranceSubstantial);
+        var authenticationContextReferenceStrict = new AuthenticationContextReference(LevelOfAssuranceStrict);
+        await AddEntity(authenticationContextReferenceLow);
+        await AddEntity(authenticationContextReferenceSubstantial);
+        await AddEntity(authenticationContextReferenceStrict);
+    }
+
+    private async Task CreateLinkBetweenMethodsAndReferences()
+    {
+        var authenticationContextReferenceLow = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var authenticationContextReferenceSubstantial = await GetAuthenticationContextReference(LevelOfAssuranceSubstantial);
+        var authenticationContextReferenceStrict = await GetAuthenticationContextReference(LevelOfAssuranceStrict);
+
+        var authenticationMethodReferencePassword = await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.Password);
+        var authenticationMethodReferenceOneTimePassword = await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.OneTimePassword);
+        var authenticationMethodReferenceMultiFactorAuthentication = await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.MultiFactorAuthentication);
+
+        authenticationMethodReferencePassword.AuthenticationContextReference = authenticationContextReferenceLow;
+        authenticationMethodReferenceOneTimePassword.AuthenticationContextReference = authenticationContextReferenceSubstantial;
+        authenticationMethodReferenceMultiFactorAuthentication.AuthenticationContextReference = authenticationContextReferenceStrict;
+
+        await IdentityContext.SaveChangesAsync();
     }
 }
