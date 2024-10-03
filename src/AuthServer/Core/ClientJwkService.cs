@@ -2,7 +2,6 @@
 using AuthServer.Core.Abstractions;
 using AuthServer.Core.Exceptions;
 using AuthServer.Entities;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
@@ -58,10 +57,7 @@ internal class ClientJwkService : IClientJwkService
         _logger.LogDebug("Refreshing jwks for client {ClientId}", clientId);
         var jwks = await RefreshJwks(clientId, cachedClient.JwksUri!, cancellationToken);
         // TODO verify they ONLY contain public keys
-        var client = await _identityContext
-            .Set<Client>()
-            .SingleAsync(x => x.Id == clientId, cancellationToken);
-
+        var client = (await _identityContext.FindAsync<Client>([clientId], cancellationToken))!;
         client.Jwks = jwks;
 
         // The JwksExpiration will always be set if JwksUri is set
