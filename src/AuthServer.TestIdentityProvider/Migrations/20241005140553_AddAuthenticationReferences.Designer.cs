@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AuthServer.TestIdentityProvider.Migrations
 {
     [DbContext(typeof(AuthorizationDbContext))]
-    [Migration("20240929152628_AddAuthenticationMethodReference")]
-    partial class AddAuthenticationMethodReference
+    [Migration("20241005140553_AddAuthenticationReferences")]
+    partial class AddAuthenticationReferences
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,27 @@ namespace AuthServer.TestIdentityProvider.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("AuthServer.Entities.AuthenticationContextReference", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("AuthenticationContextReference");
+                });
 
             modelBuilder.Entity("AuthServer.Entities.AuthenticationMethodReference", b =>
                 {
@@ -188,6 +209,9 @@ namespace AuthServer.TestIdentityProvider.Migrations
                     b.Property<DateTime>("AuthTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("AuthenticationContextReferenceId")
+                        .HasColumnType("int");
+
                     b.Property<string>("ClientId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -207,6 +231,8 @@ namespace AuthServer.TestIdentityProvider.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AuthenticationContextReferenceId");
 
                     b.HasIndex("ClientId");
 
@@ -401,10 +427,6 @@ namespace AuthServer.TestIdentityProvider.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("DefaultAcrValues")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
                     b.Property<int?>("DefaultMaxAge")
                         .HasColumnType("int");
 
@@ -510,6 +532,24 @@ namespace AuthServer.TestIdentityProvider.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Client");
+                });
+
+            modelBuilder.Entity("AuthServer.Entities.ClientAuthenticationContextReference", b =>
+                {
+                    b.Property<string>("ClientId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AuthenticationContextReferenceId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.HasKey("ClientId", "AuthenticationContextReferenceId");
+
+                    b.HasIndex("AuthenticationContextReferenceId");
+
+                    b.ToTable("ClientAuthenticationContextReference");
                 });
 
             modelBuilder.Entity("AuthServer.Entities.ConsentGrant", b =>
@@ -1058,6 +1098,12 @@ namespace AuthServer.TestIdentityProvider.Migrations
 
             modelBuilder.Entity("AuthServer.Entities.AuthorizationGrant", b =>
                 {
+                    b.HasOne("AuthServer.Entities.AuthenticationContextReference", "AuthenticationContextReference")
+                        .WithMany("AuthorizationGrants")
+                        .HasForeignKey("AuthenticationContextReferenceId")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
                     b.HasOne("AuthServer.Entities.Client", "Client")
                         .WithMany("AuthorizationGrants")
                         .HasForeignKey("ClientId")
@@ -1076,6 +1122,8 @@ namespace AuthServer.TestIdentityProvider.Migrations
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
+                    b.Navigation("AuthenticationContextReference");
+
                     b.Navigation("Client");
 
                     b.Navigation("Session");
@@ -1090,6 +1138,25 @@ namespace AuthServer.TestIdentityProvider.Migrations
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
+
+                    b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("AuthServer.Entities.ClientAuthenticationContextReference", b =>
+                {
+                    b.HasOne("AuthServer.Entities.AuthenticationContextReference", "AuthenticationContextReference")
+                        .WithMany("ClientAuthenticationContextReferences")
+                        .HasForeignKey("AuthenticationContextReferenceId")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
+                    b.HasOne("AuthServer.Entities.Client", "Client")
+                        .WithMany("ClientAuthenticationContextReferences")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
+                    b.Navigation("AuthenticationContextReference");
 
                     b.Navigation("Client");
                 });
@@ -1310,6 +1377,13 @@ namespace AuthServer.TestIdentityProvider.Migrations
                     b.Navigation("AuthorizationGrant");
                 });
 
+            modelBuilder.Entity("AuthServer.Entities.AuthenticationContextReference", b =>
+                {
+                    b.Navigation("AuthorizationGrants");
+
+                    b.Navigation("ClientAuthenticationContextReferences");
+                });
+
             modelBuilder.Entity("AuthServer.Entities.AuthorizationGrant", b =>
                 {
                     b.Navigation("AuthorizationCodes");
@@ -1324,6 +1398,8 @@ namespace AuthServer.TestIdentityProvider.Migrations
                     b.Navigation("AuthorizationGrants");
 
                     b.Navigation("AuthorizeMessages");
+
+                    b.Navigation("ClientAuthenticationContextReferences");
 
                     b.Navigation("ClientTokens");
 

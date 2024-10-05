@@ -51,17 +51,12 @@ namespace AuthServer.TestIdentityProvider.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AuthenticationContextReferenceId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AuthenticationContextReferenceId");
 
                     b.HasIndex("Name")
                         .IsUnique();
@@ -211,6 +206,9 @@ namespace AuthServer.TestIdentityProvider.Migrations
                     b.Property<DateTime>("AuthTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("AuthenticationContextReferenceId")
+                        .HasColumnType("int");
+
                     b.Property<string>("ClientId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -230,6 +228,8 @@ namespace AuthServer.TestIdentityProvider.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AuthenticationContextReferenceId");
 
                     b.HasIndex("ClientId");
 
@@ -1082,15 +1082,6 @@ namespace AuthServer.TestIdentityProvider.Migrations
                     b.HasDiscriminator().HasValue(0);
                 });
 
-            modelBuilder.Entity("AuthServer.Entities.AuthenticationMethodReference", b =>
-                {
-                    b.HasOne("AuthServer.Entities.AuthenticationContextReference", "AuthenticationContextReference")
-                        .WithMany("AuthenticationReferenceMethods")
-                        .HasForeignKey("AuthenticationContextReferenceId");
-
-                    b.Navigation("AuthenticationContextReference");
-                });
-
             modelBuilder.Entity("AuthServer.Entities.AuthorizationCode", b =>
                 {
                     b.HasOne("AuthServer.Entities.AuthorizationGrant", "AuthorizationGrant")
@@ -1104,6 +1095,12 @@ namespace AuthServer.TestIdentityProvider.Migrations
 
             modelBuilder.Entity("AuthServer.Entities.AuthorizationGrant", b =>
                 {
+                    b.HasOne("AuthServer.Entities.AuthenticationContextReference", "AuthenticationContextReference")
+                        .WithMany("AuthorizationGrants")
+                        .HasForeignKey("AuthenticationContextReferenceId")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
                     b.HasOne("AuthServer.Entities.Client", "Client")
                         .WithMany("AuthorizationGrants")
                         .HasForeignKey("ClientId")
@@ -1121,6 +1118,8 @@ namespace AuthServer.TestIdentityProvider.Migrations
                         .HasForeignKey("SubjectIdentifierId")
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
+
+                    b.Navigation("AuthenticationContextReference");
 
                     b.Navigation("Client");
 
@@ -1145,13 +1144,13 @@ namespace AuthServer.TestIdentityProvider.Migrations
                     b.HasOne("AuthServer.Entities.AuthenticationContextReference", "AuthenticationContextReference")
                         .WithMany("ClientAuthenticationContextReferences")
                         .HasForeignKey("AuthenticationContextReferenceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
                     b.HasOne("AuthServer.Entities.Client", "Client")
                         .WithMany("ClientAuthenticationContextReferences")
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
                     b.Navigation("AuthenticationContextReference");
@@ -1377,7 +1376,7 @@ namespace AuthServer.TestIdentityProvider.Migrations
 
             modelBuilder.Entity("AuthServer.Entities.AuthenticationContextReference", b =>
                 {
-                    b.Navigation("AuthenticationReferenceMethods");
+                    b.Navigation("AuthorizationGrants");
 
                     b.Navigation("ClientAuthenticationContextReferences");
                 });
