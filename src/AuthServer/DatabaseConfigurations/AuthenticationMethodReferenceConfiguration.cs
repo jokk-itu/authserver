@@ -20,11 +20,6 @@ internal sealed class AuthenticationMethodReferenceConfiguration : IEntityTypeCo
             .HasIndex(x => x.Name)
             .IsUnique();
 
-        builder
-            .HasOne(x => x.AuthenticationContextReference)
-            .WithMany(x => x.AuthenticationReferenceMethods)
-            .IsRequired(false);
-
         builder.HasData(new AuthenticationMethodReferenceSeed(1, AuthenticationMethodReferenceConstants.Password),
             new AuthenticationMethodReferenceSeed(2, AuthenticationMethodReferenceConstants.MultiFactorAuthentication),
             new AuthenticationMethodReferenceSeed(3, AuthenticationMethodReferenceConstants.Sms),

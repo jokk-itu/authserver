@@ -11,10 +11,14 @@ internal sealed class ClientAuthenticationContextReferenceConfiguration : IEntit
 
         builder
             .HasOne(x => x.Client)
-            .WithMany(x => x.ClientAuthenticationContextReferences);
+            .WithMany(x => x.ClientAuthenticationContextReferences)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.ClientCascade);
 
         builder
             .HasOne(x => x.AuthenticationContextReference)
-            .WithMany(x => x.ClientAuthenticationContextReferences);
+            .WithMany(x => x.ClientAuthenticationContextReferences)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.ClientCascade);
     }
 }

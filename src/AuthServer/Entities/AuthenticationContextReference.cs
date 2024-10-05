@@ -16,5 +16,5 @@ public class AuthenticationContextReference : Entity<int>
 
     public string Name { get; private init; }
     public ICollection<ClientAuthenticationContextReference> ClientAuthenticationContextReferences { get; private init; } = [];
-    public ICollection<AuthenticationMethodReference> AuthenticationReferenceMethods { get; private init; } = [];
+    public ICollection<AuthorizationGrant> AuthorizationGrants { get; private init; } = [];
 }

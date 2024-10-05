@@ -15,9 +15,5 @@ internal class AuthenticationContextReferenceConfiguration : IEntityTypeConfigur
         builder
             .HasIndex(x => x.Name)
             .IsUnique();
-
-        builder
-            .HasMany(x => x.ClientAuthenticationContextReferences)
-            .WithOne(x => x.AuthenticationContextReference);
     }
 }

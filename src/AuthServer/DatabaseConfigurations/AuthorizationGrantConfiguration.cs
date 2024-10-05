@@ -27,6 +27,12 @@ internal sealed class AuthorizationGrantConfiguration : IEntityTypeConfiguration
             .OnDelete(DeleteBehavior.ClientCascade);
 
         builder
+            .HasOne(x => x.AuthenticationContextReference)
+            .WithMany(x => x.AuthorizationGrants)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.ClientCascade);
+
+        builder
             .HasMany(x => x.AuthenticationMethodReferences)
             .WithMany(x => x.AuthorizationGrants);
     }

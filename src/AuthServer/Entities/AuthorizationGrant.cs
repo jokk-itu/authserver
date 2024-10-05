@@ -4,13 +4,14 @@ using AuthServer.Core;
 namespace AuthServer.Entities;
 public class AuthorizationGrant : Entity<string>
 {
-    public AuthorizationGrant(Session session, Client client, SubjectIdentifier subjectIdentifier, long? maxAge = null)
+    public AuthorizationGrant(Session session, Client client, SubjectIdentifier subjectIdentifier, AuthenticationContextReference authenticationContextReference, long? maxAge = null)
     {
         Id = Guid.NewGuid().ToString();
         AuthTime = DateTime.UtcNow;
         Session = session ?? throw new ArgumentNullException(nameof(session));
         Client = client ?? throw new ArgumentNullException(nameof(client));
         SubjectIdentifier = subjectIdentifier ?? throw new ArgumentNullException(nameof(subjectIdentifier));
+        AuthenticationContextReference = authenticationContextReference ?? throw new ArgumentNullException(nameof(authenticationContextReference));
         MaxAge = maxAge is null or >= 0 ? maxAge : throw new ArgumentException("Must be zero or a positive number", nameof(maxAge));
     }
 
@@ -25,6 +26,7 @@ public class AuthorizationGrant : Entity<string>
     public Session Session { get; private init; }
     public Client Client { get; private init; }
     public SubjectIdentifier SubjectIdentifier { get; private init; }
+    public AuthenticationContextReference AuthenticationContextReference { get; private init; }
     public ICollection<AuthorizationCode> AuthorizationCodes { get; init; } = [];
     public ICollection<Nonce> Nonces { get; init; } = [];
     public ICollection<GrantToken> GrantTokens { get; init; } = [];
