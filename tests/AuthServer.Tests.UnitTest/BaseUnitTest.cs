@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography;
+using AuthServer.Authorize.Abstractions;
 using AuthServer.Cache.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
@@ -30,9 +31,9 @@ public abstract class BaseUnitTest
     protected JwksDocument JwksDocument;
     protected SigningAlg TokenSigningAlg = SigningAlg.RsaSha256;
 
-    protected const string LevelOfAssuranceLow = "urn:authserver:loa1";
-    protected const string LevelOfAssuranceSubstantial = "urn:authserver:loa2";
-    protected const string LevelOfAssuranceStrict = "urn:authserver:loa3";
+    protected const string LevelOfAssuranceLow = AuthenticationContextReferenceConstants.LevelOfAssuranceLow;
+    protected const string LevelOfAssuranceSubstantial = AuthenticationContextReferenceConstants.LevelOfAssuranceSubstantial;
+    protected const string LevelOfAssuranceStrict = AuthenticationContextReferenceConstants.LevelOfAssuranceStrict;
 
     protected BaseUnitTest(ITestOutputHelper outputHelper)
     {
@@ -120,6 +121,7 @@ public abstract class BaseUnitTest
         services.AddScoped<IDistributedCache, InMemoryCache>();
         services.AddScoped<IUserClaimService, UserClaimService>();
         services.AddScoped<IAuthenticatedUserAccessor, AuthenticatedUserAccessor>();
+        services.AddScoped<IAuthenticationContextReferenceResolver, AuthenticationContextReferenceResolver>();
 
         return services;
     }
@@ -135,7 +137,6 @@ public abstract class BaseUnitTest
         IdentityContext.Database.EnsureCreated();
 
         CreateAuthenticationContextReferences().GetAwaiter().GetResult();
-        CreateLinkBetweenMethodsAndReferences().GetAwaiter().GetResult();
 
         var discoveryDocument = serviceProvider.GetRequiredService<IOptionsSnapshot<DiscoveryDocument>>();
         DiscoveryDocument = discoveryDocument.Value;
@@ -156,22 +157,5 @@ public abstract class BaseUnitTest
         await AddEntity(authenticationContextReferenceLow);
         await AddEntity(authenticationContextReferenceSubstantial);
         await AddEntity(authenticationContextReferenceStrict);
-    }
-
-    private async Task CreateLinkBetweenMethodsAndReferences()
-    {
-        var authenticationContextReferenceLow = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authenticationContextReferenceSubstantial = await GetAuthenticationContextReference(LevelOfAssuranceSubstantial);
-        var authenticationContextReferenceStrict = await GetAuthenticationContextReference(LevelOfAssuranceStrict);
-
-        var authenticationMethodReferencePassword = await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.Password);
-        var authenticationMethodReferenceOneTimePassword = await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.OneTimePassword);
-        var authenticationMethodReferenceMultiFactorAuthentication = await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.MultiFactorAuthentication);
-
-        authenticationMethodReferencePassword.AuthenticationContextReference = authenticationContextReferenceLow;
-        authenticationMethodReferenceOneTimePassword.AuthenticationContextReference = authenticationContextReferenceSubstantial;
-        authenticationMethodReferenceMultiFactorAuthentication.AuthenticationContextReference = authenticationContextReferenceStrict;
-
-        await IdentityContext.SaveChangesAsync();
     }
 }
