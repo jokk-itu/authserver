@@ -12,26 +12,30 @@ internal class AuthorizeService : IAuthorizeService
     private readonly ICachedClientStore _cachedClientStore;
     private readonly IUserClaimService _userClaimService;
     private readonly IMetricService _metricService;
+    private readonly IAuthenticationContextReferenceResolver _authenticationContextResolver;
 
     public AuthorizeService(
         IConsentGrantRepository consentGrantRepository,
         IAuthorizationGrantRepository authorizationGrantRepository,
         ICachedClientStore cachedClientStore,
         IUserClaimService userClaimService,
-        IMetricService metricService)
+        IMetricService metricService,
+        IAuthenticationContextReferenceResolver authenticationContextResolver)
     {
         _consentGrantRepository = consentGrantRepository;
         _authorizationGrantRepository = authorizationGrantRepository;
         _cachedClientStore = cachedClientStore;
         _userClaimService = userClaimService;
         _metricService = metricService;
+        _authenticationContextResolver = authenticationContextResolver;
     }
 
     /// <inheritdoc/>
     public async Task CreateAuthorizationGrant(string subjectIdentifier, string clientId, long? maxAge, IReadOnlyCollection<string> amr,
         CancellationToken cancellationToken)
     {
-        await _authorizationGrantRepository.CreateAuthorizationGrant(subjectIdentifier, clientId, maxAge, amr, cancellationToken);
+        var acr = await _authenticationContextResolver.ResolveAuthenticationContextReference(amr, cancellationToken);
+        await _authorizationGrantRepository.CreateAuthorizationGrant(subjectIdentifier, clientId, maxAge, acr, amr, cancellationToken);
     }
 
     /// <inheritdoc/>
