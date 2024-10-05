@@ -145,12 +145,7 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
 
     private static string? GetPromptAcr(AuthorizationGrant authorizationGrant, AuthorizeRequest authorizeRequest)
     {
-        var performedAuthenticationContextReferences = authorizationGrant
-            .AuthenticationMethodReferences
-            .Where(amr => amr.AuthenticationContextReference is not null)
-            .Select(amr => amr.AuthenticationContextReference!.Name)
-            .Distinct()
-            .ToList();
+        var performedAuthenticationContextReference = authorizationGrant.AuthenticationContextReference.Name;
 
         var defaultAuthenticationContextReferences = authorizationGrant
             .Client
@@ -159,12 +154,12 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
             .Select(acr => acr.Name)
             .ToList();
 
-        if (authorizeRequest.AcrValues.Count != 0 && !performedAuthenticationContextReferences.Intersect(authorizeRequest.AcrValues).Any())
+        if (authorizeRequest.AcrValues.Count != 0 && !authorizeRequest.AcrValues.Contains(performedAuthenticationContextReference))
         {
             return PromptConstants.Login;
         }
 
-        if (defaultAuthenticationContextReferences.Count != 0 && !performedAuthenticationContextReferences.Intersect(defaultAuthenticationContextReferences).Any())
+        if (defaultAuthenticationContextReferences.Count != 0 && !defaultAuthenticationContextReferences.Contains(performedAuthenticationContextReference))
         {
             return PromptConstants.Login;
         }
