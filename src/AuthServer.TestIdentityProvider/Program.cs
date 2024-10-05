@@ -12,6 +12,7 @@ using AuthServer.Tests.Core;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Logging;
 using AuthServer.Options;
+using AuthServer.Authorize.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,7 +30,11 @@ builder.Services
         var identitySection = builder.Configuration.GetSection("Identity");
         options.Issuer = identitySection.GetValue<string>("Issuer")!;
         options.ClaimsSupported = ClaimNameConstants.SupportedEndUserClaims;
-        options.AcrValuesSupported = ["pwd", "2fa", "mfa"];
+        options.AcrValuesSupported = [
+            AuthenticationContextReferenceConstants.LevelOfAssuranceLow,
+            AuthenticationContextReferenceConstants.LevelOfAssuranceSubstantial,
+            AuthenticationContextReferenceConstants.LevelOfAssuranceStrict
+        ];
         options.ScopesSupported = identitySection.GetSection("ScopesSupported").Get<ICollection<string>>() ?? [];
 
         ICollection<string> signingAlgorithms =
@@ -108,6 +113,7 @@ builder.Services
 builder.Services.AddSingleton<IDistributedCache, InMemoryCache>();
 builder.Services.AddScoped<IUserClaimService, UserClaimService>();
 builder.Services.AddScoped<IAuthenticatedUserAccessor, AuthenticatedUserAccessor>();
+builder.Services.AddScoped<IAuthenticationContextReferenceResolver, AuthenticationContextReferenceResolver>();
 
 builder.Services.AddAuthServer(dbContextConfigurator =>
 {
