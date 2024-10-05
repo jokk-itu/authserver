@@ -35,11 +35,11 @@ public class IdTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTest(o
         {
             services.AddScopedMock(new Mock<IClientJwkService>());
         });
-        var logoutTokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
+        var idTokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
         var authorizationGrant = await GetAuthorizationGrant(signingAlg);
 
         // Act
-        var token = await logoutTokenBuilder.BuildToken(new IdTokenArguments
+        var token = await idTokenBuilder.BuildToken(new IdTokenArguments
         {
             AuthorizationGrantId = authorizationGrant.Id,
             Scope = [ ScopeConstants.OpenId, ScopeConstants.Profile ]
@@ -66,6 +66,8 @@ public class IdTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTest(o
         Assert.Equal(authorizationGrant.Id, validatedTokenResult.Claims[ClaimNameConstants.GrantId].ToString());
         Assert.Equal(authorizationGrant.Nonces.Single().Value, validatedTokenResult.Claims[ClaimNameConstants.Nonce].ToString());
         Assert.Equal(UserConstants.Name, validatedTokenResult.ClaimsIdentity.Name);
+        Assert.Equal(LevelOfAssuranceLow, validatedTokenResult.Claims[ClaimNameConstants.Acr].ToString());
+        // TODO validate Amr claim
         Assert.NotNull(validatedTokenResult.Claims[ClaimNameConstants.Jti]);
     }
 
@@ -80,12 +82,12 @@ public class IdTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTest(o
     {
         // Arrange
         var serviceProvider = BuildServiceProvider();
-        var logoutTokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
+        var idTokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
         var clientJwk = ClientJwkBuilder.GetClientJwks(SigningAlg.RsaSha256, encryptionAlg);
         var authorizationGrant = await GetAuthorizationGrant(SigningAlg.RsaSha256, encryptionAlg, encryptionEnc, clientJwk.PublicJwks);
 
         // Act
-        var token = await logoutTokenBuilder.BuildToken(new IdTokenArguments
+        var token = await idTokenBuilder.BuildToken(new IdTokenArguments
         {
             AuthorizationGrantId = authorizationGrant.Id,
             Scope = [ScopeConstants.OpenId ]
@@ -115,12 +117,12 @@ public class IdTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTest(o
     {
         // Arrange
         var serviceProvider = BuildServiceProvider();
-        var logoutTokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
+        var idTokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<IdTokenArguments>>();
         var clientJwk = ClientJwkBuilder.GetClientJwks(SigningAlg.RsaSha256, encryptionAlg);
         var authorizationGrant = await GetAuthorizationGrant(SigningAlg.RsaSha256, encryptionAlg, encryptionEnc, clientJwk.PublicJwks);
 
         // Act
-        var token = await logoutTokenBuilder.BuildToken(new IdTokenArguments
+        var token = await idTokenBuilder.BuildToken(new IdTokenArguments
         {
             AuthorizationGrantId = authorizationGrant.Id,
             Scope = [ScopeConstants.OpenId, ScopeConstants.Profile]
@@ -168,7 +170,12 @@ public class IdTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTest(o
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var pairwiseSubjectIdentifier = new PairwiseSubjectIdentifier(client, publicSubjectIdentifier);
         var session = new Session(publicSubjectIdentifier);
-        var authorizationGrant = new AuthorizationGrant(session, client, pairwiseSubjectIdentifier);
+        var authenticationMethodReference = await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.Password);
+        var authenticationContextReference = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var authorizationGrant = new AuthorizationGrant(session, client, pairwiseSubjectIdentifier, authenticationContextReference)
+        {
+            AuthenticationMethodReferences = [authenticationMethodReference]
+        };
 
         var value = CryptographyHelper.GetRandomString(32);
         var nonce = new Nonce(value, value.Sha256(), authorizationGrant);
@@ -212,7 +219,12 @@ public class IdTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTest(o
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var pairwiseSubjectIdentifier = new PairwiseSubjectIdentifier(client, publicSubjectIdentifier);
         var session = new Session(publicSubjectIdentifier);
-        var authorizationGrant = new AuthorizationGrant(session, client, pairwiseSubjectIdentifier);
+        var authenticationMethodReference = await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.Password);
+        var authenticationContextReference = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var authorizationGrant = new AuthorizationGrant(session, client, pairwiseSubjectIdentifier, authenticationContextReference)
+        {
+            AuthenticationMethodReferences = [authenticationMethodReference]
+        };
 
         var value = CryptographyHelper.GetRandomString(32);
         var nonce = new Nonce(value, value.Sha256(), authorizationGrant);

@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Text.Json;
-using AuthServer.Authorize.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;
@@ -63,7 +62,9 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
                 SigningAlg = x.Client.IdTokenSignedResponseAlg,
                 EncryptionAlg = x.Client.IdTokenEncryptedResponseAlg,
                 EncryptionEnc = x.Client.IdTokenEncryptedResponseEnc,
-                Nonce = x.Nonces.OrderByDescending(y => y.IssuedAt).First()
+                Nonce = x.Nonces.OrderByDescending(y => y.IssuedAt).First(),
+                AuthenticationMethodReferences = x.AuthenticationMethodReferences.Select(amr => amr.Name).ToList(),
+                AuthenticationContextReference = x.AuthenticationContextReference.Name
             })
             .SingleAsync(cancellationToken);
 
@@ -78,8 +79,8 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
             { ClaimNameConstants.ClientId, query.ClientId },
             { ClaimNameConstants.Azp, query.ClientId },
             { ClaimNameConstants.AuthTime, query.AuthTime },
-            // TODO { ClaimNameConstants.Amr, JsonSerializer.SerializeToElement() },
-            // TODO { ClaimNameConstants.Acr, _acrClaimMapper.MapAmrClaimToAcr() }
+            { ClaimNameConstants.Amr, JsonSerializer.SerializeToElement(query.AuthenticationMethodReferences) },
+            { ClaimNameConstants.Acr, query.AuthenticationContextReference }
         };
 
         var authorizedClaimTypes = await _consentGrantRepository.GetConsentedClaims(query.PublicSubjectId, query.ClientId, cancellationToken);
