@@ -3,7 +3,6 @@ using AuthServer.Authorize.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;
-using AuthServer.Core.Models;
 using AuthServer.Entities;
 using AuthServer.Enums;
 using AuthServer.RequestAccessors.Authorize;
@@ -31,7 +30,8 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var session = new Session(publicSubjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier)
+        var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr)
         {
             AuthenticationMethodReferences =
                 [await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.Password)]
@@ -69,9 +69,10 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var session = new Session(publicSubjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var clientAuthenticationContextReference = new ClientAuthenticationContextReference(client,
-            await GetAuthenticationContextReference(LevelOfAssuranceSubstantial), 0);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier)
+        var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var substantialAcr = await GetAuthenticationContextReference(LevelOfAssuranceSubstantial);
+        var clientAuthenticationContextReference = new ClientAuthenticationContextReference(client, substantialAcr, 0);
+        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr)
         {
             AuthenticationMethodReferences =
                 [await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.Password)]
@@ -112,7 +113,8 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         {
             RequireConsent = false,
         };
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier);
+        var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
         await AddEntity(authorizationGrant);
 
         var authorizeUser = new AuthorizeUser(publicSubjectIdentifier.Id);
@@ -145,7 +147,8 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var session = new Session(publicSubjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier);
+        var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
         await AddEntity(authorizationGrant);
 
         var authorizeUser = new AuthorizeUser(publicSubjectIdentifier.Id);
@@ -178,7 +181,8 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var session = new Session(publicSubjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier);
+        var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
         await AddEntity(authorizationGrant);
 
         var consentGrant = new ConsentGrant(publicSubjectIdentifier, client);
@@ -241,8 +245,8 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var session = new Session(publicSubjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier);
+        var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
         authorizationGrant.Revoke();
         await AddEntity(authorizationGrant);
 
@@ -274,8 +278,8 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var session = new Session(publicSubjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier)
+        var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr)
         {
             AuthenticationMethodReferences =
                 [await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.Password)]
@@ -311,10 +315,10 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var session = new Session(publicSubjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var clientAuthenticationContextReference = new ClientAuthenticationContextReference(client,
-            await GetAuthenticationContextReference(LevelOfAssuranceSubstantial), 0);
-
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier)
+        var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var substantialAcr = await GetAuthenticationContextReference(LevelOfAssuranceSubstantial);
+        var clientAuthenticationContextReference = new ClientAuthenticationContextReference(client, substantialAcr, 0);
+        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr)
         {
             AuthenticationMethodReferences =
                 [await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.Password)]
@@ -354,7 +358,8 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         {
             RequireConsent = false
         };
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier);
+        var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
         await AddEntity(authorizationGrant);
 
         var idToken = JwtBuilder.GetIdToken(
@@ -391,7 +396,8 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var session = new Session(publicSubjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier);
+        var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
         await AddEntity(authorizationGrant);
 
         var idToken = JwtBuilder.GetIdToken(
@@ -423,7 +429,8 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var session = new Session(publicSubjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier);
+        var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
         await AddEntity(authorizationGrant);
 
         var consentGrant = new ConsentGrant(publicSubjectIdentifier, client);
@@ -514,8 +521,8 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var session = new Session(publicSubjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier);
+        var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
         authorizationGrant.Revoke();
         await AddEntity(authorizationGrant);
 
@@ -556,8 +563,8 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var session = new Session(publicSubjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier)
+        var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr)
         {
             AuthenticationMethodReferences =
                 [await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.Password)]
@@ -602,10 +609,10 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var session = new Session(publicSubjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var clientAuthenticationContextReference = new ClientAuthenticationContextReference(client,
-            await GetAuthenticationContextReference(LevelOfAssuranceSubstantial), 0);
-
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier)
+        var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var substantialAcr = await GetAuthenticationContextReference(LevelOfAssuranceSubstantial);
+        var clientAuthenticationContextReference = new ClientAuthenticationContextReference(client, substantialAcr, 0);
+        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr)
         {
             AuthenticationMethodReferences =
                 [await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.Password)]
@@ -653,7 +660,8 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         {
             RequireConsent = false
         };
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier);
+        var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
         await AddEntity(authorizationGrant);
 
         authenticateUserAccessorMock
@@ -693,7 +701,8 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var session = new Session(publicSubjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier);
+        var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
         await AddEntity(authorizationGrant);
 
         authenticateUserAccessorMock
@@ -734,7 +743,8 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var session = new Session(publicSubjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier);
+        var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
         await AddEntity(authorizationGrant);
 
         var consentGrant = new ConsentGrant(publicSubjectIdentifier, client);

@@ -110,7 +110,8 @@ public class GrantAccessTokenBuilderTest(ITestOutputHelper outputHelper) : BaseU
 
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
         var session = new Session(publicSubjectIdentifier);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier);
+        var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
 
         await AddEntity(authorizationGrant);
         return authorizationGrant;

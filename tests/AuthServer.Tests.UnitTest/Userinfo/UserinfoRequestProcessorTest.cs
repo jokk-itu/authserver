@@ -43,7 +43,8 @@ public class UserinfoRequestProcessorTest : BaseUnitTest
             RequireConsent = false,
             ClientUri = "https://webapp.authserver.dk"
         };
-        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier);
+        var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier, lowAcr);
         await AddEntity(authorizationGrant);
 
         // Act
