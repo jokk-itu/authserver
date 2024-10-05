@@ -10,8 +10,7 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
 {
     private readonly AuthorizationDbContext _identityContext;
 
-    public AuthorizationGrantRepository(
-        AuthorizationDbContext identityContext)
+    public AuthorizationGrantRepository(AuthorizationDbContext identityContext)
     {
         _identityContext = identityContext;
     }
@@ -21,19 +20,22 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
         string subjectIdentifier,
         string clientId,
         long? maxAge,
-        IReadOnlyCollection<string> amr,
+        string authenticationContextReference,
+        IReadOnlyCollection<string> authenticationMethodReferences,
         CancellationToken cancellationToken)
     {
         var session = await GetSession(subjectIdentifier, clientId, cancellationToken);
         var client = (await _identityContext.FindAsync<Client>([clientId], cancellationToken))!;
         var subjectIdentifierForGrant = await GetSubjectIdentifierForGrant(subjectIdentifier, clientId, cancellationToken);
-        var authenticationMethodReferences = await GetAuthenticationMethodReferences(amr, cancellationToken);
+        var acr = await GetAuthenticationContextReference(authenticationContextReference, cancellationToken);
+
+        var amr = await GetAuthenticationMethodReferences(authenticationMethodReferences, cancellationToken);
 
         maxAge ??= client.DefaultMaxAge;
 
-        var newGrant = new AuthorizationGrant(session, client, subjectIdentifierForGrant, maxAge)
+        var newGrant = new AuthorizationGrant(session, client, subjectIdentifierForGrant, acr, maxAge)
         {
-            AuthenticationMethodReferences = authenticationMethodReferences
+            AuthenticationMethodReferences = amr
         };
         await _identityContext.AddAsync(newGrant, cancellationToken);
         await _identityContext.SaveChangesAsync(cancellationToken);
@@ -50,7 +52,6 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
             .ThenInclude(x => x.ClientAuthenticationContextReferences)
             .ThenInclude(x => x.AuthenticationContextReference)
             .Include(x => x.AuthenticationMethodReferences)
-            .ThenInclude(x => x.AuthenticationContextReference)
             .Where(AuthorizationGrant.IsMaxAgeValid)
             .Where(x => x.Client.Id == clientId)
             .Where(x => x.Session.RevokedAt == null)
@@ -68,7 +69,6 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
             .ThenInclude(x => x.ClientAuthenticationContextReferences)
             .ThenInclude(x => x.AuthenticationContextReference)
             .Include(x => x.AuthenticationMethodReferences)
-            .ThenInclude(x => x.AuthenticationContextReference)
             .Where(AuthorizationGrant.IsMaxAgeValid)
             .Where(x => x.Session.RevokedAt == null)
             .Where(x => x.Id == authorizationGrantId)
@@ -81,6 +81,14 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
             .Set<AuthenticationMethodReference>()
             .Where(x => authenticationMethodReferences.Contains(x.Name))
             .ToListAsync(cancellationToken);
+    }
+
+    private async Task<AuthenticationContextReference> GetAuthenticationContextReference(string authenticationContextReference, CancellationToken cancellationToken)
+    {
+        return await _identityContext
+            .Set<AuthenticationContextReference>()
+            .Where(x => x.Name == authenticationContextReference)
+            .SingleAsync(cancellationToken);
     }
 
     private async Task<Session> GetSession(string subjectIdentifier, string clientId,
