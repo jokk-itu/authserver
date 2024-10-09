@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AuthServer.TestIdentityProvider.Pages;
 
+[ValidateAntiForgeryToken]
 public class SignOutModel : PageModel
 {
     private readonly IEndSessionUserAccessor _endSessionUserAccessor;
@@ -18,6 +19,7 @@ public class SignOutModel : PageModel
         _endSessionUserAccessor = endSessionUserAccessor;
     }
 
+    [BindProperty(Name = "returnUrl", SupportsGet = true)]
     public string ReturnUrl { get; set; }
 
     public void OnGet(string returnUrl)

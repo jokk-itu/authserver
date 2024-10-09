@@ -7,6 +7,7 @@ using AuthServer.Helpers;
 
 namespace AuthServer.TestIdentityProvider.Pages;
 
+[ValidateAntiForgeryToken]
 public class ConsentModel : PageModel
 {
     private readonly IAuthorizeUserAccessor _authorizeUserAccessor;
@@ -22,6 +23,7 @@ public class ConsentModel : PageModel
 
     [BindProperty] public InputModel Input { get; set; }
 
+    [BindProperty(Name = "returnUrl", SupportsGet = true)]
     public string ReturnUrl { get; set; }
 
     public class InputModel

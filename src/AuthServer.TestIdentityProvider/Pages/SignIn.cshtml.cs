@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AuthServer.TestIdentityProvider.Pages;
 
+[ValidateAntiForgeryToken]
 public class SignInModel : PageModel
 {
     private readonly IAuthorizeUserAccessor _authorizeUserAccessor;
@@ -28,6 +29,7 @@ public class SignInModel : PageModel
     [BindProperty]
     public InputModel Input { get; set; }
 
+    [BindProperty(Name = "returnUrl", SupportsGet = true)]
     public string ReturnUrl { get; set; }
 
     public class InputModel

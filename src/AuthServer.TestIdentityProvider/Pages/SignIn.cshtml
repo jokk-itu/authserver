@@ -13,6 +13,7 @@
         <section>
             <form id="account" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                @Html.AntiForgeryToken()
                 <div class="form-floating mb-3">
                     <input asp-for="Input.Username" type="text" class="form-control" autocomplete="username" aria-required="true" placeholder="username"/>
                     <label asp-for="Input.Username" class="form-label">Username</label>

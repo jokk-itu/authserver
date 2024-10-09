@@ -12,6 +12,7 @@
         <section>
             <form id="signout" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                @Html.AntiForgeryToken()
                 <input asp-page-handler="Accept" id="accept-submit" type="submit" class="w-100 btn btn-lg btn-success" value="Accept"/>
                 <input asp-page-handler="Decline" id="decline-submit" type="submit" class="w-100 btn btn-lg btn-danger" value="Decline"/>
             </form>
