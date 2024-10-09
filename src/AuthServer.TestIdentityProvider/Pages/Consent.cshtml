@@ -39,8 +39,8 @@
                     </div>
                 }
                 <div>
-                    <input asp-page-handler="Accept" id="accept-submit" type="submit" class="w-100 btn btn-lg btn-success" value="Accept"/>
-                    <input asp-page-handler="Decline" id="decline-submit" type="submit" class="w-100 btn btn-lg btn-danger" value="Decline"/>
+                    <input asp-route-returnUrl="@Model.ReturnUrl" asp-page-handler="Accept" id="accept-submit" type="submit" class="w-100 btn btn-lg btn-success" value="Accept"/>
+                    <input asp-route-returnUrl="@Model.ReturnUrl" asp-page-handler="Decline" id="decline-submit" type="submit" class="w-100 btn btn-lg btn-danger" value="Decline"/>
                 </div>
             </form>
         </section>
