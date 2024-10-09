@@ -49,8 +49,6 @@ internal class AuthorizeResponseBuilder : IAuthorizeResponseBuilder
                 MaxAge = newRequest.MaxAge,
                 State = newRequest.State,
                 ResponseMode = newRequest.ResponseMode,
-                RequestObject = string.Empty,
-                RequestUri = string.Empty,
                 Scope = newRequest.Scope,
                 AcrValues = newRequest.AcrValues
             };
@@ -59,10 +57,10 @@ internal class AuthorizeResponseBuilder : IAuthorizeResponseBuilder
         var responseMode = request.ResponseMode;
         if (string.IsNullOrEmpty(responseMode))
         {
-            responseMode = DeduceResponseMode(request.ResponseType);
+            responseMode = DeduceResponseMode(request.ResponseType!);
         }
 
-        additionalParameters.Add(Parameter.State, request.State);
+        additionalParameters.Add(Parameter.State, request.State!);
 
         if (responseMode is ResponseModeConstants.FormPost)
         {
