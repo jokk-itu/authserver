@@ -294,6 +294,7 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         var deducedPrompt = await authorizeInteractionService.GetPrompt(
             new AuthorizeRequest
             {
+                ClientId = client.Id,
                 IdTokenHint = idToken,
                 AcrValues = [LevelOfAssuranceSubstantial]
             }, CancellationToken.None);
@@ -334,6 +335,7 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         var deducedPrompt = await authorizeInteractionService.GetPrompt(
             new AuthorizeRequest
             {
+                ClientId = client.Id,
                 IdTokenHint = idToken,
             }, CancellationToken.None);
 
@@ -375,6 +377,7 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         var deducedPrompt = await authorizeInteractionService.GetPrompt(
             new AuthorizeRequest
             {
+                ClientId = client.Id,
                 IdTokenHint = idToken,
             }, CancellationToken.None);
 
@@ -408,6 +411,7 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         var deducedPrompt = await authorizeInteractionService.GetPrompt(
             new AuthorizeRequest
             {
+                ClientId = client.Id,
                 IdTokenHint = idToken,
                 Scope = [ScopeConstants.OpenId]
             }, CancellationToken.None);

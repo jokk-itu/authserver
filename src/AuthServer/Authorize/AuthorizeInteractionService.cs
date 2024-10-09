@@ -1,4 +1,5 @@
 ﻿using AuthServer.Authorize.Abstractions;
+using AuthServer.Cache.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core.Abstractions;
 using AuthServer.Entities;
@@ -17,19 +18,22 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
     private readonly IAuthenticatedUserAccessor _authenticatedUserAccessor;
     private readonly IAuthorizationGrantRepository _authorizationGrantRepository;
     private readonly IConsentGrantRepository _consentGrantRepository;
+    private readonly ICachedClientStore _cachedClientStore;
 
     public AuthorizeInteractionService(
         ITokenDecoder<ServerIssuedTokenDecodeArguments> serverIssuedTokenDecoder,
         IAuthorizeUserAccessor userAccessor,
         IAuthenticatedUserAccessor authenticatedUserAccessor,
         IAuthorizationGrantRepository authorizationGrantRepository,
-        IConsentGrantRepository consentGrantRepository)
+        IConsentGrantRepository consentGrantRepository,
+        ICachedClientStore cachedClientStore)
     {
         _serverIssuedTokenDecoder = serverIssuedTokenDecoder;
         _userAccessor = userAccessor;
         _authenticatedUserAccessor = authenticatedUserAccessor;
         _authorizationGrantRepository = authorizationGrantRepository;
         _consentGrantRepository = consentGrantRepository;
+        _cachedClientStore = cachedClientStore;
     }
 
     /// <inheritdoc/>
@@ -77,7 +81,7 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
     {
         var authorizationGrant = (await _authorizationGrantRepository.GetActiveAuthorizationGrant(subjectIdentifier, authorizeRequest.ClientId!, cancellationToken))!;
         
-        var acrPrompt = GetPromptAcr(authorizationGrant, authorizeRequest);
+        var acrPrompt = await GetPromptAcr(authorizationGrant, authorizeRequest, cancellationToken);
         if (acrPrompt is not null)
         {
             return acrPrompt;
@@ -121,7 +125,7 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
 
     private async Task<string> GetPromptSilent(AuthorizationGrant authorizationGrant, AuthorizeRequest authorizeRequest, string subjectIdentifier, CancellationToken cancellationToken)
     {
-        var acrPrompt = GetPromptAcr(authorizationGrant, authorizeRequest);
+        var acrPrompt = await GetPromptAcr(authorizationGrant, authorizeRequest, cancellationToken);
         if (acrPrompt is not null)
         {
             return acrPrompt;
@@ -143,16 +147,10 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
         return PromptConstants.None;
     }
 
-    private static string? GetPromptAcr(AuthorizationGrant authorizationGrant, AuthorizeRequest authorizeRequest)
+    private async Task<string?> GetPromptAcr(AuthorizationGrant authorizationGrant, AuthorizeRequest authorizeRequest, CancellationToken cancellationToken)
     {
         var performedAuthenticationContextReference = authorizationGrant.AuthenticationContextReference.Name;
-
-        var defaultAuthenticationContextReferences = authorizationGrant
-            .Client
-            .ClientAuthenticationContextReferences
-            .Select(cacr => cacr.AuthenticationContextReference)
-            .Select(acr => acr.Name)
-            .ToList();
+        var defaultAuthenticationContextReferences = (await _cachedClientStore.Get(authorizeRequest.ClientId!, cancellationToken))!.DefaultAcrValues;
 
         if (authorizeRequest.AcrValues.Count != 0 && !authorizeRequest.AcrValues.Contains(performedAuthenticationContextReference))
         {

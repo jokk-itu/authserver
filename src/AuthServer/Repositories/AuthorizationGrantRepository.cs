@@ -48,10 +48,8 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
     {
         return await _identityContext
             .Set<AuthorizationGrant>()
+            .Include(x => x.AuthenticationContextReference)
             .Include(x => x.Client)
-            .ThenInclude(x => x.ClientAuthenticationContextReferences)
-            .ThenInclude(x => x.AuthenticationContextReference)
-            .Include(x => x.AuthenticationMethodReferences)
             .Where(AuthorizationGrant.IsMaxAgeValid)
             .Where(x => x.Client.Id == clientId)
             .Where(x => x.Session.RevokedAt == null)
@@ -65,10 +63,7 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
     {
         return await _identityContext
             .Set<AuthorizationGrant>()
-            .Include(x => x.Client)
-            .ThenInclude(x => x.ClientAuthenticationContextReferences)
-            .ThenInclude(x => x.AuthenticationContextReference)
-            .Include(x => x.AuthenticationMethodReferences)
+            .Include(x => x.AuthenticationContextReference)
             .Where(AuthorizationGrant.IsMaxAgeValid)
             .Where(x => x.Session.RevokedAt == null)
             .Where(x => x.Id == authorizationGrantId)
