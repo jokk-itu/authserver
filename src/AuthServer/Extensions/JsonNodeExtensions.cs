@@ -11,12 +11,17 @@ internal static class JsonNodeExtensions
 
 	public static IReadOnlyCollection<string> GetCollectionValue(this JsonNode node, string key)
     {
-        return node[key]?
-                   .AsArray()
-                   .Select(x => x?.GetValue<string>() ?? string.Empty)
-                   .ToList()
-                   .AsReadOnly()
-               ?? new List<string>().AsReadOnly();
+        var jsonNode = node[key];
+        if (jsonNode is JsonArray jsonArray)
+        {
+            return jsonArray
+                .Select(x => x?.GetValue<string>())
+                .OfType<string>()
+                .ToList()
+                .AsReadOnly();
+        }
+
+        return [];
     }
 
     public static IReadOnlyCollection<string> GetSpaceDelimitedValue(this JsonNode node, string key)

@@ -14,7 +14,7 @@ internal class RegisterRequestAccessor : IRequestAccessor<RegisterRequest>
 	{
 		var method = new HttpMethod(httpRequest.Method);
         var clientId = httpRequest.Query.GetValue(Parameter.ClientId);
-        var registrationAccessToken = method == HttpMethod.Post ? string.Empty : await httpRequest.HttpContext.GetTokenAsync(OAuthTokenAuthenticationDefaults.AuthenticationScheme, Parameter.AccessToken) ?? string.Empty;
+        var registrationAccessToken = method == HttpMethod.Post ? null : await httpRequest.HttpContext.GetTokenAsync(OAuthTokenAuthenticationDefaults.AuthenticationScheme, Parameter.AccessToken);
         if (method == HttpMethod.Get || method == HttpMethod.Delete)
         {
             return new RegisterRequest
@@ -33,11 +33,12 @@ internal class RegisterRequestAccessor : IRequestAccessor<RegisterRequest>
 
 		var clientName = json.GetValue(Parameter.ClientName);
 		var applicationType = json.GetValue(Parameter.ApplicationType);
-		var subjectType = json.GetValue(Parameter.Subject);
+		var subjectType = json.GetValue(Parameter.SubjectType);
 		var defaultMaxAge = json.GetValue(Parameter.DefaultMaxAge);
 		var tokenEndpointAuthMethod = json.GetValue(Parameter.TokenEndpointAuthMethod);
 		var tokenEndpointAuthSigningAlg = json.GetValue(Parameter.TokenEndpointAuthSigningAlg);
 		var jwks = json.GetValue(Parameter.Jwks);
+
 		var jwksUri = json.GetValue(Parameter.JwksUri);
 		var clientUri = json.GetValue(Parameter.ClientUri);
 		var policyUri = json.GetValue(Parameter.PolicyUri);
@@ -45,15 +46,19 @@ internal class RegisterRequestAccessor : IRequestAccessor<RegisterRequest>
 		var initiateLoginUri = json.GetValue(Parameter.InitiateLoginUri);
 		var logoUri = json.GetValue(Parameter.LogoUri);
 		var backchannelLogoutUri = json.GetValue(Parameter.BackchannelLogoutUri);
+
 		var requireSignedRequestObject = json.GetValue(Parameter.RequireSignedRequestObject);
 		var requireReferenceToken = json.GetValue(Parameter.RequireReferenceToken);
         var requirePushedAuthorizationRequests = json.GetValue(Parameter.RequirePushedAuthorizationRequests);
+
 		var requestObjectEncryptionEnc = json.GetValue(Parameter.RequestObjectEncryptionEnc);
 		var requestObjectEncryptionAlg = json.GetValue(Parameter.RequestObjectEncryptionAlg);
 		var requestObjectSigningAlg = json.GetValue(Parameter.RequestObjectSigningAlg);
+
 		var userinfoEncryptedResponseEnc = json.GetValue(Parameter.UserinfoEncryptedResponseEnc);
 		var userinfoEncryptedResponseAlg = json.GetValue(Parameter.UserinfoEncryptedResponseAlg);
 		var userinfoSignedResponseAlg = json.GetValue(Parameter.UserinfoEncryptedResponseAlg);
+
 		var idTokenEncryptedResponseEnc = json.GetValue(Parameter.IdTokenEncryptedResponseEnc);
 		var idTokenEncryptedResponseAlg = json.GetValue(Parameter.IdTokenEncryptedResponseAlg);
 		var idTokenSignedResponseAlg = json.GetValue(Parameter.IdTokenSignedResponseAlg);
