@@ -13,8 +13,7 @@ public class SignOutModel : PageModel
 {
     private readonly IEndSessionUserAccessor _endSessionUserAccessor;
 
-    public SignOutModel(
-        IEndSessionUserAccessor endSessionUserAccessor)
+    public SignOutModel(IEndSessionUserAccessor endSessionUserAccessor)
     {
         _endSessionUserAccessor = endSessionUserAccessor;
     }
