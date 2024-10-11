@@ -63,7 +63,11 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
 
         builder
             .HasMany(client => client.Scopes)
-            .WithMany(scope => scope.Clients);
+            .WithMany(scope => scope.Clients)
+            .UsingEntity(
+                $"{nameof(Client)}{nameof(Scope)}",
+                r => r.HasOne(typeof(Scope)).WithMany().HasForeignKey($"{nameof(Scope)}Id"),
+                l => l.HasOne(typeof(Client)).WithMany().HasForeignKey($"{nameof(Client)}Id"));
 
         builder
             .HasMany(client => client.GrantTypes)
