@@ -32,10 +32,10 @@ internal class AuthorizeRequestProcessor : IRequestProcessor<AuthorizeValidatedR
     {
         if (request.RequestUri is not null)
         {
-            var lastIndex = request.RequestUri.LastIndexOf(RequestUriConstants.RequestUriPrefix, StringComparison.Ordinal);
-            if (lastIndex != -1)
+            var isPushedRequest = request.RequestUri.StartsWith(RequestUriConstants.RequestUriPrefix);
+            if (isPushedRequest)
             {
-                var reference = request.RequestUri[lastIndex..];
+                var reference = request.RequestUri[(RequestUriConstants.RequestUriPrefix.Length)..];
                 await _clientRepository.RedeemAuthorizeMessage(reference, cancellationToken);
             }
         }

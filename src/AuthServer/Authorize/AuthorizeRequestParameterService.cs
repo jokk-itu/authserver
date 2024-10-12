@@ -130,8 +130,7 @@ internal class AuthorizeRequestParameterService : IAuthorizeRequestParameterServ
     public async Task<AuthorizeRequestDto?> GetRequestByPushedRequest(string requestUri, string clientId,
         CancellationToken cancellationToken)
     {
-        var lastIndex = requestUri.LastIndexOf(RequestUriConstants.RequestUriPrefix, StringComparison.Ordinal);
-        var reference = requestUri[lastIndex..];
+        var reference = requestUri[(RequestUriConstants.RequestUriPrefix.Length)..];
 
         _cachedAuthorizeRequestObjectDto =
             await _clientRepository.GetAuthorizeDto(reference, clientId, cancellationToken);
