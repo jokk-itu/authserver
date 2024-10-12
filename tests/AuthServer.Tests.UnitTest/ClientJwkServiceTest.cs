@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;
 using AuthServer.Entities;
@@ -85,13 +86,14 @@ public class ClientJwkServiceTest(ITestOutputHelper outputHelper) : BaseUnitTest
     public async Task GetKeys_JwksUriNotWithinExpiration_RefreshKeys(string use)
     {
         // Arrange
+        var httpClientFactory = new Mock<IHttpClientFactory>();
         var serviceProvider = BuildServiceProvider(services =>
         {
-            var requestHandler = new DelegatingHandlerStub(ClientJwkBuilder.GetClientJwks().PublicJwks, HttpStatusCode.OK);
-            var httpClientFactory = new Mock<IHttpClientFactory>();
+            var requestHandler = new DelegatingHandlerStub(ClientJwkBuilder.GetClientJwks().PublicJwks, MimeTypeConstants.Json, HttpStatusCode.OK);
             httpClientFactory
                 .Setup(x => x.CreateClient(HttpClientNameConstants.Client))
-                .Returns(new HttpClient(requestHandler));
+                .Returns(new HttpClient(requestHandler))
+                .Verifiable();
 
             services.AddSingletonMock(httpClientFactory);
         });
@@ -113,6 +115,7 @@ public class ClientJwkServiceTest(ITestOutputHelper outputHelper) : BaseUnitTest
         // Assert
         var key = Assert.Single(keys);
         Assert.Equal(use, key.Use);
+        httpClientFactory.Verify();
     }
 
     [Fact]
