@@ -35,13 +35,8 @@ builder.Services
         options.ResponseType = OpenIdConnectResponseType.Code;
         options.SaveTokens = true;
 
-        options.ClaimActions.MapUniqueJsonKey("auth_time", "auth_time");
         options.ClaimActions.MapUniqueJsonKey("grant_id", "grant_id");
         options.ClaimActions.MapUniqueJsonKey("address", "address");
-        options.ClaimActions.MapUniqueJsonKey("given_name", "given_name");
-        options.ClaimActions.MapUniqueJsonKey("family_name", "family_name");
-        options.ClaimActions.MapUniqueJsonKey("birthdate", "birthdate");
-        options.ClaimActions.MapUniqueJsonKey("email", "email");
         options.ClaimActions.MapUniqueJsonKey("phone", "phone");
 
         options.ClientId = openIdConnectSection.GetValue<string>("ClientId");
@@ -52,7 +47,7 @@ builder.Services
             openIdConnectSection.GetValue<string>("Authority")!
         ];
 
-        string[] scopes = ["openid", "profile", "address", "email", "phone", "authserver:userinfo"];
+        string[] scopes = ["address", "email", "phone", "authserver:userinfo"];
         foreach (var scope in scopes)
         {
             options.Scope.Add(scope);
@@ -60,6 +55,12 @@ builder.Services
 
         options.Events = new OpenIdConnectEvents
         {
+            OnRedirectToIdentityProvider = context =>
+            {
+                // TODO Customize ResponseMode (form_post, query and fragment)
+
+                return Task.CompletedTask;
+            },
             OnRedirectToIdentityProviderForSignOut = context =>
             {
                 if (context.Properties.GetParameter<bool>("interactive"))
@@ -97,16 +98,21 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapRazorPages();
-app.MapGet("/api/login", (HttpContext httpContext) =>
+app.MapGet("/api/login", (HttpContext httpContext, string? prompt, string? responseMode) =>
 {
     if (httpContext.User.Identity?.IsAuthenticated == true)
     {
         return Results.Redirect("~/");
     }
-    else
+    else if (prompt is not null)
     {
-        return Results.Challenge(new AuthenticationProperties(), [OpenIdConnectDefaults.AuthenticationScheme]);
+        return Results.Challenge(new OpenIdConnectChallengeProperties
+        {
+            Prompt = prompt
+        }, [OpenIdConnectDefaults.AuthenticationScheme]);
     }
+
+    return Results.Challenge(new OpenIdConnectChallengeProperties(), [OpenIdConnectDefaults.AuthenticationScheme]);
 });
 app.MapGet("/api/logout/silent", async httpContext =>
 {
@@ -116,7 +122,7 @@ app.MapGet("/api/logout/silent", async httpContext =>
 app.MapGet("/api/logout/interactive", async httpContext =>
 {
     await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    await httpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties(null, new Dictionary<string, object?>
+    await httpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new OpenIdConnectChallengeProperties(null, new Dictionary<string, object?>
     {
         { "interactive", true }
     }));
