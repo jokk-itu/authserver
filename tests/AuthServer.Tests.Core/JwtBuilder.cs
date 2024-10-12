@@ -39,6 +39,25 @@ public class JwtBuilder
         });
     }
 
+    public string GetRequestObjectJwt(Dictionary<string, object> claims, string clientId, string privateJwks, ClientTokenAudience audience)
+    {
+        var jwks = JsonWebKeySet.Create(privateJwks);
+        var jsonWebKey = jwks.Keys.First(k => k.Use == JsonWebKeyUseNames.Sig);
+        var signingCredentials = new SigningCredentials(jsonWebKey, jsonWebKey.Alg);
+        var now = DateTime.UtcNow;
+        return new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor
+        {
+            Issuer = clientId,
+            NotBefore = now,
+            Expires = now.AddSeconds(30),
+            IssuedAt = now,
+            SigningCredentials = signingCredentials,
+            Audience = MapToAudience(audience),
+            TokenType = TokenTypeHeaderConstants.RequestObjectToken,
+            Claims = claims
+        });
+    }
+
     public string GetIdToken(string clientId, string grantId, string subject, IReadOnlyCollection<string> amr, string acr)
     {
         var key = _jwksDocument.GetTokenSigningKey();
