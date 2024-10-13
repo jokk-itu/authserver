@@ -81,7 +81,7 @@ internal class AuthorizationCodeValidator : IRequestValidator<TokenRequest, Auth
 
         var publicSubjectIdentifier = await _identityContext
             .Set<AuthorizationGrant>()
-            .Where(AuthorizationGrant.IsMaxAgeValid)
+            .Where(AuthorizationGrant.IsActive)
             .Where(x => x.Id == authorizationCode.AuthorizationGrantId)
             .Where(x => x.AuthorizationCodes
                 .AsQueryable()

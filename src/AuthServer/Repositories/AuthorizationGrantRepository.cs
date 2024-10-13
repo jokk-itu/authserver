@@ -19,7 +19,6 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
     public async Task<AuthorizationGrant> CreateAuthorizationGrant(
         string subjectIdentifier,
         string clientId,
-        long? maxAge,
         string authenticationContextReference,
         IReadOnlyCollection<string> authenticationMethodReferences,
         CancellationToken cancellationToken)
@@ -28,12 +27,9 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
         var client = (await _identityContext.FindAsync<Client>([clientId], cancellationToken))!;
         var subjectIdentifierForGrant = await GetSubjectIdentifierForGrant(subjectIdentifier, clientId, cancellationToken);
         var acr = await GetAuthenticationContextReference(authenticationContextReference, cancellationToken);
-
         var amr = await GetAuthenticationMethodReferences(authenticationMethodReferences, cancellationToken);
 
-        maxAge ??= client.DefaultMaxAge;
-
-        var newGrant = new AuthorizationGrant(session, client, subjectIdentifierForGrant, acr, maxAge)
+        var newGrant = new AuthorizationGrant(session, client, subjectIdentifierForGrant, acr)
         {
             AuthenticationMethodReferences = amr
         };
@@ -50,7 +46,7 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
             .Set<AuthorizationGrant>()
             .Include(x => x.AuthenticationContextReference)
             .Include(x => x.Client)
-            .Where(AuthorizationGrant.IsMaxAgeValid)
+            .Where(AuthorizationGrant.IsActive)
             .Where(x => x.Client.Id == clientId)
             .Where(x => x.Session.RevokedAt == null)
             .Where(x => x.Session.PublicSubjectIdentifier.Id == subjectIdentifier)
@@ -64,7 +60,7 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
         return await _identityContext
             .Set<AuthorizationGrant>()
             .Include(x => x.AuthenticationContextReference)
-            .Where(AuthorizationGrant.IsMaxAgeValid)
+            .Where(AuthorizationGrant.IsActive)
             .Where(x => x.Session.RevokedAt == null)
             .Where(x => x.Id == authorizationGrantId)
             .SingleOrDefaultAsync(cancellationToken);
@@ -114,7 +110,7 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
     {
         var grant = await _identityContext
             .Set<AuthorizationGrant>()
-            .Where(AuthorizationGrant.IsMaxAgeValid)
+            .Where(AuthorizationGrant.IsActive)
             .Include(x => x.Client)
             .Where(x => x.Client.Id == clientId)
             .Where(x => x.Session.RevokedAt == null)

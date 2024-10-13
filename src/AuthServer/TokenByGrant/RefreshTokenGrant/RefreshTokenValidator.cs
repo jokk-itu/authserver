@@ -82,7 +82,7 @@ internal class RefreshTokenValidator : IRequestValidator<TokenRequest, RefreshTo
 
         var subjectIdentifier = await _identityContext
             .Set<AuthorizationGrant>()
-            .Where(AuthorizationGrant.IsMaxAgeValid)
+            .Where(AuthorizationGrant.IsActive)
             .Select(x => x.Session.PublicSubjectIdentifier.Id)
             .SingleOrDefaultAsync(cancellationToken);
 

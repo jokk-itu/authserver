@@ -9,12 +9,11 @@ internal interface IAuthorizationGrantRepository
     /// </summary>
     /// <param name="subjectIdentifier"></param>
     /// <param name="clientId"></param>
-    /// <param name="maxAge"></param>
     /// <param name="authenticationContextReference"></param>
     /// <param name="authenticationMethodReferences"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<AuthorizationGrant> CreateAuthorizationGrant(string subjectIdentifier, string clientId, long? maxAge, string authenticationContextReference, IReadOnlyCollection<string> authenticationMethodReferences, CancellationToken cancellationToken);
+    Task<AuthorizationGrant> CreateAuthorizationGrant(string subjectIdentifier, string clientId, string authenticationContextReference, IReadOnlyCollection<string> authenticationMethodReferences, CancellationToken cancellationToken);
 
     /// <summary>
     /// 

@@ -31,11 +31,11 @@ internal class AuthorizeService : IAuthorizeService
     }
 
     /// <inheritdoc/>
-    public async Task CreateAuthorizationGrant(string subjectIdentifier, string clientId, long? maxAge, IReadOnlyCollection<string> amr,
+    public async Task CreateAuthorizationGrant(string subjectIdentifier, string clientId, IReadOnlyCollection<string> amr,
         CancellationToken cancellationToken)
     {
         var acr = await _authenticationContextResolver.ResolveAuthenticationContextReference(amr, cancellationToken);
-        await _authorizationGrantRepository.CreateAuthorizationGrant(subjectIdentifier, clientId, maxAge, acr, amr, cancellationToken);
+        await _authorizationGrantRepository.CreateAuthorizationGrant(subjectIdentifier, clientId, acr, amr, cancellationToken);
     }
 
     /// <inheritdoc/>

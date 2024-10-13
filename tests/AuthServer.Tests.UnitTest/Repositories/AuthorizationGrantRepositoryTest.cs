@@ -14,7 +14,7 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
     }
 
     [Fact]
-    public async Task CreateAuthorizationGrant_ActiveSessionWithMaxAgeAndPasswordAmr_ExpectGrant()
+    public async Task CreateAuthorizationGrant_ActiveSessionWithPasswordAmr_ExpectGrant()
     {
         // Arrange
         var serviceProvider = BuildServiceProvider();
@@ -32,7 +32,6 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
         var authorizationGrant = await authorizationGrantRepository.CreateAuthorizationGrant(
             publicSubjectIdentifier.Id,
             client.Id,
-            300,
             LevelOfAssuranceLow,
             [AuthenticationMethodReferenceConstants.Password],
             CancellationToken.None);
@@ -41,13 +40,12 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
         Assert.Equal(client, authorizationGrant.Client);
         Assert.Equal(session, authorizationGrant.Session);
         Assert.Equal(publicSubjectIdentifier, authorizationGrant.SubjectIdentifier);
-        Assert.Equal(300, authorizationGrant.MaxAge);
         Assert.Single(authorizationGrant.AuthenticationMethodReferences);
         Assert.Equal(AuthenticationMethodReferenceConstants.Password, authorizationGrant.AuthenticationMethodReferences.Single().Name);
     }
 
     [Fact]
-    public async Task CreateAuthorizationGrant_ActiveSessionWithPreviousGrantAndDefaultMaxAge_ExpectGrant()
+    public async Task CreateAuthorizationGrant_ActiveSessionWithPreviousGrant_ExpectGrant()
     {
         // Arrange
         var serviceProvider = BuildServiceProvider();
@@ -56,8 +54,7 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
         var session = new Session(publicSubjectIdentifier);
         var client = new Client("webapp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic)
         {
-            SubjectType = SubjectType.Public,
-            DefaultMaxAge = 300
+            SubjectType = SubjectType.Public
         };
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
         var previousGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
@@ -67,7 +64,6 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
         var authorizationGrant = await authorizationGrantRepository.CreateAuthorizationGrant(
             publicSubjectIdentifier.Id,
             client.Id,
-            null,
             LevelOfAssuranceLow,
             [AuthenticationMethodReferenceConstants.Password],
             CancellationToken.None);
@@ -77,7 +73,6 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
         Assert.Equal(session, authorizationGrant.Session);
         Assert.Equal(publicSubjectIdentifier, authorizationGrant.SubjectIdentifier);
         Assert.NotNull(previousGrant.RevokedAt);
-        Assert.Equal(300, authorizationGrant.MaxAge);
     }
 
     [Fact]
@@ -98,7 +93,6 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
         var authorizationGrant = await authorizationGrantRepository.CreateAuthorizationGrant(
             publicSubjectIdentifier.Id,
             client.Id,
-            null,
             LevelOfAssuranceLow,
             [AuthenticationMethodReferenceConstants.Password],
             CancellationToken.None);
@@ -109,7 +103,6 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
         Assert.Equal(publicSubjectIdentifier, authorizationGrant.Session.PublicSubjectIdentifier);
         Assert.IsType<PairwiseSubjectIdentifier>(authorizationGrant.SubjectIdentifier);
         Assert.Equal(publicSubjectIdentifier, ((PairwiseSubjectIdentifier)authorizationGrant.SubjectIdentifier).PublicSubjectIdentifier);
-        Assert.Null(authorizationGrant.MaxAge);
     }
 
     [Fact]
@@ -130,7 +123,6 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
         var authorizationGrant = await authorizationGrantRepository.CreateAuthorizationGrant(
             publicSubjectIdentifier.Id,
             client.Id,
-            null,
             LevelOfAssuranceLow,
             [AuthenticationMethodReferenceConstants.Password],
             CancellationToken.None);
@@ -140,7 +132,6 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
         Assert.NotNull(authorizationGrant.Session);
         Assert.Equal(publicSubjectIdentifier, authorizationGrant.Session.PublicSubjectIdentifier);
         Assert.Equal(pairwiseSubjectIdentifier, authorizationGrant.SubjectIdentifier);
-        Assert.Null(authorizationGrant.MaxAge);
     }
 
     [Fact]
@@ -176,7 +167,7 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
         var session = new Session(publicSubjectIdentifier);
         var client = new Client("webapp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr, 0);
+        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
         typeof(AuthorizationGrant).GetProperty("AuthTime")!.SetValue(authorizationGrant, DateTime.UtcNow.AddSeconds(-60));
         await AddEntity(authorizationGrant);
 
@@ -243,7 +234,7 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
         var session = new Session(publicSubjectIdentifier);
         var client = new Client("webapp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr, 0);
+        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
         typeof(AuthorizationGrant).GetProperty("AuthTime")!.SetValue(authorizationGrant, DateTime.UtcNow.AddSeconds(-60));
         await AddEntity(authorizationGrant);
 
