@@ -8,7 +8,6 @@ using AuthServer.Repositories.Abstractions;
 using AuthServer.RequestAccessors.Authorize;
 using AuthServer.TokenDecoders;
 using AuthServer.TokenDecoders.Abstractions;
-using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.Options;
 
 namespace AuthServer.Authorize;
@@ -85,7 +84,6 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
                     MaxAge = authorizeDto.MaxAge,
                     State = authorizeDto.State,
                     ResponseMode = authorizeDto.ResponseMode,
-                    RequestObject = string.Empty,
                     RequestUri = request.RequestUri,
                     Scope = authorizeDto.Scope,
                     AcrValues = authorizeDto.AcrValues
@@ -124,8 +122,6 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
                 MaxAge = newRequest.MaxAge,
                 State = newRequest.State,
                 ResponseMode = newRequest.ResponseMode,
-                RequestObject = string.Empty,
-                RequestUri = string.Empty,
                 Scope = newRequest.Scope,
                 AcrValues = newRequest.AcrValues
             };
@@ -153,8 +149,6 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
                 MaxAge = newRequest.MaxAge,
                 State = newRequest.State,
                 ResponseMode = newRequest.ResponseMode,
-                RequestObject = string.Empty,
-                RequestUri = string.Empty,
                 Scope = newRequest.Scope,
                 AcrValues = newRequest.AcrValues
             };
