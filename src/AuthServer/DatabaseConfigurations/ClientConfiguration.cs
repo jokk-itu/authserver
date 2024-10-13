@@ -63,15 +63,27 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
 
         builder
             .HasMany(client => client.Scopes)
-            .WithMany(scope => scope.Clients);
+            .WithMany(scope => scope.Clients)
+            .UsingEntity(
+                $"{nameof(Client)}{nameof(Scope)}",
+                r => r.HasOne(typeof(Scope)).WithMany().HasForeignKey($"{nameof(Scope)}Id"),
+                l => l.HasOne(typeof(Client)).WithMany().HasForeignKey($"{nameof(Client)}Id"));
 
         builder
             .HasMany(client => client.GrantTypes)
-            .WithMany(grant => grant.Clients);
+            .WithMany(grant => grant.Clients)
+            .UsingEntity(
+                $"{nameof(Client)}{nameof(GrantType)}",
+                r => r.HasOne(typeof(GrantType)).WithMany().HasForeignKey($"{nameof(GrantType)}Id"),
+                l => l.HasOne(typeof(Client)).WithMany().HasForeignKey($"{nameof(Client)}Id"));
 
         builder
             .HasMany(client => client.ResponseTypes)
-            .WithMany(contact => contact.Clients);
+            .WithMany(contact => contact.Clients)
+            .UsingEntity(
+                $"{nameof(Client)}{nameof(ResponseType)}",
+                r => r.HasOne(typeof(ResponseType)).WithMany().HasForeignKey($"{nameof(ResponseType)}Id"),
+                l => l.HasOne(typeof(Client)).WithMany().HasForeignKey($"{nameof(Client)}Id"));
 
         builder
             .HasMany(x => x.ClientAuthenticationContextReferences)

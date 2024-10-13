@@ -34,6 +34,10 @@ internal sealed class AuthorizationGrantConfiguration : IEntityTypeConfiguration
 
         builder
             .HasMany(x => x.AuthenticationMethodReferences)
-            .WithMany(x => x.AuthorizationGrants);
+            .WithMany(x => x.AuthorizationGrants)
+            .UsingEntity(
+                $"{nameof(AuthorizationGrant)}{nameof(AuthenticationMethodReference)}",
+                r => r.HasOne(typeof(AuthenticationMethodReference)).WithMany().HasForeignKey($"{nameof(AuthenticationMethodReference)}Id"),
+                l => l.HasOne(typeof(AuthorizationGrant)).WithMany().HasForeignKey($"{nameof(AuthorizationGrant)}Id"));
     }
 }
