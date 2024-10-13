@@ -13,13 +13,13 @@ public static class UserConstants
     public const string PreferredUsername = "Pingu";
     public const string Profile = "";
     public const string Picture = "";
-    public const string Website = "";
-    public const string Email = "pingu@";
+    public const string Website = "https://www.authserver.dk";
+    public const string Email = "pingu@hotmail.com";
     public const string EmailVerified = "true";
     public const string Gender = "penguin";
     public const string Birthdate = "1986-05-28 00:00:00.000";
     public const string ZoneInfo = "";
-    public const string Locale = "en-au";
+    public const string Locale = "da-dk";
     public const string PhoneNumber = "+672 10 9999";
     public const string PhoneNumberVerified = "true";
     public const string UpdatedAt = "2024-04-05 00:00:00.000";
