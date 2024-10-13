@@ -35,9 +35,7 @@ builder.Services
         options.ResponseType = OpenIdConnectResponseType.Code;
         options.SaveTokens = true;
 
-        options.ClaimActions.MapUniqueJsonKey("grant_id", "grant_id");
-        options.ClaimActions.MapUniqueJsonKey("address", "address");
-        options.ClaimActions.MapUniqueJsonKey("phone", "phone");
+        options.ClaimActions.MapAllExcept("nonce", "iss", "exp", "iat", "nbf", "aud", "azp", "client_id", "grant_id", "sid", "auth_time");
 
         options.ClientId = openIdConnectSection.GetValue<string>("ClientId");
         options.ClientSecret = openIdConnectSection.GetValue<string>("ClientSecret");
@@ -57,7 +55,11 @@ builder.Services
         {
             OnRedirectToIdentityProvider = context =>
             {
-                // TODO Customize ResponseMode (form_post, query and fragment)
+                var responseMode = context.Properties.GetParameter<string>("response_mode");
+                if (responseMode is not null)
+                {
+                    context.ProtocolMessage.ResponseMode = responseMode;
+                }
 
                 return Task.CompletedTask;
             },
@@ -98,21 +100,30 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapRazorPages();
-app.MapGet("/api/login", (HttpContext httpContext, string? prompt, string? responseMode) =>
+app.MapGet("/api/login", (HttpContext httpContext, string? prompt, string? responseMode, int? maxAge) =>
 {
     if (httpContext.User.Identity?.IsAuthenticated == true)
     {
         return Results.Redirect("~/");
     }
-    else if (prompt is not null)
+
+    var properties = new OpenIdConnectChallengeProperties();
+    if (prompt is not null)
     {
-        return Results.Challenge(new OpenIdConnectChallengeProperties
-        {
-            Prompt = prompt
-        }, [OpenIdConnectDefaults.AuthenticationScheme]);
+        properties.Prompt = prompt;
     }
 
-    return Results.Challenge(new OpenIdConnectChallengeProperties(), [OpenIdConnectDefaults.AuthenticationScheme]);
+    if (responseMode is not null)
+    {
+        properties.Parameters.Add("response_mode", responseMode);
+    }
+
+    if (maxAge is not null)
+    {
+        properties.MaxAge = TimeSpan.FromSeconds(maxAge.Value);
+    }
+
+    return Results.Challenge(properties, [OpenIdConnectDefaults.AuthenticationScheme]);
 });
 app.MapGet("/api/logout/silent", async httpContext =>
 {
