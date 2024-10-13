@@ -4,7 +4,7 @@ using AuthServer.Core;
 namespace AuthServer.Entities;
 public class AuthorizationGrant : Entity<string>
 {
-    public AuthorizationGrant(Session session, Client client, SubjectIdentifier subjectIdentifier, AuthenticationContextReference authenticationContextReference, long? maxAge = null)
+    public AuthorizationGrant(Session session, Client client, SubjectIdentifier subjectIdentifier, AuthenticationContextReference authenticationContextReference)
     {
         Id = Guid.NewGuid().ToString();
         AuthTime = DateTime.UtcNow;
@@ -12,7 +12,6 @@ public class AuthorizationGrant : Entity<string>
         Client = client ?? throw new ArgumentNullException(nameof(client));
         SubjectIdentifier = subjectIdentifier ?? throw new ArgumentNullException(nameof(subjectIdentifier));
         AuthenticationContextReference = authenticationContextReference ?? throw new ArgumentNullException(nameof(authenticationContextReference));
-        MaxAge = maxAge is null or >= 0 ? maxAge : throw new ArgumentException("Must be zero or a positive number", nameof(maxAge));
     }
 
 #pragma warning disable CS8618
@@ -21,7 +20,6 @@ public class AuthorizationGrant : Entity<string>
 #pragma warning restore
 
     public DateTime AuthTime { get; private init; }
-    public long? MaxAge { get; private init; }
     public DateTime? RevokedAt { get; private set; }
     public Session Session { get; private init; }
     public Client Client { get; private init; }
@@ -37,6 +35,5 @@ public class AuthorizationGrant : Entity<string>
         RevokedAt ??= DateTime.UtcNow;
     }
 
-    public static readonly Expression<Func<AuthorizationGrant, bool>> IsMaxAgeValid = a =>
-      a.RevokedAt == null && (a.MaxAge == null || a.AuthTime.AddSeconds(a.MaxAge.Value) > DateTime.UtcNow);
+    public static readonly Expression<Func<AuthorizationGrant, bool>> IsActive = a => a.RevokedAt == null;
 }
