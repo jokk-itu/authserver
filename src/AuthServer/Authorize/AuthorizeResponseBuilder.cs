@@ -70,7 +70,7 @@ internal class AuthorizeResponseBuilder : IAuthorizeResponseBuilder
         var redirectUri = request.RedirectUri;
         if (string.IsNullOrEmpty(redirectUri))
         {
-            var cachedClient = await _cachedClientStore.Get(request.ClientId, cancellationToken);
+            var cachedClient = await _cachedClientStore.Get(request.ClientId!, cancellationToken);
             redirectUri = cachedClient.RedirectUris.Single();
         }
 
