@@ -40,6 +40,7 @@
 		<InternalsVisibleTo Include="$(AssemblyName).Tests.IntegrationTest" />
 		<InternalsVisibleTo Include="$(AssemblyName).Tests.ArchitectureTest" />
 		<InternalsVisibleTo Include="$(AssemblyName).Tests.Core" />
+		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
 	</ItemGroup>
 
 	<ItemGroup>
