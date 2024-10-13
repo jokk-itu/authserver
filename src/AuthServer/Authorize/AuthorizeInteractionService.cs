@@ -8,6 +8,7 @@ using AuthServer.Repositories.Abstractions;
 using AuthServer.RequestAccessors.Authorize;
 using AuthServer.TokenDecoders;
 using AuthServer.TokenDecoders.Abstractions;
+using Microsoft.Extensions.Logging;
 
 namespace AuthServer.Authorize;
 
@@ -19,6 +20,7 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
     private readonly IAuthorizationGrantRepository _authorizationGrantRepository;
     private readonly IConsentGrantRepository _consentGrantRepository;
     private readonly ICachedClientStore _cachedClientStore;
+    private readonly ILogger<AuthorizeInteractionService> _logger;
 
     public AuthorizeInteractionService(
         ITokenDecoder<ServerIssuedTokenDecodeArguments> serverIssuedTokenDecoder,
@@ -26,7 +28,8 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
         IAuthenticatedUserAccessor authenticatedUserAccessor,
         IAuthorizationGrantRepository authorizationGrantRepository,
         IConsentGrantRepository consentGrantRepository,
-        ICachedClientStore cachedClientStore)
+        ICachedClientStore cachedClientStore,
+        ILogger<AuthorizeInteractionService> logger)
     {
         _serverIssuedTokenDecoder = serverIssuedTokenDecoder;
         _userAccessor = userAccessor;
@@ -34,6 +37,7 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
         _authorizationGrantRepository = authorizationGrantRepository;
         _consentGrantRepository = consentGrantRepository;
         _cachedClientStore = cachedClientStore;
+        _logger = logger;
     }
 
     /// <inheritdoc/>
@@ -43,6 +47,7 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
         var authorizeUser = _userAccessor.TryGetUser();
         if (authorizeUser is not null)
         {
+            _logger.LogDebug("Deducing prompt from interaction with {@User}", authorizeUser);
             return await GetPromptFromInteraction(authorizeUser.SubjectIdentifier, authorizeRequest, cancellationToken);
         }
 
@@ -52,6 +57,7 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
          */
         if (authorizeRequest.Prompt is PromptConstants.Login or PromptConstants.Consent or PromptConstants.SelectAccount)
         {
+            _logger.LogDebug("Using prompt {Prompt} from request", authorizeRequest.Prompt);
             return authorizeRequest.Prompt;
         }
 
@@ -68,11 +74,14 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
         switch (authenticatedUsers)
         {
             case 0:
+                _logger.LogDebug("No authenticated users, deducing prompt {Prompt}", PromptConstants.Login);
                 return PromptConstants.Login;
             case > 1:
+                _logger.LogDebug("Multiple authenticated users, deducing prompt {Prompt}", PromptConstants.SelectAccount);
                 return PromptConstants.SelectAccount;
             default:
                 var authenticatedUser = (await _authenticatedUserAccessor.GetAuthenticatedUser())!;
+                _logger.LogDebug("Deducing Prompt from one authenticated user {@User}", authenticatedUser);
                 return await GetPromptFromCookie(authenticatedUser.SubjectIdentifier, authorizeRequest, cancellationToken);
         }
     }
@@ -95,15 +104,18 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
 
         if (!authorizationGrant.Client.RequireConsent)
         {
+            _logger.LogDebug("Client {ClientId} does not require consent, deducing prompt {Prompt}", authorizeRequest.ClientId, PromptConstants.None);
             return PromptConstants.None;
         }
 
         var consentedScope = await _consentGrantRepository.GetConsentedScope(subjectIdentifier, authorizeRequest.ClientId!, cancellationToken);
         if (authorizeRequest.Scope.ExceptAny(consentedScope))
         {
+            _logger.LogDebug("User has not granted consent to scope {@Scope}, deducing prompt {Prompt}", authorizeRequest.Scope.Except(consentedScope), PromptConstants.Consent);
             return PromptConstants.Consent;
         }
 
+        _logger.LogDebug("Deducing prompt {Prompt}", PromptConstants.None);
         return PromptConstants.None;
     }
 
@@ -112,6 +124,7 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
         var authorizationGrant = await _authorizationGrantRepository.GetActiveAuthorizationGrant(subjectIdentifier, authorizeRequest.ClientId!, cancellationToken);
         if (authorizationGrant is null)
         {
+            _logger.LogDebug("Grant has expired, used sub {SubjectIdentifier} and client id {ClientId}, deducing prompt {Prompt}", subjectIdentifier, authorizeRequest.ClientId!, PromptConstants.Login);
             return PromptConstants.Login;
         }
 
@@ -123,6 +136,7 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
         var authorizationGrant = await _authorizationGrantRepository.GetActiveAuthorizationGrant(authorizationGrantId, cancellationToken);
         if (authorizationGrant is null)
         {
+            _logger.LogDebug("Grant {GrantId} has expired, deducing prompt {Prompt}", authorizationGrantId, PromptConstants.Login);
             return PromptConstants.Login;
         }
 
@@ -145,6 +159,7 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
 
         if (!authorizationGrant.Client.RequireConsent)
         {
+            _logger.LogDebug("Client {ClientId} does not require consent, deducing prompt {Prompt}", authorizeRequest.ClientId, PromptConstants.None);
             _userAccessor.SetUser(new AuthorizeUser(subjectIdentifier));
             return PromptConstants.None;
         }
@@ -152,9 +167,11 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
         var consentedScope = await _consentGrantRepository.GetConsentedScope(subjectIdentifier, authorizeRequest.ClientId!, cancellationToken);
         if (authorizeRequest.Scope.ExceptAny(consentedScope))
         {
+            _logger.LogDebug("User has not granted consent to scope {@Scope}, deducing prompt {Prompt}", authorizeRequest.Scope.Except(consentedScope), PromptConstants.Consent);
             return PromptConstants.Consent;
         }
 
+        _logger.LogDebug("Deducing prompt {Prompt}", PromptConstants.None);
         _userAccessor.SetUser(new AuthorizeUser(subjectIdentifier));
         return PromptConstants.None;
     }
@@ -166,24 +183,27 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
 
         if (authorizeRequest.AcrValues.Count != 0 && !authorizeRequest.AcrValues.Contains(performedAuthenticationContextReference))
         {
+            _logger.LogDebug("Acr {@RequestedAcr} is not met, performed Acr {PerformedAcr}, deducing prompt {Prompt}", authorizeRequest.AcrValues, performedAuthenticationContextReference, PromptConstants.Login);
             return PromptConstants.Login;
         }
 
         if (defaultAuthenticationContextReferences.Count != 0 && !defaultAuthenticationContextReferences.Contains(performedAuthenticationContextReference))
         {
+            _logger.LogDebug("Acr {@DefaultAcr} is not met, performed Acr {PerformedAcr}, deducing prompt {Prompt}", defaultAuthenticationContextReferences, performedAuthenticationContextReference, PromptConstants.Login);
             return PromptConstants.Login;
         }
 
         return null;
     }
 
-    private static string? GetPromptMaxAge(AuthorizationGrant authorizationGrant, AuthorizeRequest authorizeRequest)
+    private string? GetPromptMaxAge(AuthorizationGrant authorizationGrant, AuthorizeRequest authorizeRequest)
     {
         var hasMaxAge = int.TryParse(authorizeRequest.MaxAge, out var parsedMaxAge);
         var maxAge = hasMaxAge ? parsedMaxAge : authorizationGrant.Client.DefaultMaxAge;
 
         if (maxAge is not null && authorizationGrant.AuthTime.AddSeconds(maxAge.Value) < DateTime.UtcNow)
         {
+            _logger.LogDebug("MaxAge {MaxAge} has been reached for grant {GrantId}, deducing prompt {Prompt}", maxAge, authorizationGrant.Id, PromptConstants.Login);
             return PromptConstants.Login;
         }
 
