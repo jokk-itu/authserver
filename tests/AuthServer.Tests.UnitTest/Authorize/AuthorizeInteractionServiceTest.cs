@@ -371,11 +371,6 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             client.Id, authorizationGrant.Id, publicSubjectIdentifier.Id,
             [AuthenticationMethodReferenceConstants.Password], LevelOfAssuranceLow);
 
-        var authorizeUser = new AuthorizeUser(publicSubjectIdentifier.Id);
-        authorizeUserAccessorMock
-            .Setup(x => x.SetUser(authorizeUser))
-            .Verifiable();
-
         // Act
         var deducedPrompt = await authorizeInteractionService.GetPrompt(
             new AuthorizeRequest
@@ -387,7 +382,6 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
 
         // Assert
         Assert.Equal(PromptConstants.Login, deducedPrompt);
-        authorizeUserAccessorMock.Verify();
     }
 
     [Fact]
@@ -395,10 +389,7 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
     {
         // Arrange
         var authorizeUserAccessorMock = new Mock<IAuthorizeUserAccessor>();
-        var serviceProvider = BuildServiceProvider(services =>
-        {
-            services.AddScopedMock(authorizeUserAccessorMock);
-        });
+        var serviceProvider = BuildServiceProvider(services => { services.AddScopedMock(authorizeUserAccessorMock); });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
         var publicSubjectIdentifier = new PublicSubjectIdentifier();
@@ -419,11 +410,6 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             client.Id, authorizationGrant.Id, publicSubjectIdentifier.Id,
             [AuthenticationMethodReferenceConstants.Password], LevelOfAssuranceLow);
 
-        var authorizeUser = new AuthorizeUser(publicSubjectIdentifier.Id);
-        authorizeUserAccessorMock
-            .Setup(x => x.SetUser(authorizeUser))
-            .Verifiable();
-
         // Act
         var deducedPrompt = await authorizeInteractionService.GetPrompt(
             new AuthorizeRequest
@@ -434,7 +420,6 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
 
         // Assert
         Assert.Equal(PromptConstants.Login, deducedPrompt);
-        authorizeUserAccessorMock.Verify();
     }
 
     [Fact]

@@ -9,7 +9,6 @@ using AuthServer.RequestAccessors.Revocation;
 using AuthServer.TokenDecoders;
 using AuthServer.TokenDecoders.Abstractions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace AuthServer.Revocation;
 internal class RevocationRequestValidator : IRequestValidator<RevocationRequest, RevocationValidatedRequest>

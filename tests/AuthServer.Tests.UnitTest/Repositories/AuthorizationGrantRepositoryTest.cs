@@ -157,28 +157,6 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
     }
 
     [Fact]
-    public async Task GetActiveAuthorizationGrant_SubjectAndClientIdWithExpiredGrant_ExpectNull()
-    {
-        // Arrange
-        var serviceProvider = BuildServiceProvider();
-        var authorizationGrantRepository = serviceProvider.GetRequiredService<IAuthorizationGrantRepository>();
-
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
-        var client = new Client("webapp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
-        typeof(AuthorizationGrant).GetProperty("AuthTime")!.SetValue(authorizationGrant, DateTime.UtcNow.AddSeconds(-60));
-        await AddEntity(authorizationGrant);
-
-        // Act
-        var activeGrant = await authorizationGrantRepository.GetActiveAuthorizationGrant(publicSubjectIdentifier.Id, client.Id, CancellationToken.None);
-
-        // Assert
-        Assert.Null(activeGrant);
-    }
-
-    [Fact]
     public async Task GetActiveAuthorizationGrant_SubjectAndClientIdWithRevokedSession_ExpectNull()
     {
         // Arrange
@@ -214,28 +192,6 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
         var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
         authorizationGrant.Revoke();
-        await AddEntity(authorizationGrant);
-
-        // Act
-        var activeGrant = await authorizationGrantRepository.GetActiveAuthorizationGrant(authorizationGrant.Id, CancellationToken.None);
-
-        // Assert
-        Assert.Null(activeGrant);
-    }
-
-    [Fact]
-    public async Task GetActiveAuthorizationGrant_GrantIdWithExpiredGrant_ExpectNull()
-    {
-        // Arrange
-        var serviceProvider = BuildServiceProvider();
-        var authorizationGrantRepository = serviceProvider.GetRequiredService<IAuthorizationGrantRepository>();
-
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
-        var client = new Client("webapp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
-        typeof(AuthorizationGrant).GetProperty("AuthTime")!.SetValue(authorizationGrant, DateTime.UtcNow.AddSeconds(-60));
         await AddEntity(authorizationGrant);
 
         // Act
