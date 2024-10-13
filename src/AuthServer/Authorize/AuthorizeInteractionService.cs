@@ -80,7 +80,13 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
     private async Task<string> GetPromptFromInteraction(string subjectIdentifier, AuthorizeRequest authorizeRequest, CancellationToken cancellationToken)
     {
         var authorizationGrant = (await _authorizationGrantRepository.GetActiveAuthorizationGrant(subjectIdentifier, authorizeRequest.ClientId!, cancellationToken))!;
-        
+
+        var maxAgePrompt = GetPromptMaxAge(authorizationGrant, authorizeRequest);
+        if (maxAgePrompt is not null)
+        {
+            return maxAgePrompt;
+        }
+
         var acrPrompt = await GetPromptAcr(authorizationGrant, authorizeRequest, cancellationToken);
         if (acrPrompt is not null)
         {
@@ -125,6 +131,12 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
 
     private async Task<string> GetPromptSilent(AuthorizationGrant authorizationGrant, AuthorizeRequest authorizeRequest, string subjectIdentifier, CancellationToken cancellationToken)
     {
+        var maxAgePrompt = GetPromptMaxAge(authorizationGrant, authorizeRequest);
+        if (maxAgePrompt is not null)
+        {
+            return maxAgePrompt;
+        }
+
         var acrPrompt = await GetPromptAcr(authorizationGrant, authorizeRequest, cancellationToken);
         if (acrPrompt is not null)
         {
@@ -158,6 +170,19 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
         }
 
         if (defaultAuthenticationContextReferences.Count != 0 && !defaultAuthenticationContextReferences.Contains(performedAuthenticationContextReference))
+        {
+            return PromptConstants.Login;
+        }
+
+        return null;
+    }
+
+    private static string? GetPromptMaxAge(AuthorizationGrant authorizationGrant, AuthorizeRequest authorizeRequest)
+    {
+        var hasMaxAge = int.TryParse(authorizeRequest.MaxAge, out var parsedMaxAge);
+        var maxAge = hasMaxAge ? parsedMaxAge : authorizationGrant.Client.DefaultMaxAge;
+
+        if (maxAge is not null && authorizationGrant.AuthTime.AddSeconds(maxAge.Value) < DateTime.UtcNow)
         {
             return PromptConstants.Login;
         }
