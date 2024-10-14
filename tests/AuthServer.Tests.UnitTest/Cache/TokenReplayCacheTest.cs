@@ -1,4 +1,5 @@
 ﻿using AuthServer.Cache.Abstractions;
+using AuthServer.Tests.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Moq;

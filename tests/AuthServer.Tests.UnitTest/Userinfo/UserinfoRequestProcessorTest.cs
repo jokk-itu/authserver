@@ -4,6 +4,7 @@ using AuthServer.Core.Abstractions;
 using AuthServer.Core.Request;
 using AuthServer.Entities;
 using AuthServer.Enums;
+using AuthServer.Tests.Core;
 using AuthServer.Userinfo;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;

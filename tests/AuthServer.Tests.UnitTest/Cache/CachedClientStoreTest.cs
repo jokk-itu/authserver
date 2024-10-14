@@ -5,6 +5,7 @@ using AuthServer.Cache.Entities;
 using AuthServer.Core.Exceptions;
 using AuthServer.Entities;
 using AuthServer.Enums;
+using AuthServer.Tests.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit.Abstractions;

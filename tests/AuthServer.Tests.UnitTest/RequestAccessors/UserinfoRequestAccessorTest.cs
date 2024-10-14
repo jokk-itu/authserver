@@ -4,6 +4,7 @@ using AuthServer.Core;
 using AuthServer.Core.Abstractions;
 using AuthServer.Helpers;
 using AuthServer.RequestAccessors.Userinfo;
+using AuthServer.Tests.Core;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;

@@ -3,6 +3,7 @@ using AuthServer.Core.Request;
 using AuthServer.Entities;
 using AuthServer.Enums;
 using AuthServer.Revocation;
+using AuthServer.Tests.Core;
 using AuthServer.TokenDecoders;
 using AuthServer.TokenDecoders.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
