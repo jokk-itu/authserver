@@ -33,6 +33,8 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     private readonly IOptionsMonitor<JwksDocument> _jwksDocumentOptions;
     protected JwksDocument JwksDocument => _jwksDocumentOptions.CurrentValue;
 
+    protected JwtBuilder JwtBuilder => new (DiscoveryDocument, JwksDocument);
+
     protected const string LevelOfAssuranceLow = AuthenticationContextReferenceConstants.LevelOfAssuranceLow;
 
     protected const string LevelOfAssuranceSubstantial =

@@ -10,7 +10,9 @@ using AuthServer.Core;
 using AuthServer.Endpoints.Responses;
 using AuthServer.Helpers;
 using AuthServer.Tests.Core;
+using AuthServer.TokenDecoders;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,11 +28,12 @@ public class AuthorizeIntegrationTest : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Authorize_NoPrompt_ExpectRedirectCode()
+    public async Task Authorize_NoPromptWithRequestObject_ExpectRedirectCode()
     {
         // Arrange
         var httpClient = GetHttpClient();
-        var registerResponse = await GetRegisterResponse(httpClient);
+        var jwks = ClientJwkBuilder.GetClientJwks();
+        var registerResponse = await GetRegisterResponse(httpClient, jwks.PublicJwks);
 
         await AddUser();
         await AddAuthenticationContextReferences();
@@ -50,7 +53,43 @@ public class AuthorizeIntegrationTest : BaseIntegrationTest
             CancellationToken.None);
 
         // Act
-        var authorizeResponseMessage = await Authorize(httpClient, registerResponse.ClientId, null, true, ScopeConstants.OpenId);
+        var query = GetQuery(registerResponse.ClientId, null, ScopeConstants.OpenId, true, jwks.PrivateJwks);
+        var authorizeResponseMessage = await Authorize(httpClient, query, true);
+        var queryNameValues = HttpUtility.ParseQueryString(authorizeResponseMessage.Headers.Location!.Query);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.SeeOther, authorizeResponseMessage.StatusCode);
+        Assert.Equal(registerResponse.RedirectUris!.Single(), authorizeResponseMessage.Headers.Location!.GetLeftPart(UriPartial.Path));
+        Assert.Contains(Parameter.Code, queryNameValues.AllKeys);
+    }
+
+    [Fact]
+    public async Task Authorize_NoPrompt_ExpectRedirectCode()
+    {
+        // Arrange
+        var httpClient = GetHttpClient();
+        var registerResponse = await GetRegisterResponse(httpClient, null);
+
+        await AddUser();
+        await AddAuthenticationContextReferences();
+
+        var authorizeService = ServiceProvider.GetRequiredService<IAuthorizeService>();
+        await authorizeService.CreateAuthorizationGrant(
+            UserConstants.SubjectIdentifier,
+            registerResponse.ClientId,
+            [AuthenticationMethodReferenceConstants.Password],
+            CancellationToken.None);
+
+        await authorizeService.CreateOrUpdateConsentGrant(
+            UserConstants.SubjectIdentifier,
+            registerResponse.ClientId,
+            [ScopeConstants.OpenId],
+            [],
+            CancellationToken.None);
+
+        // Act
+        var query = GetQuery(registerResponse.ClientId, null, ScopeConstants.OpenId, false, null);
+        var authorizeResponseMessage = await Authorize(httpClient, query, true);
         var queryNameValues = HttpUtility.ParseQueryString(authorizeResponseMessage.Headers.Location!.Query);
 
         // Assert
@@ -64,7 +103,7 @@ public class AuthorizeIntegrationTest : BaseIntegrationTest
     {
         // Arrange
         var httpClient = GetHttpClient();
-        var registerResponse = await GetRegisterResponse(httpClient);
+        var registerResponse = await GetRegisterResponse(httpClient, null);
 
         await AddUser();
         await AddAuthenticationContextReferences();
@@ -77,7 +116,8 @@ public class AuthorizeIntegrationTest : BaseIntegrationTest
             CancellationToken.None);
 
         // Act
-        var authorizeResponseMessage = await Authorize(httpClient, registerResponse.ClientId, 0, true, ScopeConstants.OpenId);
+        var query = GetQuery(registerResponse.ClientId, 0, ScopeConstants.OpenId, false, null);
+        var authorizeResponseMessage = await Authorize(httpClient, query, true);
         var queryNameValues = HttpUtility.ParseQueryString(authorizeResponseMessage.Headers.Location!.Query);
         var returnUrl = queryNameValues.Get("returnUrl");
 
@@ -92,7 +132,7 @@ public class AuthorizeIntegrationTest : BaseIntegrationTest
     {
         // Arrange
         var httpClient = GetHttpClient();
-        var registerResponse = await GetRegisterResponse(httpClient);
+        var registerResponse = await GetRegisterResponse(httpClient, null);
 
         await AddUser();
         await AddAuthenticationContextReferences();
@@ -105,7 +145,8 @@ public class AuthorizeIntegrationTest : BaseIntegrationTest
             CancellationToken.None);
 
         // Act
-        var authorizeResponseMessage = await Authorize(httpClient, registerResponse.ClientId, null, true, ScopeConstants.OpenId);
+        var query = GetQuery(registerResponse.ClientId, null, ScopeConstants.OpenId, false, null);
+        var authorizeResponseMessage = await Authorize(httpClient, query, true);
         var queryNameValues = HttpUtility.ParseQueryString(authorizeResponseMessage.Headers.Location!.Query);
         var returnUrl = queryNameValues.Get("returnUrl");
 
@@ -120,7 +161,7 @@ public class AuthorizeIntegrationTest : BaseIntegrationTest
     {
         // Arrange
         var httpClient = GetHttpClient();
-        var registerResponse = await GetRegisterResponse(httpClient);
+        var registerResponse = await GetRegisterResponse(httpClient, null);
 
         await AddUser();
         await AddAuthenticationContextReferences();
@@ -133,7 +174,8 @@ public class AuthorizeIntegrationTest : BaseIntegrationTest
             CancellationToken.None);
 
         // Act
-        var authorizeResponseMessage = await Authorize(httpClient, registerResponse.ClientId, null, false, ScopeConstants.OpenId);
+        var query = GetQuery(registerResponse.ClientId, null, ScopeConstants.OpenId, false, null);
+        var authorizeResponseMessage = await Authorize(httpClient, query, false);
         var queryNameValues = HttpUtility.ParseQueryString(authorizeResponseMessage.Headers.Location!.Query);
         var returnUrl = queryNameValues.Get("returnUrl");
 
@@ -150,7 +192,8 @@ public class AuthorizeIntegrationTest : BaseIntegrationTest
         var httpClient = GetHttpClient();
 
         // Act
-        var authorizeResponseMessage = await Authorize(httpClient, "invalid_client_id", null, false, ScopeConstants.OpenId);
+        var query = GetQuery("invalid_client_id", null, ScopeConstants.OpenId, false, null);
+        var authorizeResponseMessage = await Authorize(httpClient, query, true);
         var content = await authorizeResponseMessage.Content.ReadAsStringAsync();
         var error = JsonSerializer.Deserialize<OAuthError>(content);
 
@@ -166,7 +209,7 @@ public class AuthorizeIntegrationTest : BaseIntegrationTest
     {
         // Arrange
         var httpClient = GetHttpClient();
-        var registerResponse = await GetRegisterResponse(httpClient);
+        var registerResponse = await GetRegisterResponse(httpClient, null);
 
         await AddUser();
         await AddAuthenticationContextReferences();
@@ -179,7 +222,8 @@ public class AuthorizeIntegrationTest : BaseIntegrationTest
             CancellationToken.None);
 
         // Act
-        var authorizeResponseMessage = await Authorize(httpClient, registerResponse.ClientId, 0, true, "invalid_scope");
+        var query = GetQuery(registerResponse.ClientId, null, "invalid_scope", false, null);
+        var authorizeResponseMessage = await Authorize(httpClient, query, true);
         var queryNameValues = HttpUtility.ParseQueryString(authorizeResponseMessage.Headers.Location!.Query);
         var error = queryNameValues.Get(Parameter.Error);
         var errorDescription = queryNameValues.Get(Parameter.ErrorDescription);
@@ -191,15 +235,23 @@ public class AuthorizeIntegrationTest : BaseIntegrationTest
         Assert.NotNull(errorDescription);
     }
 
-    private async Task<RegisterResponse> GetRegisterResponse(HttpClient httpClient)
+    private async Task<RegisterResponse> GetRegisterResponse(HttpClient httpClient, string? publicJwks)
     {
+        var content = new Dictionary<string, object>
+        {
+            { Parameter.ClientName, "webapp" },
+            { Parameter.RedirectUris, new[] { "https://webapp.authserver.dk/" } },
+        };
+
+        if (publicJwks is not null)
+        {
+            content.Add(Parameter.Jwks, publicJwks);
+            content.Add(Parameter.RequestObjectSigningAlg, JwsAlgConstants.RsaSha256);
+        }
+
         var registerResponseMessage = await httpClient.PostAsJsonAsync(
             "connect/register",
-            new Dictionary<string, object>
-            {
-                { Parameter.ClientName, "webapp" },
-                { Parameter.RedirectUris, new[] { "https://webapp.authserver.dk/" } },
-            });
+            content);
         var registerResponse = (await registerResponseMessage.Content.ReadFromJsonAsync<RegisterResponse>())!;
 
         TestOutputHelper.WriteLine(
@@ -210,26 +262,8 @@ public class AuthorizeIntegrationTest : BaseIntegrationTest
         return registerResponse;
     }
 
-    private async Task<HttpResponseMessage> Authorize(HttpClient httpClient, string clientId, int? maxAge, bool appendAuthorizeUser, string scope)
+    private async Task<HttpResponseMessage> Authorize(HttpClient httpClient, QueryString query, bool appendAuthorizeUser)
     {
-        var proofKeyForCodeExchange = ProofKeyForCodeExchangeHelper.GetProofKeyForCodeExchange();
-        var queryBuilder = new QueryBuilder
-        {
-            { Parameter.ClientId, clientId },
-            { Parameter.ResponseType, ResponseTypeConstants.Code },
-            { Parameter.CodeChallengeMethod, CodeChallengeMethodConstants.S256 },
-            { Parameter.CodeChallenge, proofKeyForCodeExchange.CodeChallenge },
-            { Parameter.Scope, scope },
-            { Parameter.State, CryptographyHelper.GetRandomString(32) },
-            { Parameter.Nonce, CryptographyHelper.GetRandomString(32) },
-        };
-
-        if (maxAge is not null)
-        {
-            queryBuilder.Add(Parameter.MaxAge, maxAge.ToString()!);
-        }
-
-        var query = queryBuilder.ToQueryString();
         var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"connect/authorize{query}");
 
         var dataProtectorProvider = ServiceProvider.GetRequiredService<IDataProtectionProvider>();
@@ -252,5 +286,50 @@ public class AuthorizeIntegrationTest : BaseIntegrationTest
             await authorizeResponseMessage.Content.ReadAsStringAsync());
 
         return authorizeResponseMessage;
+    }
+
+    private QueryString GetQuery(string clientId, int? maxAge, string scope, bool isRequestObject, string? privateKeyJwks)
+    {
+        var proofKeyForCodeExchange = ProofKeyForCodeExchangeHelper.GetProofKeyForCodeExchange();
+        var queryBuilder = new QueryBuilder();
+        if (isRequestObject)
+        {
+            var claims = new Dictionary<string, object>
+            {
+                { Parameter.ClientId, clientId },
+                { Parameter.ResponseType, ResponseTypeConstants.Code },
+                { Parameter.CodeChallengeMethod, CodeChallengeMethodConstants.S256 },
+                { Parameter.CodeChallenge, proofKeyForCodeExchange.CodeChallenge },
+                { Parameter.Scope, scope },
+                { Parameter.State, CryptographyHelper.GetRandomString(32) },
+                { Parameter.Nonce, CryptographyHelper.GetRandomString(32) },
+            };
+
+            if (maxAge is not null)
+            {
+                claims.Add(Parameter.MaxAge, maxAge);
+            }
+
+            var requestObject = JwtBuilder.GetRequestObjectJwt(claims, clientId, privateKeyJwks!, ClientTokenAudience.AuthorizeEndpoint);
+            queryBuilder.Add(Parameter.Request, requestObject);
+            queryBuilder.Add(Parameter.ClientId, clientId);
+        }
+        else
+        {
+            queryBuilder.Add(Parameter.ClientId, clientId);
+            queryBuilder.Add(Parameter.ResponseType, ResponseTypeConstants.Code);
+            queryBuilder.Add(Parameter.CodeChallengeMethod, CodeChallengeMethodConstants.S256);
+            queryBuilder.Add(Parameter.CodeChallenge, proofKeyForCodeExchange.CodeChallenge);
+            queryBuilder.Add(Parameter.Scope, scope);
+            queryBuilder.Add(Parameter.State, CryptographyHelper.GetRandomString(32));
+            queryBuilder.Add(Parameter.Nonce, CryptographyHelper.GetRandomString(32));
+
+            if (maxAge is not null)
+            {
+                queryBuilder.Add(Parameter.MaxAge, maxAge.ToString()!);
+            }
+        }
+
+        return queryBuilder.ToQueryString();
     }
 }
