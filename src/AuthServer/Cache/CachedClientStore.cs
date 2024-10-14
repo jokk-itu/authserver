@@ -46,14 +46,10 @@ internal class CachedClientStore : ICachedClientStore
     }
 
     /// <inheritdoc/>
-    public Task<CachedClient> Get(string entityId, CancellationToken cancellationToken)
+    public async Task<CachedClient> Get(string entityId, CancellationToken cancellationToken)
     {
-        if (_internalCache.TryGetValue($"Client#{entityId}", out var internalCachedClient))
-        {
-            return Task.FromResult(internalCachedClient);
-        }
-
-        throw new ClientNotFoundException(entityId);
+        var cachedClient = await TryGet(entityId, cancellationToken);
+        return cachedClient ?? throw new ClientNotFoundException(entityId);
     }
 
     /// <inheritdoc/>
