@@ -46,25 +46,14 @@ internal class CachedClientStore : ICachedClientStore
     }
 
     /// <inheritdoc/>
-    public async Task<CachedClient> Get(string entityId, CancellationToken cancellationToken)
+    public Task<CachedClient> Get(string entityId, CancellationToken cancellationToken)
     {
-        var isInternalCacheHit = _internalCache.TryGetValue($"Client#{entityId}", out var internalCachedClient);
-        if (isInternalCacheHit)
+        if (_internalCache.TryGetValue($"Client#{entityId}", out var internalCachedClient))
         {
-            return internalCachedClient!;
+            return Task.FromResult(internalCachedClient);
         }
 
-        _logger.LogDebug("InternalCache miss for id {ClientId}", entityId);
-
-        var cachedClient = await _distributedCache.Get<CachedClient>($"Client#{entityId}", cancellationToken);
-        if (cachedClient is not null)
-        {
-            return cachedClient;
-        }
-
-        _logger.LogInformation("Cache miss for id {ClientId}", entityId);
-        var client = await Add(entityId, cancellationToken);
-        return client ?? throw new ClientNotFoundException(entityId);
+        throw new ClientNotFoundException(entityId);
     }
 
     /// <inheritdoc/>
