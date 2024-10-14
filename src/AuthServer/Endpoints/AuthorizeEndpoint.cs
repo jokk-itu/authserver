@@ -28,24 +28,20 @@ internal static class AuthorizeEndpoint
         return await response.Match(
             async code =>
             {
-                // remove the authenticated user to reset the interaction flow
+                // remove the authorized user to reset the interaction flow
                 userAccessor.ClearUser();
                 return await authorizeResponseBuilder.BuildResponse(request,
                     new Dictionary<string, string> { { Parameter.Code, code } }, httpContext.Response, cancellationToken);
             },
-            async error => string.IsNullOrEmpty(request.Prompt)
+            async error => string.IsNullOrEmpty(request.Prompt) && error.Error is ErrorCode.LoginRequired or ErrorCode.ConsentRequired or ErrorCode.AccountSelectionRequired
                 ? error switch
                 {
-                    { ResultCode: ResultCode.BadRequest } => Results.Extensions.OAuthBadRequest(error),
                     { Error: ErrorCode.LoginRequired } => Results.Extensions.LocalRedirect(options.LoginUri, httpContext),
                     { Error: ErrorCode.ConsentRequired } => Results.Extensions.LocalRedirect(options.ConsentUri, httpContext),
-                    { Error: ErrorCode.AccountSelectionRequired } => Results.Extensions.LocalRedirect(options.AccountSelectionUri, httpContext),
-                    { ResultCode: ResultCode.Redirect} => await authorizeResponseBuilder.BuildResponse(request, error.ToDictionary(), httpContext.Response, cancellationToken),
-                    _ => Results.Extensions.OAuthBadRequest(error)
+                    _ => Results.Extensions.LocalRedirect(options.AccountSelectionUri, httpContext)
                 }
                 : error switch
                 {
-                    { ResultCode: ResultCode.BadRequest } => Results.Extensions.OAuthBadRequest(error),
                     { ResultCode: ResultCode.Redirect } => await authorizeResponseBuilder.BuildResponse(request, error.ToDictionary(), httpContext.Response, cancellationToken),
                     _ => Results.Extensions.OAuthBadRequest(error)
                 });
