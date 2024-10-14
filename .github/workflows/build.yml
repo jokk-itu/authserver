@@ -1,8 +1,10 @@
 name: CI
 
 on:
-  push:
   pull_request:
+  push:
+    branches:
+      - 'master'
   
 env:
   DOTNET_NOLOGO: true
@@ -51,7 +53,6 @@ jobs:
     needs:
       - build_solution
       - build_documentation
-    if: github.event_name == 'pull_request' || github.ref_name == 'master'
     runs-on: windows-latest
     steps:
       - name: Set up JDK 17
