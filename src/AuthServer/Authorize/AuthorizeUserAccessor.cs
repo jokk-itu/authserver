@@ -8,18 +8,21 @@ namespace AuthServer.Authorize;
 
 internal class AuthorizeUserAccessor : IAuthorizeUserAccessor
 {
-    private const string AuthorizeUserCookieName = "AuthorizeUser";
-
     private readonly CookieOptions _cookieOptions;
 
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IDataProtector _dataProtector;
 
+    private AuthorizeUser? _authorizeUser;
+
+    public const string AuthorizeUserCookieName = "AuthorizeUser";
+    public const string DataProtectorPurpose = "AuthorizeUserCookie";
+
     public AuthorizeUserAccessor(
         IHttpContextAccessor httpContextAccessor,
         IDataProtectionProvider dataProtectionProvider)
     {
-        _dataProtector = dataProtectionProvider.CreateProtector("AuthorizeUserCookie");
+        _dataProtector = dataProtectionProvider.CreateProtector(DataProtectorPurpose);
         _httpContextAccessor = httpContextAccessor;
 
         _cookieOptions = new CookieOptions
@@ -32,9 +35,9 @@ internal class AuthorizeUserAccessor : IAuthorizeUserAccessor
         };
     }
 
-    public AuthorizeUser GetUser() => InternalTryGetUser() ?? throw new InvalidOperationException("AuthorizeUser is not set");
+    public AuthorizeUser GetUser() => _authorizeUser ?? InternalTryGetUser() ?? throw new InvalidOperationException("AuthorizeUser is not set");
 
-    public AuthorizeUser? TryGetUser() => InternalTryGetUser();
+    public AuthorizeUser? TryGetUser() => _authorizeUser ?? InternalTryGetUser();
 
     public void SetUser(AuthorizeUser authorizeUser)
     {
@@ -59,6 +62,7 @@ internal class AuthorizeUserAccessor : IAuthorizeUserAccessor
 
     public bool ClearUser()
     {
+        _authorizeUser = null;
         if (InternalTryGetUser() is null)
         {
             return false;
@@ -83,6 +87,8 @@ internal class AuthorizeUserAccessor : IAuthorizeUserAccessor
 
     private void InternalSetUser(AuthorizeUser authorizeUser)
     {
+        _authorizeUser = authorizeUser;
+
         var authorizeUserBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(authorizeUser));
         var encryptedAuthorizeUser = _dataProtector.Protect(authorizeUserBytes);
         _httpContextAccessor.HttpContext!.Response.Cookies.Append(AuthorizeUserCookieName, Convert.ToBase64String(encryptedAuthorizeUser), _cookieOptions);
