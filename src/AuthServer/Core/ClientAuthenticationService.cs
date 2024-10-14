@@ -60,6 +60,7 @@ internal class ClientAuthenticationService : IClientAuthenticationService
 
         if (client.TokenEndpointAuthMethod != TokenEndpointAuthMethod.None)
         {
+            _logger.LogDebug("Client {ClientId} is not registered for None", client.Id);
             return new ClientAuthenticationResult(null, false);
         }
 
@@ -126,6 +127,7 @@ internal class ClientAuthenticationService : IClientAuthenticationService
 
         if (client.TokenEndpointAuthMethod != TokenEndpointAuthMethod.PrivateKeyJwt)
         {
+            _logger.LogDebug("Client {ClientId} is not registered for PrivateKeyJwt", clientId);
             return new ClientAuthenticationResult(null, false);
         }
 
