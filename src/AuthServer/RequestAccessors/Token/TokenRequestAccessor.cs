@@ -20,7 +20,7 @@ internal class TokenRequestAccessor : IRequestAccessor<TokenRequest>
         var dPoPToken = body.GetValue(Parameter.DPoP);
 
         var scope = body.GetSpaceDelimitedValue(Parameter.Scope);
-        var resource = body.GetSpaceDelimitedValue(Parameter.Resource);
+        var resource = body.GetCollectionValue(Parameter.Resource);
 
         var clientSecretBasic = httpRequest.GetClientSecretBasic();
         var clientSecretPost = body.GetClientSecretPost();

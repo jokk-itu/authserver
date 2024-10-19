@@ -170,7 +170,6 @@ public class TokenRequestAccessorTest(ITestOutputHelper outputHelper) : BaseUnit
 		var formUrlContent = new Dictionary<string, StringValues>
 		{
 			{ Parameter.Scope, value },
-			{ Parameter.Resource, value },
 		};
 
 		var httpContext = new DefaultHttpContext
@@ -186,7 +185,6 @@ public class TokenRequestAccessorTest(ITestOutputHelper outputHelper) : BaseUnit
 
 		// Assert
 		Assert.Equal(expectedValue, request.Scope);
-		Assert.Equal(expectedValue, request.Resource);
 	}
 
 	[Theory]
@@ -200,7 +198,6 @@ public class TokenRequestAccessorTest(ITestOutputHelper outputHelper) : BaseUnit
 		var formUrlContent = new Dictionary<string, StringValues>
 		{
 			{ Parameter.Scope, value },
-			{ Parameter.Resource, value },
 		};
 
 		var httpContext = new DefaultHttpContext
@@ -216,6 +213,61 @@ public class TokenRequestAccessorTest(ITestOutputHelper outputHelper) : BaseUnit
 
 		// Assert
 		Assert.Equal(expectedCount, request.Scope.Count);
-		Assert.Equal(expectedCount, request.Resource.Count);
 	}
+
+	[Fact]
+    public async Task GetRequest_CollectionParameters_ExpectValues()
+    {
+        // Arrange
+        var serviceProvider = BuildServiceProvider();
+        var requestAccessor = serviceProvider.GetRequiredService<IRequestAccessor<TokenRequest>>();
+        var values = new StringValues(["three", "random", "values"]);
+        string[] expectedValue = ["three", "random", "values"];
+        var formUrlContent = new Dictionary<string, StringValues>
+        {
+            { Parameter.Resource, values },
+        };
+
+        var httpContext = new DefaultHttpContext
+        {
+            Request =
+            {
+                Form = new FormCollection(formUrlContent)
+            }
+        };
+
+        // Act
+        var request = await requestAccessor.GetRequest(httpContext.Request);
+
+        // Assert
+        Assert.Equal(expectedValue, request.Resource);
+    }
+
+	[Theory]
+	[InlineData("", 0)]
+	[InlineData(null, 0)]
+    public async Task GetRequest_CollectionParameters_ExpectZeroValues(string? value, int expectedCount)
+    {
+        // Arrange
+        var serviceProvider = BuildServiceProvider();
+        var requestAccessor = serviceProvider.GetRequiredService<IRequestAccessor<TokenRequest>>();
+        var formUrlContent = new Dictionary<string, StringValues>
+        {
+            { Parameter.Resource, value },
+        };
+
+        var httpContext = new DefaultHttpContext
+        {
+            Request =
+            {
+                Form = new FormCollection(formUrlContent)
+            }
+        };
+
+        // Act
+        var request = await requestAccessor.GetRequest(httpContext.Request);
+
+        // Assert
+        Assert.Equal(expectedCount, request.Resource.Count);
+    }
 }
