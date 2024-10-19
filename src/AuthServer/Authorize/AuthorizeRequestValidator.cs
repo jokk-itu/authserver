@@ -88,7 +88,7 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
                     Scope = authorizeDto.Scope,
                     AcrValues = authorizeDto.AcrValues
                 };
-                return await ValidateForInteraction(request, cachedClient, cancellationToken);
+                return await ValidateForInteraction(request, cancellationToken);
             }
 
             if (!Uri.TryCreate(request.RequestUri, UriKind.Absolute, out var requestUri))
@@ -239,11 +239,11 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
             return AuthorizeError.InvalidAcrValues;
         }
 
-        return await ValidateForInteraction(request, cachedClient, cancellationToken);
+        return await ValidateForInteraction(request, cancellationToken);
     }
 
     // This must first be deduced after successful validation of all input from the request
-    private async Task<ProcessResult<AuthorizeValidatedRequest, ProcessError>> ValidateForInteraction(AuthorizeRequest request, CachedClient cachedClient, CancellationToken cancellationToken)
+    private async Task<ProcessResult<AuthorizeValidatedRequest, ProcessError>> ValidateForInteraction(AuthorizeRequest request, CancellationToken cancellationToken)
     {
         var deducedPrompt = await _authorizeInteractionService.GetPrompt(request, cancellationToken);
         if (deducedPrompt == PromptConstants.Login)
@@ -261,10 +261,6 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
             return AuthorizeError.AccountSelectionRequired;
         }
 
-        var redirectUri = string.IsNullOrEmpty(request.RedirectUri)
-            ? cachedClient.RedirectUris.Single()
-            : request.RedirectUri;
-
         return new AuthorizeValidatedRequest
         {
             ResponseMode = request.ResponseMode,
@@ -273,7 +269,7 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
             AcrValues = request.AcrValues,
             ClientId = request.ClientId!,
             Nonce = request.Nonce!,
-            RedirectUri = redirectUri,
+            RedirectUri = request.RedirectUri,
             RequestUri = request.RequestUri
         };
     }

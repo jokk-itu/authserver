@@ -3,7 +3,7 @@
 internal class AuthorizeValidatedRequest
 {
     public required string ClientId { get; init; }
-    public required string RedirectUri { get; init; }
+    public string? RedirectUri { get; init; }
     public required string CodeChallenge { get; init; }
     public required string Nonce { get; init; }
     public string? ResponseMode { get; init; }
