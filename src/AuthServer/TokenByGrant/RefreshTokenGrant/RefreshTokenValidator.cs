@@ -173,12 +173,12 @@ internal class RefreshTokenValidator : IRequestValidator<TokenRequest, RefreshTo
         var authorizationGrantId = validatedToken.Claims.Single(x => x.Type == ClaimNameConstants.GrantId).Value;
         var jti = Guid.Parse(validatedToken.Claims.Single(x => x.Type == ClaimNameConstants.Jti).Value);
 
-        var isRevoked = await _identityContext
+        var isActive = await _identityContext
             .Set<RefreshToken>()
             .Where(x => x.Id == jti)
             .Where(Token.IsActive)
             .AnyAsync(cancellationToken: cancellationToken);
 
-        return isRevoked ? null : authorizationGrantId;
+        return isActive ? authorizationGrantId : null;
     }
 }
