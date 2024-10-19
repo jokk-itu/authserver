@@ -58,8 +58,7 @@ internal class RefreshTokenValidator : IRequestValidator<TokenRequest, RefreshTo
 
         var clientAuthentication = request.ClientAuthentications.Single();
         var clientAuthenticationResult = await _clientAuthenticationService.AuthenticateClient(clientAuthentication, cancellationToken);
-        if (clientAuthenticationResult.IsAuthenticated ||
-            string.IsNullOrWhiteSpace(clientAuthenticationResult.ClientId))
+        if (!clientAuthenticationResult.IsAuthenticated || string.IsNullOrWhiteSpace(clientAuthenticationResult.ClientId))
         {
             return TokenError.InvalidClient;
         }
