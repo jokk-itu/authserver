@@ -63,4 +63,11 @@ internal static class FormCollectionExtensions
 	    var hasValue = !StringValues.IsNullOrEmpty(value);
 	    return !hasValue ? [] : value.ToString().Split(' ');
 	}
+
+    public static IReadOnlyCollection<string> GetCollectionValue(this IFormCollection formCollection, string key)
+    {
+        formCollection.TryGetValue(key, out var value);
+        var hasValue = !StringValues.IsNullOrEmpty(value);
+        return !hasValue ? [] : value.AsReadOnly()!;
+    }
 }
