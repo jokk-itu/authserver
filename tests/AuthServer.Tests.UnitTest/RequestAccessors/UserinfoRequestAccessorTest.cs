@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using AuthServer.Authentication;
+using AuthServer.Authentication.OAuthToken;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;
 using AuthServer.Helpers;

@@ -1,3 +1,3 @@
-﻿namespace AuthServer.Core;
+﻿namespace AuthServer.Authentication;
 
 public record AuthenticatedUser(string SubjectIdentifier);

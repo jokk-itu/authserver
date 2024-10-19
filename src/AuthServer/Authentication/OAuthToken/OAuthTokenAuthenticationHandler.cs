@@ -1,9 +1,9 @@
 ﻿using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using AuthServer.Authentication.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
-using AuthServer.Core.Abstractions;
 using AuthServer.Core.Discovery;
 using AuthServer.Entities;
 using AuthServer.Extensions;
@@ -17,7 +17,7 @@ using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Claim = System.Security.Claims.Claim;
 
-namespace AuthServer.Authentication;
+namespace AuthServer.Authentication.OAuthToken;
 internal class OAuthTokenAuthenticationHandler : AuthenticationHandler<OAuthTokenAuthenticationOptions>
 {
     private readonly AuthorizationDbContext _authorizationDbContext;

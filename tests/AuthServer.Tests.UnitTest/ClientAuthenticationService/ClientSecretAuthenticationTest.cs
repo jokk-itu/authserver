@@ -1,5 +1,5 @@
-﻿using AuthServer.Core;
-using AuthServer.Core.Abstractions;
+﻿using AuthServer.Authentication;
+using AuthServer.Core;
 using AuthServer.Core.Models;
 using AuthServer.Entities;
 using AuthServer.Enums;

@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using System.Text.Json;
+using AuthServer.Authentication.Abstractions;
 using AuthServer.Constants;
-using AuthServer.Core.Abstractions;
 
 namespace AuthServer.Tests.Core;
 public class UserClaimService : IUserClaimService

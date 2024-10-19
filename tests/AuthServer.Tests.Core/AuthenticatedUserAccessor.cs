@@ -1,5 +1,5 @@
-﻿using AuthServer.Core;
-using AuthServer.Core.Abstractions;
+﻿using AuthServer.Authentication;
+using AuthServer.Authentication.Abstractions;
 
 namespace AuthServer.Tests.Core;
 public class AuthenticatedUserAccessor : IAuthenticatedUserAccessor

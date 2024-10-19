@@ -1,7 +1,7 @@
 ﻿using AuthServer.Cache.Abstractions;
 using AuthServer.Cache.Entities;
+using AuthServer.Cache.Exceptions;
 using AuthServer.Core;
-using AuthServer.Core.Exceptions;
 using AuthServer.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

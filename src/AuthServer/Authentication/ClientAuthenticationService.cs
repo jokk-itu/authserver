@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
+using AuthServer.Authentication;
 using AuthServer.Cache.Abstractions;
 using AuthServer.Constants;
-using AuthServer.Core.Abstractions;
 using AuthServer.Core.Models;
 using AuthServer.Enums;
 using AuthServer.Extensions;

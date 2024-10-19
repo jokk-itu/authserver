@@ -1,10 +1,10 @@
 ﻿using AuthServer.Core.Abstractions;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json.Nodes;
-using AuthServer.Authentication;
 using AuthServer.Core;
 using AuthServer.Extensions;
 using Microsoft.AspNetCore.Authentication;
+using AuthServer.Authentication.OAuthToken;
 
 namespace AuthServer.RequestAccessors.Register;
 

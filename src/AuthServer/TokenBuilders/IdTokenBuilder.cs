@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Text.Json;
+using AuthServer.Authentication.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
-using AuthServer.Core.Abstractions;
 using AuthServer.Core.Discovery;
 using AuthServer.Entities;
 using AuthServer.Extensions;

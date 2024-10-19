@@ -1,4 +1,4 @@
-﻿namespace AuthServer.Core.Exceptions;
+﻿namespace AuthServer.Cache.Exceptions;
 public class ClientNotFoundException : Exception
 {
     public ClientNotFoundException(string clientId)

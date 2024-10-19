@@ -1,5 +1,4 @@
 ﻿using AuthServer.Core;
-using AuthServer.Core.Abstractions;
 using AuthServer.Entities;
 using AuthServer.TokenBuilders;
 using AuthServer.TokenBuilders.Abstractions;
@@ -7,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using AuthServer.Core.Request;
 using AuthServer.Repositories.Abstractions;
+using AuthServer.Authentication.Abstractions;
 
 namespace AuthServer.Userinfo;
 internal class UserinfoRequestProcessor : IRequestProcessor<UserinfoValidatedRequest, string>

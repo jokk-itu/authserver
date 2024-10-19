@@ -1,5 +1,5 @@
-﻿using AuthServer.Core;
-using AuthServer.Core.Abstractions;
+﻿using AuthServer.Authentication.Abstractions;
+using AuthServer.Core;
 using AuthServer.Core.Request;
 using AuthServer.Entities;
 using AuthServer.Extensions;

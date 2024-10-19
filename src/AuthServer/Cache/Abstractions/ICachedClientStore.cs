@@ -1,5 +1,5 @@
 ﻿using AuthServer.Cache.Entities;
-using AuthServer.Core.Exceptions;
+using AuthServer.Cache.Exceptions;
 
 namespace AuthServer.Cache.Abstractions;
 internal interface ICachedClientStore

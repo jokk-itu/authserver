@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using System.Text.Json;
-using AuthServer.Authentication;
+using AuthServer.Authentication.OAuthToken;
 using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;

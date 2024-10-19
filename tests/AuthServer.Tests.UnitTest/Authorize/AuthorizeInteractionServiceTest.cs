@@ -1,8 +1,9 @@
-﻿using AuthServer.Authorize;
+﻿using AuthServer.Authentication;
+using AuthServer.Authentication.Abstractions;
+using AuthServer.Authorize;
 using AuthServer.Authorize.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
-using AuthServer.Core.Abstractions;
 using AuthServer.Entities;
 using AuthServer.Enums;
 using AuthServer.RequestAccessors.Authorize;

@@ -1,4 +1,6 @@
-﻿namespace AuthServer.Core.Abstractions;
+﻿using AuthServer.Authentication;
+
+namespace AuthServer.Authentication.Abstractions;
 
 public interface IAuthenticatedUserAccessor
 {

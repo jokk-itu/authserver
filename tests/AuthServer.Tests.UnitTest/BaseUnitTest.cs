@@ -1,9 +1,9 @@
 ﻿using System.Security.Cryptography;
+using AuthServer.Authentication.Abstractions;
 using AuthServer.Authorize.Abstractions;
 using AuthServer.Cache.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
-using AuthServer.Core.Abstractions;
 using AuthServer.Core.Discovery;
 using AuthServer.Entities;
 using AuthServer.Enums;

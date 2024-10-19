@@ -1,4 +1,4 @@
-﻿using AuthServer.Authentication;
+﻿using AuthServer.Authentication.OAuthToken;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;
 using Microsoft.AspNetCore.Authentication;

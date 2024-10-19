@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace AuthServer.Core.Abstractions;
+namespace AuthServer.Authentication.Abstractions;
 public interface IUserClaimService
 {
     /// <summary>

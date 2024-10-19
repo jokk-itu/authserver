@@ -1,7 +1,7 @@
-﻿using AuthServer.Authorize;
+﻿using AuthServer.Authentication;
+using AuthServer.Authorize;
 using AuthServer.Authorize.Abstractions;
 using AuthServer.Cache.Abstractions;
-using AuthServer.Core.Abstractions;
 using AuthServer.Core.Discovery;
 using AuthServer.Core.Request;
 using AuthServer.Repositories.Abstractions;

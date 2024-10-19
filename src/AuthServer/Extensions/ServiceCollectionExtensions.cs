@@ -1,4 +1,6 @@
 ﻿using AuthServer.Authentication;
+using AuthServer.Authentication.Abstractions;
+using AuthServer.Authentication.OAuthToken;
 using AuthServer.Authorize;
 using AuthServer.Authorize.Abstractions;
 using AuthServer.Cache;

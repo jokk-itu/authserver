@@ -1,6 +1,5 @@
 using AuthServer.Cache.Abstractions;
 using AuthServer.Constants;
-using AuthServer.Core.Abstractions;
 using AuthServer.Core.Discovery;
 using AuthServer.Enums;
 using AuthServer.Extensions;
@@ -13,6 +12,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Logging;
 using AuthServer.Options;
 using AuthServer.Authorize.Abstractions;
+using AuthServer.Authentication.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 
