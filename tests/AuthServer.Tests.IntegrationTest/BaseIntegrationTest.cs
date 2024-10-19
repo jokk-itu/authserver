@@ -6,6 +6,8 @@ using AuthServer.Entities;
 using AuthServer.Enums;
 using AuthServer.Options;
 using AuthServer.Tests.Core;
+using AuthServer.Tests.IntegrationTest.EndpointBuilders;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +25,10 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 
     protected readonly ITestOutputHelper TestOutputHelper;
     protected readonly IServiceProvider ServiceProvider;
+    protected readonly AuthorizeEndpointBuilder AuthorizeEndpointBuilder;
+    protected readonly RegisterEndpointBuilder RegisterEndpointBuilder;
+
+    protected TokenEndpointBuilder TokenEndpointBuilder => new(GetHttpClient(), DiscoveryDocument, JwksDocument, TestOutputHelper);
 
     private readonly IOptionsMonitor<DiscoveryDocument> _discoveryDocumentOptions;
     protected DiscoveryDocument DiscoveryDocument => _discoveryDocumentOptions.CurrentValue;
@@ -36,10 +42,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     protected JwtBuilder JwtBuilder => new (DiscoveryDocument, JwksDocument);
 
     protected const string LevelOfAssuranceLow = AuthenticationContextReferenceConstants.LevelOfAssuranceLow;
-
-    protected const string LevelOfAssuranceSubstantial =
-        AuthenticationContextReferenceConstants.LevelOfAssuranceSubstantial;
-
+    protected const string LevelOfAssuranceSubstantial = AuthenticationContextReferenceConstants.LevelOfAssuranceSubstantial;
     protected const string LevelOfAssuranceStrict = AuthenticationContextReferenceConstants.LevelOfAssuranceStrict;
 
     protected BaseIntegrationTest(WebApplicationFactory<Program> factory, ITestOutputHelper testOutputHelper)
@@ -67,12 +70,29 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 
         ServiceProvider.GetRequiredService<AuthorizationDbContext>().Database.EnsureDeleted();
         ServiceProvider.GetRequiredService<AuthorizationDbContext>().Database.Migrate();
+
+        var dataProtectionProvider = ServiceProvider.GetRequiredService<IDataProtectionProvider>();
+        AuthorizeEndpointBuilder = new AuthorizeEndpointBuilder(
+            GetHttpClient(),
+            dataProtectionProvider,
+            DiscoveryDocument,
+            JwksDocument,
+            TestOutputHelper);
+
+        RegisterEndpointBuilder = new RegisterEndpointBuilder(
+            GetHttpClient(),
+            DiscoveryDocument,
+            JwksDocument,
+            TestOutputHelper);
     }
 
     protected HttpClient GetHttpClient() => _factory.CreateClient(new WebApplicationFactoryClientOptions
     {
         AllowAutoRedirect = false
     });
+
+    protected string GetUserinfoScope() =>
+        ServiceProvider.GetRequiredService<AuthorizationDbContext>().Set<Scope>().Single(x => x.Name == ScopeConstants.UserInfo).Name;
 
     protected async Task<string> AddWeatherReadScope()
     {
