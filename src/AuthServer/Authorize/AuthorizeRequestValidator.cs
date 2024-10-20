@@ -2,6 +2,7 @@
 using AuthServer.Cache.Abstractions;
 using AuthServer.Cache.Entities;
 using AuthServer.Constants;
+using AuthServer.Core;
 using AuthServer.Core.Discovery;
 using AuthServer.Core.Request;
 using AuthServer.Repositories.Abstractions;
@@ -245,24 +246,15 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
     // This must first be deduced after successful validation of all input from the request
     private async Task<ProcessResult<AuthorizeValidatedRequest, ProcessError>> ValidateForInteraction(AuthorizeRequest request, CancellationToken cancellationToken)
     {
-        var deducedPrompt = await _authorizeInteractionService.GetPrompt(request, cancellationToken);
-        if (deducedPrompt == PromptConstants.Login)
+        var interactionResult = await _authorizeInteractionService.GetInteractionResult(request, cancellationToken);
+        if (!interactionResult.IsSuccessful)
         {
-            return AuthorizeError.LoginRequired;
-        }
-
-        if (deducedPrompt == PromptConstants.Consent)
-        {
-            return AuthorizeError.ConsentRequired;
-        }
-
-        if (deducedPrompt == PromptConstants.SelectAccount)
-        {
-            return AuthorizeError.AccountSelectionRequired;
+            return interactionResult.Error!;
         }
 
         return new AuthorizeValidatedRequest
         {
+            SubjectIdentifier = interactionResult.SubjectIdentifier!,
             ResponseMode = request.ResponseMode,
             CodeChallenge = request.CodeChallenge!,
             Scope = request.Scope,

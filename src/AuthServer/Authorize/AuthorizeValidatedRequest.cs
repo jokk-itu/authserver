@@ -2,6 +2,7 @@
 
 internal class AuthorizeValidatedRequest
 {
+    public required string SubjectIdentifier { get; init; }
     public required string ClientId { get; init; }
     public string? RedirectUri { get; init; }
     public required string CodeChallenge { get; init; }
