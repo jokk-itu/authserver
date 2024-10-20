@@ -41,7 +41,7 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
     }
 
     /// <inheritdoc/>
-    public async Task<string> GetPrompt(AuthorizeRequest authorizeRequest, CancellationToken cancellationToken)
+    public async Task<InteractionResult> GetInteractionResult(AuthorizeRequest authorizeRequest, CancellationToken cancellationToken)
     {
         // user was redirected for interaction
         var authorizeUser = _userAccessor.TryGetUser();
@@ -58,7 +58,14 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
         if (authorizeRequest.Prompt is PromptConstants.Login or PromptConstants.Consent or PromptConstants.SelectAccount)
         {
             _logger.LogDebug("Using prompt {Prompt} from request", authorizeRequest.Prompt);
-            return authorizeRequest.Prompt;
+
+            return authorizeRequest.Prompt switch
+            {
+                PromptConstants.Login => InteractionResult.LoginResult,
+                PromptConstants.Consent => InteractionResult.ConsentResult,
+                PromptConstants.SelectAccount => InteractionResult.SelectAccountResult,
+                _ => throw new InvalidOperationException($"prompt {authorizeRequest.Prompt} is not supported")
+            };
         }
 
         // id_token_hint overrides cookies, and only deduces prompt none, if validation succeeds
@@ -75,10 +82,10 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
         {
             case 0:
                 _logger.LogDebug("No authenticated users, deducing prompt {Prompt}", PromptConstants.Login);
-                return PromptConstants.Login;
+                return InteractionResult.LoginResult;
             case > 1:
                 _logger.LogDebug("Multiple authenticated users, deducing prompt {Prompt}", PromptConstants.SelectAccount);
-                return PromptConstants.SelectAccount;
+                return InteractionResult.SelectAccountResult;
             default:
                 var authenticatedUser = (await _authenticatedUserAccessor.GetAuthenticatedUser())!;
                 _logger.LogDebug("Deducing Prompt from one authenticated user {@User}", authenticatedUser);
@@ -86,7 +93,7 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
         }
     }
 
-    private async Task<string> GetPromptFromInteraction(string subjectIdentifier, AuthorizeRequest authorizeRequest, CancellationToken cancellationToken)
+    private async Task<InteractionResult> GetPromptFromInteraction(string subjectIdentifier, AuthorizeRequest authorizeRequest, CancellationToken cancellationToken)
     {
         var authorizationGrant = (await _authorizationGrantRepository.GetActiveAuthorizationGrant(subjectIdentifier, authorizeRequest.ClientId!, cancellationToken))!;
 
@@ -105,45 +112,45 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
         if (!authorizationGrant.Client.RequireConsent)
         {
             _logger.LogDebug("Client {ClientId} does not require consent, deducing prompt {Prompt}", authorizeRequest.ClientId, PromptConstants.None);
-            return PromptConstants.None;
+            return InteractionResult.Success(subjectIdentifier);
         }
 
         var consentedScope = await _consentGrantRepository.GetConsentedScope(subjectIdentifier, authorizeRequest.ClientId!, cancellationToken);
         if (authorizeRequest.Scope.ExceptAny(consentedScope))
         {
             _logger.LogDebug("User has not granted consent to scope {@Scope}, deducing prompt {Prompt}", authorizeRequest.Scope.Except(consentedScope), PromptConstants.Consent);
-            return PromptConstants.Consent;
+            return InteractionResult.ConsentResult;
         }
 
         _logger.LogDebug("Deducing prompt {Prompt}", PromptConstants.None);
-        return PromptConstants.None;
+        return InteractionResult.Success(subjectIdentifier);
     }
 
-    private async Task<string> GetPromptFromCookie(string subjectIdentifier, AuthorizeRequest authorizeRequest, CancellationToken cancellationToken)
+    private async Task<InteractionResult> GetPromptFromCookie(string subjectIdentifier, AuthorizeRequest authorizeRequest, CancellationToken cancellationToken)
     {
         var authorizationGrant = await _authorizationGrantRepository.GetActiveAuthorizationGrant(subjectIdentifier, authorizeRequest.ClientId!, cancellationToken);
         if (authorizationGrant is null)
         {
             _logger.LogDebug("Grant has expired, used sub {SubjectIdentifier} and client id {ClientId}, deducing prompt {Prompt}", subjectIdentifier, authorizeRequest.ClientId!, PromptConstants.Login);
-            return PromptConstants.Login;
+            return InteractionResult.LoginResult;
         }
 
         return await GetPromptSilent(authorizationGrant, authorizeRequest, subjectIdentifier, cancellationToken);
     }
 
-    private async Task<string> GetPromptFromIdToken(string subjectIdentifier, string authorizationGrantId, AuthorizeRequest authorizeRequest, CancellationToken cancellationToken)
+    private async Task<InteractionResult> GetPromptFromIdToken(string subjectIdentifier, string authorizationGrantId, AuthorizeRequest authorizeRequest, CancellationToken cancellationToken)
     {
         var authorizationGrant = await _authorizationGrantRepository.GetActiveAuthorizationGrant(authorizationGrantId, cancellationToken);
         if (authorizationGrant is null)
         {
             _logger.LogDebug("Grant {GrantId} has expired, deducing prompt {Prompt}", authorizationGrantId, PromptConstants.Login);
-            return PromptConstants.Login;
+            return InteractionResult.LoginResult;
         }
 
         return await GetPromptSilent(authorizationGrant, authorizeRequest, subjectIdentifier, cancellationToken);
     }
 
-    private async Task<string> GetPromptSilent(AuthorizationGrant authorizationGrant, AuthorizeRequest authorizeRequest, string subjectIdentifier, CancellationToken cancellationToken)
+    private async Task<InteractionResult> GetPromptSilent(AuthorizationGrant authorizationGrant, AuthorizeRequest authorizeRequest, string subjectIdentifier, CancellationToken cancellationToken)
     {
         var maxAgePrompt = GetPromptMaxAge(authorizationGrant, authorizeRequest);
         if (maxAgePrompt is not null)
@@ -160,43 +167,41 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
         if (!authorizationGrant.Client.RequireConsent)
         {
             _logger.LogDebug("Client {ClientId} does not require consent, deducing prompt {Prompt}", authorizeRequest.ClientId, PromptConstants.None);
-            _userAccessor.SetUser(new AuthorizeUser(subjectIdentifier));
-            return PromptConstants.None;
+            return InteractionResult.Success(subjectIdentifier);
         }
 
         var consentedScope = await _consentGrantRepository.GetConsentedScope(subjectIdentifier, authorizeRequest.ClientId!, cancellationToken);
         if (authorizeRequest.Scope.ExceptAny(consentedScope))
         {
             _logger.LogDebug("User has not granted consent to scope {@Scope}, deducing prompt {Prompt}", authorizeRequest.Scope.Except(consentedScope), PromptConstants.Consent);
-            return PromptConstants.Consent;
+            return InteractionResult.ConsentResult;
         }
 
         _logger.LogDebug("Deducing prompt {Prompt}", PromptConstants.None);
-        _userAccessor.SetUser(new AuthorizeUser(subjectIdentifier));
-        return PromptConstants.None;
+        return InteractionResult.Success(subjectIdentifier);
     }
 
-    private async Task<string?> GetPromptAcr(AuthorizationGrant authorizationGrant, AuthorizeRequest authorizeRequest, CancellationToken cancellationToken)
+    private async Task<InteractionResult?> GetPromptAcr(AuthorizationGrant authorizationGrant, AuthorizeRequest authorizeRequest, CancellationToken cancellationToken)
     {
         var performedAuthenticationContextReference = authorizationGrant.AuthenticationContextReference.Name;
         var defaultAuthenticationContextReferences = (await _cachedClientStore.Get(authorizeRequest.ClientId!, cancellationToken))!.DefaultAcrValues;
 
         if (authorizeRequest.AcrValues.Count != 0 && !authorizeRequest.AcrValues.Contains(performedAuthenticationContextReference))
         {
-            _logger.LogDebug("Acr {@RequestedAcr} is not met, performed Acr {PerformedAcr}, deducing prompt {Prompt}", authorizeRequest.AcrValues, performedAuthenticationContextReference, PromptConstants.Login);
-            return PromptConstants.Login;
+            _logger.LogDebug("Acr {@RequestedAcr} is not met, performed Acr {PerformedAcr}", authorizeRequest.AcrValues, performedAuthenticationContextReference);
+            return InteractionResult.UnmetAuthenticationRequirementResult;
         }
 
         if (defaultAuthenticationContextReferences.Count != 0 && !defaultAuthenticationContextReferences.Contains(performedAuthenticationContextReference))
         {
-            _logger.LogDebug("Acr {@DefaultAcr} is not met, performed Acr {PerformedAcr}, deducing prompt {Prompt}", defaultAuthenticationContextReferences, performedAuthenticationContextReference, PromptConstants.Login);
-            return PromptConstants.Login;
+            _logger.LogDebug("Acr {@DefaultAcr} is not met, performed Acr {PerformedAcr}", defaultAuthenticationContextReferences, performedAuthenticationContextReference);
+            return InteractionResult.UnmetAuthenticationRequirementResult;
         }
 
         return null;
     }
 
-    private string? GetPromptMaxAge(AuthorizationGrant authorizationGrant, AuthorizeRequest authorizeRequest)
+    private InteractionResult? GetPromptMaxAge(AuthorizationGrant authorizationGrant, AuthorizeRequest authorizeRequest)
     {
         var hasMaxAge = int.TryParse(authorizeRequest.MaxAge, out var parsedMaxAge);
         var maxAge = hasMaxAge ? parsedMaxAge : authorizationGrant.Client.DefaultMaxAge;
@@ -204,7 +209,7 @@ internal class AuthorizeInteractionService : IAuthorizeInteractionService
         if (maxAge is not null && authorizationGrant.AuthTime.AddSeconds(maxAge.Value) < DateTime.UtcNow)
         {
             _logger.LogDebug("MaxAge {MaxAge} has been reached for grant {GrantId}, deducing prompt {Prompt}", maxAge, authorizationGrant.Id, PromptConstants.Login);
-            return PromptConstants.Login;
+            return InteractionResult.LoginResult;
         }
 
         return null;

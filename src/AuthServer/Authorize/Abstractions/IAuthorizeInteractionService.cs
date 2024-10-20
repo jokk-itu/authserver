@@ -13,5 +13,5 @@ internal interface IAuthorizeInteractionService
     /// <param name="authorizeRequest"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>prompt value.</returns>
-    Task<string> GetPrompt(AuthorizeRequest authorizeRequest, CancellationToken cancellationToken);
+    Task<InteractionResult> GetInteractionResult(AuthorizeRequest authorizeRequest, CancellationToken cancellationToken);
 }
