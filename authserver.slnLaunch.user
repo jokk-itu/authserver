@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Name": "src\\AuthServer.TestIdentityProvider\\AuthServer.TestIdentityProvider.csproj",
+        "Action": "Start"
+      },
+      {
+        "Name": "src\\AuthServer.TestClient\\AuthServer.TestClient.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
