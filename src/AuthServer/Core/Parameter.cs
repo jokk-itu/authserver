@@ -53,6 +53,7 @@ public static class Parameter
     public const string PostLogoutRedirectUri = "post_logout_redirect_uri";
     public const string PostLogoutRedirectUris = "post_logout_redirect_uris";
     public const string BackchannelLogoutUri = "backchannel_logout_uri";
+    public const string SectorIdentifierUri = "sector_identifier_uri";
     public const string Token = "token";
     public const string TokenTypeHint = "token_type_hint";
     public const string Active = "active";
