@@ -19,6 +19,7 @@ public class RegisterRequest
     public string? InitiateLoginUri { get; init; }
     public string? LogoUri { get; init; }
     public string? BackchannelLogoutUri { get; init; }
+    public string? SectorIdentifierUri { get; init; }
     public string? RequireSignedRequestObject { get; init; }
     public string? RequireReferenceToken { get; init; }
     public string? RequirePushedAuthorizationRequests { get; init; }

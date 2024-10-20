@@ -46,6 +46,7 @@ internal class RegisterRequestAccessor : IRequestAccessor<RegisterRequest>
 		var initiateLoginUri = json.GetValue(Parameter.InitiateLoginUri);
 		var logoUri = json.GetValue(Parameter.LogoUri);
 		var backchannelLogoutUri = json.GetValue(Parameter.BackchannelLogoutUri);
+        var sectorIdentifierUri = json.GetValue(Parameter.SectorIdentifierUri);
 
 		var requireSignedRequestObject = json.GetValue(Parameter.RequireSignedRequestObject);
 		var requireReferenceToken = json.GetValue(Parameter.RequireReferenceToken);
@@ -99,6 +100,7 @@ internal class RegisterRequestAccessor : IRequestAccessor<RegisterRequest>
 			InitiateLoginUri = initiateLoginUri,
 			LogoUri = logoUri,
 			BackchannelLogoutUri = backchannelLogoutUri,
+			SectorIdentifierUri = sectorIdentifierUri,
 			RequireSignedRequestObject = requireSignedRequestObject,
 			RequireReferenceToken = requireReferenceToken,
 			RequirePushedAuthorizationRequests = requirePushedAuthorizationRequests,
