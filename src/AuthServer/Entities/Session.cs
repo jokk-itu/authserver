@@ -4,10 +4,10 @@ using AuthServer.Core;
 namespace AuthServer.Entities;
 public class Session : Entity<string>
 {
-    public Session(PublicSubjectIdentifier publicSubjectIdentifier)
+    public Session(SubjectIdentifier subjectIdentifier)
     {
         Id = Guid.NewGuid().ToString();
-        PublicSubjectIdentifier = publicSubjectIdentifier ?? throw new ArgumentNullException(nameof(publicSubjectIdentifier));
+        SubjectIdentifier = subjectIdentifier ?? throw new ArgumentNullException(nameof(subjectIdentifier));
     }
 
 #pragma warning disable CS8618
@@ -16,7 +16,7 @@ public class Session : Entity<string>
 #pragma warning restore
 
     public DateTime? RevokedAt { get; private set; }
-    public PublicSubjectIdentifier PublicSubjectIdentifier { get; private init; }
+    public SubjectIdentifier SubjectIdentifier { get; private init; }
     public ICollection<AuthorizationGrant> AuthorizationGrants { get; private init; } = [];
 
     public static Expression<Func<Session, bool>> IsActive = s => s.RevokedAt == null;

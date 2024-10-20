@@ -174,7 +174,7 @@ public class Client : Entity<string>
     public EncryptionAlg? IdTokenEncryptedResponseAlg { get; set; }
     public SigningAlg? IdTokenSignedResponseAlg { get; set; }
 
-    
+    public SectorIdentifier? SectorIdentifier { get; set; }
     public ICollection<RedirectUri> RedirectUris { get; set; } = [];
     public ICollection<PostLogoutRedirectUri> PostLogoutRedirectUris { get; set; } = [];
     public ICollection<RequestUri> RequestUris { get; set; } = [];
@@ -186,7 +186,6 @@ public class Client : Entity<string>
 
     public ICollection<AuthorizationGrant> AuthorizationGrants { get; set; } = [];
     public ICollection<ClientToken> ClientTokens { get; set; } = [];
-    public ICollection<PairwiseSubjectIdentifier> PairwiseSubjectIdentifiers { get; set; } = [];
     public ICollection<AuthorizeMessage> AuthorizeMessages { get; set; } = [];
     public ICollection<ConsentGrant> ConsentGrants { get; set; } = [];
     public ICollection<ClientAuthenticationContextReference> ClientAuthenticationContextReferences { get; set; } = [];

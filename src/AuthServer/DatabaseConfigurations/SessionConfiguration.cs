@@ -8,7 +8,7 @@ internal sealed class SessionConfiguration : IEntityTypeConfiguration<Session>
   public void Configure(EntityTypeBuilder<Session> builder)
   {
       builder
-          .HasOne(x => x.PublicSubjectIdentifier)
+          .HasOne(x => x.SubjectIdentifier)
           .WithMany(x => x.Sessions)
           .IsRequired()
           .OnDelete(DeleteBehavior.ClientCascade);

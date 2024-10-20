@@ -4,13 +4,13 @@ using AuthServer.Core;
 namespace AuthServer.Entities;
 public class AuthorizationGrant : Entity<string>
 {
-    public AuthorizationGrant(Session session, Client client, SubjectIdentifier subjectIdentifier, AuthenticationContextReference authenticationContextReference)
+    public AuthorizationGrant(Session session, Client client, string subject, AuthenticationContextReference authenticationContextReference)
     {
         Id = Guid.NewGuid().ToString();
         AuthTime = DateTime.UtcNow;
         Session = session ?? throw new ArgumentNullException(nameof(session));
         Client = client ?? throw new ArgumentNullException(nameof(client));
-        SubjectIdentifier = subjectIdentifier ?? throw new ArgumentNullException(nameof(subjectIdentifier));
+        Subject = subject ?? throw new ArgumentNullException(nameof(subject));
         AuthenticationContextReference = authenticationContextReference ?? throw new ArgumentNullException(nameof(authenticationContextReference));
     }
 
@@ -21,9 +21,9 @@ public class AuthorizationGrant : Entity<string>
 
     public DateTime AuthTime { get; private init; }
     public DateTime? RevokedAt { get; private set; }
+    public string Subject { get; private init; }
     public Session Session { get; private init; }
     public Client Client { get; private init; }
-    public SubjectIdentifier SubjectIdentifier { get; private init; }
     public AuthenticationContextReference AuthenticationContextReference { get; private init; }
     public ICollection<AuthorizationCode> AuthorizationCodes { get; init; } = [];
     public ICollection<Nonce> Nonces { get; init; } = [];

@@ -88,5 +88,10 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
         builder
             .HasMany(x => x.ClientAuthenticationContextReferences)
             .WithOne(x => x.Client);
+
+        builder
+            .HasOne(x => x.SectorIdentifier)
+            .WithMany(x => x.Clients)
+            .IsRequired(false);
     }
 }

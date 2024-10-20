@@ -9,6 +9,11 @@ internal sealed class AuthorizationGrantConfiguration : IEntityTypeConfiguration
     public void Configure(EntityTypeBuilder<AuthorizationGrant> builder)
     {
         builder
+            .Property(x => x.Subject)
+            .HasMaxLength(255)
+            .IsRequired();
+
+        builder
             .HasOne(x => x.Client)
             .WithMany(x => x.AuthorizationGrants)
             .IsRequired()
@@ -16,12 +21,6 @@ internal sealed class AuthorizationGrantConfiguration : IEntityTypeConfiguration
 
         builder
             .HasOne(x => x.Session)
-            .WithMany(x => x.AuthorizationGrants)
-            .IsRequired()
-            .OnDelete(DeleteBehavior.ClientCascade);
-
-        builder
-            .HasOne(x => x.SubjectIdentifier)
             .WithMany(x => x.AuthorizationGrants)
             .IsRequired()
             .OnDelete(DeleteBehavior.ClientCascade);
