@@ -68,6 +68,9 @@ internal class AuthorizeError
     public static readonly ProcessError AccountSelectionRequired =
         new(ErrorCode.AccountSelectionRequired, "select_account is required", ResultCode.Redirect);
 
+    public static readonly ProcessError UnmetAuthenticationRequirement =
+        new ProcessError(ErrorCode.UnmetAuthenticationRequirements, "acr requirement is not met", ResultCode.Redirect);
+
     public static readonly ProcessError InvalidRequestAndRequestUri =
         new(ErrorCode.InvalidRequest, "request_uri and request were both provided", ResultCode.BadRequest);
 
