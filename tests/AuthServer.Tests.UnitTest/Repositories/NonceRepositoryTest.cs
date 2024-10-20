@@ -21,11 +21,11 @@ public class NonceRepositoryTest : BaseUnitTest
         var serviceProvider = BuildServiceProvider();
         var nonceRepository = serviceProvider.GetRequiredService<INonceRepository>();
 
-        var subjectIdentifier = new PublicSubjectIdentifier();
+        var subjectIdentifier = new SubjectIdentifier();
         var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         var value = CryptographyHelper.GetRandomString(32);
         var nonce = new Nonce(value, value.Sha256(), authorizationGrant);
         await AddEntity(nonce);

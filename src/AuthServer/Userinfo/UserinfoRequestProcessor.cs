@@ -37,8 +37,8 @@ internal class UserinfoRequestProcessor : IRequestProcessor<UserinfoValidatedReq
             .Select(x => new
             {
                 ClientId = x.Client.Id,
-                PublicSubjectId = x.Session.PublicSubjectIdentifier.Id,
-                GrantSubjectId = x.SubjectIdentifier.Id,
+                SubjectIdentifier = x.Session.SubjectIdentifier.Id,
+                GrantSubjectId = x.Subject,
                 SigningAlg = x.Client.UserinfoSignedResponseAlg,
                 EncryptionAlg = x.Client.UserinfoEncryptedResponseAlg,
                 EncryptionEnc = x.Client.UserinfoEncryptedResponseEnc
@@ -50,8 +50,8 @@ internal class UserinfoRequestProcessor : IRequestProcessor<UserinfoValidatedReq
             { Parameter.Subject, query.GrantSubjectId }
         };
 
-        var authorizedClaimTypes = await _consentGrantRepository.GetConsentedClaims(query.PublicSubjectId, query.ClientId, cancellationToken);
-        var userClaims = await _userClaimService.GetClaims(query.PublicSubjectId, cancellationToken);
+        var authorizedClaimTypes = await _consentGrantRepository.GetConsentedClaims(query.SubjectIdentifier, query.ClientId, cancellationToken);
+        var userClaims = await _userClaimService.GetClaims(query.SubjectIdentifier, cancellationToken);
         foreach (var userClaim in userClaims)
         {
             if (authorizedClaimTypes.Contains(userClaim.Type))

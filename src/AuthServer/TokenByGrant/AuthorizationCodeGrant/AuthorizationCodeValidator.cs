@@ -79,7 +79,7 @@ internal class AuthorizationCodeValidator : IRequestValidator<TokenRequest, Auth
 
         var clientId = clientAuthenticationResult.ClientId!;
 
-        var publicSubjectIdentifier = await _identityContext
+        var subjectIdentifier = await _identityContext
             .Set<AuthorizationGrant>()
             .Where(AuthorizationGrant.IsActive)
             .Where(x => x.Id == authorizationCode.AuthorizationGrantId)
@@ -89,16 +89,15 @@ internal class AuthorizationCodeValidator : IRequestValidator<TokenRequest, Auth
                 .Where(y => y.RedeemedAt == null)
                 .Any(y => y.IssuedAt.AddSeconds(x.Client.AuthorizationCodeExpiration!.Value) > DateTime.UtcNow))
             .Where(x => x.Session.RevokedAt == null)
-            .Select(x => x.Session.PublicSubjectIdentifier.Id)
+            .Select(x => x.Session.SubjectIdentifier.Id)
             .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
-        if (publicSubjectIdentifier is null)
+        if (subjectIdentifier is null)
         {
             return TokenError.InvalidGrant;
         }
 
-        var cachedClient = await _cachedEntityStore
-            .Get(clientId, cancellationToken);
+        var cachedClient = await _cachedEntityStore.Get(clientId, cancellationToken);
 
         if (cachedClient.GrantTypes.All(x => x != request.GrantType))
         {
@@ -116,7 +115,7 @@ internal class AuthorizationCodeValidator : IRequestValidator<TokenRequest, Auth
 
         if (cachedClient.RequireConsent)
         {
-            var consentedScopes = await _consentGrantRepository.GetConsentedScope(publicSubjectIdentifier, clientId, cancellationToken);
+            var consentedScopes = await _consentGrantRepository.GetConsentedScope(subjectIdentifier, clientId, cancellationToken);
             if (consentedScopes.Count == 0)
             {
                 return TokenError.ConsentRequired;

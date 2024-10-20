@@ -25,14 +25,14 @@ public class UserinfoRequestValidatorTest : BaseUnitTest
         var validator = serviceProvider.GetRequiredService<IRequestValidator<UserinfoRequest, UserinfoValidatedRequest>>();
         var tokenBuilder = serviceProvider.GetRequiredService<ITokenBuilder<GrantAccessTokenArguments>>();
 
-        var subjectIdentifier = new PublicSubjectIdentifier();
+        var subjectIdentifier = new SubjectIdentifier();
         var session = new Session(subjectIdentifier);
         var client = new Client("webapp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic)
         {
             ClientUri = "https://webapp.authserver.dk"
         };
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         await AddEntity(authorizationGrant);
 
         var scope = new[] { ScopeConstants.OpenId, ScopeConstants.UserInfo };
@@ -66,14 +66,14 @@ public class UserinfoRequestValidatorTest : BaseUnitTest
         var serviceProvider = BuildServiceProvider();
         var validator = serviceProvider.GetRequiredService<IRequestValidator<UserinfoRequest, UserinfoValidatedRequest>>();
 
-        var subjectIdentifier = new PublicSubjectIdentifier();
+        var subjectIdentifier = new SubjectIdentifier();
         var session = new Session(subjectIdentifier);
         var client = new Client("webapp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic)
         {
             ClientUri = "https://webapp.authserver.dk"
         };
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         var grantAccessToken = new GrantAccessToken(authorizationGrant, client.ClientUri, DiscoveryDocument.Issuer,
             $"{ScopeConstants.OpenId} {ScopeConstants.UserInfo}", DateTime.UtcNow.AddHours(1));
 

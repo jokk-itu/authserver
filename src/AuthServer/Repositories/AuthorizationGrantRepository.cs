@@ -1,6 +1,8 @@
-﻿using AuthServer.Core;
+﻿using System.Text;
+using AuthServer.Core;
 using AuthServer.Entities;
 using AuthServer.Enums;
+using AuthServer.Helpers;
 using AuthServer.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,11 +27,11 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
     {
         var session = await GetSession(subjectIdentifier, clientId, cancellationToken);
         var client = (await _identityContext.FindAsync<Client>([clientId], cancellationToken))!;
-        var subjectIdentifierForGrant = await GetSubjectIdentifierForGrant(subjectIdentifier, clientId, cancellationToken);
+        var subject = await GetSubject(subjectIdentifier, clientId, cancellationToken);
         var acr = await GetAuthenticationContextReference(authenticationContextReference, cancellationToken);
         var amr = await GetAuthenticationMethodReferences(authenticationMethodReferences, cancellationToken);
 
-        var newGrant = new AuthorizationGrant(session, client, subjectIdentifierForGrant, acr)
+        var newGrant = new AuthorizationGrant(session, client, subject, acr)
         {
             AuthenticationMethodReferences = amr
         };
@@ -49,7 +51,7 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
             .Where(AuthorizationGrant.IsActive)
             .Where(x => x.Client.Id == clientId)
             .Where(x => x.Session.RevokedAt == null)
-            .Where(x => x.Session.PublicSubjectIdentifier.Id == subjectIdentifier)
+            .Where(x => x.Session.SubjectIdentifier.Id == subjectIdentifier)
             .SingleOrDefaultAsync(cancellationToken);
     }
 
@@ -87,8 +89,8 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
     {
         var session = await _identityContext
             .Set<Session>()
-            .Include(x => x.PublicSubjectIdentifier)
-            .Where(x => x.PublicSubjectIdentifier.Id == subjectIdentifier)
+            .Include(x => x.SubjectIdentifier)
+            .Where(x => x.SubjectIdentifier.Id == subjectIdentifier)
             .Where(Session.IsActive)
             .SingleOrDefaultAsync(cancellationToken);
 
@@ -97,8 +99,8 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
             await RevokePreviousGrant(subjectIdentifier, clientId, cancellationToken);
         }
 
-        var publicSubjectIdentifier = (session?.PublicSubjectIdentifier ??
-                                       await _identityContext.FindAsync<PublicSubjectIdentifier>([subjectIdentifier],
+        var publicSubjectIdentifier = (session?.SubjectIdentifier ??
+                                       await _identityContext.FindAsync<SubjectIdentifier>([subjectIdentifier],
                                            cancellationToken))!;
 
         session ??= new Session(publicSubjectIdentifier);
@@ -114,40 +116,28 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
             .Include(x => x.Client)
             .Where(x => x.Client.Id == clientId)
             .Where(x => x.Session.RevokedAt == null)
-            .Where(x => x.Session.PublicSubjectIdentifier.Id == subjectIdentifier)
+            .Where(x => x.Session.SubjectIdentifier.Id == subjectIdentifier)
             .SingleOrDefaultAsync(cancellationToken);
 
         grant?.Revoke();
     }
 
-    private async Task<SubjectIdentifier> GetSubjectIdentifierForGrant(string subjectIdentifier, string clientId,
-        CancellationToken cancellationToken)
+    private async Task<string> GetSubject(string subjectIdentifier, string clientId, CancellationToken cancellationToken)
     {
-        var client = (await _identityContext.FindAsync<Client>([clientId], cancellationToken))!;
+        var client = await _identityContext
+            .Set<Client>()
+            .Include(x => x.SectorIdentifier)
+            .Where(x => x.Id == clientId)
+            .SingleAsync(cancellationToken);
+
         if (client.SubjectType == SubjectType.Public)
         {
-            return (await _identityContext.FindAsync<PublicSubjectIdentifier>([subjectIdentifier], cancellationToken))!;
+            return subjectIdentifier;
         }
 
         if (client.SubjectType == SubjectType.Pairwise)
         {
-            var pairwiseSubjectIdentifier = await _identityContext
-                .Set<PublicSubjectIdentifier>()
-                .Where(x => x.Id == subjectIdentifier)
-                .SelectMany(x => x.PairwiseSubjectIdentifiers)
-                .Where(x => x.Client.Id == clientId)
-                .SingleOrDefaultAsync(cancellationToken);
-
-            if (pairwiseSubjectIdentifier is not null)
-            {
-                return pairwiseSubjectIdentifier;
-            }
-
-            var publicSubjectIdentifier =
-                (await _identityContext.FindAsync<PublicSubjectIdentifier>([subjectIdentifier], cancellationToken))!;
-            pairwiseSubjectIdentifier = new PairwiseSubjectIdentifier(client, publicSubjectIdentifier);
-            await _identityContext.AddAsync(pairwiseSubjectIdentifier, cancellationToken);
-            return pairwiseSubjectIdentifier;
+            return PairwiseSubjectHelper.GenerateSubject(client.SectorIdentifier!, subjectIdentifier);
         }
 
         throw new InvalidOperationException("SubjectType has invalid value");

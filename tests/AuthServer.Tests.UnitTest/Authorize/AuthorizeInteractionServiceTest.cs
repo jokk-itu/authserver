@@ -22,32 +22,32 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
     }
 
     [Fact]
-    public async Task GetPrompt_CallbackMaxAgeExceeded_ExpectLogin()
+    public async Task GetInteractionResult_CallbackMaxAgeExceeded_ExpectLogin()
     {
         // Arrange
         var authorizeUserAccessorMock = new Mock<IAuthorizeUserAccessor>();
         var serviceProvider = BuildServiceProvider(services => { services.AddScopedMock(authorizeUserAccessorMock); });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         typeof(AuthorizationGrant)
             .GetProperty(nameof(AuthorizationGrant.AuthTime))!
             .SetValue(authorizationGrant, DateTime.UtcNow.AddSeconds(-180));
 
         await AddEntity(authorizationGrant);
 
-        var authorizeUser = new AuthorizeUser(publicSubjectIdentifier.Id);
+        var authorizeUser = new AuthorizeUser(subjectIdentifier.Id);
         authorizeUserAccessorMock
             .Setup(x => x.TryGetUser())
             .Returns(authorizeUser)
             .Verifiable();
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id,
@@ -56,40 +56,41 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.Login, deducedPrompt);
+        Assert.Equal(InteractionResult.LoginResult, interactionResult);
+        Assert.False(interactionResult.IsSuccessful);
         authorizeUserAccessorMock.Verify();
     }
 
     [Fact]
-    public async Task GetPrompt_CallbackDefaultMaxAgeExceeded_ExpectLogin()
+    public async Task GetInteractionResult_CallbackDefaultMaxAgeExceeded_ExpectLogin()
     {
         // Arrange
         var authorizeUserAccessorMock = new Mock<IAuthorizeUserAccessor>();
         var serviceProvider = BuildServiceProvider(services => { services.AddScopedMock(authorizeUserAccessorMock); });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic)
         {
             DefaultMaxAge = 30
         };
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         typeof(AuthorizationGrant)
             .GetProperty(nameof(AuthorizationGrant.AuthTime))!
             .SetValue(authorizationGrant, DateTime.UtcNow.AddSeconds(-180));
 
         await AddEntity(authorizationGrant);
 
-        var authorizeUser = new AuthorizeUser(publicSubjectIdentifier.Id);
+        var authorizeUser = new AuthorizeUser(subjectIdentifier.Id);
         authorizeUserAccessorMock
             .Setup(x => x.TryGetUser())
             .Returns(authorizeUser)
             .Verifiable();
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id,
@@ -97,37 +98,38 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.Login, deducedPrompt);
+        Assert.Equal(InteractionResult.LoginResult, interactionResult);
+        Assert.False(interactionResult.IsSuccessful);
         authorizeUserAccessorMock.Verify();
     }
 
     [Fact]
-    public async Task GetPrompt_CallbackInsufficientAuthenticationMethodReferenceAgainstRequest_ExpectLogin()
+    public async Task GetInteractionResult_CallbackInsufficientAuthenticationMethodReferenceAgainstRequest_ExpectLogin()
     {
         // Arrange
         var authorizeUserAccessorMock = new Mock<IAuthorizeUserAccessor>();
         var serviceProvider = BuildServiceProvider(services => { services.AddScopedMock(authorizeUserAccessorMock); });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr)
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr)
         {
             AuthenticationMethodReferences =
                 [await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.Password)]
         };
         await AddEntity(authorizationGrant);
 
-        var authorizeUser = new AuthorizeUser(publicSubjectIdentifier.Id);
+        var authorizeUser = new AuthorizeUser(subjectIdentifier.Id);
         authorizeUserAccessorMock
             .Setup(x => x.TryGetUser())
             .Returns(authorizeUser)
             .Verifiable();
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id,
@@ -136,25 +138,26 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.Login, deducedPrompt);
+        Assert.Equal(InteractionResult.UnmetAuthenticationRequirementResult, interactionResult);
+        Assert.False(interactionResult.IsSuccessful);
         authorizeUserAccessorMock.Verify();
     }
 
     [Fact]
-    public async Task GetPrompt_CallbackInsufficientAuthenticationMethodReferenceAgainstDefault_ExpectLogin()
+    public async Task GetInteractionResult_CallbackInsufficientAuthenticationMethodReferenceAgainstDefault_ExpectLogin()
     {
         // Arrange
         var authorizeUserAccessorMock = new Mock<IAuthorizeUserAccessor>();
         var serviceProvider = BuildServiceProvider(services => { services.AddScopedMock(authorizeUserAccessorMock); });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
         var substantialAcr = await GetAuthenticationContextReference(LevelOfAssuranceSubstantial);
         var clientAuthenticationContextReference = new ClientAuthenticationContextReference(client, substantialAcr, 0);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr)
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr)
         {
             AuthenticationMethodReferences =
                 [await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.Password)]
@@ -162,14 +165,14 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         await AddEntity(authorizationGrant);
         await AddEntity(clientAuthenticationContextReference);
 
-        var authorizeUser = new AuthorizeUser(publicSubjectIdentifier.Id);
+        var authorizeUser = new AuthorizeUser(subjectIdentifier.Id);
         authorizeUserAccessorMock
             .Setup(x => x.TryGetUser())
             .Returns(authorizeUser)
             .Verifiable();
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id,
@@ -177,36 +180,37 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.Login, deducedPrompt);
+        Assert.Equal(InteractionResult.UnmetAuthenticationRequirementResult, interactionResult);
+        Assert.False(interactionResult.IsSuccessful);
         authorizeUserAccessorMock.Verify();
     }
 
     [Fact]
-    public async Task GetPrompt_CallbackConsentNotRequired_ExpectNone()
+    public async Task GetInteractionResult_CallbackConsentNotRequired_ExpectNone()
     {
         // Arrange
         var authorizeUserAccessorMock = new Mock<IAuthorizeUserAccessor>();
         var serviceProvider = BuildServiceProvider(services => { services.AddScopedMock(authorizeUserAccessorMock); });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic)
         {
             RequireConsent = false,
         };
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         await AddEntity(authorizationGrant);
 
-        var authorizeUser = new AuthorizeUser(publicSubjectIdentifier.Id);
+        var authorizeUser = new AuthorizeUser(subjectIdentifier.Id);
         authorizeUserAccessorMock
             .Setup(x => x.TryGetUser())
             .Returns(authorizeUser)
             .Verifiable();
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id,
@@ -214,33 +218,34 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.None, deducedPrompt);
+        Assert.Equal(subjectIdentifier.Id, interactionResult.SubjectIdentifier);
+        Assert.True(interactionResult.IsSuccessful);
         authorizeUserAccessorMock.Verify();
     }
 
     [Fact]
-    public async Task GetPrompt_CallbackConsentRequired_ExpectConsent()
+    public async Task GetInteractionResult_CallbackConsentRequired_ExpectConsent()
     {
         // Arrange
         var authorizeUserAccessorMock = new Mock<IAuthorizeUserAccessor>();
         var serviceProvider = BuildServiceProvider(services => { services.AddScopedMock(authorizeUserAccessorMock); });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         await AddEntity(authorizationGrant);
 
-        var authorizeUser = new AuthorizeUser(publicSubjectIdentifier.Id);
+        var authorizeUser = new AuthorizeUser(subjectIdentifier.Id);
         authorizeUserAccessorMock
             .Setup(x => x.TryGetUser())
             .Returns(authorizeUser)
             .Verifiable();
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id,
@@ -248,37 +253,38 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.Consent, deducedPrompt);
+        Assert.Equal(InteractionResult.ConsentResult, interactionResult);
+        Assert.False(interactionResult.IsSuccessful);
         authorizeUserAccessorMock.Verify();
     }
 
     [Fact]
-    public async Task GetPrompt_CallbackFromConsent_ExpectNone()
+    public async Task GetInteractionResult_CallbackFromConsent_ExpectNone()
     {
         // Arrange
         var authorizeUserAccessorMock = new Mock<IAuthorizeUserAccessor>();
         var serviceProvider = BuildServiceProvider(services => { services.AddScopedMock(authorizeUserAccessorMock); });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         await AddEntity(authorizationGrant);
 
-        var consentGrant = new ConsentGrant(publicSubjectIdentifier, client);
+        var consentGrant = new ConsentGrant(subjectIdentifier, client);
         consentGrant.ConsentedScopes.Add(IdentityContext.Set<Scope>().Single(x => x.Name == ScopeConstants.OpenId));
         await AddEntity(consentGrant);
 
-        var authorizeUser = new AuthorizeUser(publicSubjectIdentifier.Id);
+        var authorizeUser = new AuthorizeUser(subjectIdentifier.Id);
         authorizeUserAccessorMock
             .Setup(x => x.TryGetUser())
             .Returns(authorizeUser)
             .Verifiable();
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id,
@@ -286,15 +292,16 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.None, deducedPrompt);
+        Assert.Equal(subjectIdentifier.Id, interactionResult.SubjectIdentifier);
+        Assert.True(interactionResult.IsSuccessful);
         authorizeUserAccessorMock.Verify();
     }
 
     [Theory]
-    [InlineData(PromptConstants.Consent)]
-    [InlineData(PromptConstants.Login)]
-    [InlineData(PromptConstants.SelectAccount)]
-    public async Task GetPrompt_ClientProvidedPrompt_ExpectProvidedPrompt(string prompt)
+    [InlineData(PromptConstants.Consent, ErrorCode.ConsentRequired)]
+    [InlineData(PromptConstants.Login, ErrorCode.LoginRequired)]
+    [InlineData(PromptConstants.SelectAccount, ErrorCode.AccountSelectionRequired)]
+    public async Task GetInteractionResult_ClientProvidedPrompt_ExpectProvidedPrompt(string prompt, string errorCode)
     {
         // Arrange
         var serviceProvider = BuildServiceProvider(services =>
@@ -304,18 +311,19 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 Prompt = prompt
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(prompt, deducedPrompt);
+        Assert.False(interactionResult.IsSuccessful);
+        Assert.Equal(errorCode, interactionResult.Error!.Error);
     }
 
     [Fact]
-    public async Task GetPrompt_IdTokenHintExpiredGrant_ExpectLogin()
+    public async Task GetInteractionResult_IdTokenHintExpiredGrant_ExpectLogin()
     {
         // Arrange
         var serviceProvider = BuildServiceProvider(services =>
@@ -324,31 +332,32 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         authorizationGrant.Revoke();
         await AddEntity(authorizationGrant);
 
         var idToken = JwtBuilder.GetIdToken(
-            client.Id, authorizationGrant.Id, publicSubjectIdentifier.Id,
+            client.Id, authorizationGrant.Id, subjectIdentifier.Id,
             [AuthenticationMethodReferenceConstants.Password], LevelOfAssuranceLow);
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 IdTokenHint = idToken
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.Login, deducedPrompt);
+        Assert.Equal(InteractionResult.LoginResult, interactionResult);
+        Assert.False(interactionResult.IsSuccessful);
     }
 
     [Fact]
-    public async Task GetPrompt_IdTokenMaxAgeExceeded_ExpectLogin()
+    public async Task GetInteractionResult_IdTokenMaxAgeExceeded_ExpectLogin()
     {
         // Arrange
         var authorizeUserAccessorMock = new Mock<IAuthorizeUserAccessor>();
@@ -358,11 +367,11 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         typeof(AuthorizationGrant)
             .GetProperty(nameof(AuthorizationGrant.AuthTime))!
             .SetValue(authorizationGrant, DateTime.UtcNow.AddSeconds(-180));
@@ -370,11 +379,11 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         await AddEntity(authorizationGrant);
 
         var idToken = JwtBuilder.GetIdToken(
-            client.Id, authorizationGrant.Id, publicSubjectIdentifier.Id,
+            client.Id, authorizationGrant.Id, subjectIdentifier.Id,
             [AuthenticationMethodReferenceConstants.Password], LevelOfAssuranceLow);
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id,
@@ -383,25 +392,26 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.Login, deducedPrompt);
+        Assert.Equal(InteractionResult.LoginResult, interactionResult);
+        Assert.False(interactionResult.IsSuccessful);
     }
 
     [Fact]
-    public async Task GetPrompt_IdTokenDefaultMaxAgeExceeded_ExpectLogin()
+    public async Task GetInteractionResult_IdTokenDefaultMaxAgeExceeded_ExpectLogin()
     {
         // Arrange
         var authorizeUserAccessorMock = new Mock<IAuthorizeUserAccessor>();
         var serviceProvider = BuildServiceProvider(services => { services.AddScopedMock(authorizeUserAccessorMock); });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic)
         {
             DefaultMaxAge = 30
         };
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         typeof(AuthorizationGrant)
             .GetProperty(nameof(AuthorizationGrant.AuthTime))!
             .SetValue(authorizationGrant, DateTime.UtcNow.AddSeconds(-180));
@@ -409,11 +419,11 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         await AddEntity(authorizationGrant);
 
         var idToken = JwtBuilder.GetIdToken(
-            client.Id, authorizationGrant.Id, publicSubjectIdentifier.Id,
+            client.Id, authorizationGrant.Id, subjectIdentifier.Id,
             [AuthenticationMethodReferenceConstants.Password], LevelOfAssuranceLow);
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id,
@@ -421,11 +431,12 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.Login, deducedPrompt);
+        Assert.Equal(InteractionResult.LoginResult, interactionResult);
+        Assert.False(interactionResult.IsSuccessful);
     }
 
     [Fact]
-    public async Task GetPrompt_IdTokenHintWithInsufficientAuthenticationMethodReferenceAgainstRequest_ExpectLogin()
+    public async Task GetInteractionResult_IdTokenHintWithInsufficientAuthenticationMethodReferenceAgainstRequest_ExpectLogin()
     {
         // Arrange
         var serviceProvider = BuildServiceProvider(services =>
@@ -434,11 +445,11 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr)
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr)
         {
             AuthenticationMethodReferences =
                 [await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.Password)]
@@ -446,11 +457,11 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         await AddEntity(authorizationGrant);
 
         var idToken = JwtBuilder.GetIdToken(
-            client.Id, authorizationGrant.Id, publicSubjectIdentifier.Id,
+            client.Id, authorizationGrant.Id, subjectIdentifier.Id,
             [AuthenticationMethodReferenceConstants.Password], LevelOfAssuranceLow);
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id,
@@ -459,11 +470,12 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.Login, deducedPrompt);
+        Assert.Equal(InteractionResult.UnmetAuthenticationRequirementResult, interactionResult);
+        Assert.False(interactionResult.IsSuccessful);
     }
 
     [Fact]
-    public async Task GetPrompt_IdTokenHintWithInsufficientAuthenticationMethodReferenceAgainstDefault_ExpectLogin()
+    public async Task GetInteractionResult_IdTokenHintWithInsufficientAuthenticationMethodReferenceAgainstDefault_ExpectLogin()
     {
         // Arrange
         var serviceProvider = BuildServiceProvider(services =>
@@ -472,13 +484,13 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
         var substantialAcr = await GetAuthenticationContextReference(LevelOfAssuranceSubstantial);
         var clientAuthenticationContextReference = new ClientAuthenticationContextReference(client, substantialAcr, 0);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr)
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr)
         {
             AuthenticationMethodReferences =
                 [await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.Password)]
@@ -487,11 +499,11 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         await AddEntity(clientAuthenticationContextReference);
 
         var idToken = JwtBuilder.GetIdToken(
-            client.Id, authorizationGrant.Id, publicSubjectIdentifier.Id,
+            client.Id, authorizationGrant.Id, subjectIdentifier.Id,
             [AuthenticationMethodReferenceConstants.Password], LevelOfAssuranceLow);
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id,
@@ -499,41 +511,36 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.Login, deducedPrompt);
+        Assert.Equal(InteractionResult.UnmetAuthenticationRequirementResult, interactionResult);
+        Assert.False(interactionResult.IsSuccessful);
     }
 
     [Fact]
-    public async Task GetPrompt_IdTokenHintConsentNotRequired_ExpectNone()
+    public async Task GetInteractionResult_IdTokenHintConsentNotRequired_ExpectNone()
     {
         // Arrange
-        var authorizeUserAccessorMock = new Mock<IAuthorizeUserAccessor>();
         var serviceProvider = BuildServiceProvider(services =>
         {
-            services.AddScopedMock(authorizeUserAccessorMock);
+            services.AddScopedMock(new Mock<IAuthorizeUserAccessor>());
         });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic)
         {
             RequireConsent = false
         };
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         await AddEntity(authorizationGrant);
 
         var idToken = JwtBuilder.GetIdToken(
-            client.Id, authorizationGrant.Id, publicSubjectIdentifier.Id,
+            client.Id, authorizationGrant.Id, subjectIdentifier.Id,
             [AuthenticationMethodReferenceConstants.Password], LevelOfAssuranceLow);
 
-        var authorizeUser = new AuthorizeUser(publicSubjectIdentifier.Id);
-        authorizeUserAccessorMock
-            .Setup(x => x.SetUser(authorizeUser))
-            .Verifiable();
-
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id,
@@ -541,12 +548,12 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.None, deducedPrompt);
-        authorizeUserAccessorMock.Verify();
+        Assert.Equal(subjectIdentifier.Id, interactionResult.SubjectIdentifier);
+        Assert.True(interactionResult.IsSuccessful);
     }
 
     [Fact]
-    public async Task GetPrompt_IdTokenHintConsentRequired_ExpectConsent()
+    public async Task GetInteractionResult_IdTokenHintConsentRequired_ExpectConsent()
     {
         // Arrange
         var serviceProvider = BuildServiceProvider(services =>
@@ -555,19 +562,19 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         await AddEntity(authorizationGrant);
 
         var idToken = JwtBuilder.GetIdToken(
-            client.Id, authorizationGrant.Id, publicSubjectIdentifier.Id,
+            client.Id, authorizationGrant.Id, subjectIdentifier.Id,
             [AuthenticationMethodReferenceConstants.Password], LevelOfAssuranceLow);
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id,
@@ -576,11 +583,12 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.Consent, deducedPrompt);
+        Assert.Equal(InteractionResult.ConsentResult, interactionResult);
+        Assert.False(interactionResult.IsSuccessful);
     }
 
     [Fact]
-    public async Task GetPrompt_IdTokenHintConsentRequired_ExpectNone()
+    public async Task GetInteractionResult_IdTokenHintConsentRequired_ExpectNone()
     {
         // Arrange
         var serviceProvider = BuildServiceProvider(services =>
@@ -589,23 +597,23 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         await AddEntity(authorizationGrant);
 
-        var consentGrant = new ConsentGrant(publicSubjectIdentifier, client);
+        var consentGrant = new ConsentGrant(subjectIdentifier, client);
         consentGrant.ConsentedScopes.Add(IdentityContext.Set<Scope>().Single(x => x.Name == ScopeConstants.OpenId));
         await AddEntity(consentGrant);
 
         var idToken = JwtBuilder.GetIdToken(
-            client.Id, authorizationGrant.Id, publicSubjectIdentifier.Id,
+            client.Id, authorizationGrant.Id, subjectIdentifier.Id,
             [AuthenticationMethodReferenceConstants.Password], LevelOfAssuranceLow);
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id,
@@ -614,11 +622,12 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.None, deducedPrompt);
+        Assert.Equal(subjectIdentifier.Id, interactionResult.SubjectIdentifier);
+        Assert.True(interactionResult.IsSuccessful);
     }
 
     [Fact]
-    public async Task GetPrompt_ZeroAuthenticatedUsers_ExpectLogin()
+    public async Task GetInteractionResult_ZeroAuthenticatedUsers_ExpectLogin()
     {
         // Arrange
         var authenticateUserAccessorMock = new Mock<IAuthenticatedUserAccessor>();
@@ -635,16 +644,17 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             .Verifiable();
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest(), CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.Login, deducedPrompt);
+        Assert.Equal(InteractionResult.LoginResult, interactionResult);
+        Assert.False(interactionResult.IsSuccessful);
         authenticateUserAccessorMock.Verify();
     }
 
     [Fact]
-    public async Task GetPrompt_MultipleAuthenticatedUsers_ExpectSelectAccount()
+    public async Task GetInteractionResult_MultipleAuthenticatedUsers_ExpectSelectAccount()
     {
         // Arrange
         var authenticateUserAccessorMock = new Mock<IAuthenticatedUserAccessor>();
@@ -661,16 +671,17 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             .Verifiable();
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest(), CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.SelectAccount, deducedPrompt);
+        Assert.Equal(InteractionResult.SelectAccountResult, interactionResult);
+        Assert.False(interactionResult.IsSuccessful);
         authenticateUserAccessorMock.Verify();
     }
 
     [Fact]
-    public async Task GetPrompt_OneAuthenticationUserWithExpiredGrant_ExpectLogin()
+    public async Task GetInteractionResult_OneAuthenticationUserWithExpiredGrant_ExpectLogin()
     {
         // Arrange
         var authenticateUserAccessorMock = new Mock<IAuthenticatedUserAccessor>();
@@ -681,11 +692,11 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         authorizationGrant.Revoke();
         await AddEntity(authorizationGrant);
 
@@ -696,23 +707,24 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
 
         authenticateUserAccessorMock
             .Setup(x => x.GetAuthenticatedUser())
-            .ReturnsAsync(new AuthenticatedUser(publicSubjectIdentifier.Id))
+            .ReturnsAsync(new AuthenticatedUser(subjectIdentifier.Id))
             .Verifiable();
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.Login, deducedPrompt);
+        Assert.Equal(InteractionResult.LoginResult, interactionResult);
+        Assert.False(interactionResult.IsSuccessful);
         authenticateUserAccessorMock.Verify();
     }
 
     [Fact]
-    public async Task GetPrompt_OneAuthenticatedUserMaxAgeExceeded_ExpectLogin()
+    public async Task GetInteractionResult_OneAuthenticatedUserMaxAgeExceeded_ExpectLogin()
     {
         // Arrange
         var authenticateUserAccessorMock = new Mock<IAuthenticatedUserAccessor>();
@@ -723,11 +735,11 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         typeof(AuthorizationGrant)
             .GetProperty(nameof(AuthorizationGrant.AuthTime))!
             .SetValue(authorizationGrant, DateTime.UtcNow.AddSeconds(-180));
@@ -741,11 +753,11 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
 
         authenticateUserAccessorMock
             .Setup(x => x.GetAuthenticatedUser())
-            .ReturnsAsync(new AuthenticatedUser(publicSubjectIdentifier.Id))
+            .ReturnsAsync(new AuthenticatedUser(subjectIdentifier.Id))
             .Verifiable();
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id,
@@ -753,12 +765,13 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.Login, deducedPrompt);
+        Assert.Equal(InteractionResult.LoginResult, interactionResult);
+        Assert.False(interactionResult.IsSuccessful);
         authenticateUserAccessorMock.Verify();
     }
 
     [Fact]
-    public async Task GetPrompt_OneAuthenticatedUserDefaultMaxAgeExceeded_ExpectLogin()
+    public async Task GetInteractionResult_OneAuthenticatedUserDefaultMaxAgeExceeded_ExpectLogin()
     {
         // Arrange
         var authenticateUserAccessorMock = new Mock<IAuthenticatedUserAccessor>();
@@ -769,14 +782,14 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic)
         {
             DefaultMaxAge = 30
         };
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         typeof(AuthorizationGrant)
             .GetProperty(nameof(AuthorizationGrant.AuthTime))!
             .SetValue(authorizationGrant, DateTime.UtcNow.AddSeconds(-180));
@@ -790,23 +803,24 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
 
         authenticateUserAccessorMock
             .Setup(x => x.GetAuthenticatedUser())
-            .ReturnsAsync(new AuthenticatedUser(publicSubjectIdentifier.Id))
+            .ReturnsAsync(new AuthenticatedUser(subjectIdentifier.Id))
             .Verifiable();
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.Login, deducedPrompt);
+        Assert.Equal(InteractionResult.LoginResult, interactionResult);
+        Assert.False(interactionResult.IsSuccessful);
         authenticateUserAccessorMock.Verify();
     }
 
     [Fact]
-    public async Task GetPrompt_OneAuthenticatedUserWithInsufficientAuthenticationMethodReferenceAgainstRequest_ExpectLogin()
+    public async Task GetInteractionResult_OneAuthenticatedUserWithInsufficientAuthenticationMethodReferenceAgainstRequest_ExpectLogin()
     {
         // Arrange
         var authenticateUserAccessorMock = new Mock<IAuthenticatedUserAccessor>();
@@ -817,11 +831,11 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr)
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr)
         {
             AuthenticationMethodReferences =
                 [await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.Password)]
@@ -835,11 +849,11 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
 
         authenticateUserAccessorMock
             .Setup(x => x.GetAuthenticatedUser())
-            .ReturnsAsync(new AuthenticatedUser(publicSubjectIdentifier.Id))
+            .ReturnsAsync(new AuthenticatedUser(subjectIdentifier.Id))
             .Verifiable();
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id,
@@ -847,12 +861,13 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.Login, deducedPrompt);
+        Assert.Equal(InteractionResult.UnmetAuthenticationRequirementResult, interactionResult);
+        Assert.False(interactionResult.IsSuccessful);
         authenticateUserAccessorMock.Verify();
     }
 
     [Fact]
-    public async Task GetPrompt_OneAuthenticatedUserWithInsufficientAuthenticationMethodReferenceAgainstDefault_ExpectLogin()
+    public async Task GetInteractionResult_OneAuthenticatedUserWithInsufficientAuthenticationMethodReferenceAgainstDefault_ExpectLogin()
     {
         // Arrange
         var authenticateUserAccessorMock = new Mock<IAuthenticatedUserAccessor>();
@@ -863,13 +878,13 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
         var substantialAcr = await GetAuthenticationContextReference(LevelOfAssuranceSubstantial);
         var clientAuthenticationContextReference = new ClientAuthenticationContextReference(client, substantialAcr, 0);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr)
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr)
         {
             AuthenticationMethodReferences =
                 [await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.Password)]
@@ -884,23 +899,24 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
 
         authenticateUserAccessorMock
             .Setup(x => x.GetAuthenticatedUser())
-            .ReturnsAsync(new AuthenticatedUser(publicSubjectIdentifier.Id))
+            .ReturnsAsync(new AuthenticatedUser(subjectIdentifier.Id))
             .Verifiable();
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.Login, deducedPrompt);
+        Assert.Equal(InteractionResult.UnmetAuthenticationRequirementResult, interactionResult);
+        Assert.False(interactionResult.IsSuccessful);
         authenticateUserAccessorMock.Verify();
     }
 
     [Fact]
-    public async Task GetPrompt_OneAuthenticatedUserConsentNotRequired_ExpectNone()
+    public async Task GetInteractionResult_OneAuthenticatedUserConsentNotRequired_ExpectNone()
     {
         // Arrange
         var authenticateUserAccessorMock = new Mock<IAuthenticatedUserAccessor>();
@@ -911,14 +927,14 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic)
         {
             RequireConsent = false
         };
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         await AddEntity(authorizationGrant);
 
         authenticateUserAccessorMock
@@ -928,23 +944,24 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
 
         authenticateUserAccessorMock
             .Setup(x => x.GetAuthenticatedUser())
-            .ReturnsAsync(new AuthenticatedUser(publicSubjectIdentifier.Id))
+            .ReturnsAsync(new AuthenticatedUser(subjectIdentifier.Id))
             .Verifiable();
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.None, deducedPrompt);
+        Assert.Equal(subjectIdentifier.Id, interactionResult.SubjectIdentifier);
+        Assert.True(interactionResult.IsSuccessful);
         authenticateUserAccessorMock.Verify();
     }
 
     [Fact]
-    public async Task GetPrompt_OneAuthenticatedUserConsentRequired_ExpectConsent()
+    public async Task GetInteractionResult_OneAuthenticatedUserConsentRequired_ExpectConsent()
     {
         // Arrange
         var authenticateUserAccessorMock = new Mock<IAuthenticatedUserAccessor>();
@@ -955,11 +972,11 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         await AddEntity(authorizationGrant);
 
         authenticateUserAccessorMock
@@ -969,11 +986,11 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
 
         authenticateUserAccessorMock
             .Setup(x => x.GetAuthenticatedUser())
-            .ReturnsAsync(new AuthenticatedUser(publicSubjectIdentifier.Id))
+            .ReturnsAsync(new AuthenticatedUser(subjectIdentifier.Id))
             .Verifiable();
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id,
@@ -981,12 +998,13 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.Consent, deducedPrompt);
+        Assert.Equal(InteractionResult.ConsentResult, interactionResult);
+        Assert.False(interactionResult.IsSuccessful);
         authenticateUserAccessorMock.Verify();
     }
 
     [Fact]
-    public async Task GetPrompt_OneAuthenticatedUserConsentRequired_ExpectNone()
+    public async Task GetInteractionResult_OneAuthenticatedUserConsentRequired_ExpectNone()
     {
         // Arrange
         var authenticateUserAccessorMock = new Mock<IAuthenticatedUserAccessor>();
@@ -997,14 +1015,14 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         });
         var authorizeInteractionService = serviceProvider.GetRequiredService<IAuthorizeInteractionService>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var client = new Client("WebApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         await AddEntity(authorizationGrant);
 
-        var consentGrant = new ConsentGrant(publicSubjectIdentifier, client);
+        var consentGrant = new ConsentGrant(subjectIdentifier, client);
         consentGrant.ConsentedScopes.Add(IdentityContext.Set<Scope>().Single(x => x.Name == ScopeConstants.OpenId));
         await AddEntity(consentGrant);
 
@@ -1015,11 +1033,11 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
 
         authenticateUserAccessorMock
             .Setup(x => x.GetAuthenticatedUser())
-            .ReturnsAsync(new AuthenticatedUser(publicSubjectIdentifier.Id))
+            .ReturnsAsync(new AuthenticatedUser(subjectIdentifier.Id))
             .Verifiable();
 
         // Act
-        var deducedPrompt = await authorizeInteractionService.GetPrompt(
+        var interactionResult = await authorizeInteractionService.GetInteractionResult(
             new AuthorizeRequest
             {
                 ClientId = client.Id,
@@ -1027,7 +1045,8 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
             }, CancellationToken.None);
 
         // Assert
-        Assert.Equal(PromptConstants.None, deducedPrompt);
+        Assert.Equal(subjectIdentifier.Id, interactionResult.SubjectIdentifier);
+        Assert.True(interactionResult.IsSuccessful);
         authenticateUserAccessorMock.Verify();
     }
 }

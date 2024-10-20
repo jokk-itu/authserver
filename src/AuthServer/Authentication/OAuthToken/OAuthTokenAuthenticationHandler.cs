@@ -98,8 +98,8 @@ internal class OAuthTokenAuthenticationHandler : AuthenticationHandler<OAuthToke
                 ClientIdFromClientToken = (t as ClientToken)!.Client.Id,
                 ClientIdFromGrantToken = (t as GrantToken)!.AuthorizationGrant.Client.Id,
                 GrantId = (t as GrantToken)!.AuthorizationGrant.Id,
-                PublicSubjectIdentifier = (t as GrantToken)!.AuthorizationGrant.Session.PublicSubjectIdentifier.Id,
-                SubjectIdentifier = (t as GrantToken)!.AuthorizationGrant.SubjectIdentifier.Id,
+                SubjectIdentifier = (t as GrantToken)!.AuthorizationGrant.Session.SubjectIdentifier.Id,
+                (t as GrantToken)!.AuthorizationGrant.Subject,
                 SessionId = (t as GrantToken)!.AuthorizationGrant.Session.Id
             })
             .SingleOrDefaultAsync();
@@ -135,9 +135,9 @@ internal class OAuthTokenAuthenticationHandler : AuthenticationHandler<OAuthToke
             claims.Add(new Claim(ClaimNameConstants.GrantId, query.GrantId));
             claims.Add(new Claim(ClaimNameConstants.ClientId, query.ClientIdFromGrantToken));
             claims.Add(new Claim(ClaimNameConstants.Sid, query.SessionId));
-            claims.Add(new Claim(ClaimNameConstants.Sub, query.SubjectIdentifier));
+            claims.Add(new Claim(ClaimNameConstants.Sub, query.Subject));
 
-            var userClaims = await _userClaimService.GetClaims(query.PublicSubjectIdentifier, CancellationToken.None);
+            var userClaims = await _userClaimService.GetClaims(query.SubjectIdentifier, CancellationToken.None);
             claims.AddRange(userClaims);
         }
         else if (query.Token is ClientToken)

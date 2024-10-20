@@ -45,7 +45,7 @@ internal class GrantAccessTokenBuilder : ITokenBuilder<GrantAccessTokenArguments
             {
                 AuthorizationGrant = x,
                 Client = x.Client,
-                SubjectId = x.SubjectIdentifier.Id,
+                Subject = x.Subject,
                 SessionId = x.Session.Id
             })
             .SingleAsync(cancellationToken);
@@ -72,7 +72,7 @@ internal class GrantAccessTokenBuilder : ITokenBuilder<GrantAccessTokenArguments
             { ClaimNameConstants.Scope, string.Join(' ', arguments.Scope) },
             { ClaimNameConstants.Aud, JsonSerializer.SerializeToElement(arguments.Resource) },
             { ClaimNameConstants.GrantId, arguments.AuthorizationGrantId },
-            { ClaimNameConstants.Sub, grantQuery.SubjectId },
+            { ClaimNameConstants.Sub, grantQuery.Subject },
             { ClaimNameConstants.Sid, grantQuery.SessionId },
             { ClaimNameConstants.ClientId, grantQuery.Client.Id }
         };
@@ -110,6 +110,6 @@ internal class GrantAccessTokenBuilder : ITokenBuilder<GrantAccessTokenArguments
         public required AuthorizationGrant AuthorizationGrant { get; init; }
         public required Client Client { get; init; }
         public required string SessionId { get; init; }
-        public required string SubjectId { get; init; }
+        public required string Subject { get; init; }
     }
 }

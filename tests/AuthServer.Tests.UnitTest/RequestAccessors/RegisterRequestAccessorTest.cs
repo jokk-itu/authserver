@@ -48,6 +48,7 @@ public class RegisterRequestAccessorTest : BaseUnitTest
             { Parameter.InitiateLoginUri, value },
             { Parameter.LogoUri, value },
             { Parameter.BackchannelLogoutUri, value },
+            { Parameter.SectorIdentifierUri, value },
 
             { Parameter.RequireSignedRequestObject, value },
             { Parameter.RequireReferenceToken, value },
@@ -142,6 +143,7 @@ public class RegisterRequestAccessorTest : BaseUnitTest
         Assert.Equal(expectedValue, request.InitiateLoginUri);
         Assert.Equal(expectedValue, request.LogoUri);
         Assert.Equal(expectedValue, request.BackchannelLogoutUri);
+        Assert.Equal(expectedValue, request.SectorIdentifierUri);
 
         Assert.Equal(expectedValue, request.RequireSignedRequestObject);
         Assert.Equal(expectedValue, request.RequireReferenceToken);

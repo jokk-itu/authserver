@@ -45,7 +45,7 @@ internal class RefreshTokenBuilder : ITokenBuilder<RefreshTokenArguments>
                 AuthorizationGrant = x,
                 Client = x.Client,
                 SessionId = x.Session.Id,
-                SubjectId = x.SubjectIdentifier.Id
+                Subject = x.Subject
             })
             .SingleAsync(cancellationToken);
 
@@ -89,7 +89,7 @@ internal class RefreshTokenBuilder : ITokenBuilder<RefreshTokenArguments>
         {
             { ClaimNameConstants.Aud, grantQuery.Client.Id },
             { ClaimNameConstants.Sid, grantQuery.SessionId },
-            { ClaimNameConstants.Sub, grantQuery.SubjectId },
+            { ClaimNameConstants.Sub, grantQuery.Subject },
             { ClaimNameConstants.Jti, refreshToken.Id },
             { ClaimNameConstants.GrantId, arguments.AuthorizationGrantId },
             { ClaimNameConstants.ClientId, grantQuery.Client.Id },
@@ -118,6 +118,6 @@ internal class RefreshTokenBuilder : ITokenBuilder<RefreshTokenArguments>
         public required AuthorizationGrant AuthorizationGrant { get; init; }
         public required Client Client { get; init; }
         public required string SessionId { get; init; }
-        public required string SubjectId { get; init; }
+        public required string Subject { get; init; }
     }
 }

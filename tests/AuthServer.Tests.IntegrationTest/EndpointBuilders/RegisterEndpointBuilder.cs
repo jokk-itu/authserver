@@ -25,6 +25,12 @@ public class RegisterEndpointBuilder : EndpointBuilder
     {
     }
 
+    public RegisterEndpointBuilder WithSectorIdentifierUri(string sectorIdentifierUri)
+    {
+        _parameters.Add(Parameter.SectorIdentifierUri, sectorIdentifierUri);
+        return this;
+    }
+
     public RegisterEndpointBuilder WithScope(IReadOnlyCollection<string> scope)
     {
         _parameters.Add(Parameter.Scope, string.Join(' ', scope));

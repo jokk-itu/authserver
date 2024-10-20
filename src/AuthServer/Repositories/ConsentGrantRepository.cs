@@ -14,11 +14,11 @@ internal class ConsentGrantRepository : IConsentGrantRepository
     }
 
     /// <inheritdoc/>
-    public async Task<IReadOnlyCollection<string>> GetConsentedScope(string publicSubjectIdentifier, string clientId, CancellationToken cancellationToken)
+    public async Task<IReadOnlyCollection<string>> GetConsentedScope(string subjectIdentifier, string clientId, CancellationToken cancellationToken)
     {
         return await _identityContext
             .Set<ConsentGrant>()
-            .Where(cg => cg.PublicSubjectIdentifier.Id == publicSubjectIdentifier)
+            .Where(cg => cg.SubjectIdentifier.Id == subjectIdentifier)
             .Where(cg => cg.Client.Id == clientId)
             .SelectMany(cg => cg.ConsentedScopes)
             .Select(s => s.Name)
@@ -26,7 +26,7 @@ internal class ConsentGrantRepository : IConsentGrantRepository
     }
 
     /// <inheritdoc/>
-    public async Task<IReadOnlyCollection<string>> GetConsentedClaims(string publicSubjectIdentifier, string clientId, CancellationToken cancellationToken)
+    public async Task<IReadOnlyCollection<string>> GetConsentedClaims(string subjectIdentifier, string clientId, CancellationToken cancellationToken)
     {
         var client = await _identityContext.FindAsync<Client>([clientId], cancellationToken);
         if (!client!.RequireConsent)
@@ -39,7 +39,7 @@ internal class ConsentGrantRepository : IConsentGrantRepository
 
         return await _identityContext
             .Set<ConsentGrant>()
-            .Where(cg => cg.PublicSubjectIdentifier.Id == publicSubjectIdentifier)
+            .Where(cg => cg.SubjectIdentifier.Id == subjectIdentifier)
             .Where(cg => cg.Client.Id == clientId)
             .SelectMany(cg => cg.ConsentedClaims)
             .Select(s => s.Name)
@@ -53,9 +53,9 @@ internal class ConsentGrantRepository : IConsentGrantRepository
         var activeConsentGrant = await GetConsentGrant(subjectIdentifier, clientId, cancellationToken);
         if (activeConsentGrant is null)
         {
-            var publicSubjectIdentifier = (await _identityContext.FindAsync<PublicSubjectIdentifier>([subjectIdentifier], cancellationToken))!;
+            var subject = (await _identityContext.FindAsync<SubjectIdentifier>([subjectIdentifier], cancellationToken))!;
             var client = (await _identityContext.FindAsync<Client>([clientId], cancellationToken))!;
-            activeConsentGrant = new ConsentGrant(publicSubjectIdentifier, client);
+            activeConsentGrant = new ConsentGrant(subject, client);
             await _identityContext.AddAsync(activeConsentGrant, cancellationToken);
         }
 
@@ -82,7 +82,7 @@ internal class ConsentGrantRepository : IConsentGrantRepository
     {
         return await _identityContext
             .Set<ConsentGrant>()
-            .Where(x => x.PublicSubjectIdentifier.Id == subjectIdentifier)
+            .Where(x => x.SubjectIdentifier.Id == subjectIdentifier)
             .Where(x => x.Client.Id == clientId)
             .Include(x => x.ConsentedClaims)
             .Include(x => x.ConsentedScopes)

@@ -87,7 +87,7 @@ public class GrantAccessTokenBuilderTest(ITestOutputHelper outputHelper) : BaseU
         Assert.True(validatedTokenResult.IsValid);
         Assert.Equal(scope, validatedTokenResult.Claims[ClaimNameConstants.Scope].ToString()!.Split(' '));
         Assert.Equal(authorizationGrant.Session.Id, validatedTokenResult.Claims[ClaimNameConstants.Sid].ToString());
-        Assert.Equal(authorizationGrant.SubjectIdentifier.Id, validatedTokenResult.Claims[ClaimNameConstants.Sub].ToString());
+        Assert.Equal(authorizationGrant.Subject, validatedTokenResult.Claims[ClaimNameConstants.Sub].ToString());
         Assert.NotNull(validatedTokenResult.Claims[ClaimNameConstants.Jti].ToString());
         Assert.Equal(authorizationGrant.Id, validatedTokenResult.Claims[ClaimNameConstants.GrantId].ToString());
         Assert.Equal(authorizationGrant.Client.Id, validatedTokenResult.Claims[ClaimNameConstants.ClientId].ToString());
@@ -108,10 +108,10 @@ public class GrantAccessTokenBuilderTest(ITestOutputHelper outputHelper) : BaseU
 
         client.Scopes.Add(openIdScope);
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, publicSubjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
 
         await AddEntity(authorizationGrant);
         return authorizationGrant;

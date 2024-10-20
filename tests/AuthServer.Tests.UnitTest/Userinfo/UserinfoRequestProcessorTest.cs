@@ -30,7 +30,7 @@ public class UserinfoRequestProcessorTest : BaseUnitTest
         });
         var processor = serviceProvider.GetRequiredService<IRequestProcessor<UserinfoValidatedRequest, string>>();
 
-        var subjectIdentifier = new PublicSubjectIdentifier();
+        var subjectIdentifier = new SubjectIdentifier();
 
         const string address = "PinguStreet";
         userClaimService
@@ -45,7 +45,7 @@ public class UserinfoRequestProcessorTest : BaseUnitTest
             ClientUri = "https://webapp.authserver.dk"
         };
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         await AddEntity(authorizationGrant);
 
         // Act

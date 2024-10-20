@@ -57,8 +57,8 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
                 x.AuthTime,
                 ClientId = x.Client.Id,
                 SessionId = x.Session.Id,
-                PublicSubjectId = x.Session.PublicSubjectIdentifier.Id,
-                GrantSubjectId = x.SubjectIdentifier.Id,
+                SubjectIdentifier = x.Session.SubjectIdentifier.Id,
+                GrantSubject = x.Subject,
                 SigningAlg = x.Client.IdTokenSignedResponseAlg,
                 EncryptionAlg = x.Client.IdTokenEncryptedResponseAlg,
                 EncryptionEnc = x.Client.IdTokenEncryptedResponseEnc,
@@ -70,7 +70,7 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
 
         var claims = new Dictionary<string, object>
         {
-            { ClaimNameConstants.Sub, query.GrantSubjectId },
+            { ClaimNameConstants.Sub, query.GrantSubject },
             { ClaimNameConstants.Aud, query.ClientId },
             { ClaimNameConstants.Sid, query.SessionId },
             { ClaimNameConstants.Jti, Guid.NewGuid() },
@@ -83,8 +83,8 @@ internal class IdTokenBuilder : ITokenBuilder<IdTokenArguments>
             { ClaimNameConstants.Acr, query.AuthenticationContextReference }
         };
 
-        var authorizedClaimTypes = await _consentGrantRepository.GetConsentedClaims(query.PublicSubjectId, query.ClientId, cancellationToken);
-        var userClaims = await _userClaimService.GetClaims(query.PublicSubjectId, cancellationToken);
+        var authorizedClaimTypes = await _consentGrantRepository.GetConsentedClaims(query.SubjectIdentifier, query.ClientId, cancellationToken);
+        var userClaims = await _userClaimService.GetClaims(query.SubjectIdentifier, cancellationToken);
         foreach (var userClaim in userClaims)
         {
             if (authorizedClaimTypes.Contains(userClaim.Type))

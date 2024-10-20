@@ -147,7 +147,7 @@ public class IntrospectionRequestProcessorTest : BaseUnitTest
         });
         var processor = serviceProvider.GetRequiredService<IRequestProcessor<IntrospectionValidatedRequest, IntrospectionResponse>>();
 
-        var subjectIdentifier = new PublicSubjectIdentifier();
+        var subjectIdentifier = new SubjectIdentifier();
         const string username = "JohnDoe";
         userClaimServiceMock
             .Setup(x => x.GetUsername(subjectIdentifier.Id, CancellationToken.None))
@@ -164,7 +164,7 @@ public class IntrospectionRequestProcessorTest : BaseUnitTest
         client.Scopes.Add(openidScope);
 
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
         
         var token = new GrantAccessToken(authorizationGrant, client.ClientUri, DiscoveryDocument.Issuer, ScopeConstants.OpenId, DateTime.UtcNow.AddHours(1));
         await AddEntity(token);

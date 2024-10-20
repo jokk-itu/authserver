@@ -33,15 +33,15 @@ public class ConsentGrantRepositoryTest(ITestOutputHelper outputHelper) : BaseUn
         var consentGrantRepository = serviceProvider.GetRequiredService<IConsentGrantRepository>();
 
         var client = new Client("PinguApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var consentGrant = new ConsentGrant(publicSubjectIdentifier, client);
+        var subjectIdentifier = new SubjectIdentifier();
+        var consentGrant = new ConsentGrant(subjectIdentifier, client);
         var openIdScope = await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId);
         consentGrant.ConsentedScopes.Add(openIdScope);
         await AddEntity(consentGrant);
 
         // Act
         var consentedScope=
-            await consentGrantRepository.GetConsentedScope(publicSubjectIdentifier.Id, client.Id,
+            await consentGrantRepository.GetConsentedScope(subjectIdentifier.Id, client.Id,
                 CancellationToken.None);
 
         // Assert
@@ -56,13 +56,13 @@ public class ConsentGrantRepositoryTest(ITestOutputHelper outputHelper) : BaseUn
         var consentGrantRepository = serviceProvider.GetRequiredService<IConsentGrantRepository>();
 
         var client = new Client("PinguApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var consentGrant = new ConsentGrant(publicSubjectIdentifier, client);
+        var subjectIdentifier = new SubjectIdentifier();
+        var consentGrant = new ConsentGrant(subjectIdentifier, client);
         await AddEntity(consentGrant);
 
         // Act
         var consentedClaims =
-            await consentGrantRepository.GetConsentedClaims(publicSubjectIdentifier.Id, client.Id,
+            await consentGrantRepository.GetConsentedClaims(subjectIdentifier.Id, client.Id,
                 CancellationToken.None);
 
         // Assert
@@ -77,15 +77,15 @@ public class ConsentGrantRepositoryTest(ITestOutputHelper outputHelper) : BaseUn
         var consentGrantRepository = serviceProvider.GetRequiredService<IConsentGrantRepository>();
 
         var client = new Client("PinguApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var consentGrant = new ConsentGrant(publicSubjectIdentifier, client);
+        var subjectIdentifier = new SubjectIdentifier();
+        var consentGrant = new ConsentGrant(subjectIdentifier, client);
         var givenNameClaim = await IdentityContext.Set<Claim>().SingleAsync(x => x.Name == ClaimNameConstants.GivenName);
         consentGrant.ConsentedClaims.Add(givenNameClaim);
         await AddEntity(consentGrant);
 
         // Act
         var consentedClaims =
-            await consentGrantRepository.GetConsentedClaims(publicSubjectIdentifier.Id, client.Id,
+            await consentGrantRepository.GetConsentedClaims(subjectIdentifier.Id, client.Id,
                 CancellationToken.None);
 
         // Assert
@@ -103,13 +103,13 @@ public class ConsentGrantRepositoryTest(ITestOutputHelper outputHelper) : BaseUn
         {
             RequireConsent = false
         };
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var consentGrant = new ConsentGrant(publicSubjectIdentifier, client);
+        var subjectIdentifier = new SubjectIdentifier();
+        var consentGrant = new ConsentGrant(subjectIdentifier, client);
         await AddEntity(consentGrant);
 
         // Act
         var consentedClaims =
-            await consentGrantRepository.GetConsentedClaims(publicSubjectIdentifier.Id, client.Id,
+            await consentGrantRepository.GetConsentedClaims(subjectIdentifier.Id, client.Id,
                 CancellationToken.None);
 
         // Assert
@@ -125,13 +125,13 @@ public class ConsentGrantRepositoryTest(ITestOutputHelper outputHelper) : BaseUn
         var consentGrantRepository = serviceProvider.GetRequiredService<IConsentGrantRepository>();
 
         var client = new Client("PinguApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
+        var subjectIdentifier = new SubjectIdentifier();
         await AddEntity(client);
-        await AddEntity(publicSubjectIdentifier);
+        await AddEntity(subjectIdentifier);
 
         // Act
         await consentGrantRepository.CreateOrUpdateConsentGrant(
-            publicSubjectIdentifier.Id,
+            subjectIdentifier.Id,
             client.Id,
             [ScopeConstants.OpenId],
             [ClaimNameConstants.GivenName],
@@ -143,7 +143,7 @@ public class ConsentGrantRepositoryTest(ITestOutputHelper outputHelper) : BaseUn
             .SingleAsync();
 
         Assert.Equal(client, consentGrant.Client);
-        Assert.Equal(publicSubjectIdentifier, consentGrant.PublicSubjectIdentifier);
+        Assert.Equal(subjectIdentifier, consentGrant.SubjectIdentifier);
         Assert.Equal(IdentityContext.Set<Scope>().Single(x => x.Name == ScopeConstants.OpenId), consentGrant.ConsentedScopes.Single());
         Assert.Equal(IdentityContext.Set<Claim>().Single(x => x.Name == ClaimNameConstants.GivenName), consentGrant.ConsentedClaims.Single());
     }
@@ -156,8 +156,8 @@ public class ConsentGrantRepositoryTest(ITestOutputHelper outputHelper) : BaseUn
         var consentGrantRepository = serviceProvider.GetRequiredService<IConsentGrantRepository>();
 
         var client = new Client("PinguApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var consentGrant = new ConsentGrant(publicSubjectIdentifier, client);
+        var subjectIdentifier = new SubjectIdentifier();
+        var consentGrant = new ConsentGrant(subjectIdentifier, client);
 
         var openIdScope = await IdentityContext.Set<Scope>().SingleAsync(x => x.Name == ScopeConstants.OpenId);
         consentGrant.ConsentedScopes.Add(openIdScope);
@@ -169,7 +169,7 @@ public class ConsentGrantRepositoryTest(ITestOutputHelper outputHelper) : BaseUn
 
         // Act
         await consentGrantRepository.CreateOrUpdateConsentGrant(
-            publicSubjectIdentifier.Id,
+            subjectIdentifier.Id,
             client.Id,
             [ScopeConstants.UserInfo],
             [ClaimNameConstants.Address],
@@ -188,14 +188,14 @@ public class ConsentGrantRepositoryTest(ITestOutputHelper outputHelper) : BaseUn
         var consentGrantRepository = serviceProvider.GetRequiredService<IConsentGrantRepository>();
 
         var client = new Client("PinguApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var consentGrant = new ConsentGrant(publicSubjectIdentifier, client);
+        var subjectIdentifier = new SubjectIdentifier();
+        var consentGrant = new ConsentGrant(subjectIdentifier, client);
 
         await AddEntity(consentGrant);
 
         // Act
         var grant = await consentGrantRepository.GetConsentGrant(
-            publicSubjectIdentifier.Id,
+            subjectIdentifier.Id,
             client.Id,
             CancellationToken.None);
 
@@ -211,14 +211,14 @@ public class ConsentGrantRepositoryTest(ITestOutputHelper outputHelper) : BaseUn
         var consentGrantRepository = serviceProvider.GetRequiredService<IConsentGrantRepository>();
 
         var client = new Client("PinguApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
+        var subjectIdentifier = new SubjectIdentifier();
 
         await AddEntity(client);
-        await AddEntity(publicSubjectIdentifier);
+        await AddEntity(subjectIdentifier);
 
         // Act
         var grant = await consentGrantRepository.GetConsentGrant(
-            publicSubjectIdentifier.Id,
+            subjectIdentifier.Id,
             client.Id,
             CancellationToken.None);
 

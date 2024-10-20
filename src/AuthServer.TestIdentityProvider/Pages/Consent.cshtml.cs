@@ -98,7 +98,7 @@ public class ConsentModel : PageModel
     {
         ReturnUrl = returnUrl ?? Url.Content("~/");
 
-        // TODO redirect to the Client with an error
+        // TODO redirect to the Client with "consent_required" error
         throw new NotImplementedException();
     }
 }

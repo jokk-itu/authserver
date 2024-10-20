@@ -61,7 +61,7 @@ public class IdTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTest(o
         Assert.Null(validatedTokenResult.Exception);
         Assert.True(validatedTokenResult.IsValid);
         Assert.Equal(authorizationGrant.Session.Id, validatedTokenResult.Claims[ClaimNameConstants.Sid].ToString());
-        Assert.Equal(authorizationGrant.SubjectIdentifier.Id, validatedTokenResult.Claims[ClaimNameConstants.Sub].ToString());
+        Assert.Equal(authorizationGrant.Subject, validatedTokenResult.Claims[ClaimNameConstants.Sub].ToString());
         Assert.Equal(authorizationGrant.Client.Id, validatedTokenResult.Claims[ClaimNameConstants.ClientId].ToString());
         Assert.Equal(authorizationGrant.Id, validatedTokenResult.Claims[ClaimNameConstants.GrantId].ToString());
         Assert.Equal(authorizationGrant.Nonces.Single().Value, validatedTokenResult.Claims[ClaimNameConstants.Nonce].ToString());
@@ -167,12 +167,11 @@ public class IdTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTest(o
         client.Scopes.Add(openIdScope);
         client.Scopes.Add(profileScope);
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var pairwiseSubjectIdentifier = new PairwiseSubjectIdentifier(client, publicSubjectIdentifier);
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var authenticationMethodReference = await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.Password);
         var authenticationContextReference = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, pairwiseSubjectIdentifier, authenticationContextReference)
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, authenticationContextReference)
         {
             AuthenticationMethodReferences = [authenticationMethodReference]
         };
@@ -184,7 +183,7 @@ public class IdTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTest(o
         await AddEntity(authorizationGrant);
 
         var nameClaim = await IdentityContext.Set<Claim>().SingleAsync(x => x.Name == ClaimNameConstants.Name);
-        var consentGrant = new ConsentGrant(publicSubjectIdentifier, client);
+        var consentGrant = new ConsentGrant(subjectIdentifier, client);
         consentGrant.ConsentedClaims.Add(nameClaim);
         consentGrant.ConsentedScopes.Add(openIdScope);
         consentGrant.ConsentedScopes.Add(profileScope);
@@ -216,12 +215,11 @@ public class IdTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTest(o
         client.Scopes.Add(openIdScope);
         client.Scopes.Add(profileScope);
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var pairwiseSubjectIdentifier = new PairwiseSubjectIdentifier(client, publicSubjectIdentifier);
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var authenticationMethodReference = await GetAuthenticationMethodReference(AuthenticationMethodReferenceConstants.Password);
         var authenticationContextReference = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, pairwiseSubjectIdentifier, authenticationContextReference)
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, authenticationContextReference)
         {
             AuthenticationMethodReferences = [authenticationMethodReference]
         };
@@ -233,7 +231,7 @@ public class IdTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTest(o
         await AddEntity(authorizationGrant);
 
         var nameClaim = await IdentityContext.Set<Claim>().SingleAsync(x => x.Name == ClaimNameConstants.Name);
-        var consentGrant = new ConsentGrant(publicSubjectIdentifier, client);
+        var consentGrant = new ConsentGrant(subjectIdentifier, client);
         consentGrant.ConsentedClaims.Add(nameClaim);
         consentGrant.ConsentedScopes.Add(openIdScope);
         consentGrant.ConsentedScopes.Add(profileScope);

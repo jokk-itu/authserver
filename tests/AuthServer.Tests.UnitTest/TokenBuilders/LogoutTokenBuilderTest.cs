@@ -43,7 +43,7 @@ public class LogoutTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTe
         {
             ClientId = authorizationGrant.Client.Id,
             SessionId = authorizationGrant.Session.Id,
-            SubjectIdentifier = authorizationGrant.SubjectIdentifier.Id
+            SubjectIdentifier = authorizationGrant.Subject
         }, CancellationToken.None);
 
         // Assert
@@ -62,7 +62,7 @@ public class LogoutTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTe
         Assert.Null(validatedTokenResult.Exception);
         Assert.True(validatedTokenResult.IsValid);
         Assert.Equal(authorizationGrant.Session.Id, validatedTokenResult.Claims[ClaimNameConstants.Sid].ToString());
-        Assert.Equal(authorizationGrant.SubjectIdentifier.Id, validatedTokenResult.Claims[ClaimNameConstants.Sub].ToString());
+        Assert.Equal(authorizationGrant.Subject, validatedTokenResult.Claims[ClaimNameConstants.Sub].ToString());
         Assert.Equal(authorizationGrant.Client.Id, validatedTokenResult.Claims[ClaimNameConstants.ClientId].ToString());
         Assert.NotNull(validatedTokenResult.Claims[ClaimNameConstants.Jti]);
         Assert.NotNull(validatedTokenResult.Claims[ClaimNameConstants.Events]);
@@ -88,7 +88,7 @@ public class LogoutTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTe
         {
             ClientId = authorizationGrant.Client.Id,
             SessionId = authorizationGrant.Session.Id,
-            SubjectIdentifier = authorizationGrant.SubjectIdentifier.Id
+            SubjectIdentifier = authorizationGrant.Subject
         }, CancellationToken.None);
 
         // Assert
@@ -124,7 +124,7 @@ public class LogoutTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTe
         {
             ClientId = authorizationGrant.Client.Id,
             SessionId = authorizationGrant.Session.Id,
-            SubjectIdentifier = authorizationGrant.SubjectIdentifier.Id
+            SubjectIdentifier = authorizationGrant.Subject
         }, CancellationToken.None);
 
         // Assert
@@ -161,11 +161,10 @@ public class LogoutTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTe
 
         client.Scopes.Add(openIdScope);
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var pairwiseSubjectIdentifier = new PairwiseSubjectIdentifier(client, publicSubjectIdentifier);
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant( session, client, pairwiseSubjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant( session, client, subjectIdentifier.Id, lowAcr);
 
         await AddEntity(authorizationGrant);
         return authorizationGrant;
@@ -188,11 +187,10 @@ public class LogoutTokenBuilderTest(ITestOutputHelper outputHelper) : BaseUnitTe
 
         client.Scopes.Add(openIdScope);
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        var pairwiseSubjectIdentifier = new PairwiseSubjectIdentifier(client, publicSubjectIdentifier);
-        var session = new Session(publicSubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
         var lowAcr = await GetAuthenticationContextReference(LevelOfAssuranceLow);
-        var authorizationGrant = new AuthorizationGrant(session, client, pairwiseSubjectIdentifier, lowAcr);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, lowAcr);
 
         await AddEntity(authorizationGrant);
         return authorizationGrant;

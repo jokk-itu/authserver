@@ -51,7 +51,7 @@ public static class ServiceCollectionExtensions
         Action<DbContextOptionsBuilder> databaseConfigurator)
     {
         services
-            .AddCoreServices()
+            .AddClientServices()
             .AddCodeEncoders()
             .AddBuilders()
             .AddDecoders()
@@ -157,7 +157,8 @@ public static class ServiceCollectionExtensions
             .AddScoped<ITokenBuilder<GrantAccessTokenArguments>, GrantAccessTokenBuilder>()
             .AddScoped<ITokenBuilder<RefreshTokenArguments>, RefreshTokenBuilder>()
             .AddScoped<ITokenBuilder<RegistrationTokenArguments>, RegistrationTokenBuilder>()
-            .AddScoped<ITokenBuilder<UserinfoTokenArguments>, UserinfoTokenBuilder>();
+            .AddScoped<ITokenBuilder<UserinfoTokenArguments>, UserinfoTokenBuilder>()
+            .AddScoped<ITokenSecurityService, TokenSecurityService>();
     }
 
     internal static IServiceCollection AddDecoders(this IServiceCollection services)
@@ -167,14 +168,14 @@ public static class ServiceCollectionExtensions
             .AddScoped<ITokenDecoder<ClientIssuedTokenDecodeArguments>, ClientIssuedTokenDecoder>();
     }
 
-    internal static IServiceCollection AddCoreServices(this IServiceCollection services)
+    internal static IServiceCollection AddClientServices(this IServiceCollection services)
     {
         services.AddHttpClient(HttpClientNameConstants.Client);
 
         return services
             .AddScoped<IClientAuthenticationService, ClientAuthenticationService>()
             .AddScoped<IClientJwkService, ClientJwkService>()
-            .AddScoped<ITokenSecurityService, TokenSecurityService>();
+            .AddScoped<IClientSectorService, ClientSectorService>();
     }
 
     internal static IServiceCollection AddCodeEncoders(this IServiceCollection services)

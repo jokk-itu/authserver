@@ -121,7 +121,7 @@ internal class EndSessionRequestValidator : IRequestValidator<EndSessionRequest,
         var subjectIdentifier = endSessionUser.SubjectIdentifier;
         var sessionId = await _authorizationDbContext
             .Set<Session>()
-            .Where(s => s.PublicSubjectIdentifier.Id == endSessionUser.SubjectIdentifier)
+            .Where(s => s.SubjectIdentifier.Id == endSessionUser.SubjectIdentifier)
             .Where(Session.IsActive)
             .Select(s => s.Id)
             .SingleOrDefaultAsync(cancellationToken);

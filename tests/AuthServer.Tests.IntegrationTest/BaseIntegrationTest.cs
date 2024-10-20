@@ -145,12 +145,12 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     {
         var dbContext = ServiceProvider.GetRequiredService<AuthorizationDbContext>();
 
-        var publicSubjectIdentifier = new PublicSubjectIdentifier();
-        typeof(PublicSubjectIdentifier)
-            .GetProperty(nameof(PublicSubjectIdentifier.Id))!
-            .SetValue(publicSubjectIdentifier, UserConstants.SubjectIdentifier);
+        var subjectIdentifier = new SubjectIdentifier();
+        typeof(SubjectIdentifier)
+            .GetProperty(nameof(SubjectIdentifier.Id))!
+            .SetValue(subjectIdentifier, UserConstants.SubjectIdentifier);
 
-        await dbContext.AddAsync(publicSubjectIdentifier);
+        await dbContext.AddAsync(subjectIdentifier);
         await dbContext.SaveChangesAsync();
     }
 

@@ -27,7 +27,8 @@ internal class IntrospectionRequestProcessor : IRequestProcessor<IntrospectionVa
             .Select(x => new TokenQuery
             {
                 Token = x,
-                SubjectIdentifier = (x as GrantToken)!.AuthorizationGrant.SubjectIdentifier.Id,
+                Subject = (x as GrantToken)!.AuthorizationGrant.Subject,
+                SubjectIdentifier = (x as GrantToken)!.AuthorizationGrant.Session.SubjectIdentifier.Id
             })
             .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
@@ -68,7 +69,7 @@ internal class IntrospectionRequestProcessor : IRequestProcessor<IntrospectionVa
             IssuedAt = token.IssuedAt.ToUnixTimeSeconds(),
             NotBefore = token.NotBefore.ToUnixTimeSeconds(),
             Scope = token.Scope,
-            Subject = query.SubjectIdentifier,
+            Subject = query.Subject,
             TokenType = token.TokenType.GetDescription(),
             Username = username
         };
@@ -77,6 +78,7 @@ internal class IntrospectionRequestProcessor : IRequestProcessor<IntrospectionVa
     private sealed class TokenQuery
     {
         public required Token Token { get; init; }
+        public required string? Subject { get; init; }
         public required string? SubjectIdentifier { get; init; }
     }
 }
