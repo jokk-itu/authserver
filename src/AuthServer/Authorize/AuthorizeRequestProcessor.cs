@@ -1,5 +1,4 @@
-﻿using AuthServer.Authorize.Abstractions;
-using AuthServer.Codes;
+﻿using AuthServer.Codes;
 using AuthServer.Codes.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core.Request;
@@ -12,18 +11,15 @@ namespace AuthServer.Authorize;
 internal class AuthorizeRequestProcessor : IRequestProcessor<AuthorizeValidatedRequest, string>
 {
     private readonly IAuthorizationCodeEncoder _authorizationCodeEncoder;
-    private readonly IAuthorizeUserAccessor _userAccessor;
     private readonly IAuthorizationGrantRepository _authorizationGrantRepository;
     private readonly IClientRepository _clientRepository;
 
     public AuthorizeRequestProcessor(
         IAuthorizationCodeEncoder authorizationCodeEncoder,
-        IAuthorizeUserAccessor userAccessor,
         IAuthorizationGrantRepository authorizationGrantRepository,
         IClientRepository clientRepository)
     {
         _authorizationCodeEncoder = authorizationCodeEncoder;
-        _userAccessor = userAccessor;
         _authorizationGrantRepository = authorizationGrantRepository;
         _clientRepository = clientRepository;
     }
@@ -40,9 +36,8 @@ internal class AuthorizeRequestProcessor : IRequestProcessor<AuthorizeValidatedR
             }
         }
 
-        var user = _userAccessor.GetUser();
         var authorizationGrant = (await _authorizationGrantRepository.GetActiveAuthorizationGrant(
-            user.SubjectIdentifier, request.ClientId, cancellationToken))!;
+            request.SubjectIdentifier, request.ClientId, cancellationToken))!;
 
         var authorizationCode = new AuthorizationCode(authorizationGrant);
         var nonce = new Nonce(request.Nonce, request.Nonce.Sha256(), authorizationGrant);
