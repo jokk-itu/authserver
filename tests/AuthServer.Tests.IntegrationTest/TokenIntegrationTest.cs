@@ -28,7 +28,7 @@ public class TokenIntegrationTest : BaseIntegrationTest
             .WithClientName("web-app")
             .WithRedirectUris(["https://webapp.authserver.dk/callback"])
             .WithGrantTypes([GrantTypeConstants.AuthorizationCode])
-            .WithScope([weatherReadScope, ScopeConstants.OpenId])
+            .WithScope([userinfoScope, weatherReadScope, ScopeConstants.OpenId])
             .Post();
 
         await AddUser();

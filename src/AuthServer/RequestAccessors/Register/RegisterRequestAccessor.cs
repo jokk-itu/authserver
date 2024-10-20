@@ -5,6 +5,7 @@ using AuthServer.Core;
 using AuthServer.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using AuthServer.Authentication.OAuthToken;
+using AuthServer.Constants;
 
 namespace AuthServer.RequestAccessors.Register;
 
@@ -28,7 +29,7 @@ internal class RegisterRequestAccessor : IRequestAccessor<RegisterRequest>
         var json = await JsonNode.ParseAsync(httpRequest.Body);
 		if (json is null)
 		{
-			throw new NotSupportedException("Supports only Content-Type: application/json");
+			throw new NotSupportedException($"Supports only Content-Type: {MimeTypeConstants.Json}");
 		}
 
 		var clientName = json.GetValue(Parameter.ClientName);
