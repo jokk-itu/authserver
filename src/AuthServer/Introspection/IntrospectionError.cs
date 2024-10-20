@@ -15,7 +15,4 @@ internal class IntrospectionError
 
     public static readonly ProcessError InvalidClient =
         new(ErrorCode.InvalidClient, "client could not be authenticated", ResultCode.BadRequest);
-
-    public static readonly ProcessError ClientIsUnauthorizedForScope =
-        new(ErrorCode.InvalidClient, "client is not authorized for scope", ResultCode.BadRequest);
 }
