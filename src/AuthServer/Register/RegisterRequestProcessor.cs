@@ -82,6 +82,7 @@ internal class RegisterRequestProcessor : IRequestProcessor<RegisterValidatedReq
         {
             SetValues(request, client);
             await SetRelations(request, client, cancellationToken);
+            await SetSectorIdentifier(request, client, cancellationToken);
         }
 
         if (request.Method == HttpMethod.Get || request.Method == HttpMethod.Put)
@@ -293,11 +294,6 @@ internal class RegisterRequestProcessor : IRequestProcessor<RegisterValidatedReq
             .ExecuteDeleteAsync(cancellationToken);
 
         await _authorizationDbContext
-            .Set<PairwiseSubjectIdentifier>()
-            .Where(x => x.Client.Id == clientId)
-            .ExecuteDeleteAsync(cancellationToken);
-
-        await _authorizationDbContext
             .Set<ConsentGrant>()
             .Where(x => x.Client.Id == clientId)
             .ExecuteDeleteAsync(cancellationToken);
@@ -321,5 +317,26 @@ internal class RegisterRequestProcessor : IRequestProcessor<RegisterValidatedReq
             .Set<Client>()
             .Where(x => x.Id == clientId)
             .ExecuteDeleteAsync(cancellationToken);
+    }
+
+    private async Task SetSectorIdentifier(RegisterValidatedRequest request, Client client, CancellationToken cancellationToken)
+    {
+        if (request.SectorIdentifierUri is null
+            || client.SectorIdentifier?.Uri == request.SectorIdentifierUri)
+        {
+            return;
+        }
+        
+        var sectorIdentifier = await _authorizationDbContext
+            .Set<SectorIdentifier>()
+            .Where(x => x.Uri == request.SectorIdentifierUri)
+            .SingleOrDefaultAsync(cancellationToken);
+
+        if (sectorIdentifier is null)
+        { 
+            sectorIdentifier = new SectorIdentifier(request.SectorIdentifierUri);
+        }
+
+        client.SectorIdentifier = sectorIdentifier;
     }
 }
