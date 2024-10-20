@@ -115,4 +115,9 @@ public static class ErrorCode
     /// Used in authorize and token endpoints.
     /// </summary>
     public const string InvalidTarget = "invalid_target";
+
+    /// <summary>
+    /// The OP is unable to meet the requirements of the Relying Party for the authentication of the End-User.
+    /// </summary>
+    public const string UnmetAuthenticationRequirements = "unmet_authentication_requirements";
 }
