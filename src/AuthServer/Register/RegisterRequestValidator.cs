@@ -24,6 +24,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     private readonly IClientJwkService _clientJwkService;
     private readonly ILogger<RegisterRequestValidator> _logger;
     private readonly ITokenRepository _tokenRepository;
+    private readonly IClientSectorService _clientSectorService;
 
     private DiscoveryDocument DiscoveryDocument => _discoveryDocumentOptions.Value;
 
@@ -32,13 +33,15 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
         AuthorizationDbContext authorizationDbContext,
         IClientJwkService clientJwkService,
         ILogger<RegisterRequestValidator> logger,
-        ITokenRepository tokenRepository)
+        ITokenRepository tokenRepository,
+        IClientSectorService clientSectorService)
     {
         _discoveryDocumentOptions = discoveryDocumentOptions;
         _authorizationDbContext = authorizationDbContext;
         _clientJwkService = clientJwkService;
         _logger = logger;
         _tokenRepository = tokenRepository;
+        _clientSectorService = clientSectorService;
     }
 
     public async Task<ProcessResult<RegisterValidatedRequest, ProcessError>> Validate(RegisterRequest request,
@@ -97,6 +100,12 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
             return responseTypesError;
         }
 
+        var subjectTypeError = ValidateSubjectType(request, validatedRequest);
+        if (subjectTypeError is not null)
+        {
+            return subjectTypeError;
+        }
+
         var redirectUrisError = ValidateRedirectUris(request, validatedRequest);
         if (redirectUrisError is not null)
         {
@@ -113,6 +122,12 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
         if (requestUrisError is not null)
         {
             return requestUrisError;
+        }
+
+        var sectorIdentifierUri = await ValidateSectorIdentifierUri(request, validatedRequest, cancellationToken);
+        if (sectorIdentifierUri is not null)
+        {
+            return sectorIdentifierUri;
         }
 
         var backchannelLogoutUriError = ValidateBackchannelLogoutUri(request, validatedRequest);
@@ -190,12 +205,6 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
         if (requirePushedAuthorizationRequestsError is not null)
         {
             return requirePushedAuthorizationRequestsError;
-        }
-
-        var subjectTypeError = ValidateSubjectType(request, validatedRequest);
-        if (subjectTypeError is not null)
-        {
-            return subjectTypeError;
         }
 
         var defaultMaxAgeError = ValidateDefaultMaxAge(request, validatedRequest);
@@ -515,6 +524,51 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
         }
 
         validatedRequest.RequestUris = request.RequestUris;
+        return null;
+    }
+
+    /// <summary>
+    /// SectorIdentifierUri is OPTIONAL.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="validatedRequest"></param>
+    /// <returns></returns>
+    private async Task<ProcessError?> ValidateSectorIdentifierUri(RegisterRequest request, RegisterValidatedRequest validatedRequest, CancellationToken cancellationToken)
+    {
+        /* The SectorIdentifier is only used for Pairwise subjects */
+        if (validatedRequest.SubjectType != SubjectType.Pairwise)
+        {
+            return null;
+        }
+
+        var hasSectorIdentifierUri = string.IsNullOrEmpty(request.SectorIdentifierUri);
+        var hasOneRedirectUri = validatedRequest.RedirectUris.Count == 1;
+
+        if (!hasSectorIdentifierUri && !hasOneRedirectUri)
+        {
+            return RegisterError.InvalidSectorIdentifierUri;
+        }
+
+        if (!hasSectorIdentifierUri && hasOneRedirectUri)
+        {
+            validatedRequest.SectorIdentifierUri = validatedRequest.RedirectUris.Single();
+            return null;
+        }
+
+        if (!UrlHelper.IsUrlValidForWebClient(request.SectorIdentifierUri!))
+        {
+            return RegisterError.InvalidSectorIdentifierUri;
+        }
+
+        var hasRedirectUrisInSectorDocument = await _clientSectorService.ContainsSectorDocument(
+            new Uri(request.SectorIdentifierUri!), validatedRequest.RedirectUris, cancellationToken);
+
+        if (!hasRedirectUrisInSectorDocument)
+        {
+            return RegisterError.InvalidSectorDocument;
+        }
+
+        validatedRequest.SectorIdentifierUri = request.SectorIdentifierUri;
         return null;
     }
 
@@ -1286,6 +1340,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
             return RegisterError.InvalidClientId;
         }
 
+        /* RegistrationAccessToken is REQUIRED */
         var registrationAccessToken = request.RegistrationAccessToken;
         if (string.IsNullOrEmpty(registrationAccessToken))
         {

@@ -138,4 +138,10 @@ internal class RegisterError
 
     public static readonly ProcessError InvalidIdTokenEncryptedResponseEnc =
         new(ErrorCode.InvalidClientMetadata, "invalid id_token_encrypted_response_enc", ResultCode.BadRequest);
+
+    public static readonly ProcessError InvalidSectorIdentifierUri =
+        new(ErrorCode.InvalidClientMetadata, "invalid sector_identifier_uri", ResultCode.BadRequest);
+
+    public static readonly ProcessError InvalidSectorDocument =
+        new(ErrorCode.InvalidClientMetadata, "sector_identifier_uri does not point to all redirect_uris", ResultCode.BadRequest);
 }

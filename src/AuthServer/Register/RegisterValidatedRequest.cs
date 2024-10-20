@@ -21,6 +21,7 @@ internal class RegisterValidatedRequest
 	public string? InitiateLoginUri { get; set; }
 	public string? LogoUri { get; set; }
 	public string? BackchannelLogoutUri { get; set; }
+	public string? SectorIdentifierUri { get; set; }
 	public bool RequireSignedRequestObject { get; set; }
 	public bool RequireReferenceToken { get; set; }
 	public bool RequirePushedAuthorizationRequests { get; set; }
