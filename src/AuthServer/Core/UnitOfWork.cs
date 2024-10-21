@@ -1,11 +1,9 @@
-﻿using System.Transactions;
-using AuthServer.Core.Abstractions;
+﻿using AuthServer.Core.Abstractions;
 
 namespace AuthServer.Core;
 
 internal class UnitOfWork : IUnitOfWork
 {
-    private TransactionScope? _currentTransaction;
     private readonly AuthorizationDbContext _authorizationDbContext;
 
     public UnitOfWork(AuthorizationDbContext authorizationDbContext)
@@ -13,20 +11,19 @@ internal class UnitOfWork : IUnitOfWork
         _authorizationDbContext = authorizationDbContext;
     }
 
-    public IDisposable Begin()
+    public async Task Begin()
     {
-        if (_currentTransaction != null)
+        if (_authorizationDbContext.Database.CurrentTransaction is not null)
         {
             throw new InvalidOperationException();
         }
 
-        _currentTransaction = new TransactionScope(TransactionScopeOption.Required, TransactionScopeAsyncFlowOption.Enabled);
-        return _currentTransaction;
+        await _authorizationDbContext.Database.BeginTransactionAsync();
     }
 
     public async Task SaveChanges()
     {
-        if (_currentTransaction == null)
+        if (_authorizationDbContext.Database.CurrentTransaction is null)
         {
             throw new InvalidOperationException();
         }
@@ -36,17 +33,11 @@ internal class UnitOfWork : IUnitOfWork
 
     public async Task Commit()
     {
-        if (_currentTransaction == null)
+        if (_authorizationDbContext.Database.CurrentTransaction is null)
         {
             throw new InvalidOperationException();
         }
 
-        await _authorizationDbContext.SaveChangesAsync();
-        _currentTransaction.Complete();
-    }
-
-    public void Dispose()
-    {
-        _currentTransaction?.Dispose();
+        await _authorizationDbContext.Database.CommitTransactionAsync();
     }
 }

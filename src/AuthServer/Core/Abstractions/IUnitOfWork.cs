@@ -1,8 +1,8 @@
 ﻿namespace AuthServer.Core.Abstractions;
 
-internal interface IUnitOfWork : IDisposable
+internal interface IUnitOfWork
 {
-    IDisposable Begin();
+    Task Begin();
     Task SaveChanges();
     Task Commit();
 }

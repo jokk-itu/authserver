@@ -25,7 +25,7 @@ internal class AuthorizeRequestHandler : RequestHandler<AuthorizeRequest, Author
 
     protected override async Task<ProcessResult<string, ProcessError>> ProcessRequest(AuthorizeValidatedRequest request, CancellationToken cancellationToken)
     {
-	    using var transaction = _unitOfWork.Begin();
+	    await _unitOfWork.Begin();
         var result = await _requestProcessor.Process(request, cancellationToken);
         await _unitOfWork.Commit();
         return result;

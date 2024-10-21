@@ -24,7 +24,7 @@ internal class ClientCredentialsRequestHandler : RequestHandler<TokenRequest, Cl
 
     protected override async Task<ProcessResult<TokenResponse, ProcessError>> ProcessRequest(ClientCredentialsValidatedRequest request, CancellationToken cancellationToken)
     {
-	    using var transaction = _unitOfWork.Begin();
+	    await _unitOfWork.Begin();
         var result = await _clientCredentialsProcessor.Process(request, cancellationToken);
         await _unitOfWork.Commit();
         return result;

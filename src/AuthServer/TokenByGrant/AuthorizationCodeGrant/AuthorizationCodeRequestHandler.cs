@@ -24,7 +24,7 @@ internal class AuthorizationCodeRequestHandler : RequestHandler<TokenRequest, Au
 
     protected override async Task<ProcessResult<TokenResponse, ProcessError>> ProcessRequest(AuthorizationCodeValidatedRequest request, CancellationToken cancellationToken)
     {
-	    using var transaction = _unitOfWork.Begin();
+	    await _unitOfWork.Begin();
         var result = await _processor.Process(request, cancellationToken);
         await _unitOfWork.Commit();
         return result;
