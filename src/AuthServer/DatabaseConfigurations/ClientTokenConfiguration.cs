@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AuthServer.DatabaseConfigurations;
 
-internal class ClientTokenConfiguration : IEntityTypeConfiguration<ClientToken>
+internal sealed class ClientTokenConfiguration : IEntityTypeConfiguration<ClientToken>
 {
     public void Configure(EntityTypeBuilder<ClientToken> builder)
     {

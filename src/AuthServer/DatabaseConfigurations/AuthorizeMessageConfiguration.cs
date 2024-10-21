@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AuthServer.DatabaseConfigurations;
-internal class AuthorizeMessageConfiguration : IEntityTypeConfiguration<AuthorizeMessage>
+internal sealed class AuthorizeMessageConfiguration : IEntityTypeConfiguration<AuthorizeMessage>
 {
     public void Configure(EntityTypeBuilder<AuthorizeMessage> builder)
     {

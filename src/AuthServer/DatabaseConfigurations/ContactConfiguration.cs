@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AuthServer.DatabaseConfigurations;
-internal class ContactConfiguration : IEntityTypeConfiguration<Contact>
+internal sealed class ContactConfiguration : IEntityTypeConfiguration<Contact>
 {
     public void Configure(EntityTypeBuilder<Contact> builder)
     {

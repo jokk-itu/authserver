@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AuthServer.DatabaseConfigurations;
-internal class AuthenticationContextReferenceConfiguration : IEntityTypeConfiguration<AuthenticationContextReference>
+internal sealed class AuthenticationContextReferenceConfiguration : IEntityTypeConfiguration<AuthenticationContextReference>
 {
     public void Configure(EntityTypeBuilder<AuthenticationContextReference> builder)
     {
