@@ -18,10 +18,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-    {
-        options.Cookie.Name = "AuthServer.Identity";
-    });
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme,
+        options => { options.Cookie.Name = "AuthServer.Identity"; });
 
 builder.Services
     .AddOptions<DiscoveryDocument>()
@@ -30,7 +28,8 @@ builder.Services
         var identitySection = builder.Configuration.GetSection("Identity");
         options.Issuer = identitySection.GetValue<string>("Issuer")!;
         options.ClaimsSupported = ClaimNameConstants.SupportedEndUserClaims;
-        options.AcrValuesSupported = [
+        options.AcrValuesSupported =
+        [
             AuthenticationContextReferenceConstants.LevelOfAssuranceLow,
             AuthenticationContextReferenceConstants.LevelOfAssuranceSubstantial,
             AuthenticationContextReferenceConstants.LevelOfAssuranceStrict
@@ -115,16 +114,17 @@ builder.Services.AddScoped<IUserClaimService, UserClaimService>();
 builder.Services.AddScoped<IAuthenticatedUserAccessor, AuthenticatedUserAccessor>();
 builder.Services.AddScoped<IAuthenticationContextReferenceResolver, AuthenticationContextReferenceResolver>();
 
-builder.Services.AddAuthServer(dbContextConfigurator =>
-{
-    dbContextConfigurator.UseSqlServer(
-        builder.Configuration.GetConnectionString("Default"),
-        optionsBuilder =>
-        {
-            optionsBuilder.MigrationsAssembly("AuthServer.TestIdentityProvider");
-            optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
-        });
-});
+builder.Services.AddAuthServer(
+    dbContextConfigurator =>
+    {
+        dbContextConfigurator.UseSqlServer(
+            builder.Configuration.GetConnectionString("Default"),
+            optionsBuilder =>
+            {
+                optionsBuilder.MigrationsAssembly("AuthServer.TestIdentityProvider");
+                optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+            });
+    });
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddRazorPages();
@@ -139,20 +139,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseAuthServer();
 app.MapRazorPages();
-
-app.MapAuthorizeEndpoint();
-app.MapPushedAuthorizationEndpoint();
-app.MapEndSessionEndpoint();
-app.MapDynamicClientManagementEndpoint();
-app.MapDynamicClientRegistrationEndpoint();
-app.MapUserinfoEndpoint();
-app.MapTokenEndpoint();
-app.MapRevocationEndpoint();
-app.MapIntrospectionEndpoint();
-app.MapDiscoveryDocumentEndpoint();
-app.MapJwksDocumentEndpoint();
 
 app.Run();
 
