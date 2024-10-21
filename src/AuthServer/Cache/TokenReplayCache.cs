@@ -1,6 +1,5 @@
 ﻿using AuthServer.Cache.Abstractions;
 using AuthServer.Helpers;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 namespace AuthServer.Cache;
@@ -8,14 +7,10 @@ namespace AuthServer.Cache;
 internal class TokenReplayCache : ITokenReplayCache
 {
     private readonly IDistributedCache _distributedCache;
-    private readonly ILogger<TokenReplayCache> _logger;
 
-    public TokenReplayCache(
-        IDistributedCache distributedCache,
-        ILogger<TokenReplayCache> logger)
+    public TokenReplayCache(IDistributedCache distributedCache)
     {
         _distributedCache = distributedCache;
-        _logger = logger;
     }
 
     public bool TryAdd(string securityToken, DateTime expiresOn)
