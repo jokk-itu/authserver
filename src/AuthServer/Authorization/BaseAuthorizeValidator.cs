@@ -8,7 +8,7 @@ using AuthServer.TokenDecoders;
 using AuthServer.TokenDecoders.Abstractions;
 using Microsoft.Extensions.Options;
 
-namespace AuthServer.Authorize;
+namespace AuthServer.Authorization;
 internal class BaseAuthorizeValidator
 {
     private readonly INonceRepository _nonceRepository;

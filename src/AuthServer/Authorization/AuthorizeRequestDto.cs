@@ -1,4 +1,4 @@
-﻿namespace AuthServer.Authorize;
+﻿namespace AuthServer.Authorization;
 internal class AuthorizeRequestDto
 {
     public string? IdTokenHint { get; init; }

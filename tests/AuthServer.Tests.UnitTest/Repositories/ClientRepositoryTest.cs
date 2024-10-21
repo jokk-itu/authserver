@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using AuthServer.Authorize;
+using AuthServer.Authorization;
 using AuthServer.Constants;
 using AuthServer.Entities;
 using AuthServer.Enums;

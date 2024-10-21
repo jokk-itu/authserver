@@ -1,4 +1,6 @@
-﻿using AuthServer.Authorize.Abstractions;
+﻿using AuthServer.Authorization;
+using AuthServer.Authorization.Abstractions;
+using AuthServer.Authorize.Abstractions;
 using AuthServer.Cache.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core.Discovery;
@@ -15,19 +17,19 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
 {
     private readonly ICachedClientStore _cachedClientStore;
     private readonly IAuthorizeInteractionService _authorizeInteractionService;
-    private readonly IAuthorizeRequestParameterService _authorizeRequestParameterService;
+    private readonly ISecureRequestService _secureRequestService;
 
     public AuthorizeRequestValidator(
         ICachedClientStore cachedClientStore,
         ITokenDecoder<ServerIssuedTokenDecodeArguments> tokenDecoder,
         IAuthorizeInteractionService authorizeInteractionService,
-        IAuthorizeRequestParameterService authorizeRequestParameterService,
+        ISecureRequestService secureRequestService,
         IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions,
         INonceRepository nonceRepository) : base(nonceRepository, tokenDecoder, discoveryDocumentOptions)
     {
         _cachedClientStore = cachedClientStore;
         _authorizeInteractionService = authorizeInteractionService;
-        _authorizeRequestParameterService = authorizeRequestParameterService;
+        _secureRequestService = secureRequestService;
     }
 
     public async Task<ProcessResult<AuthorizeValidatedRequest, ProcessError>> Validate(AuthorizeRequest request,
@@ -62,7 +64,7 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
         {
             if (request.RequestUri!.StartsWith(RequestUriConstants.RequestUriPrefix))
             {
-                var authorizeDto = await _authorizeRequestParameterService.GetRequestByPushedRequest(request.RequestUri, request.ClientId, cancellationToken);
+                var authorizeDto = await _secureRequestService.GetRequestByPushedRequest(request.RequestUri, request.ClientId, cancellationToken);
                 if (authorizeDto is null)
                 {
                     return AuthorizeError.InvalidOrExpiredRequestUri;
@@ -100,7 +102,7 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
                 return AuthorizeError.UnauthorizedRequestUri;
             }
 
-            var newRequest = await _authorizeRequestParameterService.GetRequestByReference(requestUri, request.ClientId, ClientTokenAudience.AuthorizeEndpoint, cancellationToken);
+            var newRequest = await _secureRequestService.GetRequestByReference(requestUri, request.ClientId, ClientTokenAudience.AuthorizeEndpoint, cancellationToken);
             if (newRequest is null)
             {
                 return AuthorizeError.InvalidRequestFromRequestUri;
@@ -127,7 +129,7 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
         }
         else if (!isRequestObjectEmpty)
         {
-            var newRequest = await _authorizeRequestParameterService.GetRequestByObject(request.RequestObject!, request.ClientId, ClientTokenAudience.AuthorizeEndpoint, cancellationToken);
+            var newRequest = await _secureRequestService.GetRequestByObject(request.RequestObject!, request.ClientId, ClientTokenAudience.AuthorizeEndpoint, cancellationToken);
             if (newRequest is null)
             {
                 return AuthorizeError.InvalidRequest;

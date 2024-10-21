@@ -1,7 +1,7 @@
 ﻿using AuthServer.TokenDecoders;
 
-namespace AuthServer.Authorize.Abstractions;
-internal interface IAuthorizeRequestParameterService
+namespace AuthServer.Authorization.Abstractions;
+internal interface ISecureRequestService
 {
     /// <summary>
     /// 

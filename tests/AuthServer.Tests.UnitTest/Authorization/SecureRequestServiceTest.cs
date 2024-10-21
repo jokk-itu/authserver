@@ -1,6 +1,4 @@
-﻿using System.Linq.Expressions;
-using AuthServer.Authorize.Abstractions;
-using AuthServer.Constants;
+﻿using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Tests.Core;
 using AuthServer.TokenDecoders;
@@ -9,17 +7,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Moq;
 using System.Net;
-using AuthServer.Authorize;
+using AuthServer.Authorization;
 using AuthServer.Entities;
 using AuthServer.Enums;
 using AuthServer.Repositories.Abstractions;
 using Xunit.Abstractions;
+using AuthServer.Authorization.Abstractions;
 
-namespace AuthServer.Tests.UnitTest.Authorize;
+namespace AuthServer.Tests.UnitTest.Authorization;
 
-public class AuthorizeRequestParameterServiceTest : BaseUnitTest
+public class SecureRequestServiceTest : BaseUnitTest
 {
-    public AuthorizeRequestParameterServiceTest(ITestOutputHelper outputHelper)
+    public SecureRequestServiceTest(ITestOutputHelper outputHelper)
         : base(outputHelper)
     {
     }
@@ -29,7 +28,7 @@ public class AuthorizeRequestParameterServiceTest : BaseUnitTest
     {
         // Arrange
         var serviceProvider = BuildServiceProvider();
-        var authorizeRequestParameterService = serviceProvider.GetRequiredService<IAuthorizeRequestParameterService>();
+        var authorizeRequestParameterService = serviceProvider.GetRequiredService<ISecureRequestService>();
 
         // Act && Assert
         Assert.Throws<InvalidOperationException>(authorizeRequestParameterService.GetCachedRequest);
@@ -60,7 +59,7 @@ public class AuthorizeRequestParameterServiceTest : BaseUnitTest
 
             services.AddScopedMock(tokenDecoderMock);
         });
-        var authorizeRequestParameterService = serviceProvider.GetRequiredService<IAuthorizeRequestParameterService>();
+        var authorizeRequestParameterService = serviceProvider.GetRequiredService<ISecureRequestService>();
 
         // Act
         var requestObject = await authorizeRequestParameterService.GetRequestByObject(token, clientId, ClientTokenAudience.AuthorizeEndpoint, CancellationToken.None);
@@ -97,7 +96,7 @@ public class AuthorizeRequestParameterServiceTest : BaseUnitTest
             .ReturnsAsync(new JsonWebToken(requestToken))
             .Verifiable();
 
-        var authorizeRequestParameterService = serviceProvider.GetRequiredService<IAuthorizeRequestParameterService>();
+        var authorizeRequestParameterService = serviceProvider.GetRequiredService<ISecureRequestService>();
 
         // Act
         var requestObject = await authorizeRequestParameterService.GetRequestByObject(requestToken, value, ClientTokenAudience.AuthorizeEndpoint, CancellationToken.None);
@@ -152,7 +151,7 @@ public class AuthorizeRequestParameterServiceTest : BaseUnitTest
             .ReturnsAsync(new JsonWebToken(requestToken))
             .Verifiable();
 
-        var authorizeRequestParameterService = serviceProvider.GetRequiredService<IAuthorizeRequestParameterService>();
+        var authorizeRequestParameterService = serviceProvider.GetRequiredService<ISecureRequestService>();
 
         // Act
         var requestObject = await authorizeRequestParameterService.GetRequestByObject(requestToken, clientId, ClientTokenAudience.AuthorizeEndpoint, CancellationToken.None);
@@ -193,7 +192,7 @@ public class AuthorizeRequestParameterServiceTest : BaseUnitTest
 
             services.AddSingletonMock(httpClientFactory);
         });
-        var authorizeRequestParameterService = serviceProvider.GetRequiredService<IAuthorizeRequestParameterService>();
+        var authorizeRequestParameterService = serviceProvider.GetRequiredService<ISecureRequestService>();
 
         // Act
         var requestUri = new Uri($"https://demo.authserver.dk/request-object/{Guid.NewGuid()}");
@@ -239,7 +238,7 @@ public class AuthorizeRequestParameterServiceTest : BaseUnitTest
             .Returns(new HttpClient(requestHandler))
             .Verifiable();
 
-        var authorizeRequestParameterService = serviceProvider.GetRequiredService<IAuthorizeRequestParameterService>();
+        var authorizeRequestParameterService = serviceProvider.GetRequiredService<ISecureRequestService>();
 
         // Act
         var requestUri = new Uri($"https://demo.authserver.dk/request-object/{Guid.NewGuid()}");
@@ -303,7 +302,7 @@ public class AuthorizeRequestParameterServiceTest : BaseUnitTest
             .Returns(new HttpClient(requestHandler))
             .Verifiable();
 
-        var authorizeRequestParameterService = serviceProvider.GetRequiredService<IAuthorizeRequestParameterService>();
+        var authorizeRequestParameterService = serviceProvider.GetRequiredService<ISecureRequestService>();
 
         // Act
         var requestUri = new Uri($"https://demo.authserver.dk/request-object/{Guid.NewGuid()}");
@@ -340,7 +339,7 @@ public class AuthorizeRequestParameterServiceTest : BaseUnitTest
         var reference = Guid.NewGuid();
         var requestUri = $"{RequestUriConstants.RequestUriPrefix}{reference}";
 
-        var authorizeRequestParameterService = serviceProvider.GetRequiredService<IAuthorizeRequestParameterService>();
+        var authorizeRequestParameterService = serviceProvider.GetRequiredService<ISecureRequestService>();
 
         // Act
         var requestDto = await authorizeRequestParameterService.GetRequestByPushedRequest(requestUri, clientId, CancellationToken.None);
@@ -368,10 +367,10 @@ public class AuthorizeRequestParameterServiceTest : BaseUnitTest
         };
         var authorizeMessage = await clientRepository.AddAuthorizeMessage(authorizeRequestDto, CancellationToken.None);
         await SaveChangesAsync();
-        
+
         var requestUri = $"{RequestUriConstants.RequestUriPrefix}{authorizeMessage.Reference}";
 
-        var authorizeRequestParameterService = serviceProvider.GetRequiredService<IAuthorizeRequestParameterService>();
+        var authorizeRequestParameterService = serviceProvider.GetRequiredService<ISecureRequestService>();
 
         // Act
         var requestDto = await authorizeRequestParameterService.GetRequestByPushedRequest(requestUri, client.Id, CancellationToken.None);

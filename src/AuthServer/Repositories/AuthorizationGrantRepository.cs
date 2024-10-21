@@ -1,5 +1,4 @@
-﻿using System.Text;
-using AuthServer.Core;
+﻿using AuthServer.Core;
 using AuthServer.Entities;
 using AuthServer.Enums;
 using AuthServer.Helpers;

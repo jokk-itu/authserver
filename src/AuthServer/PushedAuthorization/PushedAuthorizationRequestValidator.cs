@@ -1,6 +1,6 @@
 ﻿using AuthServer.Authentication;
-using AuthServer.Authorize;
-using AuthServer.Authorize.Abstractions;
+using AuthServer.Authorization;
+using AuthServer.Authorization.Abstractions;
 using AuthServer.Cache.Abstractions;
 using AuthServer.Core.Discovery;
 using AuthServer.Core.Request;
@@ -15,7 +15,7 @@ internal class PushedAuthorizationRequestValidator : BaseAuthorizeValidator, IRe
 {
     private readonly ICachedClientStore _cachedClientStore;
     private readonly IClientAuthenticationService _clientAuthenticationService;
-    private readonly IAuthorizeRequestParameterService _authorizeRequestParameterService;
+    private readonly ISecureRequestService _secureRequestService;
 
     public PushedAuthorizationRequestValidator(
         ICachedClientStore cachedClientStore,
@@ -23,12 +23,12 @@ internal class PushedAuthorizationRequestValidator : BaseAuthorizeValidator, IRe
         INonceRepository nonceRepository,
         ITokenDecoder<ServerIssuedTokenDecodeArguments> tokenDecoder,
         IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions,
-        IAuthorizeRequestParameterService authorizeRequestParameterService)
+        ISecureRequestService secureRequestService)
         : base(nonceRepository, tokenDecoder, discoveryDocumentOptions)
     {
         _cachedClientStore = cachedClientStore;
         _clientAuthenticationService = clientAuthenticationService;
-        _authorizeRequestParameterService = authorizeRequestParameterService;
+        _secureRequestService = secureRequestService;
     }
 
     public async Task<ProcessResult<PushedAuthorizationValidatedRequest, ProcessError>> Validate(PushedAuthorizationRequest request, CancellationToken cancellationToken)
@@ -54,7 +54,7 @@ internal class PushedAuthorizationRequestValidator : BaseAuthorizeValidator, IRe
         }
         else if (!isRequestObjectEmpty)
         {
-            var newRequest = await _authorizeRequestParameterService.GetRequestByObject(request.RequestObject!, clientAuthenticationResult.ClientId, ClientTokenAudience.PushedAuthorizeEndpoint, cancellationToken);
+            var newRequest = await _secureRequestService.GetRequestByObject(request.RequestObject!, clientAuthenticationResult.ClientId, ClientTokenAudience.PushedAuthorizeEndpoint, cancellationToken);
             if (newRequest is null)
             {
                 return PushedAuthorizationError.InvalidRequest;

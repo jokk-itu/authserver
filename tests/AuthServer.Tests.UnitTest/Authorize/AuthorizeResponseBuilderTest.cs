@@ -1,4 +1,5 @@
-﻿using AuthServer.Authorize;
+﻿using AuthServer.Authorization;
+using AuthServer.Authorization.Abstractions;
 using AuthServer.Authorize.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Entities;
@@ -27,7 +28,7 @@ public class AuthorizeResponseBuilderTest : BaseUnitTest
     public async Task BuildResponse_WithEmptyResponseModeAndRequestSubstitution_ExpectQueryRedirect(string? requestObject, string? requestUri)
     {
         // Arrange
-        var authorizeRequestParameterService = new Mock<IAuthorizeRequestParameterService>();
+        var authorizeRequestParameterService = new Mock<ISecureRequestService>();
         var serviceProvider = BuildServiceProvider(services =>
         {
             services.AddScopedMock(authorizeRequestParameterService);

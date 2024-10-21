@@ -1,5 +1,5 @@
 ﻿using System.Net.Http.Headers;
-using AuthServer.Authorize.Abstractions;
+using AuthServer.Authorization.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Discovery;
@@ -9,22 +9,22 @@ using AuthServer.TokenDecoders.Abstractions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace AuthServer.Authorize;
+namespace AuthServer.Authorization;
 
-internal class AuthorizeRequestParameterService : IAuthorizeRequestParameterService
+internal class SecureRequestService : ISecureRequestService
 {
     private readonly ITokenDecoder<ClientIssuedTokenDecodeArguments> _tokenDecoder;
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ILogger<AuthorizeRequestParameterService> _logger;
+    private readonly ILogger<SecureRequestService> _logger;
     private readonly IClientRepository _clientRepository;
     private readonly IOptionsSnapshot<DiscoveryDocument> _discoveryDocumentOptions;
 
     private AuthorizeRequestDto? _cachedAuthorizeRequestObjectDto;
 
-    public AuthorizeRequestParameterService(
+    public SecureRequestService(
         ITokenDecoder<ClientIssuedTokenDecodeArguments> tokenDecoder,
         IHttpClientFactory httpClientFactory,
-        ILogger<AuthorizeRequestParameterService> logger,
+        ILogger<SecureRequestService> logger,
         IClientRepository clientRepository,
         IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions)
     {
@@ -130,7 +130,7 @@ internal class AuthorizeRequestParameterService : IAuthorizeRequestParameterServ
     public async Task<AuthorizeRequestDto?> GetRequestByPushedRequest(string requestUri, string clientId,
         CancellationToken cancellationToken)
     {
-        var reference = requestUri[(RequestUriConstants.RequestUriPrefix.Length)..];
+        var reference = requestUri[RequestUriConstants.RequestUriPrefix.Length..];
 
         _cachedAuthorizeRequestObjectDto =
             await _clientRepository.GetAuthorizeDto(reference, clientId, cancellationToken);

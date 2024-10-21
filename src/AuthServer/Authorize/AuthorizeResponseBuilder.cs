@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using AuthServer.Authorization.Abstractions;
 using AuthServer.Authorize.Abstractions;
 using AuthServer.Cache.Abstractions;
 using AuthServer.Constants;
@@ -15,12 +16,12 @@ internal class AuthorizeResponseBuilder : IAuthorizeResponseBuilder
 {
     private readonly IOptionsSnapshot<DiscoveryDocument> _discoveryDocumentOptions;
     private readonly ICachedClientStore _cachedClientStore;
-    private readonly IAuthorizeRequestParameterService _authorizeRequestParameterService;
+    private readonly ISecureRequestService _authorizeRequestParameterService;
 
     public AuthorizeResponseBuilder(
         IOptionsSnapshot<DiscoveryDocument> discoveryDocumentOptions,
         ICachedClientStore cachedClientStore,
-        IAuthorizeRequestParameterService authorizeRequestParameterService)
+        ISecureRequestService authorizeRequestParameterService)
     {
         _discoveryDocumentOptions = discoveryDocumentOptions;
         _cachedClientStore = cachedClientStore;
