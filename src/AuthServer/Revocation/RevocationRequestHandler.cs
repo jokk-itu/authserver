@@ -25,7 +25,7 @@ internal class RevocationRequestHandler : RequestHandler<RevocationRequest, Revo
     {
         await _unitOfWork.Begin();
         await _requestProcessor.Process(request, cancellationToken);
-        await _unitOfWork.Commit();
+        await _unitOfWork.Commit(cancellationToken);
         return new ProcessResult<Unit, ProcessError>(Unit.Value);
     }
 

@@ -27,7 +27,7 @@ internal class AuthorizeRequestHandler : RequestHandler<AuthorizeRequest, Author
     {
 	    await _unitOfWork.Begin();
         var result = await _requestProcessor.Process(request, cancellationToken);
-        await _unitOfWork.Commit();
+        await _unitOfWork.Commit(cancellationToken);
         return result;
     }
 

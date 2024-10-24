@@ -26,7 +26,7 @@ internal class ClientCredentialsRequestHandler : RequestHandler<TokenRequest, Cl
     {
 	    await _unitOfWork.Begin();
         var result = await _clientCredentialsProcessor.Process(request, cancellationToken);
-        await _unitOfWork.Commit();
+        await _unitOfWork.Commit(cancellationToken);
         return result;
     }
 

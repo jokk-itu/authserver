@@ -26,7 +26,7 @@ internal class RefreshTokenRequestHandler : RequestHandler<TokenRequest, Refresh
     {
 	    await _unitOfWork.Begin();
         var result = await _refreshTokenProcessor.Process(request, cancellationToken);
-        await _unitOfWork.Commit();
+        await _unitOfWork.Commit(cancellationToken);
         return result;
     }
 

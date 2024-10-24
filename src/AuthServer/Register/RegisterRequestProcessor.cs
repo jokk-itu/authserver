@@ -99,7 +99,7 @@ internal class RegisterRequestProcessor : IRequestProcessor<RegisterValidatedReq
 
         if (request.Method == HttpMethod.Post)
         {
-            await _unitOfWork.SaveChanges();
+            await _unitOfWork.SaveChanges(cancellationToken);
         }
 
         _metricService.AddClientUpdate(stopWatch.ElapsedMilliseconds, request.ClientId);
