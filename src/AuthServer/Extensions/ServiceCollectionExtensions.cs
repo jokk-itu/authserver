@@ -50,7 +50,7 @@ namespace AuthServer.Extensions;
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddAuthServer(this IServiceCollection services,
-        Action<DbContextOptionsBuilder> databaseConfigurator)
+        Action<IServiceProvider, DbContextOptionsBuilder> databaseConfigurator)
     {
         services
             .AddAuthentication()

@@ -115,7 +115,7 @@ builder.Services.AddScoped<IAuthenticatedUserAccessor, AuthenticatedUserAccessor
 builder.Services.AddScoped<IAuthenticationContextReferenceResolver, AuthenticationContextReferenceResolver>();
 
 builder.Services.AddAuthServer(
-    dbContextConfigurator =>
+    (_, dbContextConfigurator) =>
     {
         dbContextConfigurator.UseSqlServer(
             builder.Configuration.GetConnectionString("Default"),

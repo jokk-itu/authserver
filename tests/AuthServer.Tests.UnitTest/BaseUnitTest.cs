@@ -110,7 +110,7 @@ public abstract class BaseUnitTest
             userInteraction.AccountSelectionUri = "https://localhost:5000/select-account";
             userInteraction.EndSessionUri = "https://localhost:5000/logout";
         });
-        services.AddAuthServer(contextOptions =>
+        services.AddAuthServer((_, contextOptions) =>
         {
             contextOptions.UseSqlite(_connection,
                 optionsBuilder =>
