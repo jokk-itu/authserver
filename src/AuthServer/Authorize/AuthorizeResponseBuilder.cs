@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Web;
 using AuthServer.Authorization.Abstractions;
 using AuthServer.Authorize.Abstractions;
 using AuthServer.Cache.Abstractions;
@@ -104,7 +105,7 @@ internal class AuthorizeResponseBuilder : IAuthorizeResponseBuilder
 
     private static void AddParameters(StringBuilder builder, IDictionary<string, string> parameters)
     {
-        builder.AppendJoin('&', parameters.Select(x => x.Key + '=' + x.Value));
+        builder.AppendJoin('&', parameters.Select(x => x.Key + '=' + HttpUtility.UrlEncode(x.Value)));
     }
 
     private static IResult BuildFormPost(string redirectUri, IDictionary<string, string> additionalParameters)

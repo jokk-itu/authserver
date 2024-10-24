@@ -1,4 +1,5 @@
-﻿using AuthServer.Authorization;
+﻿using System.Web;
+using AuthServer.Authorization;
 using AuthServer.Authorization.Abstractions;
 using AuthServer.Authorize.Abstractions;
 using AuthServer.Constants;
@@ -69,7 +70,8 @@ public class AuthorizeResponseBuilderTest : BaseUnitTest
         var statusCodeResult = response as StatusCodeHttpResult;
         Assert.Equal(303, statusCodeResult!.StatusCode);
 
-        Assert.Equal($"{request.RedirectUri}?code={code}&state={request.State}", httpContext.Response.Headers.Location.ToString());
+        var decodedLocation = HttpUtility.UrlDecode(httpContext.Response.Headers.Location.ToString());
+        Assert.Equal($"{request.RedirectUri}?code={code}&state={request.State}", decodedLocation);
     }
 
     [Fact]
@@ -110,7 +112,8 @@ public class AuthorizeResponseBuilderTest : BaseUnitTest
         var statusCodeResult = response as StatusCodeHttpResult;
         Assert.Equal(303, statusCodeResult!.StatusCode);
 
-        Assert.Equal($"{redirectUri.Uri}#code={code}&state={request.State}", httpContext.Response.Headers.Location.ToString());
+        var decodedLocation = HttpUtility.UrlDecode(httpContext.Response.Headers.Location.ToString());
+        Assert.Equal($"{redirectUri.Uri}#code={code}&state={request.State}", decodedLocation);
     }
 
     [Fact]

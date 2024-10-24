@@ -1,4 +1,5 @@
-﻿using AuthServer.Core;
+﻿using System.Web;
+using AuthServer.Core;
 using AuthServer.Core.Abstractions;
 using AuthServer.Core.Request;
 using AuthServer.EndSession.Abstractions;
@@ -40,7 +41,8 @@ internal class EndSessionEndpointHandler : IEndpointHandler
                     return Results.Ok();
                 }
 
-                return Results.Extensions.OAuthSeeOtherRedirect($"{request.PostLogoutRedirectUri}?state={request.State}", httpContext.Response);
+                var encodedState = HttpUtility.UrlEncode(request.State);
+                return Results.Extensions.OAuthSeeOtherRedirect($"{request.PostLogoutRedirectUri}?state={encodedState}", httpContext.Response);
             },
             error => error switch
             {
