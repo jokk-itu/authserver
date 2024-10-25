@@ -95,7 +95,7 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
 
         if (session is not null)
         {
-            await RevokePreviousGrant(subjectIdentifier, clientId, cancellationToken);
+            await RevokePreviousAuthorizationGrant(subjectIdentifier, clientId, cancellationToken);
         }
 
         var publicSubjectIdentifier = (session?.SubjectIdentifier ??
@@ -106,10 +106,10 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
         return session;
     }
 
-    private async Task RevokePreviousGrant(string subjectIdentifier, string clientId,
+    private async Task RevokePreviousAuthorizationGrant(string subjectIdentifier, string clientId,
         CancellationToken cancellationToken)
     {
-        var grant = await _identityContext
+        var authorizationGrant = await _identityContext
             .Set<AuthorizationGrant>()
             .Where(AuthorizationGrant.IsActive)
             .Include(x => x.Client)
@@ -118,7 +118,7 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
             .Where(x => x.Session.SubjectIdentifier.Id == subjectIdentifier)
             .SingleOrDefaultAsync(cancellationToken);
 
-        grant?.Revoke();
+        authorizationGrant?.Revoke();
     }
 
     private async Task<string> GetSubject(string subjectIdentifier, string clientId, CancellationToken cancellationToken)
