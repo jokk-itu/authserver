@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 
 namespace AuthServer.Extensions;
 
-public static class ResultsExtensions
+public static class ResultExtensions
 {
     public static IResult OAuthBadRequest(this IResultExtensions _, OAuthError error)
     {
@@ -24,7 +24,7 @@ public static class ResultsExtensions
     public static IResult OAuthSeeOtherRedirect(this IResultExtensions _, string location, HttpResponse response)
     {
         response.Headers.Location = location;
-        return Results.StatusCode(303);
+        return Results.StatusCode(StatusCodes.Status303SeeOther);
     }
 
     public static IResult LocalRedirect(this IResultExtensions _, string url, HttpContext httpContext)
