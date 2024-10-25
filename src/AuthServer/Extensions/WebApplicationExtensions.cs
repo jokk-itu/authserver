@@ -1,4 +1,5 @@
-﻿using AuthServer.Core.Abstractions;
+﻿using AuthServer.Core;
+using AuthServer.Core.Abstractions;
 using AuthServer.Endpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -11,6 +12,8 @@ public static class WebApplicationExtensions
 {
     public static void UseAuthServer(this WebApplication app)
     {
+        app.UseMiddleware<OAuthErrorMiddleware>();
+
         var modules = app.Services.GetServices<IEndpointModule>();
         foreach (var module in modules)
         {
