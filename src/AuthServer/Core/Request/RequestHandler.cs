@@ -3,8 +3,9 @@ using AuthServer.Metrics.Abstractions;
 
 namespace AuthServer.Core.Request;
 internal abstract class RequestHandler<TRequest, TValidatedRequest, TResponse> : IRequestHandler<TRequest, TResponse>
-    where TRequest : notnull
-    where TValidatedRequest : notnull
+    where TRequest : class
+    where TValidatedRequest : class
+    where TResponse : class
 {
     private readonly IMetricService _metricService;
 

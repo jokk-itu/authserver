@@ -1,6 +1,6 @@
 ﻿namespace AuthServer.TokenBuilders.Abstractions;
 public interface ITokenBuilder<in TArguments>
-    where TArguments : notnull
+    where TArguments : class
 {
     /// <summary>
     /// 

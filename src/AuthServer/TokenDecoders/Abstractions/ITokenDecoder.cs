@@ -2,7 +2,7 @@
 
 namespace AuthServer.TokenDecoders.Abstractions;
 public interface ITokenDecoder<in TArguments>
-    where TArguments : notnull
+    where TArguments : class
 {
     /// <summary>
     /// Validates and returns a <see cref="JsonWebToken"/>

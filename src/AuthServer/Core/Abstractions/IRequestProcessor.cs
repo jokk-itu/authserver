@@ -1,7 +1,7 @@
 ﻿namespace AuthServer.Core.Request;
 internal interface IRequestProcessor<in TValidatedRequest, TResponse>
-    where TValidatedRequest : notnull
-	where TResponse : notnull
+    where TValidatedRequest : class
+	where TResponse : class
 {
 	/// <summary>
 	/// 

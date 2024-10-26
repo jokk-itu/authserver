@@ -1,7 +1,8 @@
 ﻿namespace AuthServer.Core.Request;
 
 internal interface IRequestHandler<in TRequest, TResponse>
-	where TRequest : notnull
+	where TRequest : class
+	where TResponse : class
 {
 	/// <summary>
 	/// Processes a request and returns a successful response or an error response,

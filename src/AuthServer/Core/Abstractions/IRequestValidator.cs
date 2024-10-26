@@ -1,6 +1,7 @@
 ﻿namespace AuthServer.Core.Request;
 internal interface IRequestValidator<in TRequest, TValidatedRequest>
-    where TRequest : notnull
+    where TRequest : class
+    where TValidatedRequest : class
 {
     /// <summary>
     /// Validates a request. If an error occurs a <see cref="ProcessError"/>> is returned
