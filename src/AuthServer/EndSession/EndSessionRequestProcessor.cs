@@ -52,7 +52,7 @@ internal class EndSessionRequestProcessor : IRequestProcessor<EndSessionValidate
             }
 
             await RevokeSessionRecursively(sessionQuery, cancellationToken);
-            clients = sessionQuery?.Clients.ToList() ?? [];
+            clients = sessionQuery.Clients.ToList();
         }
         else if (!string.IsNullOrEmpty(request.ClientId))
         {
