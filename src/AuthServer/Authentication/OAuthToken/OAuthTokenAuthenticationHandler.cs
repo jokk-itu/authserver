@@ -87,6 +87,32 @@ internal class OAuthTokenAuthenticationHandler : AuthenticationHandler<OAuthToke
         return AuthenticateResult.Success(authenticationTicket);
     }
 
+    protected override async Task HandleChallengeAsync(AuthenticationProperties properties)
+    {
+        var authenticationResult = await HandleAuthenticateOnceSafeAsync();
+        if (authenticationResult.None)
+        {
+            Response.Headers.WWWAuthenticate= """Bearer error="invalid_request",""";
+        }
+        else if (authenticationResult.Failure is not null)
+        {
+            Response.Headers.WWWAuthenticate = """Bearer error="invalid_token",""";
+        }
+        else
+        {
+            throw new InvalidOperationException("Challenge must happened from failure or none");
+        }
+
+        Response.StatusCode = 401;
+    }
+
+    protected override Task HandleForbiddenAsync(AuthenticationProperties properties)
+    {
+        Response.Headers.WWWAuthenticate = """Bearer error="insufficient_scope",""";
+        Response.StatusCode = 403;
+        return Task.CompletedTask;
+    }
+
     private async Task<(ClaimsIdentity?, AuthenticateResult?)> AuthenticateReferenceToken(string token)
     {
         var query = await _authorizationDbContext
