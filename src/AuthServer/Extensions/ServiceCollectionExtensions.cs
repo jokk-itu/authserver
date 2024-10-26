@@ -57,9 +57,9 @@ public static class ServiceCollectionExtensions
             .AddScheme<OAuthTokenAuthenticationOptions, OAuthTokenAuthenticationHandler>(
                 OAuthTokenAuthenticationDefaults.AuthenticationScheme, null);
 
-        services.AddAuthorization(options =>
-        {
-            options.AddPolicy(AuthorizationConstants.Userinfo, policy =>
+        services
+            .AddAuthorizationBuilder()
+            .AddPolicy(AuthorizationConstants.Userinfo, policy =>
             {
                 policy.AddAuthenticationSchemes(OAuthTokenAuthenticationDefaults.AuthenticationScheme);
                 policy.RequireAssertion(context =>
@@ -67,13 +67,12 @@ public static class ServiceCollectionExtensions
                     var scope = context.User.Claims.SingleOrDefault(x => x.Type == ClaimNameConstants.Scope)?.Value;
                     return scope is not null && scope.Split(' ').Contains(ScopeConstants.UserInfo);
                 });
-            });
-            options.AddPolicy(AuthorizationConstants.Register, policy =>
+            })
+            .AddPolicy(AuthorizationConstants.Register, policy =>
             {
                 policy.AddAuthenticationSchemes(OAuthTokenAuthenticationDefaults.AuthenticationScheme);
                 policy.RequireClaim(ClaimNameConstants.Scope, ScopeConstants.Register);
             });
-        });
 
         services.AddDataProtection();
         services.AddSingleton<IMetricService, MetricService>();
