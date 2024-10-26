@@ -6,7 +6,7 @@
     <div>
         <h1 class="text-4xl mb-2">Authorization made easy</h1>
         <h2 class="text-xl mb-4">
-            Authserver is built for easy setup with strict security requirements
+            AuthServer is built for easy setup with strict security requirements
         </h2>
         <ul class="pl-5 list-disc">
             <li class="py-2">OAuth 2.1 ready</li>

@@ -32,8 +32,8 @@
         <a href="{base}/introduction" class="py-5 px-3 text-gray-700 hover:text-gray-900"
           >Introduction</a
         >
-        <a href="{base}/quick-start" class="py-5 px-3 text-gray-700 hover:text-gray-900"
-          >Quick Start</a
+        <a href="{base}/demo" class="py-5 px-3 text-gray-700 hover:text-gray-900"
+          >Demo</a
         >
       </div>
 
