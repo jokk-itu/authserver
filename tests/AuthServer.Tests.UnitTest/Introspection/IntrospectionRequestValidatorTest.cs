@@ -141,7 +141,7 @@ public class IntrospectionRequestValidatorTest : BaseUnitTest
             ClientUri = "https://webapp.authserver.dk"
         };
         var plainSecret = CryptographyHelper.GetRandomString(32);
-        var hashSecret = BCrypt.HashPassword(plainSecret, BCrypt.GenerateSalt());
+        var hashSecret = CryptographyHelper.HashPassword(plainSecret);
         client.SetSecret(hashSecret);
         var openIdScope = await IdentityContext
             .Set<Scope>()

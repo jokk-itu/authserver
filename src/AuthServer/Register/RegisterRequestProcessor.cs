@@ -171,7 +171,7 @@ internal class RegisterRequestProcessor : IRequestProcessor<RegisterValidatedReq
         if (client.TokenEndpointAuthMethod != TokenEndpointAuthMethod.None)
         {
             plainSecret = CryptographyHelper.GetRandomString(32);
-            var hashedSecret = BCrypt.HashPassword(plainSecret, BCrypt.GenerateSalt());
+            var hashedSecret = CryptographyHelper.HashPassword(plainSecret);
             client.SetSecret(hashedSecret);
         }
 

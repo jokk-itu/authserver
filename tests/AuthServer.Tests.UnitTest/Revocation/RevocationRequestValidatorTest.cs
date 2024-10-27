@@ -140,7 +140,7 @@ public class RevocationRequestValidatorTest : BaseUnitTest
 
         var client = new Client("webapp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var plainSecret = CryptographyHelper.GetRandomString(32);
-        var hashSecret = BCrypt.HashPassword(plainSecret, BCrypt.GenerateSalt());
+        var hashSecret = CryptographyHelper.HashPassword(plainSecret);
         client.SetSecret(hashSecret);
         await AddEntity(client);
 
@@ -175,7 +175,7 @@ public class RevocationRequestValidatorTest : BaseUnitTest
 
         var client = new Client("webapp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var plainSecret = CryptographyHelper.GetRandomString(32);
-        var hashSecret = BCrypt.HashPassword(plainSecret, BCrypt.GenerateSalt());
+        var hashSecret = CryptographyHelper.HashPassword(plainSecret);
         client.SetSecret(hashSecret);
         await AddEntity(client);
 
@@ -226,7 +226,7 @@ public class RevocationRequestValidatorTest : BaseUnitTest
 
         var client = new Client("webapp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var plainSecret = CryptographyHelper.GetRandomString(32);
-        var hashSecret = BCrypt.HashPassword(plainSecret, BCrypt.GenerateSalt());
+        var hashSecret = CryptographyHelper.HashPassword(plainSecret);
         client.SetSecret(hashSecret);
         var token = new ClientAccessToken(client, "resource", DiscoveryDocument.Issuer, "scope", DateTime.UtcNow.AddHours(1));
         await AddEntity(token);
@@ -259,7 +259,7 @@ public class RevocationRequestValidatorTest : BaseUnitTest
 
         var client = new Client("webapp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var plainSecret = CryptographyHelper.GetRandomString(32);
-        var hashSecret = BCrypt.HashPassword(plainSecret, BCrypt.GenerateSalt());
+        var hashSecret = CryptographyHelper.HashPassword(plainSecret);
         client.SetSecret(hashSecret);
         var token = new ClientAccessToken(client, "resource", DiscoveryDocument.Issuer, "scope", DateTime.UtcNow.AddHours(1));
         await AddEntity(token);

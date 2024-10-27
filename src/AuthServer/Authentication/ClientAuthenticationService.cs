@@ -5,6 +5,7 @@ using AuthServer.Constants;
 using AuthServer.Core.Models;
 using AuthServer.Enums;
 using AuthServer.Extensions;
+using AuthServer.Helpers;
 using AuthServer.Metrics.Abstractions;
 using AuthServer.TokenDecoders;
 using AuthServer.TokenDecoders.Abstractions;
@@ -90,7 +91,8 @@ internal class ClientAuthenticationService : IClientAuthenticationService
             return new ClientAuthenticationResult(null, false);
         }
 
-        if (!BCrypt.CheckPassword(clientSecretAuthentication.ClientSecret, client.SecretHash))
+        var isPasswordVerified = CryptographyHelper.VerifyPassword(client.SecretHash!, clientSecretAuthentication.ClientSecret);
+        if (!isPasswordVerified)
         {
             _logger.LogDebug("ClientSecret is invalid");
             return new ClientAuthenticationResult(null, false);

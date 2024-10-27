@@ -59,7 +59,7 @@ public class ClientSecretAuthenticationTest(ITestOutputHelper outputHelper) : Ba
             SecretExpiration = -1
         };
         var plainTextSecret = CryptographyHelper.GetRandomString(32);
-        var hashedSecret = BCrypt.HashPassword(plainTextSecret, BCrypt.GenerateSalt());
+        var hashedSecret = CryptographyHelper.HashPassword(plainTextSecret);
         client.SetSecret(hashedSecret);
         await AddEntity(client);
         var clientAuthentication = new ClientSecretAuthentication(TokenEndpointAuthMethod.ClientSecretBasic, client.Id, plainTextSecret);
@@ -82,7 +82,7 @@ public class ClientSecretAuthenticationTest(ITestOutputHelper outputHelper) : Ba
         var clientAuthenticationService = serviceProvider.GetRequiredService<IClientAuthenticationService>();
         var client = new Client("PinguApp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
         var plainTextSecret = CryptographyHelper.GetRandomString(32);
-        var hashedSecret = BCrypt.HashPassword(plainTextSecret, BCrypt.GenerateSalt());
+        var hashedSecret = CryptographyHelper.HashPassword(plainTextSecret);
         client.SetSecret(hashedSecret);
         await AddEntity(client);
         var clientAuthentication = new ClientSecretAuthentication(TokenEndpointAuthMethod.ClientSecretBasic, client.Id, secret);
@@ -108,7 +108,7 @@ public class ClientSecretAuthenticationTest(ITestOutputHelper outputHelper) : Ba
             SecretExpiration = secretExpiration
         };
         var plainTextSecret = CryptographyHelper.GetRandomString(32);
-        var hashedSecret = BCrypt.HashPassword(plainTextSecret, BCrypt.GenerateSalt());
+        var hashedSecret = CryptographyHelper.HashPassword(plainTextSecret);
         client.SetSecret(hashedSecret);
         await AddEntity(client);
         var clientAuthentication = new ClientSecretAuthentication(tokenEndpointAuthMethod, client.Id, plainTextSecret);
