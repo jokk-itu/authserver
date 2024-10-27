@@ -1,0 +1,48 @@
+﻿@page
+@model AuthServer.TestIdentityProvider.Pages.ConsentModel
+@{
+    ViewData["Title"] = "Consent";
+}
+
+<h1>@ViewData["Title"]</h1>
+<hr/>
+<h2>@Model.Input.ClientName</h2>
+<p>wants to access your account and act on your behalf, @Model.Input.Username/p>
+<br/>
+<p>The following information is requested by the above app.</p>
+<hr/>
+<div class="row">
+    <div class="col-md-4">
+        <section>
+            <form id="consent" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                @Html.AntiForgeryToken()
+                <p>Act on your behalf</p>
+                @foreach (var scope in Model.Input.RequestedScope)
+                {
+                    <!-- Title -->
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input name="ConsentedScope" hidden checked class="form-check-input" type="checkbox" id="@scope" value="@scope"/>
+                            <label for="@scope" class="form-check-label">@scope</label>
+                        </div>
+                    </div>
+                }
+                <p>Personal information</p>
+                @foreach (var claim in Model.Input.RequestedClaims)
+                {
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input name="ConsentedClaims" class="form-check-input" type="checkbox" id="@claim.Name" value="@claim.Name" @(@claim.IsGranted ? "checked" : "") />
+                            <label for="@claim.Name" class="form-check-label" >@claim.Name</label>
+                        </div>
+                    </div>
+                }
+                <div>
+                    <input asp-route-returnUrl="@Model.ReturnUrl" asp-page-handler="Accept" id="accept-submit" type="submit" class="w-100 btn btn-lg btn-success" value="Accept"/>
+                    <input asp-route-returnUrl="@Model.ReturnUrl" asp-page-handler="Decline" id="decline-submit" type="submit" class="w-100 btn btn-lg btn-danger" value="Decline"/>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>

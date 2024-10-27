@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<LangVersion>latestMajor</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageId>AuthServer</PackageId>
+		<AssemblyName>AuthServer</AssemblyName>
+		<Title>AuthServer</Title>
+		<Authors>Joachim Køcher Kelsen</Authors>
+		<Company>AuthServer</Company>
+		<Product>AuthServer</Product>
+		<PackageDescription></PackageDescription>
+		<PackageProjectUrl>https://github.com/jokk-itu/BookVacation</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/jokk-itu/authserver</RepositoryUrl>
+		<VersionSuffix>alpha</VersionSuffix>
+		<VersionPrefix>0.0.15</VersionPrefix>
+		<IncludeSymbols>true</IncludeSymbols>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.8" />
+		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.0.2" />
+		<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="8.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<InternalsVisibleTo Include="$(AssemblyName).Tests.UnitTest" />
+		<InternalsVisibleTo Include="$(AssemblyName).Tests.IntegrationTest" />
+		<InternalsVisibleTo Include="$(AssemblyName).Tests.ArchitectureTest" />
+		<InternalsVisibleTo Include="$(AssemblyName).Tests.Core" />
+		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+</Project>

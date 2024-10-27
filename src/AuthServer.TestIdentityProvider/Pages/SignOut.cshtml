@@ -1,0 +1,22 @@
+﻿@page
+@model AuthServer.TestIdentityProvider.Pages.SignOutModel
+@{
+    ViewData["Title"] = "Sign Out";
+}
+
+<h1>@ViewData["Title"]</h1>
+<hr/>
+<h2>You are logging out</h2>
+<div class="row">
+    <div class="col-md-4">
+        <section>
+            <form id="signout" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                @Html.AntiForgeryToken()
+                <input asp-route-returnUrl="@Model.ReturnUrl" asp-page-handler="Accept" id="accept-submit" type="submit" class="w-100 btn btn-lg btn-success" value="Accept"/>
+                <input asp-route-returnUrl="@Model.ReturnUrl" asp-page-handler="Decline" id="decline-submit" type="submit" class="w-100 btn btn-lg btn-danger" value="Decline"/>
+            </form>
+        </section>
+    </div>
+</div>
+
