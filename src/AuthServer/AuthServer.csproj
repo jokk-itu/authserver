@@ -16,7 +16,7 @@
 		<PackageProjectUrl>https://github.com/jokk-itu/BookVacation</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/jokk-itu/authserver</RepositoryUrl>
 		<VersionSuffix>alpha</VersionSuffix>
-		<VersionPrefix>0.0.7</VersionPrefix>
+		<VersionPrefix>0.0.15</VersionPrefix>
 		<IncludeSymbols>true</IncludeSymbols>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
