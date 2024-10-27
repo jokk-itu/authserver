@@ -12,7 +12,7 @@
 		<link rel="modulepreload" href="./_app/immutable/chunks/paths.ce4f0846.js">
 		<link rel="modulepreload" href="./_app/immutable/entry/app.cf58dc0f.js">
 		<link rel="modulepreload" href="./_app/immutable/nodes/0.b3a51f94.js">
-		<link rel="modulepreload" href="./_app/immutable/nodes/2.d2d13000.js">
+		<link rel="modulepreload" href="./_app/immutable/nodes/3.798096a0.js">
 	</head>
 	<body data-sveltekit-preload-data="hover">
 		<div style="display: contents">
@@ -29,20 +29,50 @@
 
       
       <div class="flex items-center space-x-1"><a href="https://github.com/jokk-itu/authserver" target="_blank" class="py-5 px-3"><img src="/authserver/github.svg" alt="Github" height="20px" width="20px"></a></div></div></div></nav>
-<main class="container mx-auto mt-8"><div class="flex flex-col sm:flex-row sm:justify-evenly"><div><h1 class="text-4xl mb-2">Authorization made easy</h1>
-        <h2 class="text-xl mb-4">AuthServer is built for easy setup with strict security requirements
-        </h2>
-        <ul class="pl-5 list-disc"><li class="py-2">OAuth 2.1 ready</li>
-            <li class="py-2">Easily setup an IdentityProvider</li>
-            <li class="py-2">Fast, reliable and scalable</li>
-            <li class="py-2">Monitor capability using Open Telemetry</li></ul>
-        <button class="rounded bg-openid my-10 px-8 py-3">Learn more</button></div>
-    <div><div class="w-full"><div class="coding inverse-toggle pl-3 pr-24 pt-4 shadow-lg text-gray-100 text-sm font-mono subpixel-antialiased bg-gray-800 pb-40 rounded-lg leading-normal overflow-hidden"><div class="top mb-2 flex"><div class="h-3 w-3 bg-red-500 rounded-full"></div>
-            <div class="ml-2 h-3 w-3 bg-openid rounded-full"></div>
-            <div class="ml-2 h-3 w-3 bg-green-500 rounded-full"></div></div>
-        <div class="mt-4 flex"><span class="text-openid">$</span>
-            <p class="flex-1 typing items-center pl-2">dotnet add package AuthServer
-                <br></p></div></div></div></div></div></main>
+<main class="container mx-auto mt-8"><h1 class="text-4xl mb-2">Demo</h1>
+<p class="mb-4">Illustrating the capabilities of AuthServer is best done through examples.
+    <br><br>
+    AuthServer has therefore been implemented and deployed for everyone to use.
+    Different clients and protected resources are also deployed,
+    which interact with AuthServer, and illustrate the features possible with AuthServer.
+</p>
+
+
+<h2 class="text-xl mb-4">Applications</h2>
+
+<div class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+    <div class="max-w-sm rounded overflow-hidden shadow-lg px-6 py-4"><div class="font-bold text-xl mb-2">IdentityProvider</div>
+        <p class="text-gray-800 text-base">WebApp using the AuthServer framework, to behave as an IdentityProvider.
+            <br>
+            It uses AspNetCore.Identity for user management.
+        </p></div>
+
+    
+    <div class="max-w-sm rounded overflow-hidden shadow-lg px-6 py-4"><div class="font-bold text-xl mb-2">WebClient</div>
+        <p class="text-gray-800 text-base">WebApp using FAPI features to enable high security.
+        </p></div>
+
+    
+    <div class="max-w-sm rounded overflow-hidden shadow-lg px-6 py-4"><div class="font-bold text-xl mb-2">BFF Client</div>
+        <p class="text-gray-800 text-base">Blazor WebAssembly app, using the BackEnd for FrontEnd pattern,
+            to enable high security for a browser based app. 
+        </p></div>
+
+    
+    <div class="max-w-sm rounded overflow-hidden shadow-lg px-6 py-4"><div class="font-bold text-xl mb-2">Worker Client</div>
+        <p class="text-gray-800 text-base">Worker app without user interface, and only uses the client_credentials grant.
+        </p></div>
+
+    
+    <div class="max-w-sm rounded overflow-hidden shadow-lg px-6 py-4"><div class="font-bold text-xl mb-2">Browser Client</div>
+        <p class="text-gray-800 text-base">Browser app behaving as a SPA without a backend responsible for authentication.
+        </p>
+        <p class="text-openid font-bold">Work in progress</p></div>
+
+    
+    <div class="max-w-sm rounded overflow-hidden shadow-lg px-6 py-4"><div class="font-bold text-xl mb-2">Weather Client</div>
+        <p class="text-gray-800 text-base">API behaving as a protected resource.
+        </p></div></div></main>
 <footer><svg viewBox="0 0 1440 320" class="fill-openid" xmlns="http://www.w3.org/2000/svg"><path fill-opacity="1" d="M0,128L34.3,112C68.6,96,137,64,206,74.7C274.3,85,343,139,411,149.3C480,160,549,128,617,106.7C685.7,85,754,75,823,96C891.4,117,960,171,1029,181.3C1097.1,192,1166,160,1234,165.3C1302.9,171,1371,213,1406,234.7L1440,256L1440,320L1405.7,320C1371.4,320,1303,320,1234,320C1165.7,320,1097,320,1029,320C960,320,891,320,823,320C754.3,320,686,320,617,320C548.6,320,480,320,411,320C342.9,320,274,320,206,320C137.1,320,69,320,34,320L0,320Z"></path></svg>
     <div class="bg-gray-800 text-white py-4"><div class="container mx-auto text-center"><p>2024 Authserver. All rights reserved.</p></div></div></footer>
 
@@ -65,7 +95,7 @@
 						import("./_app/immutable/entry/app.cf58dc0f.js")
 					]).then(([kit, app]) => {
 						kit.start(app, element, {
-							node_ids: [0, 2],
+							node_ids: [0, 3],
 							data,
 							form: null,
 							error: null
