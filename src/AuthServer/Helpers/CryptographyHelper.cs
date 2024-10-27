@@ -28,7 +28,7 @@ internal static class CryptographyHelper
 
     public static string HashPassword(string password)
     {
-        const int iterations = 20000;
+        const int iterations = 100000;
         const int requestedSize = 256 / 8;
         const int saltSize = 128 / 8;
         const KeyDerivationPrf derivation = KeyDerivationPrf.HMACSHA512;
