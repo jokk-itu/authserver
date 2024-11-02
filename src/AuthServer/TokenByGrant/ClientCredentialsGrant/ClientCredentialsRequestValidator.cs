@@ -8,13 +8,13 @@ using AuthServer.RequestAccessors.Token;
 
 namespace AuthServer.TokenByGrant.ClientCredentialsGrant;
 
-internal class ClientCredentialsValidator : IRequestValidator<TokenRequest, ClientCredentialsValidatedRequest>
+internal class ClientCredentialsRequestValidator : IRequestValidator<TokenRequest, ClientCredentialsValidatedRequest>
 {
     private readonly IClientAuthenticationService _clientAuthenticationService;
     private readonly ICachedClientStore _cachedClientStore;
     private readonly IClientRepository _clientRepository;
 
-    public ClientCredentialsValidator(
+    public ClientCredentialsRequestValidator(
         IClientAuthenticationService clientAuthenticationService,
         ICachedClientStore cachedClientStore,
         IClientRepository clientRepository)
@@ -49,7 +49,6 @@ internal class ClientCredentialsValidator : IRequestValidator<TokenRequest, Clie
         }
 
         var clientAuthenticationResult = await _clientAuthenticationService.AuthenticateClient(clientAuthentication, cancellationToken);
-
         if (!clientAuthenticationResult.IsAuthenticated)
         {
             return TokenError.InvalidClient;
@@ -58,7 +57,7 @@ internal class ClientCredentialsValidator : IRequestValidator<TokenRequest, Clie
         var clientId = clientAuthenticationResult.ClientId!;
         var cachedClient = await _cachedClientStore.Get(clientId, cancellationToken);
 
-        var isClientAuthorizedForClientCredentials = cachedClient.GrantTypes.Contains(request.GrantType);
+        var isClientAuthorizedForClientCredentials = cachedClient.GrantTypes.Contains(GrantTypeConstants.ClientCredentials);
         if (!isClientAuthorizedForClientCredentials)
         {
             return TokenError.UnauthorizedForGrantType;

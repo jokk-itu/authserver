@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AuthServer.TokenByGrant.AuthorizationCodeGrant;
 
-internal class AuthorizationCodeValidator : IRequestValidator<TokenRequest, AuthorizationCodeValidatedRequest>
+internal class AuthorizationCodeRequestValidator : IRequestValidator<TokenRequest, AuthorizationCodeValidatedRequest>
 {
     private readonly AuthorizationDbContext _identityContext;
     private readonly IAuthorizationCodeEncoder _authorizationCodeEncoder;
@@ -21,7 +21,7 @@ internal class AuthorizationCodeValidator : IRequestValidator<TokenRequest, Auth
     private readonly ICachedClientStore _cachedEntityStore;
     private readonly IConsentGrantRepository _consentGrantRepository;
 
-    public AuthorizationCodeValidator(
+    public AuthorizationCodeRequestValidator(
         AuthorizationDbContext identityContext,
         IAuthorizationCodeEncoder authorizationCodeEncoder,
         IClientAuthenticationService clientAuthenticationService,
@@ -101,13 +101,13 @@ internal class AuthorizationCodeValidator : IRequestValidator<TokenRequest, Auth
 
         if (cachedClient.GrantTypes.All(x => x != request.GrantType))
         {
-            return TokenError.UnauthorizedClientForGrantType;
+            return TokenError.UnauthorizedForGrantType;
         }
 
         if (!string.IsNullOrWhiteSpace(request.RedirectUri)
             && cachedClient.RedirectUris.All(x => x != request.RedirectUri))
         {
-            return TokenError.UnauthorizedClientForRedirectUri;
+            return TokenError.UnauthorizedForRedirectUri;
         }
 
         // Request.Scopes cannot be given during authorization_code grant

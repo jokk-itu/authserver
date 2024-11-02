@@ -38,11 +38,8 @@ internal static class TokenError
     public static readonly ProcessError InvalidGrant =
         new(ErrorCode.InvalidGrant, "grant is invalid", ResultCode.BadRequest);
 
-    public static readonly ProcessError UnauthorizedClientForRedirectUri =
+    public static readonly ProcessError UnauthorizedForRedirectUri =
         new(ErrorCode.UnauthorizedClient, "client is unauthorized for redirect_uri", ResultCode.BadRequest);
-
-    public static readonly ProcessError UnauthorizedClientForGrantType =
-        new(ErrorCode.UnauthorizedClient, "client is unauthorized for grant_type", ResultCode.BadRequest);
 
     public static readonly ProcessError ConsentRequired =
         new(ErrorCode.ConsentRequired, "consent is required", ResultCode.BadRequest);

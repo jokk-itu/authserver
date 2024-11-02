@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AuthServer.TokenByGrant.RefreshTokenGrant;
 
-internal class RefreshTokenValidator : IRequestValidator<TokenRequest, RefreshTokenValidatedRequest>
+internal class RefreshTokenRequestValidator : IRequestValidator<TokenRequest, RefreshTokenValidatedRequest>
 {
     private readonly AuthorizationDbContext _identityContext;
     private readonly ITokenDecoder<ServerIssuedTokenDecodeArguments> _tokenDecoder;
@@ -23,7 +23,7 @@ internal class RefreshTokenValidator : IRequestValidator<TokenRequest, RefreshTo
     private readonly IClientRepository _clientRepository;
     private readonly IConsentGrantRepository _consentGrantRepository;
 
-    public RefreshTokenValidator(
+    public RefreshTokenRequestValidator(
         AuthorizationDbContext identityContext,
         ITokenDecoder<ServerIssuedTokenDecodeArguments> tokenDecoder,
         IClientAuthenticationService clientAuthenticationService,
@@ -94,7 +94,7 @@ internal class RefreshTokenValidator : IRequestValidator<TokenRequest, RefreshTo
 
         if (cachedClient.GrantTypes.All(x => x != GrantTypeConstants.RefreshToken))
         {
-            return TokenError.UnauthorizedClientForGrantType;
+            return TokenError.UnauthorizedForGrantType;
         }
 
         IReadOnlyCollection<string> requestedScope;
