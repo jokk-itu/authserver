@@ -33,4 +33,4 @@ jobs:
       - name: Push package to nuget registry
         run: |
           package=$(ls src/AuthServer/bin/Release/*nupkg)
-          dotnet nuget push "AuthServer" --source "github" --skip-duplicate
+          dotnet nuget push "$package" --source "github" --skip-duplicate
