@@ -192,7 +192,7 @@ public class AuthorizeEndpointBuilder : EndpointBuilder
             };
         }
 
-        throw new NotImplementedException();
+        throw new NotSupportedException();
     }
 
     private void SetDefaultValues()
