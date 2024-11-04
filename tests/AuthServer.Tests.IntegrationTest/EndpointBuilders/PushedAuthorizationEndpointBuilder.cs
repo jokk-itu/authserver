@@ -185,7 +185,7 @@ public class PushedAuthorizationEndpointBuilder : EndpointBuilder
 
         var clientId = _parameters.Single(x => x.Key == Parameter.ClientId).Value;
         var claims = _parameters
-            .Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString()))
+            .Select(x => new KeyValuePair<string, object>(x.Key, x.Value))
             .ToDictionary();
 
         var requestObject = JwtBuilder.GetRequestObjectJwt(claims, clientId, _privateJwks!, ClientTokenAudience.PushedAuthorizeEndpoint);
