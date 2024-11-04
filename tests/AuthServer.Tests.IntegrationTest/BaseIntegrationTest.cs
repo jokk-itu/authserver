@@ -27,6 +27,8 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     protected readonly IServiceProvider ServiceProvider;
     protected readonly AuthorizeEndpointBuilder AuthorizeEndpointBuilder;
     protected readonly RegisterEndpointBuilder RegisterEndpointBuilder;
+    protected readonly IntrospectionEndpointBuilder IntrospectionEndpointBuilder;
+    protected readonly RevocationEndpointBuilder RevocationEndpointBuilder;
 
     protected TokenEndpointBuilder TokenEndpointBuilder => new(GetHttpClient(), DiscoveryDocument, JwksDocument, TestOutputHelper);
 
@@ -80,6 +82,18 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
             TestOutputHelper);
 
         RegisterEndpointBuilder = new RegisterEndpointBuilder(
+            GetHttpClient(),
+            DiscoveryDocument,
+            JwksDocument,
+            TestOutputHelper);
+
+        IntrospectionEndpointBuilder = new IntrospectionEndpointBuilder(
+            GetHttpClient(),
+            DiscoveryDocument,
+            JwksDocument,
+            TestOutputHelper);
+
+        RevocationEndpointBuilder = new RevocationEndpointBuilder(
             GetHttpClient(),
             DiscoveryDocument,
             JwksDocument,
