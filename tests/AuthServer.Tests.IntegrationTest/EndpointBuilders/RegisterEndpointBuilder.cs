@@ -73,6 +73,12 @@ public class RegisterEndpointBuilder : EndpointBuilder
         return this;
     }
 
+    public RegisterEndpointBuilder WithRequireReferenceToken()
+    {
+        _parameters.Add(Parameter.RequireReferenceToken, true);
+        return this;
+    }
+
     internal async Task<RegisterResponse> Post()
     {
         var json = JsonSerializer.Serialize(_parameters);
