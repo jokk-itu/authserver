@@ -12,7 +12,7 @@ using Xunit.Abstractions;
 
 namespace AuthServer.Tests.IntegrationTest.EndpointBuilders;
 
-internal class IntrospectionEndpointBuilder : EndpointBuilder
+public class IntrospectionEndpointBuilder : EndpointBuilder
 {
     private TokenEndpointAuthMethod _tokenEndpointAuthMethod;
     private readonly List<KeyValuePair<string, string>> _parameters = [];

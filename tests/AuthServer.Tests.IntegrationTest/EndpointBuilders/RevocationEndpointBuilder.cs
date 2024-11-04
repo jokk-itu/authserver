@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace AuthServer.Tests.IntegrationTest.EndpointBuilders;
 
-internal class RevocationEndpointBuilder : EndpointBuilder
+public class RevocationEndpointBuilder : EndpointBuilder
 {
     private TokenEndpointAuthMethod _tokenEndpointAuthMethod;
     private readonly List<KeyValuePair<string, string>> _parameters = [];
