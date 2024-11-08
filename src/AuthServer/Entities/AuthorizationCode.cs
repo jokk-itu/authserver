@@ -3,11 +3,12 @@
 namespace AuthServer.Entities;
 public class AuthorizationCode : Entity<string>
 {
-    public AuthorizationCode(AuthorizationGrant authorizationGrant)
+    public AuthorizationCode(AuthorizationGrant authorizationGrant, int expirationSeconds)
     {
         Id = Guid.NewGuid().ToString();
         IssuedAt = DateTime.UtcNow;
         AuthorizationGrant = authorizationGrant ?? throw new ArgumentNullException(nameof(authorizationGrant));
+        ExpiresAt = IssuedAt.AddSeconds(expirationSeconds);
     }
 
 #pragma warning disable CS8618
@@ -17,6 +18,7 @@ public class AuthorizationCode : Entity<string>
 
     public string Value { get; private set; } = null!;
     public DateTime IssuedAt { get; private init; }
+    public DateTime ExpiresAt { get; private init; }
     public DateTime? RedeemedAt { get; private set; }
     public AuthorizationGrant AuthorizationGrant { get; private init; }
 

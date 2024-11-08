@@ -77,10 +77,6 @@ internal class AuthorizationCodeRequestValidator : IRequestValidator<TokenReques
             return TokenError.InvalidClient;
         }
 
-        var clientId = clientAuthenticationResult.ClientId!;
-        var cachedClient = await _cachedEntityStore.Get(clientId, cancellationToken);
-        var floorIssuedDate = DateTime.UtcNow.AddSeconds(-cachedClient.AuthorizationCodeExpiration!.Value);
-
         var subjectIdentifier = await _identityContext
             .Set<AuthorizationGrant>()
             .Where(AuthorizationGrant.IsActive)
@@ -89,8 +85,7 @@ internal class AuthorizationCodeRequestValidator : IRequestValidator<TokenReques
                 .AsQueryable()
                 .Where(y => y.Id == authorizationCode.AuthorizationCodeId)
                 .Where(y => y.RedeemedAt == null)
-                .Any(y => y.IssuedAt > floorIssuedDate))
-            .Where(x => x.Session.RevokedAt == null)
+                .Any(y => y.ExpiresAt > DateTime.UtcNow))
             .Select(x => x.Session.SubjectIdentifier.Id)
             .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
@@ -98,6 +93,9 @@ internal class AuthorizationCodeRequestValidator : IRequestValidator<TokenReques
         {
             return TokenError.InvalidGrant;
         }
+
+        var clientId = clientAuthenticationResult.ClientId!;
+        var cachedClient = await _cachedEntityStore.Get(clientId, cancellationToken);
 
         if (cachedClient.GrantTypes.All(x => x != request.GrantType))
         {
