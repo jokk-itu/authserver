@@ -63,7 +63,7 @@ public class RevocationEndpointBuilder : EndpointBuilder
 
     internal async Task Post()
     {
-        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "connect/revocation");
+        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "connect/revoke");
 
         if (_tokenEndpointAuthMethod == TokenEndpointAuthMethod.ClientSecretBasic)
         {
