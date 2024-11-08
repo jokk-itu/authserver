@@ -28,8 +28,8 @@ internal class ConsentGrantRepository : IConsentGrantRepository
     /// <inheritdoc/>
     public async Task<IReadOnlyCollection<string>> GetConsentedClaims(string subjectIdentifier, string clientId, CancellationToken cancellationToken)
     {
-        var client = await _identityContext.FindAsync<Client>([clientId], cancellationToken);
-        if (!client!.RequireConsent)
+        var client = (await _identityContext.FindAsync<Client>([clientId], cancellationToken))!;
+        if (!client.RequireConsent)
         {
             return await _identityContext
                 .Set<Claim>()
