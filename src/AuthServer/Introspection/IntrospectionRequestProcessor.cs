@@ -27,7 +27,8 @@ internal class IntrospectionRequestProcessor : IRequestProcessor<IntrospectionVa
             .Select(x => new TokenQuery
             {
                 Token = x,
-                Subject = (x as GrantToken)!.AuthorizationGrant.Subject,
+                SubjectFromGrantToken = (x as GrantToken)!.AuthorizationGrant.Subject,
+                SubjectFromClientToken = (x as ClientAccessToken)!.Client.Id,
                 SubjectIdentifier = (x as GrantToken)!.AuthorizationGrant.Session.SubjectIdentifier.Id
             })
             .SingleOrDefaultAsync(cancellationToken: cancellationToken);
@@ -58,6 +59,8 @@ internal class IntrospectionRequestProcessor : IRequestProcessor<IntrospectionVa
             username = await _userClaimService.GetUsername(query.SubjectIdentifier, cancellationToken);
         }
 
+        var subject = query.SubjectFromGrantToken ?? query.SubjectFromClientToken;
+
         return new IntrospectionResponse
         {
             Active = token.RevokedAt is null,
@@ -69,7 +72,7 @@ internal class IntrospectionRequestProcessor : IRequestProcessor<IntrospectionVa
             IssuedAt = token.IssuedAt.ToUnixTimeSeconds(),
             NotBefore = token.NotBefore.ToUnixTimeSeconds(),
             Scope = token.Scope,
-            Subject = query.Subject,
+            Subject = subject,
             TokenType = token.TokenType.GetDescription(),
             Username = username
         };
@@ -78,7 +81,8 @@ internal class IntrospectionRequestProcessor : IRequestProcessor<IntrospectionVa
     private sealed class TokenQuery
     {
         public required Token Token { get; init; }
-        public required string? Subject { get; init; }
+        public required string? SubjectFromGrantToken { get; init; }
+        public required string? SubjectFromClientToken { get; init; }
         public required string? SubjectIdentifier { get; init; }
     }
 }
