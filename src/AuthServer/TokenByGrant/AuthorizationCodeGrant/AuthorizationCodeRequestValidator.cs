@@ -111,6 +111,12 @@ internal class AuthorizationCodeRequestValidator : IRequestValidator<TokenReques
         // Request.Scopes cannot be given during authorization_code grant
         var scope = authorizationCode.Scope;
 
+        // Check scope again, as the authorized scope can change
+        if (cachedClient.Scopes.ExceptAny(scope))
+        {
+            return TokenError.UnauthorizedForScope;
+        }
+
         if (cachedClient.RequireConsent)
         {
             var consentedScopes = await _consentGrantRepository.GetConsentedScope(subjectIdentifier, clientId, cancellationToken);
