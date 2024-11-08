@@ -20,9 +20,9 @@ public class RegisterRequest
     public string? LogoUri { get; init; }
     public string? BackchannelLogoutUri { get; init; }
     public string? SectorIdentifierUri { get; init; }
-    public string? RequireSignedRequestObject { get; init; }
-    public string? RequireReferenceToken { get; init; }
-    public string? RequirePushedAuthorizationRequests { get; init; }
+    public bool? RequireSignedRequestObject { get; init; }
+    public bool? RequireReferenceToken { get; init; }
+    public bool? RequirePushedAuthorizationRequests { get; init; }
     public string? RequestObjectEncryptionEnc { get; init; }
     public string? RequestObjectEncryptionAlg { get; init; }
     public string? RequestObjectSigningAlg { get; init; }
@@ -32,12 +32,12 @@ public class RegisterRequest
     public string? IdTokenEncryptedResponseEnc { get; init; }
     public string? IdTokenEncryptedResponseAlg { get; init; }
     public string? IdTokenSignedResponseAlg { get; init; }
-    public string? AuthorizationCodeExpiration { get; init; }
-    public string? AccessTokenExpiration { get; init; }
-    public string? RefreshTokenExpiration { get; init; }
-    public string? ClientSecretExpiration { get; init; }
-    public string? JwksExpiration { get; init; }
-    public string? RequestUriExpiration { get; init; }
+    public int? AuthorizationCodeExpiration { get; init; }
+    public int? AccessTokenExpiration { get; init; }
+    public int? RefreshTokenExpiration { get; init; }
+    public int? ClientSecretExpiration { get; init; }
+    public int? JwksExpiration { get; init; }
+    public int? RequestUriExpiration { get; init; }
     public IReadOnlyCollection<string> DefaultAcrValues { get; init; } = [];
     public IReadOnlyCollection<string> Scope { get; init; } = [];
     public IReadOnlyCollection<string> RedirectUris { get; init; } = [];

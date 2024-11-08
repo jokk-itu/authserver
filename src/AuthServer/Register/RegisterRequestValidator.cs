@@ -779,17 +779,12 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     private ProcessError? ValidateRequireSignedRequestObject(RegisterRequest request,
         RegisterValidatedRequest validatedRequest)
     {
-        if (string.IsNullOrEmpty(request.RequireSignedRequestObject))
+        if (request.RequireSignedRequestObject is null)
         {
             return null;
         }
 
-        if (!bool.TryParse(request.RequireSignedRequestObject, out var parsedRequireSignedRequestObject))
-        {
-            return RegisterError.InvalidRequireSignedRequestObject;
-        }
-
-        validatedRequest.RequireSignedRequestObject = parsedRequireSignedRequestObject;
+        validatedRequest.RequireSignedRequestObject = request.RequireSignedRequestObject.Value;
         return null;
     }
 
@@ -802,17 +797,12 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     private ProcessError? ValidateRequireReferenceToken(RegisterRequest request,
         RegisterValidatedRequest validatedRequest)
     {
-        if (string.IsNullOrEmpty(request.RequireReferenceToken))
+        if (request.RequireReferenceToken is null)
         {
             return null;
         }
 
-        if (!bool.TryParse(request.RequireReferenceToken, out var parsedRequireReferenceToken))
-        {
-            return RegisterError.InvalidRequireReferenceToken;
-        }
-
-        validatedRequest.RequireReferenceToken = parsedRequireReferenceToken;
+        validatedRequest.RequireReferenceToken = request.RequireReferenceToken.Value;
         return null;
     }
 
@@ -822,18 +812,12 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <returns></returns>
     private ProcessError? ValidateRequirePushedAuthorizationRequests(RegisterRequest request, RegisterValidatedRequest validatedRequest)
     {
-        if (string.IsNullOrEmpty(request.RequirePushedAuthorizationRequests))
+        if (request.RequirePushedAuthorizationRequests is null)
         {
             return null;
         }
 
-        if (!bool.TryParse(request.RequirePushedAuthorizationRequests,
-                out var parsedRequirePushedAuthorizationRequests))
-        {
-            return RegisterError.InvalidRequirePushedAuthorizationRequests;
-        }
-
-        validatedRequest.RequirePushedAuthorizationRequests = parsedRequirePushedAuthorizationRequests;
+        validatedRequest.RequirePushedAuthorizationRequests = request.RequirePushedAuthorizationRequests.Value;
         return null;
     }
 
@@ -947,7 +931,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     private ProcessError? ValidateAuthorizationCodeExpiration(RegisterRequest request,
         RegisterValidatedRequest validatedRequest)
     {
-        if (string.IsNullOrEmpty(request.AuthorizationCodeExpiration))
+        if (request.AuthorizationCodeExpiration is null)
         {
             validatedRequest.AuthorizationCodeExpiration =
                 validatedRequest.GrantTypes.Contains(GrantTypeConstants.AuthorizationCode)
@@ -957,17 +941,12 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
             return null;
         }
 
-        if (!int.TryParse(request.AuthorizationCodeExpiration, out var parsedAuthorizationCodeExpiration))
+        if (request.AuthorizationCodeExpiration is < 5 or > 600)
         {
             return RegisterError.InvalidAuthorizationCodeExpiration;
         }
 
-        if (parsedAuthorizationCodeExpiration is < 5 or > 600)
-        {
-            return RegisterError.InvalidAuthorizationCodeExpiration;
-        }
-
-        validatedRequest.AuthorizationCodeExpiration = parsedAuthorizationCodeExpiration;
+        validatedRequest.AuthorizationCodeExpiration = request.AuthorizationCodeExpiration;
         return null;
     }
 
@@ -981,23 +960,18 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     private ProcessError? ValidateAccessTokenExpiration(RegisterRequest request,
         RegisterValidatedRequest validatedRequest)
     {
-        if (string.IsNullOrEmpty(request.AccessTokenExpiration))
+        if (request.AccessTokenExpiration is null)
         {
             validatedRequest.AccessTokenExpiration = 3600;
             return null;
         }
 
-        if (!int.TryParse(request.AccessTokenExpiration, out var parsedAccessTokenExpiration))
+        if (request.AccessTokenExpiration is < 60 or > 3600)
         {
             return RegisterError.InvalidAccessTokenExpiration;
         }
 
-        if (parsedAccessTokenExpiration is < 60 or > 3600)
-        {
-            return RegisterError.InvalidAccessTokenExpiration;
-        }
-
-        validatedRequest.AccessTokenExpiration = parsedAccessTokenExpiration;
+        validatedRequest.AccessTokenExpiration = request.AccessTokenExpiration.Value;
         return null;
     }
 
@@ -1011,7 +985,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     private ProcessError? ValidateRefreshTokenExpiration(RegisterRequest request,
         RegisterValidatedRequest validatedRequest)
     {
-        if (string.IsNullOrEmpty(request.RefreshTokenExpiration))
+        if (request.RefreshTokenExpiration is null)
         {
             validatedRequest.RefreshTokenExpiration =
                 validatedRequest.GrantTypes.Contains(GrantTypeConstants.RefreshToken)
@@ -1021,17 +995,13 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
             return null;
         }
 
-        if (!int.TryParse(request.RefreshTokenExpiration, out var parsedRefreshTokenExpiration))
-        {
-            return RegisterError.InvalidRefreshTokenExpiration;
-        }
         // between 60 seconds and 60 days
-        if (parsedRefreshTokenExpiration is < 60 or > 5184000)
+        if (request.RefreshTokenExpiration is < 60 or > 5184000)
         {
             return RegisterError.InvalidRefreshTokenExpiration;
         }
 
-        validatedRequest.RefreshTokenExpiration = parsedRefreshTokenExpiration;
+        validatedRequest.RefreshTokenExpiration = request.RefreshTokenExpiration;
         return null;
     }
 
@@ -1044,23 +1014,18 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     private ProcessError? ValidateClientSecretExpiration(RegisterRequest request,
         RegisterValidatedRequest validatedRequest)
     {
-        if (string.IsNullOrEmpty(request.ClientSecretExpiration))
+        if (request.ClientSecretExpiration is null)
         {
             return null;
         }
 
-        if (!int.TryParse(request.ClientSecretExpiration, out var parsedClientSecretExpiration))
-        {
-            return RegisterError.InvalidClientSecretExpiration;
-        }
-
         // not less than a day
-        if (parsedClientSecretExpiration < 86400)
+        if (request.ClientSecretExpiration < 86400)
         {
             return RegisterError.InvalidClientSecretExpiration;
         }
 
-        validatedRequest.ClientSecretExpiration = parsedClientSecretExpiration;
+        validatedRequest.ClientSecretExpiration = request.ClientSecretExpiration;
         return null;
     }
 
@@ -1072,7 +1037,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <returns></returns>
     private ProcessError? ValidateJwksExpiration(RegisterRequest request, RegisterValidatedRequest validatedRequest)
     {
-        if (string.IsNullOrEmpty(request.JwksExpiration))
+        if (request.JwksExpiration is null)
         {
             validatedRequest.JwksExpiration = !string.IsNullOrEmpty(validatedRequest.JwksUri)
                 ? 86400
@@ -1081,17 +1046,12 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
             return null;
         }
 
-        if (!int.TryParse(request.JwksExpiration, out var parsedJwksExpiration))
+        if (request.JwksExpiration < 0)
         {
             return RegisterError.InvalidJwksExpiration;
         }
 
-        if (parsedJwksExpiration < 0)
-        {
-            return RegisterError.InvalidJwksExpiration;
-        }
-
-        validatedRequest.JwksExpiration = parsedJwksExpiration;
+        validatedRequest.JwksExpiration = request.JwksExpiration;
         return null;
     }
 
@@ -1104,7 +1064,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     private ProcessError? ValidateRequestUriExpiration(RegisterRequest request,
         RegisterValidatedRequest validatedRequest)
     {
-        if (string.IsNullOrEmpty(request.RequestUriExpiration))
+        if (request.RequestUriExpiration is null)
         {
             validatedRequest.RequestUriExpiration =
                 validatedRequest.GrantTypes.Contains(GrantTypeConstants.AuthorizationCode)
@@ -1114,17 +1074,12 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
             return null;
         }
 
-        if (!int.TryParse(request.RequestUriExpiration, out var parsedRequestUriExpiration))
+        if (request.RequestUriExpiration is < 5 or > 600)
         {
             return RegisterError.InvalidRequestUriExpiration;
         }
 
-        if (parsedRequestUriExpiration is < 5 or > 600)
-        {
-            return RegisterError.InvalidRequestUriExpiration;
-        }
-
-        validatedRequest.RequestUriExpiration = parsedRequestUriExpiration;
+        validatedRequest.RequestUriExpiration = request.RequestUriExpiration;
         return null;
     }
 

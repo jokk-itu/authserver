@@ -29,48 +29,48 @@ internal class RegisterRequestAccessor : IRequestAccessor<RegisterRequest>
         var json = await JsonNode.ParseAsync(httpRequest.Body);
 		if (json is null)
 		{
-			throw new NotSupportedException($"Supports only Content-Type: {MimeTypeConstants.Json}");
+			throw new NotSupportedException($"Only supports Content-Type: {MimeTypeConstants.Json}");
 		}
 
-		var clientName = json.GetValue(Parameter.ClientName);
-		var applicationType = json.GetValue(Parameter.ApplicationType);
-		var subjectType = json.GetValue(Parameter.SubjectType);
-		var defaultMaxAge = json.GetValue(Parameter.DefaultMaxAge);
-		var tokenEndpointAuthMethod = json.GetValue(Parameter.TokenEndpointAuthMethod);
-		var tokenEndpointAuthSigningAlg = json.GetValue(Parameter.TokenEndpointAuthSigningAlg);
-		var jwks = json.GetValue(Parameter.Jwks);
+		var clientName = json.GetStringValue(Parameter.ClientName);
+		var applicationType = json.GetStringValue(Parameter.ApplicationType);
+		var subjectType = json.GetStringValue(Parameter.SubjectType);
+		var defaultMaxAge = json.GetStringValue(Parameter.DefaultMaxAge);
+		var tokenEndpointAuthMethod = json.GetStringValue(Parameter.TokenEndpointAuthMethod);
+		var tokenEndpointAuthSigningAlg = json.GetStringValue(Parameter.TokenEndpointAuthSigningAlg);
+		var jwks = json.GetStringValue(Parameter.Jwks);
 
-		var jwksUri = json.GetValue(Parameter.JwksUri);
-		var clientUri = json.GetValue(Parameter.ClientUri);
-		var policyUri = json.GetValue(Parameter.PolicyUri);
-		var tosUri = json.GetValue(Parameter.TosUri);
-		var initiateLoginUri = json.GetValue(Parameter.InitiateLoginUri);
-		var logoUri = json.GetValue(Parameter.LogoUri);
-		var backchannelLogoutUri = json.GetValue(Parameter.BackchannelLogoutUri);
-        var sectorIdentifierUri = json.GetValue(Parameter.SectorIdentifierUri);
+		var jwksUri = json.GetStringValue(Parameter.JwksUri);
+		var clientUri = json.GetStringValue(Parameter.ClientUri);
+		var policyUri = json.GetStringValue(Parameter.PolicyUri);
+		var tosUri = json.GetStringValue(Parameter.TosUri);
+		var initiateLoginUri = json.GetStringValue(Parameter.InitiateLoginUri);
+		var logoUri = json.GetStringValue(Parameter.LogoUri);
+		var backchannelLogoutUri = json.GetStringValue(Parameter.BackchannelLogoutUri);
+        var sectorIdentifierUri = json.GetStringValue(Parameter.SectorIdentifierUri);
 
-		var requireSignedRequestObject = json.GetValue(Parameter.RequireSignedRequestObject);
-		var requireReferenceToken = json.GetValue(Parameter.RequireReferenceToken);
-        var requirePushedAuthorizationRequests = json.GetValue(Parameter.RequirePushedAuthorizationRequests);
+		var requireSignedRequestObject = json.GetBoolValue(Parameter.RequireSignedRequestObject);
+		var requireReferenceToken = json.GetBoolValue(Parameter.RequireReferenceToken);
+        var requirePushedAuthorizationRequests = json.GetBoolValue(Parameter.RequirePushedAuthorizationRequests);
 
-		var requestObjectEncryptionEnc = json.GetValue(Parameter.RequestObjectEncryptionEnc);
-		var requestObjectEncryptionAlg = json.GetValue(Parameter.RequestObjectEncryptionAlg);
-		var requestObjectSigningAlg = json.GetValue(Parameter.RequestObjectSigningAlg);
+		var requestObjectEncryptionEnc = json.GetStringValue(Parameter.RequestObjectEncryptionEnc);
+		var requestObjectEncryptionAlg = json.GetStringValue(Parameter.RequestObjectEncryptionAlg);
+		var requestObjectSigningAlg = json.GetStringValue(Parameter.RequestObjectSigningAlg);
 
-		var userinfoEncryptedResponseEnc = json.GetValue(Parameter.UserinfoEncryptedResponseEnc);
-		var userinfoEncryptedResponseAlg = json.GetValue(Parameter.UserinfoEncryptedResponseAlg);
-		var userinfoSignedResponseAlg = json.GetValue(Parameter.UserinfoEncryptedResponseAlg);
+		var userinfoEncryptedResponseEnc = json.GetStringValue(Parameter.UserinfoEncryptedResponseEnc);
+		var userinfoEncryptedResponseAlg = json.GetStringValue(Parameter.UserinfoEncryptedResponseAlg);
+		var userinfoSignedResponseAlg = json.GetStringValue(Parameter.UserinfoEncryptedResponseAlg);
 
-		var idTokenEncryptedResponseEnc = json.GetValue(Parameter.IdTokenEncryptedResponseEnc);
-		var idTokenEncryptedResponseAlg = json.GetValue(Parameter.IdTokenEncryptedResponseAlg);
-		var idTokenSignedResponseAlg = json.GetValue(Parameter.IdTokenSignedResponseAlg);
+		var idTokenEncryptedResponseEnc = json.GetStringValue(Parameter.IdTokenEncryptedResponseEnc);
+		var idTokenEncryptedResponseAlg = json.GetStringValue(Parameter.IdTokenEncryptedResponseAlg);
+		var idTokenSignedResponseAlg = json.GetStringValue(Parameter.IdTokenSignedResponseAlg);
 
-		var authorizationCodeExpiration = json.GetValue(Parameter.AuthorizationCodeExpiration);
-		var accessTokenExpiration = json.GetValue(Parameter.AccessTokenExpiration);
-		var refreshTokenExpiration = json.GetValue(Parameter.RefreshTokenExpiration);
-		var clientSecretExpiration = json.GetValue(Parameter.ClientSecretExpiration);
-		var jwksExpiration = json.GetValue(Parameter.JwksExpiration);
-        var requestUriExpiration = json.GetValue(Parameter.RequestUriExpiration);
+		var authorizationCodeExpiration = json.GetIntValue(Parameter.AuthorizationCodeExpiration);
+		var accessTokenExpiration = json.GetIntValue(Parameter.AccessTokenExpiration);
+		var refreshTokenExpiration = json.GetIntValue(Parameter.RefreshTokenExpiration);
+		var clientSecretExpiration = json.GetIntValue(Parameter.ClientSecretExpiration);
+		var jwksExpiration = json.GetIntValue(Parameter.JwksExpiration);
+        var requestUriExpiration = json.GetIntValue(Parameter.RequestUriExpiration);
 
 		var defaultAcrValues = json.GetSpaceDelimitedValue(Parameter.DefaultAcrValues);
 		var scope = json.GetSpaceDelimitedValue(Parameter.Scope);

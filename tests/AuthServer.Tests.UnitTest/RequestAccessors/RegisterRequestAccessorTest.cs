@@ -28,7 +28,7 @@ public class RegisterRequestAccessorTest : BaseUnitTest
     [InlineData("PUT", "", "")]
     [InlineData("POST", null, null)]
     [InlineData("PUT", null, null)]
-    public async Task GetRequest_NormalStringParametersPut_ExpectValues(string method, string? value, string? expectedValue)
+    public async Task GetRequest_StringParametersPostAndPut_ExpectValues(string method, string? value, string? expectedValue)
     {
         // Arrange
         var requestContent = new Dictionary<string, string?>
@@ -64,14 +64,7 @@ public class RegisterRequestAccessorTest : BaseUnitTest
 
             { Parameter.IdTokenEncryptedResponseEnc, value },
             { Parameter.IdTokenEncryptedResponseAlg, value },
-            { Parameter.IdTokenSignedResponseAlg, value },
-
-            { Parameter.AuthorizationCodeExpiration, value },
-            { Parameter.AccessTokenExpiration, value },
-            { Parameter.RefreshTokenExpiration, value },
-            { Parameter.ClientSecretExpiration, value },
-            { Parameter.JwksExpiration, value },
-            { Parameter.RequestUriExpiration, value }
+            { Parameter.IdTokenSignedResponseAlg, value }
         };
         var requestJson = JsonSerializer.SerializeToUtf8Bytes(requestContent);
         var requestStream = new MemoryStream(requestJson);
@@ -145,10 +138,6 @@ public class RegisterRequestAccessorTest : BaseUnitTest
         Assert.Equal(expectedValue, request.BackchannelLogoutUri);
         Assert.Equal(expectedValue, request.SectorIdentifierUri);
 
-        Assert.Equal(expectedValue, request.RequireSignedRequestObject);
-        Assert.Equal(expectedValue, request.RequireReferenceToken);
-        Assert.Equal(expectedValue, request.RequirePushedAuthorizationRequests);
-
         Assert.Equal(expectedValue, request.RequestObjectEncryptionEnc);
         Assert.Equal(expectedValue, request.RequestObjectEncryptionAlg);
         Assert.Equal(expectedValue, request.RequestObjectSigningAlg);
@@ -160,13 +149,6 @@ public class RegisterRequestAccessorTest : BaseUnitTest
         Assert.Equal(expectedValue, request.IdTokenEncryptedResponseEnc);
         Assert.Equal(expectedValue, request.IdTokenEncryptedResponseAlg);
         Assert.Equal(expectedValue, request.IdTokenSignedResponseAlg);
-
-        Assert.Equal(expectedValue, request.AuthorizationCodeExpiration);
-        Assert.Equal(expectedValue, request.AccessTokenExpiration);
-        Assert.Equal(expectedValue, request.RefreshTokenExpiration);
-        Assert.Equal(expectedValue, request.ClientSecretExpiration);
-        Assert.Equal(expectedValue, request.JwksExpiration);
-        Assert.Equal(expectedValue, request.RequestUriExpiration);
     }
 
     [Theory]
@@ -176,7 +158,7 @@ public class RegisterRequestAccessorTest : BaseUnitTest
     [InlineData("DELETE", "", "")]
     [InlineData("GET", null, null)]
     [InlineData("DELETE", null, null)]
-    public async Task GetRequest_NormalStringParametersGetAndDelete_ExpectValues(string method, string? value, string? expectedValue)
+    public async Task GetRequest_StringParametersGetAndDelete_ExpectValues(string method, string? value, string? expectedValue)
     {
         var httpContext = new DefaultHttpContext
         {
@@ -219,6 +201,132 @@ public class RegisterRequestAccessorTest : BaseUnitTest
     }
 
     [Theory]
+    [InlineData("POST", true, true)]
+    [InlineData("PUT", true, true)]
+    [InlineData("POST", false, false)]
+    [InlineData("PUT", false, false)]
+    public async Task GetRequest_ValidBoolParametersPostAndPut_ExpectValues(string method, bool value, bool? expectedValue)
+    {
+        // Arrange
+        var requestContent = new Dictionary<string, object>
+        {
+            { Parameter.RequireSignedRequestObject, value },
+            { Parameter.RequireReferenceToken, value },
+            { Parameter.RequirePushedAuthorizationRequests, value }
+        };
+        var requestJson = JsonSerializer.SerializeToUtf8Bytes(requestContent);
+        var requestStream = new MemoryStream(requestJson);
+        var queryContent = new Dictionary<string, StringValues>();
+        var httpContext = new DefaultHttpContext
+        {
+            Request =
+            {
+                Method = method,
+                Body = requestStream,
+                ContentLength = requestStream.Length,
+                ContentType = MimeTypeConstants.Json,
+                Query = new QueryCollection(queryContent)
+            },
+        };
+
+        var serviceProvider = BuildServiceProvider(services =>
+        {
+            var authenticationServiceMock = new Mock<IAuthenticationService>();
+            var authResult = AuthenticateResult.Success(
+                new AuthenticationTicket(new ClaimsPrincipal(), OAuthTokenAuthenticationDefaults.AuthenticationScheme));
+
+            authResult.Properties!.StoreTokens(new[]
+            {
+                new AuthenticationToken { Name = Parameter.AccessToken, Value = "value" }
+            });
+
+            authenticationServiceMock
+                .Setup(x => x.AuthenticateAsync(httpContext, OAuthTokenAuthenticationDefaults.AuthenticationScheme))
+                .ReturnsAsync(authResult);
+
+            services.AddScopedMock(authenticationServiceMock);
+        });
+        var requestAccessor = serviceProvider.GetRequiredService<IRequestAccessor<RegisterRequest>>();
+        httpContext.RequestServices = serviceProvider;
+
+        // Act
+        var request = await requestAccessor.GetRequest(httpContext.Request);
+
+        // Assert
+        Assert.Equal(method, request.Method.Method);
+        Assert.Equal(expectedValue, request.RequireSignedRequestObject);
+        Assert.Equal(expectedValue, request.RequireReferenceToken);
+        Assert.Equal(expectedValue, request.RequirePushedAuthorizationRequests);
+    }
+
+    [Theory]
+    [InlineData("POST", 0, 0)]
+    [InlineData("PUT", 0, 0)]
+    [InlineData("POST", 10, 10)]
+    [InlineData("PUT", 10, 10)]
+    [InlineData("POST", -10, -10)]
+    [InlineData("PUT", -10, -10)]
+    public async Task GetRequest_IntParametersPostAndPut_ExpectValues(string method, int value, int? expectedValue)
+    {
+        // Arrange
+        var requestContent = new Dictionary<string, int?>
+        {
+            { Parameter.AuthorizationCodeExpiration, value },
+            { Parameter.AccessTokenExpiration, value },
+            { Parameter.RefreshTokenExpiration, value },
+            { Parameter.ClientSecretExpiration, value },
+            { Parameter.JwksExpiration, value },
+            { Parameter.RequestUriExpiration, value }
+        };
+        var requestJson = JsonSerializer.SerializeToUtf8Bytes(requestContent);
+        var requestStream = new MemoryStream(requestJson);
+        var queryContent = new Dictionary<string, StringValues>();
+        var httpContext = new DefaultHttpContext
+        {
+            Request =
+            {
+                Method = method,
+                Body = requestStream,
+                ContentLength = requestStream.Length,
+                ContentType = MimeTypeConstants.Json,
+                Query = new QueryCollection(queryContent)
+            },
+        };
+
+        var serviceProvider = BuildServiceProvider(services =>
+        {
+            var authenticationServiceMock = new Mock<IAuthenticationService>();
+            var authResult = AuthenticateResult.Success(
+                new AuthenticationTicket(new ClaimsPrincipal(), OAuthTokenAuthenticationDefaults.AuthenticationScheme));
+
+            authResult.Properties!.StoreTokens(new[]
+            {
+                new AuthenticationToken { Name = Parameter.AccessToken, Value = "value" }
+            });
+
+            authenticationServiceMock
+                .Setup(x => x.AuthenticateAsync(httpContext, OAuthTokenAuthenticationDefaults.AuthenticationScheme))
+                .ReturnsAsync(authResult);
+
+            services.AddScopedMock(authenticationServiceMock);
+        });
+        var requestAccessor = serviceProvider.GetRequiredService<IRequestAccessor<RegisterRequest>>();
+        httpContext.RequestServices = serviceProvider;
+
+        // Act
+        var request = await requestAccessor.GetRequest(httpContext.Request);
+
+        // Assert
+        Assert.Equal(method, request.Method.Method);
+        Assert.Equal(expectedValue, request.AuthorizationCodeExpiration);
+        Assert.Equal(expectedValue, request.AccessTokenExpiration);
+        Assert.Equal(expectedValue, request.RefreshTokenExpiration);
+        Assert.Equal(expectedValue, request.ClientSecretExpiration);
+        Assert.Equal(expectedValue, request.JwksExpiration);
+        Assert.Equal(expectedValue, request.RequestUriExpiration);
+    }
+
+    [Theory]
     [InlineData("POST")]
     [InlineData("PUT")]
     public async Task GetRequest_CollectionAndSpaceDelimitedParametersPostAndPut_ExpectValues(string method)
@@ -236,7 +344,7 @@ public class RegisterRequestAccessorTest : BaseUnitTest
             { Parameter.RequestUris, values },
             { Parameter.ResponseTypes, values },
             { Parameter.GrantTypes, values },
-            { Parameter.Contacts, values },
+            { Parameter.Contacts, values }
         };
         var requestJson = JsonSerializer.SerializeToUtf8Bytes(requestContent);
         var requestStream = new MemoryStream(requestJson);
@@ -284,7 +392,7 @@ public class RegisterRequestAccessorTest : BaseUnitTest
         var requestContent = new Dictionary<string, object?>
         {
             { Parameter.DefaultAcrValues, value },
-            { Parameter.Scope, value },
+            { Parameter.Scope, value }
         };
         var requestJson = JsonSerializer.SerializeToUtf8Bytes(requestContent);
         var requestStream = new MemoryStream(requestJson);
@@ -318,6 +426,10 @@ public class RegisterRequestAccessorTest : BaseUnitTest
     [Theory]
     [InlineData("POST", "", 0)]
     [InlineData("PUT", "", 0)]
+    [InlineData("POST", "[]", 0)]
+    [InlineData("PUT", "[]", 0)]
+    [InlineData("POST", "invalid_json_array", 0)]
+    [InlineData("PUT", "invalid_json_array", 0)]
     [InlineData("POST", null, 0)]
     [InlineData("PUT", null, 0)]
     public async Task GetRequest_CollectionParametersPostAndPut_ExpectZeroValues(string method, string? value, int expectedCount)
@@ -330,7 +442,7 @@ public class RegisterRequestAccessorTest : BaseUnitTest
             { Parameter.RequestUris, value },
             { Parameter.ResponseTypes, value },
             { Parameter.GrantTypes, value },
-            { Parameter.Contacts, value },
+            { Parameter.Contacts, value }
         };
         var requestJson = JsonSerializer.SerializeToUtf8Bytes(requestContent);
         var requestStream = new MemoryStream(requestJson);
