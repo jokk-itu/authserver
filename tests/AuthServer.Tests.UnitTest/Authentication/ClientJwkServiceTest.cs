@@ -10,7 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Moq;
 using Xunit.Abstractions;
 
-namespace AuthServer.Tests.UnitTest;
+namespace AuthServer.Tests.UnitTest.Authentication;
 
 public class ClientJwkServiceTest(ITestOutputHelper outputHelper) : BaseUnitTest(outputHelper)
 {
