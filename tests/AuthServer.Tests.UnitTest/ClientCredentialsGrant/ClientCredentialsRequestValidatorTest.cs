@@ -20,13 +20,32 @@ public class ClientCredentialsRequestValidatorTest : BaseUnitTest
     }
 
     [Fact]
-    public async Task Validate_EmptyScope_ExpectInvalidScope()
+    public async Task Validate_EmptyGrantType_ExpectUnsupportedGrantType()
     {
         // Arrange
         var serviceProvider = BuildServiceProvider();
         var validator = serviceProvider.GetRequiredService<IRequestValidator<TokenRequest, ClientCredentialsValidatedRequest>>();
 
         var request = new TokenRequest();
+        
+        // Act
+        var processResult = await validator.Validate(request, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(TokenError.UnsupportedGrantType, processResult);
+    }
+
+    [Fact]
+    public async Task Validate_EmptyScope_ExpectInvalidScope()
+    {
+        // Arrange
+        var serviceProvider = BuildServiceProvider();
+        var validator = serviceProvider.GetRequiredService<IRequestValidator<TokenRequest, ClientCredentialsValidatedRequest>>();
+
+        var request = new TokenRequest
+        {
+            GrantType = GrantTypeConstants.ClientCredentials
+        };
         
         // Act
         var processResult = await validator.Validate(request, CancellationToken.None);
@@ -44,6 +63,7 @@ public class ClientCredentialsRequestValidatorTest : BaseUnitTest
 
         var request = new TokenRequest
         {
+            GrantType = GrantTypeConstants.ClientCredentials,
             Scope = [ScopeConstants.OpenId]
         };
         
@@ -63,6 +83,7 @@ public class ClientCredentialsRequestValidatorTest : BaseUnitTest
 
         var request = new TokenRequest
         {
+            GrantType = GrantTypeConstants.ClientCredentials,
             Scope = [ScopeConstants.OpenId],
             Resource = ["resource"]
         };
@@ -83,6 +104,7 @@ public class ClientCredentialsRequestValidatorTest : BaseUnitTest
 
         var request = new TokenRequest
         {
+            GrantType = GrantTypeConstants.ClientCredentials,
             Scope = [ScopeConstants.OpenId],
             Resource = ["resource"],
             ClientAuthentications = [new ClientIdAuthentication("clientId")]
@@ -104,6 +126,7 @@ public class ClientCredentialsRequestValidatorTest : BaseUnitTest
 
         var request = new TokenRequest
         {
+            GrantType = GrantTypeConstants.ClientCredentials,
             Scope = [ScopeConstants.OpenId],
             Resource = ["resource"],
             ClientAuthentications = [
@@ -136,6 +159,7 @@ public class ClientCredentialsRequestValidatorTest : BaseUnitTest
 
         var request = new TokenRequest
         {
+            GrantType = GrantTypeConstants.ClientCredentials,
             Scope = [ScopeConstants.OpenId],
             Resource = ["resource"],
             ClientAuthentications = [
@@ -170,6 +194,7 @@ public class ClientCredentialsRequestValidatorTest : BaseUnitTest
 
         var request = new TokenRequest
         {
+            GrantType = GrantTypeConstants.ClientCredentials,
             Scope = [ScopeConstants.OpenId],
             Resource = ["resource"],
             ClientAuthentications = [
@@ -209,6 +234,7 @@ public class ClientCredentialsRequestValidatorTest : BaseUnitTest
 
         var request = new TokenRequest
         {
+            GrantType = GrantTypeConstants.ClientCredentials,
             Scope = [ScopeConstants.OpenId],
             Resource = ["resource"],
             ClientAuthentications = [
@@ -257,6 +283,7 @@ public class ClientCredentialsRequestValidatorTest : BaseUnitTest
         var resource = new[] { weatherClient.ClientUri };
         var request = new TokenRequest
         {
+            GrantType = GrantTypeConstants.ClientCredentials,
             Scope = scope,
             Resource = resource,
             ClientAuthentications = [

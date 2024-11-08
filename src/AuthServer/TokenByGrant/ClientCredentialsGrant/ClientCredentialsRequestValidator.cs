@@ -26,6 +26,11 @@ internal class ClientCredentialsRequestValidator : IRequestValidator<TokenReques
 
     public async Task<ProcessResult<ClientCredentialsValidatedRequest, ProcessError>> Validate(TokenRequest request, CancellationToken cancellationToken)
     {
+        if (request.GrantType != GrantTypeConstants.ClientCredentials)
+        {
+            return TokenError.UnsupportedGrantType;
+        }
+
         if (request.Scope.Count == 0)
         {
             return TokenError.InvalidScope;
