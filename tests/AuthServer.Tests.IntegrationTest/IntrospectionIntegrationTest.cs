@@ -1,4 +1,5 @@
 ﻿using AuthServer.Constants;
+using AuthServer.Enums;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit.Abstractions;
 
@@ -11,6 +12,7 @@ public class IntrospectionIntegrationTest : BaseIntegrationTest
     {
     }
 
+    [Fact]
     public async Task Introspection_ActiveToken_ExpectActive()
     {
         // Arrange
@@ -21,6 +23,7 @@ public class IntrospectionIntegrationTest : BaseIntegrationTest
             .WithClientName("worker-app")
             .WithGrantTypes([GrantTypeConstants.ClientCredentials])
             .WithScope([weatherReadScope])
+            .WithRequireReferenceToken()
             .Post();
 
         var tokenResponse = await TokenEndpointBuilder
@@ -37,6 +40,7 @@ public class IntrospectionIntegrationTest : BaseIntegrationTest
             .WithClientSecret(registerResponse.ClientSecret!)
             .WithToken(tokenResponse.AccessToken)
             .WithTokenTypeHint(TokenTypeConstants.AccessToken)
+            .WithTokenEndpointAuthMethod(TokenEndpointAuthMethod.ClientSecretBasic)
             .Post();
 
         // Arrange

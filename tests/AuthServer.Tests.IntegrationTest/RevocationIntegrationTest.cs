@@ -1,6 +1,7 @@
 ﻿using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Entities;
+using AuthServer.Enums;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +16,7 @@ public class RevocationIntegrationTest : BaseIntegrationTest
     {
     }
 
+    [Fact]
     public async Task Revocation_ActiveToken_ExpectRevoked()
     {
         // Arrange
@@ -42,6 +44,7 @@ public class RevocationIntegrationTest : BaseIntegrationTest
             .WithClientSecret(registerResponse.ClientSecret!)
             .WithToken(tokenResponse.AccessToken)
             .WithTokenTypeHint(TokenTypeConstants.AccessToken)
+            .WithTokenEndpointAuthMethod(TokenEndpointAuthMethod.ClientSecretBasic)
             .Post();
 
         // Arrange
