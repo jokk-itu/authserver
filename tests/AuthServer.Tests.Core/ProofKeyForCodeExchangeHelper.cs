@@ -1,8 +1,8 @@
-﻿using System.Security.Cryptography;
+﻿using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
 using System.Text;
-using Microsoft.IdentityModel.Tokens;
 
-namespace AuthServer.Tests.IntegrationTest;
+namespace AuthServer.Tests.Core;
 
 public static class ProofKeyForCodeExchangeHelper
 {

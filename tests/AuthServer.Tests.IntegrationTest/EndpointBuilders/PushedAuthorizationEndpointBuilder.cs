@@ -11,6 +11,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Web;
+using ProofKeyForCodeExchangeHelper = AuthServer.Tests.Core.ProofKeyForCodeExchangeHelper;
 
 namespace AuthServer.Tests.IntegrationTest.EndpointBuilders;
 
