@@ -1,6 +1,7 @@
 ﻿using AuthServer.Authentication;
 using AuthServer.Cache.Abstractions;
 using AuthServer.Codes.Abstractions;
+using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Request;
 using AuthServer.Entities;
@@ -39,6 +40,11 @@ internal class AuthorizationCodeRequestValidator : IRequestValidator<TokenReques
     
     public async Task<ProcessResult<AuthorizationCodeValidatedRequest, ProcessError>> Validate(TokenRequest request, CancellationToken cancellationToken)
     {
+        if (request.GrantType != GrantTypeConstants.AuthorizationCode)
+        {
+            return TokenError.UnsupportedGrantType;
+        }
+
         if (request.Resource.Count == 0)
         {
             return TokenError.InvalidTarget;

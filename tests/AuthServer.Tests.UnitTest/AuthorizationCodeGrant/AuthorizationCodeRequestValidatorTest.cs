@@ -25,6 +25,23 @@ public class AuthorizationCodeRequestValidatorTest : BaseUnitTest
     }
 
     [Fact]
+    public async Task Validate_EmptyGrantType_ExpectUnsupportedGrantType()
+    {
+        // Arrange
+        var serviceProvider = BuildServiceProvider();
+        var validator = serviceProvider
+            .GetRequiredService<IRequestValidator<TokenRequest, AuthorizationCodeValidatedRequest>>();
+
+        var request = new TokenRequest();
+
+        // Act
+        var processResult = await validator.Validate(request, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(TokenError.UnsupportedGrantType, processResult);
+    }
+
+    [Fact]
     public async Task Validate_EmptyResource_ExpectInvalidTarget()
     {
         // Arrange
