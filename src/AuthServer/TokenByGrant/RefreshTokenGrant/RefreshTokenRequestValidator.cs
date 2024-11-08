@@ -41,6 +41,11 @@ internal class RefreshTokenRequestValidator : IRequestValidator<TokenRequest, Re
 
     public async Task<ProcessResult<RefreshTokenValidatedRequest, ProcessError>> Validate(TokenRequest request, CancellationToken cancellationToken)
     {
+        if (request.GrantType != GrantTypeConstants.RefreshToken)
+        {
+            return TokenError.UnsupportedGrantType;
+        }
+
         if (string.IsNullOrWhiteSpace(request.RefreshToken))
         {
             return TokenError.InvalidRefreshToken;
@@ -87,7 +92,7 @@ internal class RefreshTokenRequestValidator : IRequestValidator<TokenRequest, Re
 
         if (subjectIdentifier is null)
         {
-            return TokenError.LoginRequired;
+            return TokenError.InvalidGrant;
         }
 
         var cachedClient = await _cachedClientStore.Get(clientId, cancellationToken);
