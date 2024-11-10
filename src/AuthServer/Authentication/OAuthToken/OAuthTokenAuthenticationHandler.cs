@@ -132,6 +132,7 @@ internal class OAuthTokenAuthenticationHandler : AuthenticationHandler<OAuthToke
 
         if (query is null)
         {
+            Logger.LogDebug("Token {Token} does not exist", token);
             return (null, AuthenticateResult.NoResult());
         }
 
@@ -196,6 +197,7 @@ internal class OAuthTokenAuthenticationHandler : AuthenticationHandler<OAuthToke
             return (validationResult.ClaimsIdentity, null);
         }
 
+        Logger.LogWarning(validationResult.Exception, "Token validation failed");
         return (null, AuthenticateResult.Fail("Token is not valid"));
     }
 }
