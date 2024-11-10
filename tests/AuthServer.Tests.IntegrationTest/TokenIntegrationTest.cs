@@ -137,7 +137,7 @@ public class TokenIntegrationTest : BaseIntegrationTest
         Assert.NotNull(refreshResponse);
         Assert.Equal(scope, refreshResponse.Scope);
         Assert.Equal("Bearer", refreshResponse.TokenType);
-        Assert.NotNull(refreshResponse.RefreshToken);
+        Assert.Null(refreshResponse.RefreshToken);
         Assert.NotEqual(tokenResponse.RefreshToken, refreshResponse.RefreshToken);
         Assert.NotNull(refreshResponse.IdToken);
         Assert.NotNull(refreshResponse.AccessToken);
