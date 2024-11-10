@@ -1,4 +1,4 @@
-﻿using AuthServer.Core.Models;
+﻿using AuthServer.Authentication.Models;
 
 namespace AuthServer.RequestAccessors.Token;
 

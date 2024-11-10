@@ -1,11 +1,11 @@
-﻿using AuthServer.Authentication;
-using AuthServer.Core.Models;
+﻿using AuthServer.Authentication.Abstractions;
+using AuthServer.Authentication.Models;
 using AuthServer.Entities;
 using AuthServer.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
 
-namespace AuthServer.Tests.UnitTest.ClientAuthenticationService;
+namespace AuthServer.Tests.UnitTest.Authentication;
 public class ClientIdAuthenticationTest(ITestOutputHelper outputHelper) : BaseUnitTest(outputHelper)
 {
     [Fact]

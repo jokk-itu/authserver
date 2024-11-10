@@ -3,7 +3,6 @@ using System.Text.Json;
 using AuthServer.Authentication.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
-using AuthServer.Core.Discovery;
 using AuthServer.Entities;
 using AuthServer.Extensions;
 using AuthServer.Metrics;

@@ -1,11 +1,12 @@
-﻿using AuthServer.Cache.Abstractions;
-using AuthServer.Core.Abstractions;
-using AuthServer.Core.Exceptions;
+﻿using AuthServer.Authentication.Abstractions;
+using AuthServer.Authentication.Exceptions;
+using AuthServer.Cache.Abstractions;
+using AuthServer.Core;
 using AuthServer.Entities;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
-namespace AuthServer.Core;
+namespace AuthServer.Authentication;
 internal class ClientJwkService : IClientJwkService
 {
     private readonly ICachedClientStore _cachedClientStore;

@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics;
 using AuthServer.Constants;
 using AuthServer.Core;
-using AuthServer.Core.Discovery;
 using AuthServer.Entities;
 using AuthServer.Metrics;
 using AuthServer.Metrics.Abstractions;
+using AuthServer.Options;
 using AuthServer.TokenBuilders.Abstractions;
 using Microsoft.Extensions.Options;
 

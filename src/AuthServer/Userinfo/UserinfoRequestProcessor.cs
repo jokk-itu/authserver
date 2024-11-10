@@ -7,6 +7,7 @@ using System.Text.Json;
 using AuthServer.Core.Request;
 using AuthServer.Repositories.Abstractions;
 using AuthServer.Authentication.Abstractions;
+using AuthServer.Core.Abstractions;
 
 namespace AuthServer.Userinfo;
 internal class UserinfoRequestProcessor : IRequestProcessor<UserinfoValidatedRequest, string>

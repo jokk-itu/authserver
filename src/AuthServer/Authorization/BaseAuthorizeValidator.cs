@@ -1,8 +1,8 @@
 ﻿using AuthServer.Cache.Entities;
 using AuthServer.Constants;
-using AuthServer.Core.Discovery;
 using AuthServer.Extensions;
 using AuthServer.Helpers;
+using AuthServer.Options;
 using AuthServer.Repositories.Abstractions;
 using AuthServer.TokenDecoders;
 using AuthServer.TokenDecoders.Abstractions;

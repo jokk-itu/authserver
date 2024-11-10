@@ -1,9 +1,11 @@
 ﻿using AuthServer.Authentication;
+using AuthServer.Authentication.Abstractions;
 using AuthServer.Authorization;
 using AuthServer.Authorization.Abstractions;
 using AuthServer.Cache.Abstractions;
-using AuthServer.Core.Discovery;
+using AuthServer.Core.Abstractions;
 using AuthServer.Core.Request;
+using AuthServer.Options;
 using AuthServer.Repositories.Abstractions;
 using AuthServer.RequestAccessors.PushedAuthorization;
 using AuthServer.TokenDecoders;

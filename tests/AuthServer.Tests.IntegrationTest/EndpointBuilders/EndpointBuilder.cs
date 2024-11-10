@@ -1,5 +1,4 @@
-﻿using AuthServer.Core.Discovery;
-using AuthServer.Options;
+﻿using AuthServer.Options;
 using AuthServer.Tests.Core;
 using Xunit.Abstractions;
 

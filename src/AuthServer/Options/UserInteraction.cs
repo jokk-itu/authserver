@@ -1,4 +1,4 @@
-﻿namespace AuthServer.Core;
+﻿namespace AuthServer.Options;
 
 public class UserInteraction
 {

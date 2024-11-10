@@ -1,5 +1,4 @@
 ﻿using AuthServer.Constants;
-using AuthServer.Core.Discovery;
 using AuthServer.Endpoints.Responses;
 using AuthServer.Enums;
 using AuthServer.Options;

@@ -1,4 +1,6 @@
-﻿namespace AuthServer.Core.Request;
+﻿using AuthServer.Core.Request;
+
+namespace AuthServer.Core.Abstractions;
 internal interface IRequestValidator<in TRequest, TValidatedRequest>
     where TRequest : class
     where TValidatedRequest : class

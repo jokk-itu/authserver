@@ -3,6 +3,7 @@ using AuthServer.Core;
 using AuthServer.Core.Abstractions;
 using AuthServer.Core.Request;
 using AuthServer.Extensions;
+using AuthServer.Options;
 using AuthServer.RequestAccessors.Authorize;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;

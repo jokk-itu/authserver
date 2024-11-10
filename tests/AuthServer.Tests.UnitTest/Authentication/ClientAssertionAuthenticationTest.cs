@@ -1,6 +1,6 @@
-﻿using AuthServer.Authentication;
+﻿using AuthServer.Authentication.Abstractions;
+using AuthServer.Authentication.Models;
 using AuthServer.Constants;
-using AuthServer.Core.Models;
 using AuthServer.Entities;
 using AuthServer.Enums;
 using AuthServer.Tests.Core;
@@ -11,7 +11,7 @@ using Microsoft.IdentityModel.JsonWebTokens;
 using Moq;
 using Xunit.Abstractions;
 
-namespace AuthServer.Tests.UnitTest.ClientAuthenticationService;
+namespace AuthServer.Tests.UnitTest.Authentication;
 
 public class ClientAssertionAuthenticationTest(ITestOutputHelper outputHelper) : BaseUnitTest(outputHelper)
 {

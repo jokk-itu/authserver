@@ -1,4 +1,4 @@
-﻿namespace AuthServer.Core.Exceptions;
+﻿namespace AuthServer.Authentication.Exceptions;
 
 public class ClientJwkRefreshException : Exception
 {

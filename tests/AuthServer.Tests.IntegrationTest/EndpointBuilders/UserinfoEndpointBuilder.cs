@@ -1,5 +1,4 @@
 ﻿using System.Net.Http.Headers;
-using AuthServer.Core.Discovery;
 using AuthServer.Options;
 using Xunit.Abstractions;
 

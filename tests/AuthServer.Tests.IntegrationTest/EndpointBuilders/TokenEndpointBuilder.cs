@@ -4,7 +4,6 @@ using System.Text;
 using System.Web;
 using AuthServer.Constants;
 using AuthServer.Core;
-using AuthServer.Core.Discovery;
 using AuthServer.Endpoints.Responses;
 using AuthServer.Enums;
 using AuthServer.Options;

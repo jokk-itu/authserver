@@ -1,12 +1,12 @@
 ﻿using System.Diagnostics;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;
-using AuthServer.Core.Discovery;
 using AuthServer.Core.Request;
 using AuthServer.Entities;
 using AuthServer.Enums;
 using AuthServer.Helpers;
 using AuthServer.Metrics.Abstractions;
+using AuthServer.Options;
 using AuthServer.TokenBuilders;
 using AuthServer.TokenBuilders.Abstractions;
 using Microsoft.EntityFrameworkCore;

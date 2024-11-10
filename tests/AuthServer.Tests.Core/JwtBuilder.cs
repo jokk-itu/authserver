@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using AuthServer.Constants;
-using AuthServer.Core.Discovery;
 using AuthServer.Extensions;
 using AuthServer.Options;
 using AuthServer.TokenDecoders;

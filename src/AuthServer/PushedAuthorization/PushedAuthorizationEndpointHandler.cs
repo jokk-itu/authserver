@@ -1,14 +1,15 @@
 ﻿using AuthServer.Core;
 using AuthServer.Core.Abstractions;
-using AuthServer.Core.Discovery;
 using AuthServer.Core.Request;
 using AuthServer.Endpoints.Responses;
 using AuthServer.Extensions;
+using AuthServer.Options;
 using AuthServer.RequestAccessors.PushedAuthorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
 namespace AuthServer.PushedAuthorization;
+
 internal class PushedAuthorizationEndpointHandler : IEndpointHandler
 {
     private readonly IRequestAccessor<PushedAuthorizationRequest> _requestAccessor;
@@ -32,7 +33,8 @@ internal class PushedAuthorizationEndpointHandler : IEndpointHandler
         return response.Match(
             result =>
             {
-                var uri = $"{_discoveryDocumentOptions.Value.AuthorizationEndpoint}?{Parameter.RequestUri}={result.RequestUri}&{Parameter.ClientId}={result.ClientId}";
+                var uri =
+                    $"{_discoveryDocumentOptions.Value.AuthorizationEndpoint}?{Parameter.RequestUri}={result.RequestUri}&{Parameter.ClientId}={result.ClientId}";
 
                 var location = new Uri(uri, UriKind.Absolute);
                 return Results.Created(location,

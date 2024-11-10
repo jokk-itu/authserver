@@ -1,4 +1,4 @@
-﻿using AuthServer.Core.Abstractions;
+﻿using AuthServer.Authentication.Abstractions;
 using AuthServer.Enums;
 using AuthServer.Extensions;
 using AuthServer.Options;
@@ -6,7 +6,7 @@ using AuthServer.TokenBuilders.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace AuthServer.Core;
+namespace AuthServer.TokenBuilders;
 
 internal class TokenSecurityService : ITokenSecurityService
 {

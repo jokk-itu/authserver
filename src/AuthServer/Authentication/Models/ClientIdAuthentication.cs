@@ -1,5 +1,5 @@
 ﻿using AuthServer.Enums;
 
-namespace AuthServer.Core.Models;
+namespace AuthServer.Authentication.Models;
 
 internal record ClientIdAuthentication(string ClientId) : ClientAuthentication(TokenEndpointAuthMethod.None);

@@ -1,7 +1,7 @@
 ﻿using System.Text;
+using AuthServer.Authentication.Models;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;
-using AuthServer.Core.Models;
 using AuthServer.Enums;
 using AuthServer.Extensions;
 using AuthServer.RequestAccessors.Introspection;

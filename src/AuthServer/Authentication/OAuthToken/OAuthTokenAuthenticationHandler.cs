@@ -4,7 +4,6 @@ using System.Text.Encodings.Web;
 using AuthServer.Authentication.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
-using AuthServer.Core.Discovery;
 using AuthServer.Entities;
 using AuthServer.Extensions;
 using AuthServer.Helpers;

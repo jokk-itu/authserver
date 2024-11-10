@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Headers;
 using System.Text;
-using AuthServer.Core.Models;
+using AuthServer.Authentication.Models;
 using AuthServer.Enums;
 using Microsoft.AspNetCore.Http;
 

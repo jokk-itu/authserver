@@ -1,4 +1,4 @@
-﻿namespace AuthServer.Core.Request;
+﻿namespace AuthServer.Core.Abstractions;
 internal interface IRequestProcessor<in TValidatedRequest, TResponse>
     where TValidatedRequest : class
 	where TResponse : class

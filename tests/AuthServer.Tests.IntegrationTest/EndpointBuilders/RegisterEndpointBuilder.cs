@@ -1,6 +1,5 @@
 ﻿using AuthServer.Constants;
 using AuthServer.Core;
-using AuthServer.Core.Discovery;
 using AuthServer.Endpoints.Responses;
 using AuthServer.Options;
 using System.Net.Http.Json;

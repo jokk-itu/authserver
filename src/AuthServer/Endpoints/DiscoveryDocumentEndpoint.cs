@@ -1,4 +1,4 @@
-﻿using AuthServer.Core.Discovery;
+﻿using AuthServer.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;

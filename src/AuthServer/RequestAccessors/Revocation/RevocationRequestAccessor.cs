@@ -1,5 +1,5 @@
-﻿using AuthServer.Core;
-using AuthServer.Core.Models;
+﻿using AuthServer.Authentication.Models;
+using AuthServer.Core;
 using Microsoft.AspNetCore.Http;
 using AuthServer.Extensions;
 using AuthServer.TokenDecoders;

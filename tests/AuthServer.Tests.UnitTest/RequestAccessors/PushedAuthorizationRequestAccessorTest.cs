@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 using System.Text;
-using AuthServer.Core.Models;
+using AuthServer.Authentication.Models;
 using AuthServer.Enums;
 using AuthServer.TokenDecoders;
 using Xunit.Abstractions;

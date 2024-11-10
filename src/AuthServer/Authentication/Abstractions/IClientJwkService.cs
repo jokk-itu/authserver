@@ -1,7 +1,7 @@
-﻿using AuthServer.Core.Exceptions;
+﻿using AuthServer.Authentication.Exceptions;
 using Microsoft.IdentityModel.Tokens;
 
-namespace AuthServer.Core.Abstractions;
+namespace AuthServer.Authentication.Abstractions;
 public interface IClientJwkService
 {
     /// <summary>

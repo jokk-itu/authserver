@@ -1,5 +1,6 @@
 ﻿using AuthServer.Authentication;
 using AuthServer.Authentication.Abstractions;
+using AuthServer.Authentication.Models;
 using AuthServer.Authorize;
 using AuthServer.Authorize.Abstractions;
 using AuthServer.Constants;

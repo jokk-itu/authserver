@@ -1,4 +1,6 @@
-﻿namespace AuthServer.Core.Request;
+﻿using AuthServer.Core.Request;
+
+namespace AuthServer.Core.Abstractions;
 
 internal interface IRequestHandler<in TRequest, TResponse>
 	where TRequest : class

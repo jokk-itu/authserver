@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
-using AuthServer.Authentication;
+using AuthServer.Authentication.Abstractions;
+using AuthServer.Authentication.Models;
 using AuthServer.Cache.Abstractions;
 using AuthServer.Constants;
-using AuthServer.Core.Models;
 using AuthServer.Enums;
 using AuthServer.Extensions;
 using AuthServer.Helpers;
@@ -11,7 +11,7 @@ using AuthServer.TokenDecoders;
 using AuthServer.TokenDecoders.Abstractions;
 using Microsoft.Extensions.Logging;
 
-namespace AuthServer.Core;
+namespace AuthServer.Authentication;
 internal class ClientAuthenticationService : IClientAuthenticationService
 {
     private readonly ILogger<ClientAuthentication> _logger;

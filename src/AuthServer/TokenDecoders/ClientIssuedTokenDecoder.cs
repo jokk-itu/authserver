@@ -1,5 +1,5 @@
-﻿using AuthServer.Core.Abstractions;
-using AuthServer.Core.Discovery;
+﻿using AuthServer.Authentication.Abstractions;
+using AuthServer.Core.Abstractions;
 using AuthServer.Helpers;
 using AuthServer.Options;
 using AuthServer.TokenDecoders.Abstractions;

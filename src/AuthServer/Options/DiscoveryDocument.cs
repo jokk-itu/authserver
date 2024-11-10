@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using AuthServer.Constants;
 
-namespace AuthServer.Core.Discovery;
+namespace AuthServer.Options;
 
 public class DiscoveryDocument
 {

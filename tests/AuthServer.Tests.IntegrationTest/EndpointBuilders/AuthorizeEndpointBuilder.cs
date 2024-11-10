@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using AuthServer.Authorize;
 using AuthServer.Core;
-using AuthServer.Core.Discovery;
 using AuthServer.Options;
 using AuthServer.Tests.Core;
 using Microsoft.AspNetCore.DataProtection;

@@ -1,5 +1,4 @@
 ﻿using AuthServer.Constants;
-using AuthServer.Core.Discovery;
 using Microsoft.Extensions.Options;
 
 namespace AuthServer.Options;

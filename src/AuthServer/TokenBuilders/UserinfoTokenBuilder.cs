@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using AuthServer.Constants;
-using AuthServer.Core.Discovery;
 using AuthServer.Extensions;
 using AuthServer.Metrics;
 using AuthServer.Metrics.Abstractions;

@@ -1,6 +1,6 @@
-﻿using AuthServer.Core.Models;
+﻿using AuthServer.Authentication.Models;
 
-namespace AuthServer.Authentication;
+namespace AuthServer.Authentication.Abstractions;
 internal interface IClientAuthenticationService
 {
     /// <summary>

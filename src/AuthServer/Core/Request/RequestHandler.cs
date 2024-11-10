@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using AuthServer.Core.Abstractions;
 using AuthServer.Metrics.Abstractions;
 
 namespace AuthServer.Core.Request;

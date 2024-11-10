@@ -2,12 +2,12 @@
 using AuthServer.Constants;
 using AuthServer.Core;
 using AuthServer.Core.Abstractions;
-using AuthServer.Core.Discovery;
 using AuthServer.Core.Request;
 using AuthServer.Entities;
 using AuthServer.Enums;
 using AuthServer.Extensions;
 using AuthServer.Helpers;
+using AuthServer.Options;
 using AuthServer.Repositories.Abstractions;
 using AuthServer.RequestAccessors.Register;
 using Microsoft.EntityFrameworkCore;
