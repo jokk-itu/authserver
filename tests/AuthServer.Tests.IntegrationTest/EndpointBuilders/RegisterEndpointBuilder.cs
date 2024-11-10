@@ -25,6 +25,12 @@ public class RegisterEndpointBuilder : EndpointBuilder
     {
     }
 
+    public RegisterEndpointBuilder WithUserinfoSignedResponseAlg(SigningAlg signingAlg)
+    {
+        _parameters.Add(Parameter.UserinfoSignedResponseAlg, signingAlg.GetDescription());
+        return this;
+    }
+
     public RegisterEndpointBuilder WithSectorIdentifierUri(string sectorIdentifierUri)
     {
         _parameters.Add(Parameter.SectorIdentifierUri, sectorIdentifierUri);
