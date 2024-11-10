@@ -5,13 +5,13 @@
 		<link rel="icon" href="./favicon.png" />
 		<meta name="viewport" content="width=device-width" />
 		
-		<link href="./_app/immutable/assets/0.9554b9c9.css" rel="stylesheet">
-		<link rel="modulepreload" href="./_app/immutable/entry/start.cc0335f4.js">
+		<link href="./_app/immutable/assets/0.0c56415f.css" rel="stylesheet">
+		<link rel="modulepreload" href="./_app/immutable/entry/start.51c22c84.js">
 		<link rel="modulepreload" href="./_app/immutable/chunks/index.fa00c380.js">
-		<link rel="modulepreload" href="./_app/immutable/chunks/singletons.3c292218.js">
-		<link rel="modulepreload" href="./_app/immutable/chunks/paths.16d4709a.js">
-		<link rel="modulepreload" href="./_app/immutable/entry/app.5bc6ec18.js">
-		<link rel="modulepreload" href="./_app/immutable/nodes/0.f423b8d0.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/singletons.fa8893a1.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/paths.79341da9.js">
+		<link rel="modulepreload" href="./_app/immutable/entry/app.a2d59a07.js">
+		<link rel="modulepreload" href="./_app/immutable/nodes/0.ab97ce53.js">
 		<link rel="modulepreload" href="./_app/immutable/nodes/2.d2d13000.js">
 	</head>
 	<body data-sveltekit-preload-data="hover">
@@ -21,11 +21,12 @@
 
 <nav class="bg-gray-100"><div class="max-w-6xl mx-auto px-4"><div class="flex justify-between">
       <div class="flex space-x-4"><a href="/authserver/" class="flex items-center py-5 px-2 text-gray-700 hover:text-gray-900"><svg class="h-6 w-6 mr-1 fill-openid" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.54 .887L10.91 2.66V20.83C6.76 20.31 3.64 18.05 3.64 15.33C3.64 12.75 6.44 10.58 10.27 9.92V7.61C4.42 8.32 0 11.5 0 15.33C0 19.29 4.74 22.57 10.91 23.11L14.54 21.4V.886M15.18 7.61V9.92C16.61 10.17 17.89 10.62 18.94 11.23L16.97 12.34L24 13.87L23.5 8.66L21.63 9.72C19.89 8.66 17.67 7.91 15.18 7.61Z"></path></svg>
-          <span class="font-bold">AuthServer</span></a></div>
+          <span class="font-bold hidden md:block">AuthServer</span></a></div>
 
       
-      <div class="flex items-center space-x-1"><a href="/authserver/introduction" class="py-5 px-3 text-gray-700 hover:text-gray-900">Introduction</a>
-        <a href="/authserver/demo" class="py-5 px-3 text-gray-700 hover:text-gray-900">Demo</a></div>
+      <div class="flex items-center space-x-1"><a href="/authserver/intro" class="py-5 px-3 text-gray-700 hover:text-gray-900">Intro</a>
+        <a href="/authserver/demo" class="py-5 px-3 text-gray-700 hover:text-gray-900">Demo</a>
+        <a href="/authserver/developer" class="py-5 px-3 text-gray-700 hover:text-gray-900">Developer</a></div>
 
       
       <div class="flex items-center space-x-1"><a href="https://github.com/jokk-itu/authserver" target="_blank" class="py-5 px-3"><img src="/authserver/github.svg" alt="Github" height="20px" width="20px"></a></div></div></div></nav>
@@ -50,7 +51,7 @@
 			
 			<script>
 				{
-					__sveltekit_1joq2mz = {
+					__sveltekit_qeja3f = {
 						assets: "/authserver",
 						base: new URL(".", location).pathname.slice(0, -1),
 						env: {}
@@ -61,8 +62,8 @@
 					const data = [null,null];
 
 					Promise.all([
-						import("./_app/immutable/entry/start.cc0335f4.js"),
-						import("./_app/immutable/entry/app.5bc6ec18.js")
+						import("./_app/immutable/entry/start.51c22c84.js"),
+						import("./_app/immutable/entry/app.a2d59a07.js")
 					]).then(([kit, app]) => {
 						kit.start(app, element, {
 							node_ids: [0, 2],

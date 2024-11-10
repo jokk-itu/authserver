@@ -12,7 +12,7 @@
 		<link rel="modulepreload" href="./_app/immutable/chunks/paths.79341da9.js">
 		<link rel="modulepreload" href="./_app/immutable/entry/app.a2d59a07.js">
 		<link rel="modulepreload" href="./_app/immutable/nodes/0.ab97ce53.js">
-		<link rel="modulepreload" href="./_app/immutable/nodes/3.798096a0.js">
+		<link rel="modulepreload" href="./_app/immutable/nodes/4.33e4d392.js">
 	</head>
 	<body data-sveltekit-preload-data="hover">
 		<div style="display: contents">
@@ -30,50 +30,45 @@
 
       
       <div class="flex items-center space-x-1"><a href="https://github.com/jokk-itu/authserver" target="_blank" class="py-5 px-3"><img src="/authserver/github.svg" alt="Github" height="20px" width="20px"></a></div></div></div></nav>
-<main class="container mx-auto mt-8"><h1 class="text-4xl mb-2">Demo</h1>
-<p class="mb-4">Illustrating the capabilities of AuthServer is best done through examples.
-    <br><br>
-    AuthServer has therefore been implemented and deployed for everyone to use.
-    Different clients and protected resources are also deployed,
-    which interact with AuthServer, and illustrate the features possible with AuthServer.
+<main class="container mx-auto mt-8"><h1 class="text-4xl mb-2">Developer Documentation</h1>
+<p class="mb-4">Describes how to implement your own custom IdentityProvider using AuthServer.
+    <br>
+    How AuthServer functions and its architectural principles.
+    <br>
+    The features supported by AuthServer, with integration design.
 </p>
 
+<h2 class="text-xl mb-4">Custom IdentityProvider</h2>
+<p>TODO</p>
+<br>
 
-<h2 class="text-xl mb-4">Applications</h2>
+<h2 class="text-xl mb-4">Architecture</h2>
+<br>
+<h3 class="text-lg mb-4">Request architecture</h3>
+<p>Component diagram</p>
+<br>
 
-<div class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-    <div class="max-w-sm rounded overflow-hidden shadow-lg px-6 py-4"><div class="font-bold text-xl mb-2">IdentityProvider</div>
-        <p class="text-gray-800 text-base">WebApp using the AuthServer framework, to behave as an IdentityProvider.
-            <br>
-            It uses AspNetCore.Identity for user management.
-        </p></div>
+<h3 class="text-lg mb-4">Client caching</h3>
+<p>Client data is fetched and utilized at almost every endpoint, and clients are rarely updated.
+    Therefore, clients are stored in a configurable distributed cache, to allow for fast retrieval.
+    If a client is updated, then upon commit, the cache for that client is flushed.
+</p>
+<br>
 
-    
-    <div class="max-w-sm rounded overflow-hidden shadow-lg px-6 py-4"><div class="font-bold text-xl mb-2">WebClient</div>
-        <p class="text-gray-800 text-base">WebApp using FAPI features to enable high security.
-        </p></div>
+<h3 class="text-lg mb-4">Telemetry</h3>
+<p>The Open Telemetry standard is used to expose data on the system.</p>
+<br>
 
-    
-    <div class="max-w-sm rounded overflow-hidden shadow-lg px-6 py-4"><div class="font-bold text-xl mb-2">BFF Client</div>
-        <p class="text-gray-800 text-base">Blazor WebAssembly app, using the BackEnd for FrontEnd pattern,
-            to enable high security for a browser based app. 
-        </p></div>
+<h3 class="text-lg mb-4">Datamodel</h3>
+<p>ER diagram</p>
+<br>
 
-    
-    <div class="max-w-sm rounded overflow-hidden shadow-lg px-6 py-4"><div class="font-bold text-xl mb-2">Worker Client</div>
-        <p class="text-gray-800 text-base">Worker app without user interface, and only uses the client_credentials grant.
-        </p></div>
-
-    
-    <div class="max-w-sm rounded overflow-hidden shadow-lg px-6 py-4"><div class="font-bold text-xl mb-2">Browser Client</div>
-        <p class="text-gray-800 text-base">Browser app behaving as a SPA without a backend responsible for authentication.
-        </p>
-        <p class="text-openid font-bold">Work in progress</p></div>
-
-    
-    <div class="max-w-sm rounded overflow-hidden shadow-lg px-6 py-4"><div class="font-bold text-xl mb-2">Weather Client</div>
-        <p class="text-gray-800 text-base">API behaving as a protected resource.
-        </p></div></div></main>
+<h2 class="text-xl mb-4">Authorization Code grant</h2>
+<p>Introduction</p>
+<p>Authorize request</p>
+<p>Authorize response</p>
+<p>Token request</p>
+<p>Token response</p></main>
 <footer><svg viewBox="0 0 1440 320" class="fill-openid" xmlns="http://www.w3.org/2000/svg"><path fill-opacity="1" d="M0,128L34.3,112C68.6,96,137,64,206,74.7C274.3,85,343,139,411,149.3C480,160,549,128,617,106.7C685.7,85,754,75,823,96C891.4,117,960,171,1029,181.3C1097.1,192,1166,160,1234,165.3C1302.9,171,1371,213,1406,234.7L1440,256L1440,320L1405.7,320C1371.4,320,1303,320,1234,320C1165.7,320,1097,320,1029,320C960,320,891,320,823,320C754.3,320,686,320,617,320C548.6,320,480,320,411,320C342.9,320,274,320,206,320C137.1,320,69,320,34,320L0,320Z"></path></svg>
     <div class="bg-gray-800 text-white py-4"><div class="container mx-auto text-center"><p>2024 Authserver. All rights reserved.</p></div></div></footer>
 
@@ -96,7 +91,7 @@
 						import("./_app/immutable/entry/app.a2d59a07.js")
 					]).then(([kit, app]) => {
 						kit.start(app, element, {
-							node_ids: [0, 3],
+							node_ids: [0, 4],
 							data,
 							form: null,
 							error: null
