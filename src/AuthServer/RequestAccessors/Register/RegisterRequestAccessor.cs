@@ -59,7 +59,7 @@ internal class RegisterRequestAccessor : IRequestAccessor<RegisterRequest>
 
 		var userinfoEncryptedResponseEnc = json.GetStringValue(Parameter.UserinfoEncryptedResponseEnc);
 		var userinfoEncryptedResponseAlg = json.GetStringValue(Parameter.UserinfoEncryptedResponseAlg);
-		var userinfoSignedResponseAlg = json.GetStringValue(Parameter.UserinfoEncryptedResponseAlg);
+		var userinfoSignedResponseAlg = json.GetStringValue(Parameter.UserinfoSignedResponseAlg);
 
 		var idTokenEncryptedResponseEnc = json.GetStringValue(Parameter.IdTokenEncryptedResponseEnc);
 		var idTokenEncryptedResponseAlg = json.GetStringValue(Parameter.IdTokenEncryptedResponseAlg);
