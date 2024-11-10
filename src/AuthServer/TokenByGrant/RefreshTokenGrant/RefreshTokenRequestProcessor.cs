@@ -34,12 +34,6 @@ internal class RefreshTokenRequestProcessor : IRequestProcessor<RefreshTokenVali
             Scope = request.Scope
         }, cancellationToken);
 
-        var refreshToken = await _refreshTokenBuilder.BuildToken(new RefreshTokenArguments
-        {
-            AuthorizationGrantId = request.AuthorizationGrantId,
-            Scope = request.Scope
-        }, cancellationToken);
-
         var idToken = await _idTokenBuilder.BuildToken(new IdTokenArguments
         {
             AuthorizationGrantId = request.AuthorizationGrantId,
@@ -49,7 +43,6 @@ internal class RefreshTokenRequestProcessor : IRequestProcessor<RefreshTokenVali
         return new TokenResponse
         {
             AccessToken = accessToken,
-            RefreshToken = refreshToken,
             IdToken = idToken,
             Scope = string.Join(' ', request.Scope),
             ExpiresIn = cachedClient.AccessTokenExpiration
