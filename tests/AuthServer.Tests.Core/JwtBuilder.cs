@@ -85,6 +85,31 @@ public class JwtBuilder
         });
     }
 
+    public string GetRefreshToken(string clientId, string authorizationGrantId, string jti)
+    {
+        var key = _jwksDocument.GetTokenSigningKey();
+        var signingCredentials = new SigningCredentials(key.Key, key.Alg.GetDescription());
+        var now = DateTime.UtcNow;
+
+        var claims = new Dictionary<string, object>
+        {
+            { ClaimNameConstants.Jti, jti },
+            { ClaimNameConstants.GrantId, authorizationGrantId }
+        };
+
+        return new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor
+        {
+            Issuer = _discoveryDocument.Issuer,
+            NotBefore = now,
+            Expires = now.AddSeconds(3600),
+            IssuedAt = now,
+            SigningCredentials = signingCredentials,
+            Audience = clientId,
+            TokenType = TokenTypeHeaderConstants.RefreshToken,
+            Claims = claims
+        });
+    }
+
     private string MapToAudience(ClientTokenAudience audience)
         => audience switch
         {
