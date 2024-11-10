@@ -29,6 +29,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
     protected readonly RegisterEndpointBuilder RegisterEndpointBuilder;
     protected readonly IntrospectionEndpointBuilder IntrospectionEndpointBuilder;
     protected readonly RevocationEndpointBuilder RevocationEndpointBuilder;
+    protected readonly UserinfoEndpointBuilder UserinfoEndpointBuilder;
 
     protected TokenEndpointBuilder TokenEndpointBuilder => new(GetHttpClient(), DiscoveryDocument, JwksDocument, TestOutputHelper);
 
@@ -98,6 +99,12 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
             DiscoveryDocument,
             JwksDocument,
             TestOutputHelper);
+
+        UserinfoEndpointBuilder = new UserinfoEndpointBuilder(
+            GetHttpClient(),
+            DiscoveryDocument,
+            JwksDocument,
+            TestOutputHelper);
     }
 
     protected HttpClient GetHttpClient() => _factory.CreateClient(new WebApplicationFactoryClientOptions
@@ -146,7 +153,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
         var client = new Client("identity-provider", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic)
         {
             Scopes = [userinfoScope],
-            ClientUri = "https://idp.authserver.dk"
+            ClientUri = "https://localhost:7254"
         };
 
         await dbContext.AddAsync(client);
