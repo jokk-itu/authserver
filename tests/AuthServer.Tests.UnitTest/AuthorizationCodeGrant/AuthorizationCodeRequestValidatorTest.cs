@@ -203,7 +203,7 @@ public class AuthorizationCodeRequestValidatorTest : BaseUnitTest
     }
 
     [Fact]
-    public async Task Validate_InvalidClientAuthenticationMethod_ExpectInvalidClient()
+    public async Task Validate_InvalidClientAuthentication_ExpectInvalidClient()
     {
         // Arrange
         var proofKeyForCodeExchange = ProofKeyForCodeExchangeHelper.GetProofKeyForCodeExchange();
