@@ -96,28 +96,6 @@ public class ClientCredentialsRequestValidatorTest : BaseUnitTest
     }
 
     [Fact]
-    public async Task Validate_InvalidClientAuthenticationMethod_ExpectInvalidClient()
-    {
-        // Arrange
-        var serviceProvider = BuildServiceProvider();
-        var validator = serviceProvider.GetRequiredService<IRequestValidator<TokenRequest, ClientCredentialsValidatedRequest>>();
-
-        var request = new TokenRequest
-        {
-            GrantType = GrantTypeConstants.ClientCredentials,
-            Scope = [ScopeConstants.OpenId],
-            Resource = ["resource"],
-            ClientAuthentications = [new ClientIdAuthentication("clientId")]
-        };
-        
-        // Act
-        var processResult = await validator.Validate(request, CancellationToken.None);
-
-        // Assert
-        Assert.Equal(TokenError.InvalidClient, processResult);
-    }
-
-    [Fact]
     public async Task Validate_InvalidClientAuthentication_ExpectInvalidClient()
     {
         // Arrange

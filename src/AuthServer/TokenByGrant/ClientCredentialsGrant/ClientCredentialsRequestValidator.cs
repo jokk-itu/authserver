@@ -48,11 +48,6 @@ internal class ClientCredentialsRequestValidator : IRequestValidator<TokenReques
         }
 
         var clientAuthentication = request.ClientAuthentications.Single();
-        if (!TokenEndpointAuthMethodConstants.SecureAuthMethods.Contains(clientAuthentication.Method.GetDescription()))
-        {
-            return TokenError.InvalidClient;
-        }
-
         var clientAuthenticationResult = await _clientAuthenticationService.AuthenticateClient(clientAuthentication, cancellationToken);
         if (!clientAuthenticationResult.IsAuthenticated)
         {
