@@ -84,17 +84,6 @@ internal class RefreshTokenRequestValidator : IRequestValidator<TokenRequest, Re
             return TokenError.InvalidRefreshToken;
         }
 
-        var subjectIdentifier = await _identityContext
-            .Set<AuthorizationGrant>()
-            .Where(AuthorizationGrant.IsActive)
-            .Select(x => x.Session.SubjectIdentifier.Id)
-            .SingleOrDefaultAsync(cancellationToken);
-
-        if (subjectIdentifier is null)
-        {
-            return TokenError.InvalidGrant;
-        }
-
         var cachedClient = await _cachedClientStore.Get(clientId, cancellationToken);
 
         if (cachedClient.GrantTypes.All(x => x != GrantTypeConstants.RefreshToken))
@@ -102,8 +91,18 @@ internal class RefreshTokenRequestValidator : IRequestValidator<TokenRequest, Re
             return TokenError.UnauthorizedForGrantType;
         }
 
+        /*
+         * Do not check for validity of grant,
+         * as the grant and session must be active,
+         * if the RefreshToken is active.
+         */
+        var subjectIdentifier = await _identityContext
+            .Set<AuthorizationGrant>()
+            .Where(x => x.Id == authorizationGrantId)
+            .Select(x => x.Session.SubjectIdentifier.Id)
+            .SingleAsync(cancellationToken);
+
         IReadOnlyCollection<string> requestedScope;
-        IEnumerable<string> requestComparableScope;
         var isScopeRequested = request.Scope.Count != 0;
 
         if (cachedClient.RequireConsent)
@@ -117,20 +116,20 @@ internal class RefreshTokenRequestValidator : IRequestValidator<TokenRequest, Re
             }
 
             requestedScope = isScopeRequested ? request.Scope : consentedScope;
-            requestComparableScope = consentedScope;
+            if (requestedScope.ExceptAny(consentedScope))
+            {
+                return TokenError.ScopeExceedsConsentedScope;
+            }
         }
         else
         {
             requestedScope = isScopeRequested ? request.Scope : cachedClient.Scopes;
-            requestComparableScope = cachedClient.Scopes;
+            if (requestedScope.ExceptAny(cachedClient.Scopes))
+            {
+                return TokenError.UnauthorizedForScope;
+            }
         }
 
-        var isRequestedScopeInvalid = isScopeRequested && request.Scope.ExceptAny(requestComparableScope);
-        if (isRequestedScopeInvalid)
-        {
-            return TokenError.ScopeExceedsConsentedScope;
-        }
-        
         var doesResourceExist = await _clientRepository.DoesResourcesExist(
             request.Resource, requestedScope, cancellationToken);
 
