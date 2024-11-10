@@ -58,7 +58,7 @@ internal class OAuthTokenAuthenticationHandler : AuthenticationHandler<OAuthToke
 
         ClaimsIdentity? claimsIdentity;
         AuthenticateResult? result;
-        if (TokenHelper.IsStructuredToken(token))
+        if (TokenHelper.IsJsonWebToken(token))
         {
             (claimsIdentity, result) = await AuthenticateJsonWebToken(token);
         }

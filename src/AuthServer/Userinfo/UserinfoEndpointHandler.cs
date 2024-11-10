@@ -28,7 +28,7 @@ internal class UserinfoEndpointHandler : IEndpointHandler
         return response.Match(
             userinfo =>
             {
-                var contentType = TokenHelper.IsStructuredToken(userinfo) ? MimeTypeConstants.Jwt : MimeTypeConstants.Json;
+                var contentType = TokenHelper.IsJsonWebToken(userinfo) ? MimeTypeConstants.Jwt : MimeTypeConstants.Json;
                 return Results.Text(userinfo, contentType, Encoding.UTF8, StatusCodes.Status200OK);
             },
             error => error.ResultCode switch

@@ -26,7 +26,7 @@ internal class UserinfoRequestValidator : IRequestValidator<UserinfoRequest, Use
     public async Task<ProcessResult<UserinfoValidatedRequest, ProcessError>> Validate(UserinfoRequest request,
         CancellationToken cancellationToken)
     {
-        if (TokenHelper.IsStructuredToken(request.AccessToken))
+        if (TokenHelper.IsJsonWebToken(request.AccessToken))
         {
             // only read because the token has already been validated
             var token = await _serverIssuedTokenDecoder.Read(request.AccessToken);

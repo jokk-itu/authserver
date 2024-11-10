@@ -68,7 +68,7 @@ internal class RevocationRequestValidator : IRequestValidator<RevocationRequest,
         }
 
         string? clientIdFromToken;
-        if (TokenHelper.IsStructuredToken(token))
+        if (TokenHelper.IsJsonWebToken(token))
         {
             clientIdFromToken = await GetClientIdFromStructuredToken(token, cancellationToken);
         }

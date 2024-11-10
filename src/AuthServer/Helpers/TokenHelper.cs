@@ -17,7 +17,7 @@ internal static class TokenHelper
         return JwtTokenUtilities.RegexJwe.IsMatch(token);
     }
 
-    public static bool IsStructuredToken(string token)
+    public static bool IsJsonWebToken(string token)
     {
         return GetDotLength(token) is 3 or 5;
     }

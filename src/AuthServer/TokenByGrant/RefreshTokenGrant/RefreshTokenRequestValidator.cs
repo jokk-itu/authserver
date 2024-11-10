@@ -70,7 +70,7 @@ internal class RefreshTokenRequestValidator : IRequestValidator<TokenRequest, Re
         
         var clientId = clientAuthenticationResult.ClientId!;
         string? authorizationGrantId;
-        if (TokenHelper.IsStructuredToken(request.RefreshToken))
+        if (TokenHelper.IsJsonWebToken(request.RefreshToken))
         {
             authorizationGrantId = await ValidateStructuredToken(clientId, request.RefreshToken, cancellationToken);
         }
