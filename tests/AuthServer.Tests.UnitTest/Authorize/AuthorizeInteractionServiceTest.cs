@@ -342,7 +342,7 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         await AddEntity(authorizationGrant);
 
         var idToken = JwtBuilder.GetIdToken(
-            client.Id, authorizationGrant.Id, subjectIdentifier.Id,
+            client.Id, authorizationGrant.Id, subjectIdentifier.Id, session.Id,
             [AuthenticationMethodReferenceConstants.Password], LevelOfAssuranceLow);
 
         // Act
@@ -380,7 +380,7 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         await AddEntity(authorizationGrant);
 
         var idToken = JwtBuilder.GetIdToken(
-            client.Id, authorizationGrant.Id, subjectIdentifier.Id,
+            client.Id, authorizationGrant.Id, subjectIdentifier.Id, session.Id,
             [AuthenticationMethodReferenceConstants.Password], LevelOfAssuranceLow);
 
         // Act
@@ -420,7 +420,7 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         await AddEntity(authorizationGrant);
 
         var idToken = JwtBuilder.GetIdToken(
-            client.Id, authorizationGrant.Id, subjectIdentifier.Id,
+            client.Id, authorizationGrant.Id, subjectIdentifier.Id, session.Id,
             [AuthenticationMethodReferenceConstants.Password], LevelOfAssuranceLow);
 
         // Act
@@ -458,7 +458,7 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         await AddEntity(authorizationGrant);
 
         var idToken = JwtBuilder.GetIdToken(
-            client.Id, authorizationGrant.Id, subjectIdentifier.Id,
+            client.Id, authorizationGrant.Id, subjectIdentifier.Id, session.Id,
             [AuthenticationMethodReferenceConstants.Password], LevelOfAssuranceLow);
 
         // Act
@@ -500,7 +500,7 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         await AddEntity(clientAuthenticationContextReference);
 
         var idToken = JwtBuilder.GetIdToken(
-            client.Id, authorizationGrant.Id, subjectIdentifier.Id,
+            client.Id, authorizationGrant.Id, subjectIdentifier.Id, session.Id,
             [AuthenticationMethodReferenceConstants.Password], LevelOfAssuranceLow);
 
         // Act
@@ -537,7 +537,7 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         await AddEntity(authorizationGrant);
 
         var idToken = JwtBuilder.GetIdToken(
-            client.Id, authorizationGrant.Id, subjectIdentifier.Id,
+            client.Id, authorizationGrant.Id, subjectIdentifier.Id, session.Id,
             [AuthenticationMethodReferenceConstants.Password], LevelOfAssuranceLow);
 
         // Act
@@ -571,7 +571,7 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         await AddEntity(authorizationGrant);
 
         var idToken = JwtBuilder.GetIdToken(
-            client.Id, authorizationGrant.Id, subjectIdentifier.Id,
+            client.Id, authorizationGrant.Id, subjectIdentifier.Id, session.Id,
             [AuthenticationMethodReferenceConstants.Password], LevelOfAssuranceLow);
 
         // Act
@@ -610,7 +610,7 @@ public class AuthorizeInteractionServiceTest : BaseUnitTest
         await AddEntity(consentGrant);
 
         var idToken = JwtBuilder.GetIdToken(
-            client.Id, authorizationGrant.Id, subjectIdentifier.Id,
+            client.Id, authorizationGrant.Id, subjectIdentifier.Id, session.Id,
             [AuthenticationMethodReferenceConstants.Password], LevelOfAssuranceLow);
 
         // Act

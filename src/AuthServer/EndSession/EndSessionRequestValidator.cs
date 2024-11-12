@@ -157,12 +157,7 @@ internal class EndSessionRequestValidator : IRequestValidator<EndSessionRequest,
 
     private async Task<ProcessError?> ValidateClientAuthorizedForPostLogoutRedirectUri(string clientId, EndSessionRequest request, CancellationToken cancellationToken)
     {
-        var cachedClient = await _cachedClientStore.TryGet(clientId, cancellationToken);
-        if (cachedClient is null)
-        {
-            return EndSessionError.InvalidClientId;
-        }
-
+        var cachedClient = await _cachedClientStore.Get(clientId, cancellationToken);
         if (!string.IsNullOrEmpty(request.PostLogoutRedirectUri)
             && !cachedClient.PostLogoutRedirectUris.Contains(request.PostLogoutRedirectUri))
         {

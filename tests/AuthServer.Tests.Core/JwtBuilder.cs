@@ -57,7 +57,7 @@ public class JwtBuilder
         });
     }
 
-    public string GetIdToken(string clientId, string grantId, string subject, IReadOnlyCollection<string> amr, string acr)
+    public string GetIdToken(string clientId, string grantId, string subject, string sessionId, IReadOnlyCollection<string> amr, string acr)
     {
         var key = _jwksDocument.GetTokenSigningKey();
         var signingCredentials = new SigningCredentials(key.Key, key.Alg.GetDescription());
@@ -66,6 +66,7 @@ public class JwtBuilder
         var claims = new Dictionary<string, object>
         {
             { ClaimNameConstants.Sub, subject },
+            { ClaimNameConstants.Sid, sessionId },
             { ClaimNameConstants.GrantId, grantId },
             { ClaimNameConstants.Acr, acr },
             { ClaimNameConstants.Amr, JsonSerializer.SerializeToElement(amr) }
