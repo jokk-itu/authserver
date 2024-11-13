@@ -1,7 +1,8 @@
 ﻿using System.Text.Json.Serialization;
+using AuthServer.Core;
 using AuthServer.Core.Request;
 
-namespace AuthServer.Core;
+namespace AuthServer.Endpoints.Responses;
 
 public record OAuthError(string Error, string ErrorDescription)
 {

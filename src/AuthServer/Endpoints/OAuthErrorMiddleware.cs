@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AuthServer.Core;
+using AuthServer.Endpoints.Responses;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-namespace AuthServer.Core;
+namespace AuthServer.Endpoints;
 internal class OAuthErrorMiddleware
 {
     private readonly RequestDelegate _next;

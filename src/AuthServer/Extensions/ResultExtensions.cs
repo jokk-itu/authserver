@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Web;
 using AuthServer.Constants;
-using AuthServer.Core;
+using AuthServer.Endpoints.Responses;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 

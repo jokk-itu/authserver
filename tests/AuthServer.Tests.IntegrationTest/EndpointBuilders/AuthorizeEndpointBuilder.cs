@@ -15,6 +15,7 @@ using System.Web;
 using System.Text.RegularExpressions;
 using AuthServer.TokenDecoders;
 using ProofKeyForCodeExchangeHelper = AuthServer.Tests.Core.ProofKeyForCodeExchangeHelper;
+using AuthServer.Endpoints.Responses;
 
 namespace AuthServer.Tests.IntegrationTest.EndpointBuilders;
 public class AuthorizeEndpointBuilder : EndpointBuilder
