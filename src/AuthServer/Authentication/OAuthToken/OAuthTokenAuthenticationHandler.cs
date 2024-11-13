@@ -91,11 +91,11 @@ internal class OAuthTokenAuthenticationHandler : AuthenticationHandler<OAuthToke
         var authenticationResult = await HandleAuthenticateOnceSafeAsync();
         if (authenticationResult.None)
         {
-            Response.Headers.WWWAuthenticate= """Bearer error="invalid_request",""";
+            Response.Headers.WWWAuthenticate= "Bearer error=\"invalid_request\"";
         }
         else if (authenticationResult.Failure is not null)
         {
-            Response.Headers.WWWAuthenticate = """Bearer error="invalid_token",""";
+            Response.Headers.WWWAuthenticate = "Bearer error=\"invalid_token\"";
         }
         else
         {
@@ -107,7 +107,7 @@ internal class OAuthTokenAuthenticationHandler : AuthenticationHandler<OAuthToke
 
     protected override Task HandleForbiddenAsync(AuthenticationProperties properties)
     {
-        Response.Headers.WWWAuthenticate = """Bearer error="insufficient_scope",""";
+        Response.Headers.WWWAuthenticate = "Bearer error=\"insufficient_scope\"";
         Response.StatusCode = 403;
         return Task.CompletedTask;
     }
