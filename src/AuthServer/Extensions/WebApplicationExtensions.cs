@@ -1,6 +1,6 @@
-﻿using AuthServer.Core;
-using AuthServer.Core.Abstractions;
+﻿using AuthServer.Core.Abstractions;
 using AuthServer.Endpoints;
+using AuthServer.Endpoints.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -28,13 +28,21 @@ public static class WebApplicationExtensions
             .WithDisplayName("OpenIdConnect Configuration")
             .WithName("OpenIdConnect Configuration")
             .WithDescription("Endpoint to get the configuration")
-            .WithGroupName("Configuration");
+            .WithGroupName("Configuration")
+            .AddEndpointFilter(async (ctx, next) =>
+            {
+                ctx.HttpContext.Response.Headers.CacheControl = "max-age=86400, public, must-revalidate";
+                return await next(ctx);
+            })
+            .AddEndpointFilter<NoReferrerFilter>();
 
         endpointBuilder
             .MapMethods(".well-known/jwks", ["GET"], JwksDocumentEndpoint.HandleJwksDocument)
             .WithDisplayName("OAuth JWKS")
             .WithName("OAuth JWKS")
             .WithDescription("Endpoint to get the jwks")
-            .WithGroupName("Configuration");
+            .WithGroupName("Configuration")
+            .AddEndpointFilter<NoCacheFilter>()
+            .AddEndpointFilter<NoReferrerFilter>();
     }
 }
