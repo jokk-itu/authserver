@@ -23,8 +23,6 @@ internal class IntrospectionEndpointModule : IEndpointModule
             .WithDescription("Endpoint to get a structured token from a reference")
             .WithGroupName("Introspection");
 
-        routeBuilder.WithRequestTimeout(TimeSpan.FromSeconds(1));
-
         routeBuilder
             .AddEndpointFilter<NoCacheFilter>()
             .AddEndpointFilter<NoReferrerFilter>();

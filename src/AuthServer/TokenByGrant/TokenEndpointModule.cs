@@ -24,8 +24,6 @@ internal class TokenEndpointModule : IEndpointModule
             .WithDescription("Endpoint to get tokens")
             .WithGroupName("Token");
 
-        routeBuilder.WithRequestTimeout(TimeSpan.FromSeconds(1));
-
         routeBuilder
             .AddEndpointFilter<NoCacheFilter>()
             .AddEndpointFilter<NoReferrerFilter>();

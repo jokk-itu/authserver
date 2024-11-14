@@ -27,8 +27,6 @@ internal class UserinfoEndpointModule : IEndpointModule
 
         routeBuilder.RequireAuthorization(AuthorizationConstants.Userinfo);
 
-        routeBuilder.WithRequestTimeout(TimeSpan.FromSeconds(1));
-
         routeBuilder
             .AddEndpointFilter<NoCacheFilter>()
             .AddEndpointFilter<NoReferrerFilter>();

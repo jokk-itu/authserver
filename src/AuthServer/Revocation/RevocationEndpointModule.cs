@@ -24,8 +24,6 @@ internal class RevocationEndpointModule : IEndpointModule
             .WithDescription("Endpoint to revoke a given token")
             .WithGroupName("Revocation");
 
-        routeBuilder.WithRequestTimeout(TimeSpan.FromSeconds(1));
-
         routeBuilder
             .AddEndpointFilter<NoCacheFilter>()
             .AddEndpointFilter<NoReferrerFilter>();

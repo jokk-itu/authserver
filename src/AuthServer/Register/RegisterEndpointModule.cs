@@ -24,8 +24,6 @@ internal class RegisterEndpointModule : IEndpointModule
             .WithDescription("Endpoint to register a client")
             .WithGroupName("Register");
 
-        postRegisterBuilder.WithRequestTimeout(TimeSpan.FromSeconds(1));
-
         postRegisterBuilder
             .AddEndpointFilter<NoCacheFilter>()
             .AddEndpointFilter<NoReferrerFilter>();

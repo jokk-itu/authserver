@@ -23,8 +23,6 @@ internal class AuthorizeEndpointModule : IEndpointModule
             .WithDescription("OpenId Connect Authorize")
             .WithGroupName("Authorize");
 
-        routeBuilder.WithRequestTimeout(TimeSpan.FromSeconds(1));
-
         routeBuilder
             .AddEndpointFilter<NoCacheFilter>()
             .AddEndpointFilter<NoReferrerFilter>();

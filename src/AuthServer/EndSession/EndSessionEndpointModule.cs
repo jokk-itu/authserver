@@ -23,8 +23,6 @@ internal class EndSessionEndpointModule : IEndpointModule
             .WithDescription("Endpoint to end the session")
             .WithGroupName("EndSession");
 
-        routeBuilder.WithRequestTimeout(TimeSpan.FromSeconds(1));
-
         routeBuilder
             .AddEndpointFilter<NoCacheFilter>()
             .AddEndpointFilter<NoReferrerFilter>();
