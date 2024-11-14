@@ -117,7 +117,8 @@ public static class ServiceCollectionExtensions
             .AddScoped<IConsentGrantRepository, ConsentGrantRepository>()
             .AddScoped<IAuthorizationGrantRepository, AuthorizationGrantRepository>()
             .AddScoped<ITokenRepository, TokenRepository>()
-            .AddScoped<INonceRepository, NonceRepository>();
+            .AddScoped<INonceRepository, NonceRepository>()
+            .AddScoped<ISessionRepository, SessionRepository>();
 
         AddAuthorize(services);
         AddToken(services);
