@@ -109,7 +109,8 @@ public static class ServiceCollectionExtensions
         services
             .AddScoped<IClientAuthenticationService, ClientAuthenticationService>()
             .AddScoped<IClientJwkService, ClientJwkService>()
-            .AddScoped<IClientSectorService, ClientSectorService>();
+            .AddScoped<IClientSectorService, ClientSectorService>()
+            .AddScoped<IClientLogoutService, ClientLogoutService>();
 
         services
             .AddScoped<IClientRepository, ClientRepository>()
