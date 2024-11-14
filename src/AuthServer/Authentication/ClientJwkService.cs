@@ -57,16 +57,18 @@ internal class ClientJwkService : IClientJwkService
 
         _logger.LogDebug("Refreshing jwks for client {ClientId}", clientId);
         var jwks = await RefreshJwks(clientId, cachedClient.JwksUri!, cancellationToken);
-        // TODO verify they ONLY contain public keys
+        var jsonWebKeySet = JsonWebKeySet.Create(jwks);
+        if (jsonWebKeySet.Keys.Any(x => x.HasPrivateKey))
+        {
+            _logger.LogWarning("Client {ClientId} response contains private keys", clientId);
+            return [];
+        }
+
         var client = (await _identityContext.FindAsync<Client>([clientId], cancellationToken))!;
         client.Jwks = jwks;
-
-        // The JwksExpiration will always be set if JwksUri is set
         client.JwksExpiresAt = DateTime.UtcNow.AddSeconds(client.JwksExpiration!.Value);
 
-        // TODO implement CachedClient deletion as a database interceptor
-
-        return JsonWebKeySet.Create(jwks).Keys.Where(k => k.Use == use);
+        return jsonWebKeySet.Keys.Where(k => k.Use == use);
     }
 
     /// <inheritdoc/>
@@ -82,7 +84,7 @@ internal class ClientJwkService : IClientJwkService
             _logger.LogError(e, "Unexpected error occurred during initial fetch of jwks {JwksUri}", jwksUri);
 		    return null;
 	    }
-    } 
+    }
 
     private async Task<string> RefreshJwks(string? clientId, string jwksUri, CancellationToken cancellationToken)
     {

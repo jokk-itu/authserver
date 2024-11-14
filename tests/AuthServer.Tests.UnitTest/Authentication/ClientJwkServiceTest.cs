@@ -2,7 +2,6 @@
 using AuthServer.Authentication.Abstractions;
 using AuthServer.Constants;
 using AuthServer.Core;
-using AuthServer.Core.Abstractions;
 using AuthServer.Entities;
 using AuthServer.Enums;
 using AuthServer.Tests.Core;
