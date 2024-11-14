@@ -18,6 +18,9 @@ internal interface IAuthorizationGrantRepository
     /// <summary>
     /// 
     /// </summary>
+    /// <param name="subjectIdentifier"></param>
+    /// <param name="clientId"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task<AuthorizationGrant?> GetActiveAuthorizationGrant(string subjectIdentifier, string clientId, CancellationToken cancellationToken);
 
@@ -28,4 +31,12 @@ internal interface IAuthorizationGrantRepository
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task<AuthorizationGrant?> GetActiveAuthorizationGrant(string authorizationGrantId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Revokes grant if active, with all relations.
+    /// </summary>
+    /// <param name="authorizationGrantId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task RevokeGrant(string authorizationGrantId, CancellationToken cancellationToken);
 }

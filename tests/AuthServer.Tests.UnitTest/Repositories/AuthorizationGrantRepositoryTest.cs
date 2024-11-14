@@ -3,6 +3,7 @@ using AuthServer.Entities;
 using AuthServer.Enums;
 using AuthServer.Helpers;
 using AuthServer.Repositories.Abstractions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
 
@@ -194,5 +195,78 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
 
         // Assert
         Assert.Null(activeGrant);
+    }
+
+    [Fact]
+    public async Task RevokeGrant_GrantWithActiveAndInactiveTokens_ExpectGrantIsRevokedAndActiveTokensAreRevoked()
+    {
+        // Arrange
+        var serviceProvider = BuildServiceProvider();
+        var authorizationGrantRepository = serviceProvider.GetRequiredService<IAuthorizationGrantRepository>();
+
+        var subjectIdentifier = new SubjectIdentifier();
+        var session = new Session(subjectIdentifier);
+        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
+        var levelOfAssurance = await GetAuthenticationContextReference(LevelOfAssuranceLow);
+        var authorizationGrant = new AuthorizationGrant(session, client, subjectIdentifier.Id, levelOfAssurance);
+
+        var activeGrantAccessToken = new GrantAccessToken(
+            authorizationGrant,
+            DiscoveryDocument.Issuer,
+            DiscoveryDocument.Issuer,
+            ScopeConstants.UserInfo,
+            DateTime.UtcNow.AddSeconds(3600));
+
+        var inactiveGrantAccessToken = new GrantAccessToken(
+            authorizationGrant,
+            DiscoveryDocument.Issuer,
+            DiscoveryDocument.Issuer,
+            ScopeConstants.UserInfo,
+            DateTime.UtcNow.AddSeconds(-3600));
+
+        var revokedGrantAccessToken = new GrantAccessToken(
+            authorizationGrant,
+            DiscoveryDocument.Issuer,
+            DiscoveryDocument.Issuer,
+            ScopeConstants.UserInfo,
+            DateTime.UtcNow.AddSeconds(3600));
+        
+        revokedGrantAccessToken.Revoke();
+        var expectedRevokedDate = revokedGrantAccessToken.RevokedAt;
+
+        await AddEntity(activeGrantAccessToken);
+        await AddEntity(inactiveGrantAccessToken);
+        await AddEntity(revokedGrantAccessToken);
+
+        // Act
+        await authorizationGrantRepository.RevokeGrant(authorizationGrant.Id, CancellationToken.None);
+        await SaveChangesAsync();
+
+        // Assert
+        Assert.NotNull(authorizationGrant.RevokedAt);
+
+        var revokedTokenRevocationDate = await IdentityContext
+            .Set<GrantAccessToken>()
+            .Where(x => x.Id == revokedGrantAccessToken.Id)
+            .Select(x => x.RevokedAt)
+            .SingleAsync();
+
+        Assert.Equal(expectedRevokedDate, revokedTokenRevocationDate);
+
+        var inactiveGrantAccessTokenRevocationDate = await IdentityContext
+            .Set<GrantAccessToken>()
+            .Where(x => x.Id == inactiveGrantAccessToken.Id)
+            .Select(x => x.RevokedAt)
+            .SingleAsync();
+
+        Assert.Null(inactiveGrantAccessTokenRevocationDate);
+
+        var activeTokenRevocationDate = await IdentityContext
+            .Set<GrantAccessToken>()
+            .Where(x => x.Id == activeGrantAccessToken.Id)
+            .Select(x => x.RevokedAt)
+            .SingleAsync();
+
+        Assert.NotNull(activeTokenRevocationDate);
     }
 }

@@ -4,16 +4,21 @@ using AuthServer.Enums;
 using AuthServer.Helpers;
 using AuthServer.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace AuthServer.Repositories;
 
 internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
 {
     private readonly AuthorizationDbContext _identityContext;
+    private readonly ILogger<AuthorizationDbContext> _logger;
 
-    public AuthorizationGrantRepository(AuthorizationDbContext identityContext)
+    public AuthorizationGrantRepository(
+        AuthorizationDbContext identityContext,
+        ILogger<AuthorizationDbContext> logger)
     {
         _identityContext = identityContext;
+        _logger = logger;
     }
 
     /// <inheritdoc/>
@@ -65,6 +70,27 @@ internal class AuthorizationGrantRepository : IAuthorizationGrantRepository
             .Where(x => x.Session.RevokedAt == null)
             .Where(x => x.Id == authorizationGrantId)
             .SingleOrDefaultAsync(cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task RevokeGrant(string authorizationGrantId, CancellationToken cancellationToken)
+    {
+        var affectedTokens = await _identityContext
+            .Set<AuthorizationGrant>()
+            .Where(ag => ag.Id == authorizationGrantId)
+            .SelectMany(g => g.GrantTokens)
+            .Where(Token.IsActive)
+            .ExecuteUpdateAsync(
+                propertyCall => propertyCall.SetProperty(gt => gt.RevokedAt, DateTime.UtcNow),
+                cancellationToken);
+
+        var authorizationGrant = (await _identityContext.Set<AuthorizationGrant>().FindAsync([authorizationGrantId], cancellationToken))!;
+        authorizationGrant.Revoke();
+
+        _logger.LogInformation(
+            "Revoked AuthorizationGrant {AuthorizationGrantId} and Tokens {AffectedTokens}",
+            authorizationGrantId,
+            affectedTokens);
     }
 
     private async Task<List<AuthenticationMethodReference>> GetAuthenticationMethodReferences(IReadOnlyCollection<string> authenticationMethodReferences, CancellationToken cancellationToken)
