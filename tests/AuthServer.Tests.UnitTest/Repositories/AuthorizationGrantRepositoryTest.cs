@@ -232,7 +232,6 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
             DateTime.UtcNow.AddSeconds(3600));
         
         revokedGrantAccessToken.Revoke();
-        var expectedRevokedDate = revokedGrantAccessToken.RevokedAt;
 
         await AddEntity(activeGrantAccessToken);
         await AddEntity(inactiveGrantAccessToken);
@@ -251,7 +250,7 @@ public class AuthorizationGrantRepositoryTest : BaseUnitTest
             .Select(x => x.RevokedAt)
             .SingleAsync();
 
-        Assert.Equal(expectedRevokedDate, revokedTokenRevocationDate);
+        Assert.Equal(revokedGrantAccessToken.RevokedAt, revokedTokenRevocationDate);
 
         var inactiveGrantAccessTokenRevocationDate = await IdentityContext
             .Set<GrantAccessToken>()
