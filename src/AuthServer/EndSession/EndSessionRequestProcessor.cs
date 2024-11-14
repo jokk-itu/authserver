@@ -1,37 +1,41 @@
-﻿using AuthServer.Core;
+﻿using AuthServer.Authentication.Abstractions;
+using AuthServer.Core;
 using AuthServer.Core.Abstractions;
 using AuthServer.Core.Request;
 using AuthServer.Entities;
-using AuthServer.TokenBuilders;
-using AuthServer.TokenBuilders.Abstractions;
+using AuthServer.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace AuthServer.EndSession;
+
 internal class EndSessionRequestProcessor : IRequestProcessor<EndSessionValidatedRequest, Unit>
 {
-    private readonly IHttpClientFactory _httpClientFactory;
     private readonly AuthorizationDbContext _authorizationDbContext;
-    private readonly ITokenBuilder<LogoutTokenArguments> _tokenBuilder;
     private readonly ILogger<EndSessionRequestProcessor> _logger;
+    private readonly IClientLogoutService _clientLogoutService;
+    private readonly ISessionRepository _sessionRepository;
+    private readonly IAuthorizationGrantRepository _authorizationGrantRepository;
 
     public EndSessionRequestProcessor(
-        IHttpClientFactory httpClientFactory,
         AuthorizationDbContext authorizationDbContext,
-        ITokenBuilder<LogoutTokenArguments> tokenBuilder,
-        ILogger<EndSessionRequestProcessor> logger)
+        ILogger<EndSessionRequestProcessor> logger,
+        IClientLogoutService clientLogoutService,
+        ISessionRepository sessionRepository,
+        IAuthorizationGrantRepository authorizationGrantRepository)
     {
-        _httpClientFactory = httpClientFactory;
         _authorizationDbContext = authorizationDbContext;
-        _tokenBuilder = tokenBuilder;
         _logger = logger;
+        _clientLogoutService = clientLogoutService;
+        _sessionRepository = sessionRepository;
+        _authorizationGrantRepository = authorizationGrantRepository;
     }
 
     public async Task<Unit> Process(EndSessionValidatedRequest request, CancellationToken cancellationToken)
     {
-        // if sessionId is null, then nothing is left to revoke or logout
         if (string.IsNullOrEmpty(request.SessionId))
         {
+            _logger.LogDebug("Session is inactive, nothing to logout from");
             return Unit.Value;
         }
 
@@ -43,16 +47,16 @@ internal class EndSessionRequestProcessor : IRequestProcessor<EndSessionValidate
                 .Set<Session>()
                 .Where(Session.IsActive)
                 .Where(s => s.Id == request.SessionId)
-                .Select(s => new SessionQuery(s, s.AuthorizationGrants.Select(ag => ag.Client)))
-                .SingleOrDefaultAsync(cancellationToken);
+                .Select(s => new SessionQuery(
+                    s.AuthorizationGrants
+                        .AsQueryable()
+                        .Where(AuthorizationGrant.IsActive)
+                        .Select(ag => ag.Client)
+                        .ToList())
+                )
+                .SingleAsync(cancellationToken);
 
-            if (sessionQuery is null)
-            {
-                _logger.LogDebug("Session {SessionId} is not active", request.SessionId);
-                return Unit.Value;
-            }
-
-            await RevokeSessionRecursively(sessionQuery, cancellationToken);
+            await _sessionRepository.RevokeSession(request.SessionId, cancellationToken);
             clients = sessionQuery.Clients.ToList();
         }
         else if (!string.IsNullOrEmpty(request.ClientId))
@@ -62,7 +66,7 @@ internal class EndSessionRequestProcessor : IRequestProcessor<EndSessionValidate
                 .Where(AuthorizationGrant.IsActive)
                 .Where(ag => ag.Client.Id == request.ClientId)
                 .Where(ag => ag.Session.Id == request.SessionId)
-                .Select(ag => new AuthorizationGrantQuery(ag, ag.Client))
+                .Select(ag => new AuthorizationGrantQuery(ag.Id, ag.Client))
                 .SingleOrDefaultAsync(cancellationToken);
 
             if (authorizationGrantQuery is null)
@@ -75,12 +79,15 @@ internal class EndSessionRequestProcessor : IRequestProcessor<EndSessionValidate
                 return Unit.Value;
             }
 
-            await RevokeGrantRecursively(authorizationGrantQuery, cancellationToken);
+            await _authorizationGrantRepository.RevokeGrant(authorizationGrantQuery.AuthorizationGrantId, cancellationToken);
             clients.Add(authorizationGrantQuery.Client);
         }
         else
         {
-            // logout cannot happen, as no grants can be queried
+            _logger.LogDebug(
+                "Not logging out from IdP and no client is provided for session {SessionId}",
+                request.SessionId);
+
             return Unit.Value;
         }
 
@@ -88,91 +95,16 @@ internal class EndSessionRequestProcessor : IRequestProcessor<EndSessionValidate
         return Unit.Value;
     }
 
-    private async Task RevokeGrantRecursively(AuthorizationGrantQuery authorizationGrantQuery, CancellationToken cancellationToken)
+    private async Task BackchannelLogout(IEnumerable<Client> clients, EndSessionValidatedRequest request,
+        CancellationToken cancellationToken)
     {
-        authorizationGrantQuery.AuthorizationGrant.Revoke();
-        var affectedTokens = await _authorizationDbContext
-            .Set<AuthorizationGrant>()
-            .Where(ag => ag.Id == authorizationGrantQuery.AuthorizationGrant.Id)
-            .SelectMany(g => g.GrantTokens)
-            .Where(Token.IsActive)
-            .ExecuteUpdateAsync(
-                propertyCall => propertyCall.SetProperty(gt => gt.RevokedAt, DateTime.UtcNow),
-                cancellationToken);
-
-        _logger.LogInformation(
-            "Revoked AuthorizationGrant {AuthorizationGrantId} and Tokens {AffectedTokens}",
-            authorizationGrantQuery.AuthorizationGrant.Id,
-            affectedTokens);
-    }
-
-    private async Task RevokeSessionRecursively(SessionQuery sessionQuery, CancellationToken cancellationToken)
-    {
-        sessionQuery.Session.Revoke();
-        var affectedGrants = await _authorizationDbContext
-            .Set<AuthorizationGrant>()
-            .Where(g => g.Session.Id == sessionQuery.Session.Id)
-            .Where(AuthorizationGrant.IsActive)
-            .ExecuteUpdateAsync(
-                propertyCall => propertyCall.SetProperty(g => g.RevokedAt, DateTime.UtcNow),
-                cancellationToken);
-
-        var affectedTokens = await _authorizationDbContext
-            .Set<AuthorizationGrant>()
-            .Where(ag => ag.Session.Id == sessionQuery.Session.Id)
-            .Where(AuthorizationGrant.IsActive)
-            .SelectMany(g => g.GrantTokens)
-            .Where(Token.IsActive)
-            .ExecuteUpdateAsync(
-                propertyCall => propertyCall.SetProperty(gt => gt.RevokedAt, DateTime.UtcNow),
-                cancellationToken);
-
-        _logger.LogInformation(
-            "Revoked Session {SessionId}, AuthorizationGrants {AffectedGrants} and Tokens {AffectedTokens}",
-            sessionQuery.Session.Id,
-            affectedGrants,
-            affectedTokens);
-    }
-
-    private async Task BackchannelLogout(IEnumerable<Client> clients, EndSessionValidatedRequest request, CancellationToken cancellationToken)
-    {
-        try
+        foreach (var client in clients.Where(x => x.BackchannelLogoutUri is not null))
         {
-            await Parallel.ForEachAsync(clients.Where(x => x.BackchannelLogoutUri != null), cancellationToken, async (client, innerCancellationToken) =>
-            {
-                var httpClient = _httpClientFactory.CreateClient(HttpClientNameConstants.Client);
-
-                var logoutToken = await _tokenBuilder.BuildToken(new LogoutTokenArguments
-                {
-                    ClientId = client.Id,
-                    SessionId = request.SessionId,
-                    SubjectIdentifier = request.SubjectIdentifier
-                }, innerCancellationToken);
-
-                var body = new Dictionary<string, string>
-                {
-                    { Parameter.LogoutToken, logoutToken }
-                };
-
-                var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, client.BackchannelLogoutUri)
-                {
-                    Content = new FormUrlEncodedContent(body)
-                };
-
-                var response = await httpClient.SendAsync(httpRequestMessage, cancellationToken);
-                response.EnsureSuccessStatusCode();
-            });
-        }
-        catch (AggregateException e)
-        {
-            foreach (var innerException in e.InnerExceptions)
-            {
-                _logger.LogWarning(innerException, "Unexpected error during backchannel logout");
-            }
+            await _clientLogoutService.Logout(client.Id, request.SessionId, request.SubjectIdentifier, cancellationToken);
         }
     }
 
-    private sealed record SessionQuery(Session Session, IEnumerable<Client> Clients);
+    private sealed record SessionQuery(IEnumerable<Client> Clients);
 
-    private sealed record AuthorizationGrantQuery(AuthorizationGrant AuthorizationGrant, Client Client);
+    private sealed record AuthorizationGrantQuery(string AuthorizationGrantId, Client Client);
 }
