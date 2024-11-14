@@ -447,7 +447,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <param name="request"></param>
     /// <param name="validatedRequest"></param>
     /// <returns></returns>
-    private ProcessError? ValidateRedirectUris(RegisterRequest request, RegisterValidatedRequest validatedRequest)
+    private static ProcessError? ValidateRedirectUris(RegisterRequest request, RegisterValidatedRequest validatedRequest)
     {
         if (request.RedirectUris.Count == 0
             && validatedRequest.GrantTypes.Contains(GrantTypeConstants.AuthorizationCode))
@@ -480,7 +480,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <param name="request"></param>
     /// <param name="validatedRequest"></param>
     /// <returns></returns>
-    private ProcessError? ValidatePostLogoutRedirectUris(RegisterRequest request,
+    private static ProcessError? ValidatePostLogoutRedirectUris(RegisterRequest request,
         RegisterValidatedRequest validatedRequest)
     {
         foreach (var redirectUri in request.PostLogoutRedirectUris)
@@ -508,7 +508,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <param name="request"></param>
     /// <param name="validatedRequest"></param>
     /// <returns></returns>
-    private ProcessError? ValidateRequestUris(RegisterRequest request, RegisterValidatedRequest validatedRequest)
+    private static ProcessError? ValidateRequestUris(RegisterRequest request, RegisterValidatedRequest validatedRequest)
     {
         if (validatedRequest.ApplicationType != ApplicationType.Web)
         {
@@ -578,7 +578,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <param name="request"></param>
     /// <param name="validatedRequest"></param>
     /// <returns></returns>
-    private ProcessError? ValidateBackchannelLogoutUri(RegisterRequest request,
+    private static ProcessError? ValidateBackchannelLogoutUri(RegisterRequest request,
         RegisterValidatedRequest validatedRequest)
     {
         if (string.IsNullOrEmpty(request.BackchannelLogoutUri))
@@ -601,7 +601,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <param name="request"></param>
     /// <param name="validatedRequest"></param>
     /// <returns></returns>
-    private ProcessError? ValidateClientUri(RegisterRequest request, RegisterValidatedRequest validatedRequest)
+    private static ProcessError? ValidateClientUri(RegisterRequest request, RegisterValidatedRequest validatedRequest)
     {
         if (string.IsNullOrEmpty(request.ClientUri))
         {
@@ -623,7 +623,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <param name="request"></param>
     /// <param name="validatedRequest"></param>
     /// <returns></returns>
-    private ProcessError? ValidatePolicyUri(RegisterRequest request, RegisterValidatedRequest validatedRequest)
+    private static ProcessError? ValidatePolicyUri(RegisterRequest request, RegisterValidatedRequest validatedRequest)
     {
         if (string.IsNullOrEmpty(request.PolicyUri))
         {
@@ -645,7 +645,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <param name="request"></param>
     /// <param name="validatedRequest"></param>
     /// <returns></returns>
-    private ProcessError? ValidateTosUri(RegisterRequest request, RegisterValidatedRequest validatedRequest)
+    private static ProcessError? ValidateTosUri(RegisterRequest request, RegisterValidatedRequest validatedRequest)
     {
         if (string.IsNullOrEmpty(request.TosUri))
         {
@@ -667,7 +667,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <param name="request"></param>
     /// <param name="validatedRequest"></param>
     /// <returns></returns>
-    private ProcessError? ValidateInitiateLoginUri(RegisterRequest request, RegisterValidatedRequest validatedRequest)
+    private static ProcessError? ValidateInitiateLoginUri(RegisterRequest request, RegisterValidatedRequest validatedRequest)
     {
         if (string.IsNullOrEmpty(request.InitiateLoginUri))
         {
@@ -689,7 +689,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <param name="request"></param>
     /// <param name="validatedRequest"></param>
     /// <returns></returns>
-    private ProcessError? ValidateLogoUri(RegisterRequest request, RegisterValidatedRequest validatedRequest)
+    private static ProcessError? ValidateLogoUri(RegisterRequest request, RegisterValidatedRequest validatedRequest)
     {
         if (string.IsNullOrEmpty(request.LogoUri))
         {
@@ -776,7 +776,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <param name="request"></param>
     /// <param name="validatedRequest"></param>
     /// <returns></returns>
-    private ProcessError? ValidateRequireSignedRequestObject(RegisterRequest request,
+    private static ProcessError? ValidateRequireSignedRequestObject(RegisterRequest request,
         RegisterValidatedRequest validatedRequest)
     {
         if (request.RequireSignedRequestObject is null)
@@ -794,7 +794,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <param name="request"></param>
     /// <param name="validatedRequest"></param>
     /// <returns></returns>
-    private ProcessError? ValidateRequireReferenceToken(RegisterRequest request,
+    private static ProcessError? ValidateRequireReferenceToken(RegisterRequest request,
         RegisterValidatedRequest validatedRequest)
     {
         if (request.RequireReferenceToken is null)
@@ -810,7 +810,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// RequirePushedAuthorizationRequests is OPTIONAL.
     /// </summary>
     /// <returns></returns>
-    private ProcessError? ValidateRequirePushedAuthorizationRequests(RegisterRequest request, RegisterValidatedRequest validatedRequest)
+    private static ProcessError? ValidateRequirePushedAuthorizationRequests(RegisterRequest request, RegisterValidatedRequest validatedRequest)
     {
         if (request.RequirePushedAuthorizationRequests is null)
         {
@@ -828,7 +828,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <param name="request"></param>
     /// <param name="validatedRequest"></param>
     /// <returns></returns>
-    private ProcessError? ValidateSubjectType(RegisterRequest request, RegisterValidatedRequest validatedRequest)
+    private static ProcessError? ValidateSubjectType(RegisterRequest request, RegisterValidatedRequest validatedRequest)
     {
         if (string.IsNullOrEmpty(request.SubjectType))
         {
@@ -854,7 +854,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <param name="request"></param>
     /// <param name="validatedRequest"></param>
     /// <returns></returns>
-    private ProcessError? ValidateDefaultMaxAge(RegisterRequest request, RegisterValidatedRequest validatedRequest)
+    private static ProcessError? ValidateDefaultMaxAge(RegisterRequest request, RegisterValidatedRequest validatedRequest)
     {
         if (string.IsNullOrEmpty(request.DefaultMaxAge))
         {
@@ -898,7 +898,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <param name="request"></param>
     /// <param name="validatedRequest"></param>
     /// <returns></returns>
-    private ProcessError? ValidateContacts(RegisterRequest request, RegisterValidatedRequest validatedRequest)
+    private static ProcessError? ValidateContacts(RegisterRequest request, RegisterValidatedRequest validatedRequest)
     {
         if (request.Contacts.Count == 0)
         {
@@ -928,7 +928,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <param name="request"></param>
     /// <param name="validatedRequest"></param>
     /// <returns></returns>
-    private ProcessError? ValidateAuthorizationCodeExpiration(RegisterRequest request,
+    private static ProcessError? ValidateAuthorizationCodeExpiration(RegisterRequest request,
         RegisterValidatedRequest validatedRequest)
     {
         if (request.AuthorizationCodeExpiration is null)
@@ -957,7 +957,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <param name="request"></param>
     /// <param name="validatedRequest"></param>
     /// <returns></returns>
-    private ProcessError? ValidateAccessTokenExpiration(RegisterRequest request,
+    private static ProcessError? ValidateAccessTokenExpiration(RegisterRequest request,
         RegisterValidatedRequest validatedRequest)
     {
         if (request.AccessTokenExpiration is null)
@@ -982,7 +982,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <param name="request"></param>
     /// <param name="validatedRequest"></param>
     /// <returns></returns>
-    private ProcessError? ValidateRefreshTokenExpiration(RegisterRequest request,
+    private static ProcessError? ValidateRefreshTokenExpiration(RegisterRequest request,
         RegisterValidatedRequest validatedRequest)
     {
         if (request.RefreshTokenExpiration is null)
@@ -1011,7 +1011,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <param name="request"></param>
     /// <param name="validatedRequest"></param>
     /// <returns></returns>
-    private ProcessError? ValidateClientSecretExpiration(RegisterRequest request,
+    private static ProcessError? ValidateClientSecretExpiration(RegisterRequest request,
         RegisterValidatedRequest validatedRequest)
     {
         if (request.ClientSecretExpiration is null)
@@ -1035,7 +1035,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <param name="request"></param>
     /// <param name="validatedRequest"></param>
     /// <returns></returns>
-    private ProcessError? ValidateJwksExpiration(RegisterRequest request, RegisterValidatedRequest validatedRequest)
+    private static ProcessError? ValidateJwksExpiration(RegisterRequest request, RegisterValidatedRequest validatedRequest)
     {
         if (request.JwksExpiration is null)
         {
@@ -1061,7 +1061,7 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <param name="request"></param>
     /// <param name="validatedRequest"></param>
     /// <returns></returns>
-    private ProcessError? ValidateRequestUriExpiration(RegisterRequest request,
+    private static ProcessError? ValidateRequestUriExpiration(RegisterRequest request,
         RegisterValidatedRequest validatedRequest)
     {
         if (request.RequestUriExpiration is null)
