@@ -2,6 +2,7 @@
 using AuthServer.Authorization.Abstractions;
 using AuthServer.Authorize.Abstractions;
 using AuthServer.Cache.Abstractions;
+using AuthServer.Cache.Entities;
 using AuthServer.Constants;
 using AuthServer.Core.Abstractions;
 using AuthServer.Core.Request;
@@ -61,101 +62,142 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
         {
             return AuthorizeError.RequestUriRequiredAsPushedAuthorizationRequest;
         }
+        else if (request.RequestUri?.StartsWith(RequestUriConstants.RequestUriPrefix) == true)
+        {
+            return await ValidateFromPushedAuthorization(request, cancellationToken);
+        }
         else if (!isRequestUriEmpty)
         {
-            if (request.RequestUri!.StartsWith(RequestUriConstants.RequestUriPrefix))
+            var substitutedRequestUri = await SubstituteRequestUri(request, cachedClient, cancellationToken);
+            if (substitutedRequestUri.IsSuccess)
             {
-                var authorizeDto = await _secureRequestService.GetRequestByPushedRequest(request.RequestUri, request.ClientId, cancellationToken);
-                if (authorizeDto is null)
-                {
-                    return AuthorizeError.InvalidOrExpiredRequestUri;
-                }
-
-                request = new AuthorizeRequest
-                {
-                    IdTokenHint = authorizeDto.IdTokenHint,
-                    LoginHint = authorizeDto.LoginHint,
-                    Prompt = authorizeDto.Prompt,
-                    Display = authorizeDto.Display,
-                    ClientId = authorizeDto.ClientId,
-                    RedirectUri = authorizeDto.RedirectUri,
-                    CodeChallenge = authorizeDto.CodeChallenge,
-                    CodeChallengeMethod = authorizeDto.CodeChallengeMethod,
-                    ResponseType = authorizeDto.ResponseType,
-                    Nonce = authorizeDto.Nonce,
-                    MaxAge = authorizeDto.MaxAge,
-                    State = authorizeDto.State,
-                    ResponseMode = authorizeDto.ResponseMode,
-                    RequestUri = request.RequestUri,
-                    Scope = authorizeDto.Scope,
-                    AcrValues = authorizeDto.AcrValues
-                };
-                return await ValidateForInteraction(request, cancellationToken);
+                request = substitutedRequestUri.Value!;
             }
-
-            if (!Uri.TryCreate(request.RequestUri, UriKind.Absolute, out var requestUri))
+            else
             {
-                return AuthorizeError.InvalidRequestUri;
+                return substitutedRequestUri.Error!;
             }
-
-            if (!cachedClient.RequestUris.Contains(requestUri.GetLeftPart(UriPartial.Path)))
-            {
-                return AuthorizeError.UnauthorizedRequestUri;
-            }
-
-            var newRequest = await _secureRequestService.GetRequestByReference(requestUri, request.ClientId, ClientTokenAudience.AuthorizeEndpoint, cancellationToken);
-            if (newRequest is null)
-            {
-                return AuthorizeError.InvalidRequestFromRequestUri;
-            }
-
-            request = new AuthorizeRequest
-            {
-                IdTokenHint = newRequest.IdTokenHint,
-                LoginHint = newRequest.LoginHint,
-                Prompt = newRequest.Prompt,
-                Display = newRequest.Display,
-                ClientId = newRequest.ClientId,
-                RedirectUri = newRequest.RedirectUri,
-                CodeChallenge = newRequest.CodeChallenge,
-                CodeChallengeMethod = newRequest.CodeChallengeMethod,
-                ResponseType = newRequest.ResponseType,
-                Nonce = newRequest.Nonce,
-                MaxAge = newRequest.MaxAge,
-                State = newRequest.State,
-                ResponseMode = newRequest.ResponseMode,
-                Scope = newRequest.Scope,
-                AcrValues = newRequest.AcrValues
-            };
         }
         else if (!isRequestObjectEmpty)
         {
-            var newRequest = await _secureRequestService.GetRequestByObject(request.RequestObject!, request.ClientId, ClientTokenAudience.AuthorizeEndpoint, cancellationToken);
-            if (newRequest is null)
+            var substitutedRequestObject = await SubstituteRequestObject(request, cancellationToken);
+            if (substitutedRequestObject.IsSuccess)
             {
-                return AuthorizeError.InvalidRequest;
+                request = substitutedRequestObject.Value!;
             }
-
-            request = new AuthorizeRequest
+            else
             {
-                IdTokenHint = newRequest.IdTokenHint,
-                LoginHint = newRequest.LoginHint,
-                Prompt = newRequest.Prompt,
-                Display = newRequest.Display,
-                ClientId = newRequest.ClientId,
-                RedirectUri = newRequest.RedirectUri,
-                CodeChallenge = newRequest.CodeChallenge,
-                CodeChallengeMethod = newRequest.CodeChallengeMethod,
-                ResponseType = newRequest.ResponseType,
-                Nonce = newRequest.Nonce,
-                MaxAge = newRequest.MaxAge,
-                State = newRequest.State,
-                ResponseMode = newRequest.ResponseMode,
-                Scope = newRequest.Scope,
-                AcrValues = newRequest.AcrValues
-            };
+                return substitutedRequestObject.Error!;
+            }
         }
 
+        var parameterError = await ValidateParameters(request, cachedClient, cancellationToken);
+        if (parameterError is not null)
+        {
+            return parameterError;
+        }
+
+        return await ValidateForInteraction(request, cancellationToken);
+    }
+
+    private async Task<ProcessResult<AuthorizeRequest, ProcessError>> SubstituteRequestObject(AuthorizeRequest request, CancellationToken cancellationToken)
+    {
+        var newRequest = await _secureRequestService.GetRequestByObject(request.RequestObject!, request.ClientId!, ClientTokenAudience.AuthorizeEndpoint, cancellationToken);
+        if (newRequest is null)
+        {
+            return AuthorizeError.InvalidRequest;
+        }
+
+        return new AuthorizeRequest
+        {
+            IdTokenHint = newRequest.IdTokenHint,
+            LoginHint = newRequest.LoginHint,
+            Prompt = newRequest.Prompt,
+            Display = newRequest.Display,
+            ClientId = newRequest.ClientId,
+            RedirectUri = newRequest.RedirectUri,
+            CodeChallenge = newRequest.CodeChallenge,
+            CodeChallengeMethod = newRequest.CodeChallengeMethod,
+            ResponseType = newRequest.ResponseType,
+            Nonce = newRequest.Nonce,
+            MaxAge = newRequest.MaxAge,
+            State = newRequest.State,
+            ResponseMode = newRequest.ResponseMode,
+            Scope = newRequest.Scope,
+            AcrValues = newRequest.AcrValues
+        };
+    }
+
+    private async Task<ProcessResult<AuthorizeRequest, ProcessError>> SubstituteRequestUri(AuthorizeRequest request, CachedClient cachedClient, CancellationToken cancellationToken)
+    {
+        if (!Uri.TryCreate(request.RequestUri, UriKind.Absolute, out var requestUri))
+        {
+            return AuthorizeError.InvalidRequestUri;
+        }
+
+        if (!cachedClient.RequestUris.Contains(requestUri.GetLeftPart(UriPartial.Path)))
+        {
+            return AuthorizeError.UnauthorizedRequestUri;
+        }
+
+        var newRequest = await _secureRequestService.GetRequestByReference(requestUri, request.ClientId!, ClientTokenAudience.AuthorizeEndpoint, cancellationToken);
+        if (newRequest is null)
+        {
+            return AuthorizeError.InvalidRequestFromRequestUri;
+        }
+
+        return new AuthorizeRequest
+        {
+            IdTokenHint = newRequest.IdTokenHint,
+            LoginHint = newRequest.LoginHint,
+            Prompt = newRequest.Prompt,
+            Display = newRequest.Display,
+            ClientId = newRequest.ClientId,
+            RedirectUri = newRequest.RedirectUri,
+            CodeChallenge = newRequest.CodeChallenge,
+            CodeChallengeMethod = newRequest.CodeChallengeMethod,
+            ResponseType = newRequest.ResponseType,
+            Nonce = newRequest.Nonce,
+            MaxAge = newRequest.MaxAge,
+            State = newRequest.State,
+            ResponseMode = newRequest.ResponseMode,
+            Scope = newRequest.Scope,
+            AcrValues = newRequest.AcrValues
+        };
+    }
+
+    private async Task<ProcessResult<AuthorizeValidatedRequest, ProcessError>> ValidateFromPushedAuthorization(AuthorizeRequest request, CancellationToken cancellationToken)
+    {
+        var authorizeDto = await _secureRequestService.GetRequestByPushedRequest(request.RequestUri!, request.ClientId!, cancellationToken);
+        if (authorizeDto is null)
+        {
+            return AuthorizeError.InvalidOrExpiredRequestUri;
+        }
+
+        request = new AuthorizeRequest
+        {
+            IdTokenHint = authorizeDto.IdTokenHint,
+            LoginHint = authorizeDto.LoginHint,
+            Prompt = authorizeDto.Prompt,
+            Display = authorizeDto.Display,
+            ClientId = authorizeDto.ClientId,
+            RedirectUri = authorizeDto.RedirectUri,
+            CodeChallenge = authorizeDto.CodeChallenge,
+            CodeChallengeMethod = authorizeDto.CodeChallengeMethod,
+            ResponseType = authorizeDto.ResponseType,
+            Nonce = authorizeDto.Nonce,
+            MaxAge = authorizeDto.MaxAge,
+            State = authorizeDto.State,
+            ResponseMode = authorizeDto.ResponseMode,
+            RequestUri = request.RequestUri,
+            Scope = authorizeDto.Scope,
+            AcrValues = authorizeDto.AcrValues
+        };
+        return await ValidateForInteraction(request, cancellationToken);
+    }
+
+    private async Task<ProcessError?> ValidateParameters(AuthorizeRequest request, CachedClient cachedClient, CancellationToken cancellationToken)
+    {
         if (!HasValidState(request.State))
         {
             return AuthorizeError.InvalidState;
@@ -241,7 +283,7 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
             return AuthorizeError.InvalidAcrValues;
         }
 
-        return await ValidateForInteraction(request, cancellationToken);
+        return null;
     }
 
     // This must first be deduced after successful validation of all input from the request
