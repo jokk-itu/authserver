@@ -69,7 +69,7 @@ internal class AuthorizeError
         new(ErrorCode.AccountSelectionRequired, "select_account is required", ResultCode.Redirect);
 
     public static readonly ProcessError UnmetAuthenticationRequirement =
-        new ProcessError(ErrorCode.UnmetAuthenticationRequirements, "acr requirement is not met", ResultCode.Redirect);
+        new (ErrorCode.UnmetAuthenticationRequirements, "acr requirement is not met", ResultCode.Redirect);
 
     public static readonly ProcessError InvalidRequestAndRequestUri =
         new(ErrorCode.InvalidRequest, "request_uri and request were both provided", ResultCode.BadRequest);
@@ -80,7 +80,7 @@ internal class AuthorizeError
     public static readonly ProcessError UnauthorizedRequestUri =
         new(ErrorCode.InvalidRequestUri, "client has not registered the request_uri", ResultCode.BadRequest);
 
-    public static readonly ProcessError InvalidRequestFromRequestUri =
+    public static readonly ProcessError InvalidRequestObjectFromRequestUri =
         new(ErrorCode.InvalidRequestUri, "request_object from reference is invalid", ResultCode.BadRequest);
 
     public static readonly ProcessError InvalidRequest =

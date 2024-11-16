@@ -143,7 +143,7 @@ internal class AuthorizeRequestValidator : BaseAuthorizeValidator, IRequestValid
         var newRequest = await _secureRequestService.GetRequestByReference(requestUri, request.ClientId!, ClientTokenAudience.AuthorizeEndpoint, cancellationToken);
         if (newRequest is null)
         {
-            return AuthorizeError.InvalidRequestFromRequestUri;
+            return AuthorizeError.InvalidRequestObjectFromRequestUri;
         }
 
         return new AuthorizeRequest
