@@ -6,7 +6,6 @@ using AuthServer.Entities;
 using AuthServer.Enums;
 using AuthServer.Tests.Core;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection;
 using Moq;
 using Xunit.Abstractions;
 
