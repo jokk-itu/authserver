@@ -1,7 +1,7 @@
 ﻿using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace AuthServer.TokenDecoders.Abstractions;
-public interface ITokenDecoder<in TArguments>
+internal interface ITokenDecoder<in TArguments>
     where TArguments : class
 {
     /// <summary>
