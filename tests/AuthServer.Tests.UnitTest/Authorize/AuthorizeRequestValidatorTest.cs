@@ -10,6 +10,7 @@ using AuthServer.Helpers;
 using AuthServer.Repositories.Abstractions;
 using AuthServer.RequestAccessors.Authorize;
 using AuthServer.Tests.Core;
+using AuthServer.TokenDecoders;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit.Abstractions;
@@ -382,8 +383,7 @@ public class AuthorizeRequestValidatorTest : BaseUnitTest
         var validator = serviceProvider.GetRequiredService<
             IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>>();
 
-        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        await AddEntity(client);
+        var client = await GetClientWithoutRedirectUri();
 
         var request = new AuthorizeRequest
         {
@@ -406,8 +406,7 @@ public class AuthorizeRequestValidatorTest : BaseUnitTest
         var validator = serviceProvider.GetRequiredService<
             IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>>();
 
-        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        await AddEntity(client);
+        var client = await GetClient();
 
         var request = new AuthorizeRequest
         {
@@ -431,9 +430,7 @@ public class AuthorizeRequestValidatorTest : BaseUnitTest
         var validator = serviceProvider.GetRequiredService<
             IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>>();
 
-        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var redirectUri = new RedirectUri("https://webapp.authserver.dk/callback", client);
-        await AddEntity(redirectUri);
+        var client = await GetClient();
 
         var request = new AuthorizeRequest
         {
@@ -457,9 +454,7 @@ public class AuthorizeRequestValidatorTest : BaseUnitTest
         var validator = serviceProvider.GetRequiredService<
             IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>>();
 
-        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var redirectUri = new RedirectUri("https://webapp.authserver.dk/callback", client);
-        await AddEntity(redirectUri);
+        var client = await GetClient();
 
         var request = new AuthorizeRequest
         {
@@ -483,9 +478,7 @@ public class AuthorizeRequestValidatorTest : BaseUnitTest
         var validator = serviceProvider.GetRequiredService<
             IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>>();
 
-        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var redirectUri = new RedirectUri("https://webapp.authserver.dk/callback", client);
-        await AddEntity(redirectUri);
+        var client = await GetClient();
 
         var request = new AuthorizeRequest
         {
@@ -508,9 +501,7 @@ public class AuthorizeRequestValidatorTest : BaseUnitTest
         var validator = serviceProvider.GetRequiredService<
             IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>>();
 
-        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var redirectUri = new RedirectUri("https://webapp.authserver.dk/callback", client);
-        await AddEntity(redirectUri);
+        var client = await GetClientWithoutGrantType();
 
         var request = new AuthorizeRequest
         {
@@ -534,11 +525,7 @@ public class AuthorizeRequestValidatorTest : BaseUnitTest
         var validator = serviceProvider.GetRequiredService<
             IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>>();
 
-        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var redirectUri = new RedirectUri("https://webapp.authserver.dk/callback", client);
-        var grantType = await GetGrantType(GrantTypeConstants.AuthorizationCode);
-        client.GrantTypes.Add(grantType);
-        await AddEntity(redirectUri);
+        var client = await GetClient();
 
         var request = new AuthorizeRequest
         {
@@ -563,11 +550,7 @@ public class AuthorizeRequestValidatorTest : BaseUnitTest
         var validator = serviceProvider.GetRequiredService<
             IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>>();
 
-        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var redirectUri = new RedirectUri("https://webapp.authserver.dk/callback", client);
-        var grantType = await GetGrantType(GrantTypeConstants.AuthorizationCode);
-        client.GrantTypes.Add(grantType);
-        await AddEntity(redirectUri);
+        var client = await GetClient();
 
         var request = new AuthorizeRequest
         {
@@ -601,11 +584,7 @@ public class AuthorizeRequestValidatorTest : BaseUnitTest
             .ReturnsAsync(true)
             .Verifiable();
 
-        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var redirectUri = new RedirectUri("https://webapp.authserver.dk/callback", client);
-        var grantType = await GetGrantType(GrantTypeConstants.AuthorizationCode);
-        client.GrantTypes.Add(grantType);
-        await AddEntity(redirectUri);
+        var client = await GetClient();
 
         var request = new AuthorizeRequest
         {
@@ -631,11 +610,7 @@ public class AuthorizeRequestValidatorTest : BaseUnitTest
         var validator = serviceProvider.GetRequiredService<
             IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>>();
 
-        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var redirectUri = new RedirectUri("https://webapp.authserver.dk/callback", client);
-        var grantType = await GetGrantType(GrantTypeConstants.AuthorizationCode);
-        client.GrantTypes.Add(grantType);
-        await AddEntity(redirectUri);
+        var client = await GetClient();
 
         var request = new AuthorizeRequest
         {
@@ -661,11 +636,7 @@ public class AuthorizeRequestValidatorTest : BaseUnitTest
         var validator = serviceProvider.GetRequiredService<
             IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>>();
 
-        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var redirectUri = new RedirectUri("https://webapp.authserver.dk/callback", client);
-        var grantType = await GetGrantType(GrantTypeConstants.AuthorizationCode);
-        client.GrantTypes.Add(grantType);
-        await AddEntity(redirectUri);
+        var client = await GetClient();
 
         var request = new AuthorizeRequest
         {
@@ -692,11 +663,7 @@ public class AuthorizeRequestValidatorTest : BaseUnitTest
         var validator = serviceProvider.GetRequiredService<
             IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>>();
 
-        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var redirectUri = new RedirectUri("https://webapp.authserver.dk/callback", client);
-        var grantType = await GetGrantType(GrantTypeConstants.AuthorizationCode);
-        client.GrantTypes.Add(grantType);
-        await AddEntity(redirectUri);
+        var client = await GetClient();
 
         var request = new AuthorizeRequest
         {
@@ -723,11 +690,7 @@ public class AuthorizeRequestValidatorTest : BaseUnitTest
         var validator = serviceProvider.GetRequiredService<
             IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>>();
 
-        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var redirectUri = new RedirectUri("https://webapp.authserver.dk/callback", client);
-        var grantType = await GetGrantType(GrantTypeConstants.AuthorizationCode);
-        client.GrantTypes.Add(grantType);
-        await AddEntity(redirectUri);
+        var client = await GetClientWithoutScope();
 
         var request = new AuthorizeRequest
         {
@@ -755,13 +718,7 @@ public class AuthorizeRequestValidatorTest : BaseUnitTest
         var validator = serviceProvider.GetRequiredService<
             IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>>();
 
-        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var redirectUri = new RedirectUri("https://webapp.authserver.dk/callback", client);
-        var grantType = await GetGrantType(GrantTypeConstants.AuthorizationCode);
-        client.GrantTypes.Add(grantType);
-        var openIdScope = await GetScope(ScopeConstants.OpenId);
-        client.Scopes.Add(openIdScope);
-        await AddEntity(redirectUri);
+        var client = await GetClient();
 
         var request = new AuthorizeRequest
         {
@@ -790,13 +747,7 @@ public class AuthorizeRequestValidatorTest : BaseUnitTest
         var validator = serviceProvider.GetRequiredService<
             IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>>();
 
-        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var redirectUri = new RedirectUri("https://webapp.authserver.dk/callback", client);
-        var grantType = await GetGrantType(GrantTypeConstants.AuthorizationCode);
-        client.GrantTypes.Add(grantType);
-        var openIdScope = await GetScope(ScopeConstants.OpenId);
-        client.Scopes.Add(openIdScope);
-        await AddEntity(redirectUri);
+        var client = await GetClient();
 
         var request = new AuthorizeRequest
         {
@@ -825,13 +776,7 @@ public class AuthorizeRequestValidatorTest : BaseUnitTest
         var validator = serviceProvider.GetRequiredService<
             IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>>();
 
-        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var redirectUri = new RedirectUri("https://webapp.authserver.dk/callback", client);
-        var grantType = await GetGrantType(GrantTypeConstants.AuthorizationCode);
-        client.GrantTypes.Add(grantType);
-        var openIdScope = await GetScope(ScopeConstants.OpenId);
-        client.Scopes.Add(openIdScope);
-        await AddEntity(redirectUri);
+        var client = await GetClient();
 
         var request = new AuthorizeRequest
         {
@@ -860,13 +805,7 @@ public class AuthorizeRequestValidatorTest : BaseUnitTest
         var validator = serviceProvider.GetRequiredService<
             IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>>();
 
-        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var redirectUri = new RedirectUri("https://webapp.authserver.dk/callback", client);
-        var grantType = await GetGrantType(GrantTypeConstants.AuthorizationCode);
-        client.GrantTypes.Add(grantType);
-        var openIdScope = await GetScope(ScopeConstants.OpenId);
-        client.Scopes.Add(openIdScope);
-        await AddEntity(redirectUri);
+        var client = await GetClient();
 
         var request = new AuthorizeRequest
         {
@@ -899,13 +838,7 @@ public class AuthorizeRequestValidatorTest : BaseUnitTest
         var validator = serviceProvider.GetRequiredService<
             IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>>();
 
-        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var redirectUri = new RedirectUri("https://webapp.authserver.dk/callback", client);
-        var grantType = await GetGrantType(GrantTypeConstants.AuthorizationCode);
-        client.GrantTypes.Add(grantType);
-        var openIdScope = await GetScope(ScopeConstants.OpenId);
-        client.Scopes.Add(openIdScope);
-        await AddEntity(redirectUri);
+        var client = await GetClient();
 
         var request = new AuthorizeRequest
         {
@@ -943,13 +876,7 @@ public class AuthorizeRequestValidatorTest : BaseUnitTest
         var validator = serviceProvider.GetRequiredService<
             IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>>();
 
-        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var redirectUri = new RedirectUri("https://webapp.authserver.dk/callback", client);
-        var grantType = await GetGrantType(GrantTypeConstants.AuthorizationCode);
-        client.GrantTypes.Add(grantType);
-        var openIdScope = await GetScope(ScopeConstants.OpenId);
-        client.Scopes.Add(openIdScope);
-        await AddEntity(redirectUri);
+        var client = await GetClient();
 
         var request = new AuthorizeRequest
         {
@@ -981,5 +908,276 @@ public class AuthorizeRequestValidatorTest : BaseUnitTest
         Assert.Equal(request.Nonce, processResult.Value!.Nonce);
         Assert.Equal(request.RedirectUri, processResult.Value!.RedirectUri);
         Assert.Null(processResult.Value!.RequestUri);
+    }
+
+    [Fact]
+    public async Task Validate_FullValidatedRequest_ExpectAuthorizeValidatedRequest()
+    {
+        // Arrange
+        var authorizeInteractionService = new Mock<IAuthorizeInteractionService>();
+        var serviceProvider = BuildServiceProvider(services =>
+        {
+            services.AddScopedMock(authorizeInteractionService);
+        });
+        var validator = serviceProvider.GetRequiredService<
+            IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>>();
+
+        var client = await GetClient();
+
+        var request = new AuthorizeRequest
+        {
+            ClientId = client.Id,
+            State = CryptographyHelper.GetRandomString(16),
+            ResponseType = ResponseTypeConstants.Code,
+            Nonce = CryptographyHelper.GetRandomString(16),
+            CodeChallengeMethod = CodeChallengeMethodConstants.S256,
+            CodeChallenge = ProofKeyForCodeExchangeHelper.GetProofKeyForCodeExchange().CodeChallenge,
+            Scope = [ScopeConstants.OpenId],
+            AcrValues = [LevelOfAssuranceSubstantial],
+            Display = DisplayConstants.Page,
+            MaxAge = "300",
+            Prompt = PromptConstants.None,
+            RedirectUri = client.RedirectUris.Single().Uri,
+            ResponseMode = ResponseModeConstants.FormPost
+        };
+
+        const string subjectIdentifier = "subjectIdentifier";
+        authorizeInteractionService
+            .Setup(x => x.GetInteractionResult(request, CancellationToken.None))
+            .ReturnsAsync(InteractionResult.Success(subjectIdentifier))
+            .Verifiable();
+
+        // Act
+        var processResult = await validator.Validate(request, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(subjectIdentifier, processResult.Value!.SubjectIdentifier);
+        Assert.Equal(request.ResponseMode, processResult.Value!.ResponseMode);
+        Assert.Equal(request.CodeChallenge, processResult.Value!.CodeChallenge);
+        Assert.Equal(request.Scope, processResult.Value!.Scope);
+        Assert.Equal(request.AcrValues, processResult.Value!.AcrValues);
+        Assert.Equal(request.ClientId, processResult.Value!.ClientId);
+        Assert.Equal(request.Nonce, processResult.Value!.Nonce);
+        Assert.Equal(request.RedirectUri, processResult.Value!.RedirectUri);
+        Assert.Null(processResult.Value!.RequestUri);
+    }
+
+    [Fact]
+    public async Task Validate_ValidRequestObjectFromRequestUri_ExpectAuthorizeValidatedRequest()
+    {
+        // Arrange
+        var secureRequestService = new Mock<ISecureRequestService>();
+        var authorizeInteractionService = new Mock<IAuthorizeInteractionService>();
+        var serviceProvider = BuildServiceProvider(services =>
+        {
+            services.AddScopedMock(secureRequestService);
+            services.AddScopedMock(authorizeInteractionService);
+        });
+        var validator = serviceProvider.GetRequiredService<
+            IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>>();
+
+        var client = await GetClient();
+        var requestUri = new RequestUri("https://webapp.authserver.dk/request", client);
+        await AddEntity(requestUri);
+
+        const string subjectIdentifier = "subjectIdentifier";
+        var givenRequestUri = $"{requestUri.Uri}#1234";
+
+        var authorizeRequestDto = new AuthorizeRequestDto
+        {
+            ResponseMode = ResponseModeConstants.FormPost,
+            CodeChallenge = ProofKeyForCodeExchangeHelper.GetProofKeyForCodeExchange().CodeChallenge,
+            CodeChallengeMethod = CodeChallengeMethodConstants.S256,
+            ResponseType = ResponseTypeConstants.Code,
+            Scope = [ScopeConstants.OpenId],
+            AcrValues = [LevelOfAssuranceLow],
+            ClientId = client.Id,
+            Nonce = CryptographyHelper.GetRandomString(16),
+            State = CryptographyHelper.GetRandomString(16),
+            RedirectUri = client.RedirectUris.Single().Uri
+        };
+
+        secureRequestService
+            .Setup(x =>
+                x.GetRequestByReference(
+                    It.Is<Uri>(y => y.AbsoluteUri == givenRequestUri),
+                    client.Id,
+                    ClientTokenAudience.AuthorizeEndpoint,
+                    CancellationToken.None)
+                )
+            .ReturnsAsync(authorizeRequestDto)
+            .Verifiable();
+
+        authorizeInteractionService
+            .Setup(x =>
+                x.GetInteractionResult(It.Is<AuthorizeRequest>(y =>
+                    y.ResponseMode == authorizeRequestDto.ResponseMode &&
+                    y.CodeChallenge == authorizeRequestDto.CodeChallenge &&
+                    y.Scope == authorizeRequestDto.Scope &&
+                    y.AcrValues == authorizeRequestDto.AcrValues &&
+                    y.ClientId == authorizeRequestDto.ClientId &&
+                    y.Nonce == authorizeRequestDto.Nonce &&
+                    y.RedirectUri == authorizeRequestDto.RedirectUri &&
+                    y.CodeChallengeMethod == authorizeRequestDto.CodeChallengeMethod &&
+                    y.State == authorizeRequestDto.State &&
+                    y.ResponseType == authorizeRequestDto.ResponseType &&
+                    y.RequestUri == null), CancellationToken.None))
+            .ReturnsAsync(InteractionResult.Success(subjectIdentifier))
+            .Verifiable();
+
+        var request = new AuthorizeRequest
+        {
+            ClientId = client.Id,
+            RequestUri = givenRequestUri
+        };
+
+        // Act
+        var processResult = await validator.Validate(request, CancellationToken.None);
+
+        // Assert
+        secureRequestService.Verify();
+        authorizeInteractionService.Verify();
+
+        Assert.Equal(subjectIdentifier, processResult.Value!.SubjectIdentifier);
+        Assert.Equal(authorizeRequestDto.ResponseMode, processResult.Value!.ResponseMode);
+        Assert.Equal(authorizeRequestDto.CodeChallenge, processResult.Value!.CodeChallenge);
+        Assert.Equal(authorizeRequestDto.Scope, processResult.Value!.Scope);
+        Assert.Equal(authorizeRequestDto.AcrValues, processResult.Value!.AcrValues);
+        Assert.Equal(authorizeRequestDto.ClientId, processResult.Value!.ClientId);
+        Assert.Equal(authorizeRequestDto.Nonce, processResult.Value!.Nonce);
+        Assert.Equal(authorizeRequestDto.RedirectUri, processResult.Value!.RedirectUri);
+        Assert.Null(processResult.Value!.RequestUri);
+    }
+
+    [Fact]
+    public async Task Validate_ValidRequestObjectFromRequest_ExpectAuthorizeValidatedRequest()
+    {
+        // Arrange
+        var secureRequestService = new Mock<ISecureRequestService>();
+        var authorizeInteractionService = new Mock<IAuthorizeInteractionService>();
+        var serviceProvider = BuildServiceProvider(services =>
+        {
+            services.AddScopedMock(secureRequestService);
+            services.AddScopedMock(authorizeInteractionService);
+        });
+        var validator = serviceProvider.GetRequiredService<
+            IRequestValidator<AuthorizeRequest, AuthorizeValidatedRequest>>();
+
+        var client = await GetClient();
+
+        const string subjectIdentifier = "subjectIdentifier";
+        const string givenRequestObject = "request_object";
+
+        var authorizeRequestDto = new AuthorizeRequestDto
+        {
+            ResponseMode = ResponseModeConstants.FormPost,
+            CodeChallenge = ProofKeyForCodeExchangeHelper.GetProofKeyForCodeExchange().CodeChallenge,
+            CodeChallengeMethod = CodeChallengeMethodConstants.S256,
+            ResponseType = ResponseTypeConstants.Code,
+            Scope = [ScopeConstants.OpenId],
+            AcrValues = [LevelOfAssuranceLow],
+            ClientId = client.Id,
+            Nonce = CryptographyHelper.GetRandomString(16),
+            State = CryptographyHelper.GetRandomString(16),
+            RedirectUri = client.RedirectUris.Single().Uri
+        };
+
+        secureRequestService
+            .Setup(x =>
+                x.GetRequestByObject(
+                    givenRequestObject,
+                    client.Id,
+                    ClientTokenAudience.AuthorizeEndpoint,
+                    CancellationToken.None)
+                )
+            .ReturnsAsync(authorizeRequestDto)
+            .Verifiable();
+
+        authorizeInteractionService
+            .Setup(x =>
+                x.GetInteractionResult(It.Is<AuthorizeRequest>(y =>
+                    y.ResponseMode == authorizeRequestDto.ResponseMode &&
+                    y.CodeChallenge == authorizeRequestDto.CodeChallenge &&
+                    y.Scope == authorizeRequestDto.Scope &&
+                    y.AcrValues == authorizeRequestDto.AcrValues &&
+                    y.ClientId == authorizeRequestDto.ClientId &&
+                    y.Nonce == authorizeRequestDto.Nonce &&
+                    y.RedirectUri == authorizeRequestDto.RedirectUri &&
+                    y.CodeChallengeMethod == authorizeRequestDto.CodeChallengeMethod &&
+                    y.State == authorizeRequestDto.State &&
+                    y.ResponseType == authorizeRequestDto.ResponseType &&
+                    y.RequestUri == null), CancellationToken.None))
+            .ReturnsAsync(InteractionResult.Success(subjectIdentifier))
+            .Verifiable();
+
+        var request = new AuthorizeRequest
+        {
+            ClientId = client.Id,
+            RequestObject = givenRequestObject
+        };
+
+        // Act
+        var processResult = await validator.Validate(request, CancellationToken.None);
+
+        // Assert
+        secureRequestService.Verify();
+        authorizeInteractionService.Verify();
+
+        Assert.Equal(subjectIdentifier, processResult.Value!.SubjectIdentifier);
+        Assert.Equal(authorizeRequestDto.ResponseMode, processResult.Value!.ResponseMode);
+        Assert.Equal(authorizeRequestDto.CodeChallenge, processResult.Value!.CodeChallenge);
+        Assert.Equal(authorizeRequestDto.Scope, processResult.Value!.Scope);
+        Assert.Equal(authorizeRequestDto.AcrValues, processResult.Value!.AcrValues);
+        Assert.Equal(authorizeRequestDto.ClientId, processResult.Value!.ClientId);
+        Assert.Equal(authorizeRequestDto.Nonce, processResult.Value!.Nonce);
+        Assert.Equal(authorizeRequestDto.RedirectUri, processResult.Value!.RedirectUri);
+        Assert.Null(processResult.Value!.RequestUri);
+    }
+
+    private async Task<Client> GetClient()
+    {
+        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
+        var redirectUri = new RedirectUri("https://webapp.authserver.dk/callback", client);
+        var openIdScope = await GetScope(ScopeConstants.OpenId);
+        client.Scopes.Add(openIdScope);
+        var grantType = await GetGrantType(GrantTypeConstants.AuthorizationCode);
+        client.GrantTypes.Add(grantType);
+        await AddEntity(redirectUri);
+
+        return client;
+    }
+
+    private async Task<Client> GetClientWithoutScope()
+    {
+        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
+        var redirectUri = new RedirectUri("https://webapp.authserver.dk/callback", client);
+        var grantType = await GetGrantType(GrantTypeConstants.AuthorizationCode);
+        client.GrantTypes.Add(grantType);
+        await AddEntity(redirectUri);
+
+        return client;
+    }
+
+    private async Task<Client> GetClientWithoutGrantType()
+    {
+        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
+        var redirectUri = new RedirectUri("https://webapp.authserver.dk/callback", client);
+        var openIdScope = await GetScope(ScopeConstants.OpenId);
+        client.Scopes.Add(openIdScope);
+        await AddEntity(redirectUri);
+
+        return client;
+    }
+
+    private async Task<Client> GetClientWithoutRedirectUri()
+    {
+        var client = new Client("web-app", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
+        var openIdScope = await GetScope(ScopeConstants.OpenId);
+        client.Scopes.Add(openIdScope);
+        var grantType = await GetGrantType(GrantTypeConstants.AuthorizationCode);
+        client.GrantTypes.Add(grantType);
+        await AddEntity(client);
+
+        return client;
     }
 }
