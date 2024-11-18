@@ -132,7 +132,7 @@ public class ClientAssertionAuthenticationTest(ITestOutputHelper outputHelper) :
         tokenDecoder
             .Setup(x => x.Validate(token,
                 It.Is<ClientIssuedTokenDecodeArguments>(a =>
-                    a.ValidateLifetime && a.TokenTypes.Single() == TokenTypeHeaderConstants.PrivateKeyToken &&
+                    a.ValidateLifetime && a.TokenType == TokenTypeHeaderConstants.PrivateKeyToken &&
                     a.ClientId == client.Id && a.Audience == ClientTokenAudience.TokenEndpoint),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(jsonWebToken)

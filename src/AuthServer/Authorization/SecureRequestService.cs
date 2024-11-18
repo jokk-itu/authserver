@@ -54,7 +54,7 @@ internal class SecureRequestService : ISecureRequestService
                 Algorithms = [.. _discoveryDocumentOptions.Value.RequestObjectSigningAlgValuesSupported],
                 Audience = audience,
                 ClientId = clientId,
-                TokenTypes = [TokenTypeHeaderConstants.RequestObjectToken]
+                TokenType = TokenTypeHeaderConstants.RequestObjectToken
             },
             cancellationToken);
 

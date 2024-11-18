@@ -135,7 +135,7 @@ internal class ClientAuthenticationService : IClientAuthenticationService
 
         var validatedToken = await _clientIssuedTokenDecoder.Validate(clientAssertionAuthentication.ClientAssertion, new ClientIssuedTokenDecodeArguments
         {
-            TokenTypes = [TokenTypeHeaderConstants.PrivateKeyToken],
+            TokenType = TokenTypeHeaderConstants.PrivateKeyToken,
             Algorithms = [client.TokenEndpointAuthSigningAlg.GetDescription()],
             ClientId = clientId,
             Audience = clientAssertionAuthentication.Audience,

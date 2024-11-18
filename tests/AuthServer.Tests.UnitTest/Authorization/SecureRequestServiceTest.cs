@@ -52,7 +52,7 @@ public class SecureRequestServiceTest : BaseUnitTest
                             !y.Algorithms.Except(DiscoveryDocument.RequestObjectSigningAlgValuesSupported).Any() &&
                             y.Audience == ClientTokenAudience.AuthorizeEndpoint &&
                             y.ClientId == clientId &&
-                            y.TokenTypes.Single() == TokenTypeHeaderConstants.RequestObjectToken),
+                            y.TokenType == TokenTypeHeaderConstants.RequestObjectToken),
                     CancellationToken.None))
                 .ReturnsAsync((JsonWebToken?)null)
                 .Verifiable();
@@ -91,7 +91,7 @@ public class SecureRequestServiceTest : BaseUnitTest
                         !y.Algorithms.Except(DiscoveryDocument.RequestObjectSigningAlgValuesSupported).Any() &&
                         y.Audience == ClientTokenAudience.AuthorizeEndpoint &&
                         y.ClientId == value &&
-                        y.TokenTypes.Single() == TokenTypeHeaderConstants.RequestObjectToken),
+                        y.TokenType == TokenTypeHeaderConstants.RequestObjectToken),
                 CancellationToken.None))
             .ReturnsAsync(new JsonWebToken(requestToken))
             .Verifiable();
@@ -146,7 +146,7 @@ public class SecureRequestServiceTest : BaseUnitTest
                         !y.Algorithms.Except(DiscoveryDocument.RequestObjectSigningAlgValuesSupported).Any() &&
                         y.Audience == ClientTokenAudience.AuthorizeEndpoint &&
                         y.ClientId == clientId &&
-                        y.TokenTypes.Single() == TokenTypeHeaderConstants.RequestObjectToken),
+                        y.TokenType == TokenTypeHeaderConstants.RequestObjectToken),
                 CancellationToken.None))
             .ReturnsAsync(new JsonWebToken(requestToken))
             .Verifiable();
@@ -227,7 +227,7 @@ public class SecureRequestServiceTest : BaseUnitTest
                         !y.Algorithms.Except(DiscoveryDocument.RequestObjectSigningAlgValuesSupported).Any() &&
                         y.Audience == ClientTokenAudience.AuthorizeEndpoint &&
                         y.ClientId == value &&
-                        y.TokenTypes.Single() == TokenTypeHeaderConstants.RequestObjectToken),
+                        y.TokenType == TokenTypeHeaderConstants.RequestObjectToken),
                 CancellationToken.None))
             .ReturnsAsync(new JsonWebToken(requestToken))
             .Verifiable();
@@ -291,7 +291,7 @@ public class SecureRequestServiceTest : BaseUnitTest
                         !y.Algorithms.Except(DiscoveryDocument.RequestObjectSigningAlgValuesSupported).Any() &&
                         y.Audience == ClientTokenAudience.AuthorizeEndpoint &&
                         y.ClientId == clientId &&
-                        y.TokenTypes.Single() == TokenTypeHeaderConstants.RequestObjectToken),
+                        y.TokenType == TokenTypeHeaderConstants.RequestObjectToken),
                 CancellationToken.None))
             .ReturnsAsync(new JsonWebToken(requestToken))
             .Verifiable();
