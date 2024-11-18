@@ -3,6 +3,8 @@ using AuthServer.Core.Abstractions;
 using AuthServer.Core.Request;
 using AuthServer.Entities;
 using AuthServer.Helpers;
+using AuthServer.Metrics;
+using AuthServer.Metrics.Abstractions;
 using AuthServer.TokenDecoders;
 using AuthServer.TokenDecoders.Abstractions;
 using Microsoft.EntityFrameworkCore;
@@ -13,19 +15,27 @@ internal class RevocationRequestProcessor : IRequestProcessor<RevocationValidate
 {
     private readonly AuthorizationDbContext _identityContext;
     private readonly ITokenDecoder<ServerIssuedTokenDecodeArguments> _serverIssuedTokenDecoder;
+    private readonly IMetricService _metricService;
 
     public RevocationRequestProcessor(
         AuthorizationDbContext identityContext,
-        ITokenDecoder<ServerIssuedTokenDecodeArguments> serverIssuedTokenDecoder)
+        ITokenDecoder<ServerIssuedTokenDecodeArguments> serverIssuedTokenDecoder,
+        IMetricService metricService)
     {
         _identityContext = identityContext;
         _serverIssuedTokenDecoder = serverIssuedTokenDecoder;
+        _metricService = metricService;
     }
 
     public async Task<Unit> Process(RevocationValidatedRequest request, CancellationToken cancellationToken)
     {
         var token = await GetToken(request, cancellationToken);
-        token?.Revoke();
+        if (token is not null)
+        {
+            _metricService.AddRevokedToken(token is RefreshToken ? TokenTypeTag.RefreshToken : TokenTypeTag.AccessToken);
+            token.Revoke();
+        }
+
         return Unit.Value;
     }
 

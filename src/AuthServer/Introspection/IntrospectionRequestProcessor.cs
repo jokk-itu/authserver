@@ -4,6 +4,8 @@ using AuthServer.Core.Abstractions;
 using AuthServer.Core.Request;
 using AuthServer.Entities;
 using AuthServer.Extensions;
+using AuthServer.Metrics;
+using AuthServer.Metrics.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthServer.Introspection;
@@ -11,13 +13,16 @@ internal class IntrospectionRequestProcessor : IRequestProcessor<IntrospectionVa
 {
     private readonly AuthorizationDbContext _identityContext;
     private readonly IUserClaimService _userClaimService;
+    private readonly IMetricService _metricService;
 
     public IntrospectionRequestProcessor(
         AuthorizationDbContext identityContext,
-        IUserClaimService userClaimService)
+        IUserClaimService userClaimService,
+        IMetricService metricService)
     {
         _identityContext = identityContext;
         _userClaimService = userClaimService;
+        _metricService = metricService;
     }
 
     public async Task<IntrospectionResponse> Process(IntrospectionValidatedRequest request, CancellationToken cancellationToken)
@@ -61,6 +66,8 @@ internal class IntrospectionRequestProcessor : IRequestProcessor<IntrospectionVa
         }
 
         var subject = query.SubjectFromGrantToken ?? query.SubjectFromClientToken;
+
+        _metricService.AddIntrospectedToken(query.Token is RefreshToken ? TokenTypeTag.RefreshToken : TokenTypeTag.AccessToken);
 
         return new IntrospectionResponse
         {
