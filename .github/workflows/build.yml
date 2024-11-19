@@ -44,10 +44,9 @@ jobs:
       run: dotnet restore authserver.sln
     - name: Analyze
       run: |
-        dotnet-sonarscanner begin /k:"jokk-itu_authserver" /o:"jokk-itu" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.dotcover.reportsPaths=dotCover.Output.html
         dotnet-sonarscanner begin /k:"jokk-itu_authserver" /o:"jokk-itu" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.dotcover.reportsPaths=dotCover.Output.html /d:sonar.scanner.skipJreProvisioning=true
         dotnet build authserver.sln --no-restore
-        dotnet test authserver.sln --no-build --verbosity normal
+        dotnet dotcover test --dcReportType=HTML
         dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
   
   build_documentation:
