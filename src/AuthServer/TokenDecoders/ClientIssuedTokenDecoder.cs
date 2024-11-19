@@ -57,7 +57,6 @@ internal class ClientIssuedTokenDecoder : ITokenDecoder<ClientIssuedTokenDecodeA
         var tokenValidationParameters = new TokenValidationParameters
         {
             ClockSkew = new TimeSpan(0),
-            ValidTypes = arguments.TokenTypes,
             ValidTypes = [arguments.TokenType],
             ValidIssuer = arguments.ClientId,
             ValidAudiences = [ GetAudience(arguments.Audience) ],
