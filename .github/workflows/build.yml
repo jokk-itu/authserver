@@ -25,16 +25,29 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 8.0.x
+    - name: Install tools
+      run: |
+        dotnet tool install --global JetBrains.dotCover.GlobalTool
+        dotnet tool install --global dotnet-sonarscanner
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: 17
+        distribution: 'zulu'
     - name: Restore dependencies
       run: dotnet restore authserver.sln
-    - name: Build
-      run: dotnet build authserver.sln --no-restore
-    - name: Test
-      run: dotnet test authserver.sln --no-build --verbosity normal
+    - name: Analyze
+      run: |
+        dotnet-sonarscanner begin /k:"jokk-itu_authserver" /o:"jokk-itu" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.dotcover.reportsPaths=dotCover.Output.html
+        dotnet build authserver.sln --no-restore
+        dotnet test authserver.sln --no-build --verbosity normal
+        dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
   
   build_documentation:
     name: Build
@@ -47,52 +60,3 @@ jobs:
           cd doc
           npm install
           npm run build
-
-  sonarscan:
-    name: SonarScan
-    needs:
-      - build_solution
-      - build_documentation
-    runs-on: windows-latest
-    steps:
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: 17
-          distribution: 'zulu'
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Cache SonarCloud packages
-        uses: actions/cache@v3
-        with:
-          path: ~\sonar\cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-      - name: Cache SonarCloud scanner
-        id: cache-sonar-scanner
-        uses: actions/cache@v3
-        with:
-          path: .\.sonar\scanner
-          key: ${{ runner.os }}-sonar-scanner
-          restore-keys: ${{ runner.os }}-sonar-scanner
-      - name: Install SonarCloud scanner
-        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-        shell: powershell
-        run: |
-          New-Item -Path .\.sonar\scanner -ItemType Directory
-          dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-      - name: Install dotCover tool
-        shell: powershell
-        run: |
-          dotnet tool install --global JetBrains.dotCover.GlobalTool
-      - name: Build and analyze
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        shell: powershell
-        run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"jokk-itu_authserver" /o:"jokk-itu" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.dotcover.reportsPaths=dotCover.Output.html
-          dotnet build authserver.sln -no-incremental
-          dotnet dotcover test --dcReportType=HTML
-          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
