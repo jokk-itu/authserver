@@ -20,7 +20,7 @@ public class TokenRepositoryTest : BaseUnitTest
         var serviceProvider = BuildServiceProvider();
 
         var client = new Client("webapp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var token = new RegistrationToken(client, "webapp", DiscoveryDocument.Issuer, ScopeConstants.Register, null);
+        var token = new RegistrationToken(client, "webapp", DiscoveryDocument.Issuer, ScopeConstants.Register);
         await AddEntity(token);
 
         var tokenRepository = serviceProvider.GetRequiredService<ITokenRepository>();
@@ -55,7 +55,7 @@ public class TokenRepositoryTest : BaseUnitTest
         var serviceProvider = BuildServiceProvider();
 
         var client = new Client("webapp", ApplicationType.Web, TokenEndpointAuthMethod.ClientSecretBasic);
-        var token = new RegistrationToken(client, "webapp", DiscoveryDocument.Issuer, ScopeConstants.Register, null);
+        var token = new RegistrationToken(client, "webapp", DiscoveryDocument.Issuer, ScopeConstants.Register);
         token.Revoke();
         await AddEntity(token);
 
