@@ -106,87 +106,10 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
             return subjectTypeError;
         }
 
-        var redirectUrisError = ValidateRedirectUris(request, validatedRequest);
-        if (redirectUrisError is not null)
+        var urisError = await ValidateUris(request, validatedRequest, cancellationToken);
+        if (urisError is not null)
         {
-            return redirectUrisError;
-        }
-
-        var postLogoutRedirectUrisError = ValidatePostLogoutRedirectUris(request, validatedRequest);
-        if (postLogoutRedirectUrisError is not null)
-        {
-            return postLogoutRedirectUrisError;
-        }
-
-        var requestUrisError = ValidateRequestUris(request, validatedRequest);
-        if (requestUrisError is not null)
-        {
-            return requestUrisError;
-        }
-
-        var sectorIdentifierUri = await ValidateSectorIdentifierUri(request, validatedRequest, cancellationToken);
-        if (sectorIdentifierUri is not null)
-        {
-            return sectorIdentifierUri;
-        }
-
-        var backchannelLogoutUriError = ValidateBackchannelLogoutUri(request, validatedRequest);
-        if (backchannelLogoutUriError is not null)
-        {
-            return backchannelLogoutUriError;
-        }
-
-        var clientUriError = ValidateClientUri(request, validatedRequest);
-        if (clientUriError is not null)
-        {
-            return clientUriError;
-        }
-
-        var policyUriError = ValidatePolicyUri(request, validatedRequest);
-        if (policyUriError is not null)
-        {
-            return policyUriError;
-        }
-
-        var tosUriError = ValidateTosUri(request, validatedRequest);
-        if (tosUriError is not null)
-        {
-            return tosUriError;
-        }
-
-        var initiateLoginUriError = ValidateInitiateLoginUri(request, validatedRequest);
-        if (initiateLoginUriError is not null)
-        {
-            return initiateLoginUriError;
-        }
-
-        var logoUriError = ValidateLogoUri(request, validatedRequest);
-        if (logoUriError is not null)
-        {
-            return logoUriError;
-        }
-
-        if (!string.IsNullOrEmpty(request.Jwks) && !string.IsNullOrEmpty(request.JwksUri))
-        {
-            return RegisterError.InvalidJwksAndJwksUri;
-        }
-
-        if (string.IsNullOrEmpty(request.Jwks) && string.IsNullOrEmpty(request.JwksUri) &&
-            validatedRequest.TokenEndpointAuthMethod == TokenEndpointAuthMethod.PrivateKeyJwt)
-        {
-            return RegisterError.InvalidJwksOrJwksUri;
-        }
-
-        var jwksError = ValidateJwks(request, validatedRequest);
-        if (jwksError is not null)
-        {
-            return jwksError;
-        }
-
-        var jwksUriError = await ValidateJwksUri(request, validatedRequest, cancellationToken);
-        if (jwksUriError is not null)
-        {
-            return jwksUriError;
+            return urisError;
         }
 
         var requireSignedRequestObjectError = ValidateRequireSignedRequestObject(request, validatedRequest);
@@ -286,6 +209,94 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
         }
 
         return validatedRequest;
+    }
+
+    private async Task<ProcessError?> ValidateUris(RegisterRequest request, RegisterValidatedRequest validatedRequest, CancellationToken cancellationToken)
+    {
+        var redirectUrisError = ValidateRedirectUris(request, validatedRequest);
+        if (redirectUrisError is not null)
+        {
+            return redirectUrisError;
+        }
+
+        var postLogoutRedirectUrisError = ValidatePostLogoutRedirectUris(request, validatedRequest);
+        if (postLogoutRedirectUrisError is not null)
+        {
+            return postLogoutRedirectUrisError;
+        }
+
+        var requestUrisError = ValidateRequestUris(request, validatedRequest);
+        if (requestUrisError is not null)
+        {
+            return requestUrisError;
+        }
+
+        var sectorIdentifierUri = await ValidateSectorIdentifierUri(request, validatedRequest, cancellationToken);
+        if (sectorIdentifierUri is not null)
+        {
+            return sectorIdentifierUri;
+        }
+
+        var backchannelLogoutUriError = ValidateBackchannelLogoutUri(request, validatedRequest);
+        if (backchannelLogoutUriError is not null)
+        {
+            return backchannelLogoutUriError;
+        }
+
+        var clientUriError = ValidateClientUri(request, validatedRequest);
+        if (clientUriError is not null)
+        {
+            return clientUriError;
+        }
+
+        var policyUriError = ValidatePolicyUri(request, validatedRequest);
+        if (policyUriError is not null)
+        {
+            return policyUriError;
+        }
+
+        var tosUriError = ValidateTosUri(request, validatedRequest);
+        if (tosUriError is not null)
+        {
+            return tosUriError;
+        }
+
+        var initiateLoginUriError = ValidateInitiateLoginUri(request, validatedRequest);
+        if (initiateLoginUriError is not null)
+        {
+            return initiateLoginUriError;
+        }
+
+        var logoUriError = ValidateLogoUri(request, validatedRequest);
+        if (logoUriError is not null)
+        {
+            return logoUriError;
+        }
+
+        if (!string.IsNullOrEmpty(request.Jwks) && !string.IsNullOrEmpty(request.JwksUri))
+        {
+            return RegisterError.InvalidJwksAndJwksUri;
+        }
+
+        if (string.IsNullOrEmpty(request.Jwks) && string.IsNullOrEmpty(request.JwksUri) &&
+            validatedRequest.TokenEndpointAuthMethod == TokenEndpointAuthMethod.PrivateKeyJwt)
+        {
+            return RegisterError.InvalidJwksOrJwksUri;
+        }
+
+        var jwksError = ValidateJwks(request, validatedRequest);
+        if (jwksError is not null)
+        {
+            return jwksError;
+        }
+
+        var jwksUriError = await ValidateJwksUri(request, validatedRequest, cancellationToken);
+        if (jwksUriError is not null)
+        {
+            return jwksUriError;
+        }
+
+        return null;
     }
 
     /// <summary>
