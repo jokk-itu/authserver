@@ -546,13 +546,12 @@ internal class RegisterRequestValidator : IRequestValidator<RegisterRequest, Reg
     /// <returns></returns>
     private async Task<ProcessError?> ValidateSectorIdentifierUri(RegisterRequest request, RegisterValidatedRequest validatedRequest, CancellationToken cancellationToken)
     {
-        /* The SectorIdentifier is only used for Pairwise subjects */
         if (validatedRequest.SubjectType != SubjectType.Pairwise)
         {
             return null;
         }
 
-        var hasSectorIdentifierUri = string.IsNullOrEmpty(request.SectorIdentifierUri);
+        var hasSectorIdentifierUri = !string.IsNullOrEmpty(request.SectorIdentifierUri);
         var hasOneRedirectUri = validatedRequest.RedirectUris.Count == 1;
 
         if (!hasSectorIdentifierUri && !hasOneRedirectUri)
