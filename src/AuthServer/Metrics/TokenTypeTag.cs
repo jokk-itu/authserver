@@ -20,4 +20,10 @@ internal enum TokenTypeTag
 
     [Description("registration_token")]
     RegistrationToken,
+
+    [Description("client_assertion")]
+    ClientAssertion,
+
+    [Description("request_object")]
+    RequestObject,
 }
